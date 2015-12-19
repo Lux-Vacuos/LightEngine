@@ -1,0 +1,191 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2015 Guerra24
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+package net.guerra24.infinity.client.graphics;
+
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL13.*;
+import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
+import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
+import static org.lwjgl.opengl.GL30.glBindVertexArray;
+
+import java.util.List;
+
+import net.guerra24.infinity.client.core.InfinityVariables;
+import net.guerra24.infinity.client.graphics.shaders.WaterBasicShader;
+import net.guerra24.infinity.client.graphics.shaders.WaterShader;
+import net.guerra24.infinity.client.resources.GameResources;
+import net.guerra24.infinity.client.resources.Loader;
+import net.guerra24.infinity.client.resources.models.RawModel;
+import net.guerra24.infinity.client.resources.models.WaterTile;
+import net.guerra24.infinity.client.util.Maths;
+import net.guerra24.infinity.universal.util.vector.Matrix4f;
+import net.guerra24.infinity.universal.util.vector.Vector3f;
+
+/**
+ * Water Renderer
+ * 
+ * @author Guerra24 <pablo230699@hotmail.com>
+ * @category Rendering
+ */
+public class WaterRenderer {
+	/**
+	 * Water Data
+	 */
+	private RawModel quad;
+	private WaterShader shader;
+	private WaterBasicShader basicShader;
+	private float moveFactor = 0;
+
+	/**
+	 * Constructor, Initializes the Water Shaders, Textures and VAOs
+	 * 
+	 * @param loader
+	 *            Game Loader
+	 * @param shader
+	 *            Water Shader
+	 * @param projectionMatrix
+	 *            A Matrix4f Projection
+	 */
+	public WaterRenderer(GameResources gm, Matrix4f projectionMatrix) {
+		shader = new WaterShader();
+		shader.start();
+		shader.loadProjectionMatrix(projectionMatrix);
+		shader.loadBiasMatrix(gm);
+		shader.stop();
+		basicShader = new WaterBasicShader();
+		basicShader.start();
+		basicShader.loadProjectionMatrix(projectionMatrix);
+		basicShader.stop();
+		setUpVAO(gm.getLoader());
+	}
+
+	/**
+	 * Renders the Water Tiles in the List
+	 * 
+	 * @param waters
+	 *            A list of Water Tiles
+	 * @param camera
+	 *            A Camera
+	 */
+	public void render(List<WaterTile> waters, GameResources gm) {
+		prepareRender(gm);
+		for (WaterTile tile : waters) {
+			Matrix4f modelMatrix = Maths.createTransformationMatrix(
+					new Vector3f(tile.getX(), tile.getHeight(), tile.getZ()), 0, 0, 0, WaterTile.TILE_SIZE);
+			shader.loadModelMatrix(modelMatrix);
+			glDrawArrays(GL_TRIANGLES, 0, quad.getVertexCount());
+		}
+		unbind();
+	}
+
+	/**
+	 * Renders the Water Tiles in the List
+	 * 
+	 * @param waters
+	 *            A list of Water Tiles
+	 * @param camera
+	 *            A Camera
+	 */
+	public void renderOcclusion(List<WaterTile> waters, GameResources gm) {
+		prepareRenderOcclusion(gm);
+		for (WaterTile tile : waters) {
+			Matrix4f modelMatrix = Maths.createTransformationMatrix(
+					new Vector3f(tile.getX(), tile.getHeight(), tile.getZ()), 0, 0, 0, WaterTile.TILE_SIZE);
+			basicShader.loadModelMatrix(modelMatrix);
+			glDrawArrays(GL_TRIANGLES, 0, quad.getVertexCount());
+		}
+		unbindOcclusion();
+	}
+
+	/**
+	 * Water Tile Prepare PipeLine
+	 * 
+	 * @param camera
+	 *            A Camera
+	 */
+	private void prepareRender(GameResources gm) {
+		shader.start();
+		shader.loadViewMatrix(gm.getCamera());
+		shader.loadMoveFactor(moveFactor);
+		shader.loadLightMatrix(gm);
+		glBindVertexArray(quad.getVaoID());
+		glEnableVertexAttribArray(0);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, gm.getMasterShadowRenderer().getFbo().getTexture());
+
+	}
+
+	/**
+	 * Water Tile Prepare PipeLine
+	 * 
+	 * @param camera
+	 *            A Camera
+	 */
+	private void prepareRenderOcclusion(GameResources gm) {
+		basicShader.start();
+		basicShader.loadViewMatrix(gm.getCamera());
+		glBindVertexArray(quad.getVaoID());
+		glEnableVertexAttribArray(0);
+	}
+
+	/**
+	 * Updates the water
+	 * 
+	 * @param delta
+	 *            Delta
+	 */
+	public void update(float delta) {
+		moveFactor += InfinityVariables.WAVE_SPEED * delta;
+		moveFactor %= 6.3f;
+	}
+
+	/**
+	 * Unbinds the VAOs
+	 * 
+	 */
+	private void unbind() {
+		glDisableVertexAttribArray(0);
+		glBindVertexArray(0);
+		shader.stop();
+	}
+
+	private void unbindOcclusion() {
+		glDisableVertexAttribArray(0);
+		glBindVertexArray(0);
+		basicShader.stop();
+	}
+
+	/**
+	 * Creates the VAOs
+	 * 
+	 * @param loader
+	 *            Game Loader
+	 */
+	private void setUpVAO(Loader loader) {
+		float[] vertices = { -1, -1, -1, 1, 1, -1, 1, -1, -1, 1, 1, 1 };
+		quad = loader.loadToVAO(vertices, 2);
+	}
+
+}

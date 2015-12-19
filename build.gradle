@@ -2,7 +2,7 @@ apply plugin:'java'
 apply plugin:'eclipse'
 apply plugin:'application'
 
-mainClassName = 'net.guerra24.voxel.client.bootstrap.Bootstrap'
+mainClassName = 'net.guerra24.infinity.client.bootstrap.Bootstrap'
 version = '0.0.9-ALPHA'
 
 if (System.getProperty("os.name").toLowerCase().contains("mac os x")) {
@@ -15,8 +15,8 @@ jar {
 	include("assets/**")
 	
     manifest {
-        attributes 'Voxel-Branch': 'Develop',
-                   'Voxel-Version': version
+        attributes 'Infinity-Branch': 'Develop',
+                   'Infinity-Version': version
     }
 }
 

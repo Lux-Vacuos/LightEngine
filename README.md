@@ -1,7 +1,5 @@
 # Infinity
 
-A new proyect based on the Voxel Engine.
-
 # Credits
 - ThinMatrix: Rendering System
 - Lharing: General Optimization and code cleaning
