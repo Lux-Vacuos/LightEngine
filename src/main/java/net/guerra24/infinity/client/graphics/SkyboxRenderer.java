@@ -109,7 +109,7 @@ public class SkyboxRenderer {
 		shader.connectTextureUnits();
 		shader.loadProjectionMatrix(projectionMatrix);
 		shader.stop();
-		time = 9000;
+		time = 10000;
 	}
 
 	/**

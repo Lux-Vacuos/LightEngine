@@ -88,7 +88,7 @@ public class GameResources {
 	private Menu menuSystem;
 	private GameSettings gameSettings;
 
-	private Vector3f sunRotation = new Vector3f(5, 0, -45);
+	private Vector3f sunRotation = new Vector3f(5, 0, -40);
 	private Vector3f lightPos = new Vector3f(0, 0, 0);
 	private ParticleTexture torchTexture;
 
@@ -158,7 +158,7 @@ public class GameResources {
 	 * 
 	 */
 	public void loadResources() {
-		player = new Mob(new Entity(UniversalResources.player, new Vector3f(10, 2, 10), 0, 0, 180, 1));
+		player = new Mob(new Entity(UniversalResources.player, new Vector3f(-11, 2, 3), 0, 0, 180, 1));
 		physics.getMobManager().registerMob(player);
 		torchTexture = new ParticleTexture(loader.loadTextureParticle("fire0"), 4);
 		demo = new Demo(this);
@@ -169,8 +169,8 @@ public class GameResources {
 		sun_Camera.setYaw(sunRotation.x);
 		sun_Camera.setPitch(sunRotation.y);
 		sun_Camera.setRoll(sunRotation.z);
-		sun_Camera.updateRay(4096, 4096, masterShadowRenderer.getProjectionMatrix(),
-				new Vector2f(4096f / 2f, 4096f / 2f));
+		sun_Camera.updateRay(64, 64, masterShadowRenderer.getProjectionMatrix(),
+				new Vector2f(64f / 2f, 64f / 2f));
 		lightPos = new Vector3f(1000 * sun_Camera.getRay().direction.x, 1000 * sun_Camera.getRay().direction.y,
 				1000 * sun_Camera.getRay().direction.z);
 		Vector3f.add(sun_Camera.getPosition(), lightPos, lightPos);

@@ -78,6 +78,7 @@ public class Player extends Entity implements IEntity {
 	}
 
 	private CollisionType isCollision(int direction) {
+		
 		return CollisionType.TOP;
 	}
 }

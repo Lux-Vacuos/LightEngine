@@ -17,6 +17,7 @@ import net.guerra24.infinity.client.graphics.opengl.Display;
 import net.guerra24.infinity.client.particle.ParticleMaster;
 import net.guerra24.infinity.client.resources.GameResources;
 import net.guerra24.infinity.client.resources.models.Tessellator;
+import net.guerra24.infinity.client.resources.scenes.Demo;
 
 /**
  * Single Player GameState
@@ -63,6 +64,7 @@ public class GameSPState extends State {
 				tess.drawShadow(gm.getSun_Camera());
 			}
 			gm.getMasterShadowRenderer().renderEntity(gm.getPhysics().getMobManager().getMobs(), gm);
+			gm.getMasterShadowRenderer().renderEntity(gm.demo.getMobs(), gm);
 			gm.getMasterShadowRenderer().end();
 		}
 		gm.getDeferredShadingRenderer().getPost_fbo().begin();
@@ -76,6 +78,8 @@ public class GameSPState extends State {
 		gm.getSkyboxRenderer().render(InfinityVariables.RED, InfinityVariables.GREEN, InfinityVariables.BLUE, delta,
 				gm);
 		gm.getRenderer().renderEntity(gm.getPhysics().getMobManager().getMobs(), gm);
+		gm.getRenderer().renderEntity(gm.demo.getMobs(), gm);
+		gm.getRenderer().getWaterRenderer().render(gm.demo.getWaters(), gm);
 		ParticleMaster.getInstance().render(gm.getCamera());
 		gm.getDeferredShadingRenderer().getPost_fbo().end();
 

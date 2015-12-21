@@ -51,9 +51,7 @@ public class MasterShadowRenderer {
 		for (IEntity entity : list) {
 			if (entity != null)
 				if (entity.getEntity() != null)
-					if (gm.getFrustum().pointInFrustum(entity.getEntity().getPosition().x,
-							entity.getEntity().getPosition().y, entity.getEntity().getPosition().z))
-						processEntity(entity.getEntity());
+					processEntity(entity.getEntity());
 		}
 		renderEntity(gm);
 	}
