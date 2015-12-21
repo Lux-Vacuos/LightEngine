@@ -82,7 +82,7 @@ void main(void) {
 	out_Color[2] = vec4(surfaceNormal.xyz,0);
 	out_Color[3] = vec4(0.0,1.0,0.0,shadow);
 	out_Color[4] = vec4(0.0, 0.0, 0.0, bright);
-	if(id == 8 || id == 13) 
+	if(id == 1) 
 		out_Color[3].r = 1.0;
 	
 }

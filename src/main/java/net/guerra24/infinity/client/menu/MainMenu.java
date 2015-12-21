@@ -58,11 +58,11 @@ public class MainMenu {
 
 		texts = new ArrayList<GUIText>();
 		GUIText textVersion = new GUIText(
-				"Voxel " + InfinityVariables.version + " " + InfinityVariables.state + " Build " + InfinityVariables.build, 1,
+				"Infinity Engine " + InfinityVariables.version + " " + InfinityVariables.state + " Build " + InfinityVariables.build, 1,
 				font, new Vector2f(0.002f, 0.97f), 1, false);
 		textVersion.setColour(0.79f, 0.79f, 0.79f);
 		texts.add(textVersion);
-		GUIText textMAC = new GUIText("Voxel is running on OSX, some things did not work well", 1, font,
+		GUIText textMAC = new GUIText("Infinity is running on OSX, some things did not work well", 1, font,
 				new Vector2f(0.002f, 0.002f), 1, false);
 		textMAC.setColour(1, 0, 0);
 		if (InfinityVariables.runningOnMac)

@@ -43,6 +43,7 @@ import net.guerra24.infinity.client.graphics.shaders.TessellatorShader;
 import net.guerra24.infinity.client.menu.Menu;
 import net.guerra24.infinity.client.particle.ParticleMaster;
 import net.guerra24.infinity.client.particle.ParticleTexture;
+import net.guerra24.infinity.client.resources.scenes.Demo;
 import net.guerra24.infinity.client.sound.LibraryLWJGLOpenAL;
 import net.guerra24.infinity.client.sound.soundsystem.SoundSystem;
 import net.guerra24.infinity.client.sound.soundsystem.SoundSystemConfig;
@@ -54,6 +55,7 @@ import net.guerra24.infinity.client.world.entities.Camera;
 import net.guerra24.infinity.client.world.entities.Entity;
 import net.guerra24.infinity.client.world.entities.Mob;
 import net.guerra24.infinity.universal.resources.UniversalResources;
+import net.guerra24.infinity.universal.util.vector.Vector2f;
 import net.guerra24.infinity.universal.util.vector.Vector3f;
 
 /**
@@ -91,6 +93,8 @@ public class GameResources {
 	private ParticleTexture torchTexture;
 
 	public Mob player;
+
+	public Demo demo;
 
 	/**
 	 * Constructor
@@ -154,9 +158,10 @@ public class GameResources {
 	 * 
 	 */
 	public void loadResources() {
-		player = new Mob(new Entity(UniversalResources.player, new Vector3f(0, 80, 0), 0, 0, 0, 1));
+		player = new Mob(new Entity(UniversalResources.player, new Vector3f(10, 2, 10), 0, 0, 180, 1));
 		physics.getMobManager().registerMob(player);
 		torchTexture = new ParticleTexture(loader.loadTextureParticle("fire0"), 4);
+		demo = new Demo(this);
 	}
 
 	public void update(float rot) {
@@ -164,7 +169,8 @@ public class GameResources {
 		sun_Camera.setYaw(sunRotation.x);
 		sun_Camera.setPitch(sunRotation.y);
 		sun_Camera.setRoll(sunRotation.z);
-		sun_Camera.updateRay(this);
+		sun_Camera.updateRay(4096, 4096, masterShadowRenderer.getProjectionMatrix(),
+				new Vector2f(4096f / 2f, 4096f / 2f));
 		lightPos = new Vector3f(1000 * sun_Camera.getRay().direction.x, 1000 * sun_Camera.getRay().direction.y,
 				1000 * sun_Camera.getRay().direction.z);
 		Vector3f.add(sun_Camera.getPosition(), lightPos, lightPos);

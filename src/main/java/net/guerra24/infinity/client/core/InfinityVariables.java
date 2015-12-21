@@ -37,14 +37,14 @@ public class InfinityVariables {
 	public static int FPS = 60;
 	public static int UPS = 30;
 	public static boolean VSYNC = false;
-	public static final String Title = "Voxel";
+	public static final String Title = "Infinity Engine";
 	/**
 	 * Game Settings
 	 */
 	public static final boolean debug = true;
 	public static final String version = "0.0.1";
 	public static final String state = "ALPHA";
-	public static final int build = 1;
+	public static final int build = 2;
 	public static int FOV = 90;
 	public static int WIDTH = 1280;
 	public static int HEIGHT = 720;

@@ -16,7 +16,7 @@ public class GameSP {
 		FontType font = gm.getTextHandler().getFont();
 		texts = new ArrayList<GUIText>();
 		GUIText textVersion = new GUIText(
-				"Voxel " + InfinityVariables.version + " " + InfinityVariables.state + " Build " + InfinityVariables.build, 1,
+				"Infinity Engine " + InfinityVariables.version + " " + InfinityVariables.state + " Build " + InfinityVariables.build, 1,
 				font, new Vector2f(0.002f, 0.97f), 1, false);
 		textVersion.setColour(0.79f, 0.79f, 0.79f);
 		texts.add(textVersion);

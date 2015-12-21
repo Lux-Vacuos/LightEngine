@@ -152,6 +152,10 @@ public class Camera {
 				Display.getHeight());
 	}
 
+	public void updateRay(int width, int height, Matrix4f projectionMatrix, Vector2f pos) {
+		ray = new Ray(projectionMatrix, Maths.createViewMatrix(this), pos, width, height);
+	}
+
 	public void moveToPosition(Vector3f pos) {
 		if (pos.getX() > position.getX())
 			increasePosition(0.01f, 0, 0);

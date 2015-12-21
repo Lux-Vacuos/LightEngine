@@ -222,7 +222,7 @@ public class DeferredShadingRenderer {
 				previousCameraPosition);
 		shader3.loadLightPosition(gm.getLightPos());
 		shader3.loadviewMatrix(gm.getCamera());
-		shader3.loadResolution(new Vector2f(Display.getWidth() / 2, Display.getHeight() / 2));
+		shader3.loadResolution(new Vector2f(Display.getWidth(), Display.getHeight()));
 		shader3.loadSettings();
 		shader3.loadSunPosition(
 				Maths.convertTo2F(new Vector3f(gm.getLightPos()), gm.getRenderer().getProjectionMatrix(),
