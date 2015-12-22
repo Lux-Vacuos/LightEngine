@@ -91,7 +91,7 @@ public class Bootstrap {
 	 *            Not Used
 	 */
 	public static void main(String[] args) {
-		Thread.currentThread().setName("Voxel Main");
+		Thread.currentThread().setName("Infinity Engine Main");
 		if (!InfinityVariables.debug) {
 			PrintStream out;
 			try {

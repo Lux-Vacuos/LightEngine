@@ -333,7 +333,7 @@ public class Loader {
 		for (int texture : textures) {
 			glDeleteTextures(texture);
 		}
-		for (Integer texture : nvgData) {
+		for (int texture : nvgData) {
 			nvgDeleteImage(Display.getVg(), texture);
 		}
 	}

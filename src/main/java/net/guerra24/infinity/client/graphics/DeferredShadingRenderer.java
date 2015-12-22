@@ -28,15 +28,7 @@ import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLE_STRIP;
 import static org.lwjgl.opengl.GL11.glBindTexture;
 import static org.lwjgl.opengl.GL11.glDrawArrays;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE1;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE2;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE3;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE4;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE5;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE6;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE7;
-import static org.lwjgl.opengl.GL13.glActiveTexture;
+import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
@@ -299,6 +291,7 @@ public class DeferredShadingRenderer {
 		shader1.loadSunPosition(
 				Maths.convertTo2F(new Vector3f(gm.getLightPos()), gm.getRenderer().getProjectionMatrix(),
 						Maths.createViewMatrix(gm.getCamera()), Display.getWidth(), Display.getHeight()));
+		shader1.loadSkyBoxBlending(gm.getSkyboxRenderer().getBlendFactor());
 		glBindVertexArray(quad.getVaoID());
 		glEnableVertexAttribArray(0);
 		glActiveTexture(GL_TEXTURE0);
@@ -315,6 +308,10 @@ public class DeferredShadingRenderer {
 		glBindTexture(GL_TEXTURE_2D, postProcessingFBO.getData1Tex());
 		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, aux1FBO.getTexture());
+		glActiveTexture(GL_TEXTURE8);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, gm.getSkyboxRenderer().getDayTexture());
+		glActiveTexture(GL_TEXTURE9);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, gm.getSkyboxRenderer().getNightTexture());
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, quad.getVertexCount());
 		glDisableVertexAttribArray(0);
 		glBindVertexArray(0);
