@@ -28,8 +28,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lwjgl.nanovg.NVGColor;
-
 import net.guerra24.infinity.client.core.InfinityVariables;
 import net.guerra24.infinity.client.graphics.MenuRendering;
 import net.guerra24.infinity.client.resources.GameResources;
@@ -57,9 +55,8 @@ public class MainMenu {
 		optionsButton = new Button(new Vector2f(177 * xScale, 376 * yScale), new Vector2f(215, 80));
 
 		texts = new ArrayList<GUIText>();
-		GUIText textVersion = new GUIText(
-				"Infinity Engine " + InfinityVariables.version + " " + InfinityVariables.state + " Build " + InfinityVariables.build, 1,
-				font, new Vector2f(0.002f, 0.97f), 1, false);
+		GUIText textVersion = new GUIText("Infinity Engine " + InfinityVariables.version + " " + InfinityVariables.state
+				+ " Build " + InfinityVariables.build, 1, font, new Vector2f(0.002f, 0.97f), 1, false);
 		textVersion.setColour(0.79f, 0.79f, 0.79f);
 		texts.add(textVersion);
 		GUIText textMAC = new GUIText("Infinity is running on OSX, some things did not work well", 1, font,
@@ -67,24 +64,16 @@ public class MainMenu {
 		textMAC.setColour(1, 0, 0);
 		if (InfinityVariables.runningOnMac)
 			texts.add(textMAC);
-		GUIText textPlay = new GUIText("Play", 2, font, new Vector2f(0.185f, 0.18f), 1, false);
-		textPlay.setColour(0.79f, 0.79f, 0.79f);
-		texts.add(textPlay);
-		GUIText textOptions = new GUIText("Options", 2, font, new Vector2f(0.167f, 0.395f), 1, false);
-		textOptions.setColour(0.79f, 0.79f, 0.79f);
-		texts.add(textOptions);
-		GUIText textExit = new GUIText("Exit", 2, font, new Vector2f(0.189f, 0.61f), 1, false);
-		textExit.setColour(0.79f, 0.79f, 0.79f);
-		texts.add(textExit);
 	}
 
 	public void render() {
-		MenuRendering.renderButton((ByteBuffer) null, "Play", 177 * xScale, 100 * yScale, 215, 80,
-				MenuRendering.rgba(255, 255, 255, 255, NVGColor.create()));
-		MenuRendering.renderButton((ByteBuffer) null, "Options", 200, 200, 200, 200,
-				MenuRendering.rgba(255, 255, 255, 255, NVGColor.create()));
-		MenuRendering.renderButton((ByteBuffer) null, "Exit", 200, 200, 200, 200,
-				MenuRendering.rgba(255, 255, 255, 255, NVGColor.create()));
+		MenuRendering.renderButton(null, "Play", "Roboto-Bold", 170 * xScale, 112 * yScale, 215 * xScale, 80 * yScale,
+				MenuRendering.rgba(255, 255, 255, 255, MenuRendering.colorA), playButton.insideButton());
+		MenuRendering.renderButton(null, "Options", "Roboto-Bold", 170 * xScale, 270 * yScale, 215 * xScale,
+				80 * yScale, MenuRendering.rgba(255, 255, 255, 255, MenuRendering.colorA),
+				optionsButton.insideButton());
+		MenuRendering.renderButton(null, "Exit", "Roboto-Bold", 170 * xScale, 425 * yScale, 215 * xScale, 80 * yScale,
+				MenuRendering.rgba(255, 255, 255, 255, MenuRendering.colorA), exitButton.insideButton());
 	}
 
 	public void load(GameResources gm) {

@@ -1,10 +1,11 @@
 package net.guerra24.infinity.client.core.states;
 
 import net.guerra24.infinity.client.core.GlobalStates;
-import net.guerra24.infinity.client.core.State;
+import net.guerra24.infinity.client.core.GlobalStates.GameState;
+import net.guerra24.infinity.client.graphics.opengl.Display;
 import net.guerra24.infinity.client.core.Infinity;
 import net.guerra24.infinity.client.core.InfinityVariables;
-import net.guerra24.infinity.client.core.GlobalStates.GameState;
+import net.guerra24.infinity.client.core.State;
 import net.guerra24.infinity.client.input.Mouse;
 import net.guerra24.infinity.client.resources.GameResources;
 import net.guerra24.infinity.universal.util.vector.Vector3f;
@@ -45,9 +46,11 @@ public class OptionsState extends State {
 	@Override
 	public void render(Infinity voxel, GlobalStates states, float delta) {
 		GameResources gm = voxel.getGameResources();
-		gm.getMenuSystem().optionsMenu.update(gm);
 		gm.getFrustum().calculateFrustum(gm.getRenderer().getProjectionMatrix(), gm.getCamera());
 		gm.getRenderer().prepare();
+		Display.beingNVGFrame();
+		gm.getMenuSystem().optionsMenu.render();
+		Display.endNVGFrame();
 	}
 
 }

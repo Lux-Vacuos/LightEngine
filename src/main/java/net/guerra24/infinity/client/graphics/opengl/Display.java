@@ -134,7 +134,7 @@ public class Display {
 	private boolean latestResized = false;
 	private int latestWidth = 0;
 	private int latestHeight = 0;
-	private float pixelRatio;
+	private static float pixelRatio;
 
 	private static IntBuffer maxVram = BufferUtils.createIntBuffer(1);
 	private static IntBuffer usedVram = BufferUtils.createIntBuffer(1);
@@ -339,7 +339,7 @@ public class Display {
 		displayWidth = w.getInt(0);
 		displayHeight = h.getInt(0);
 		pixelRatio = (float) displayFramebufferWidth / (float) displayWidth;
-		glViewport(0, 0, displayWidth, displayHeight);
+		glViewport(0, 0, (int) (displayWidth * pixelRatio), (int) (displayHeight * pixelRatio));
 
 		if (glGetString(GL_VENDOR).contains("NVIDIA"))
 			nvidia = true;
@@ -373,14 +373,14 @@ public class Display {
 	 * Call this before any NanoVG call
 	 * 
 	 */
-	public void beingNVGFrame() {
+	public static void beingNVGFrame() {
 		nvgBeginFrame(vg, displayWidth, displayHeight, pixelRatio);
 	}
 
 	/**
 	 * Ends the actual NVGFrame
 	 */
-	public void endNVGFrame() {
+	public static void endNVGFrame() {
 		nvgEndFrame(vg);
 	}
 

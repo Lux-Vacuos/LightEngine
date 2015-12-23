@@ -143,7 +143,7 @@ public class GameResources {
 		UniversalResources.loadUniversalResources(this);
 		menuSystem = new Menu(this);
 		loadMusic();
-		loader.loadNVGFont("Tahoma", "sans-bold");
+		loader.loadNVGFont("Roboto-Bold", "Roboto-Bold");
 	}
 
 	/**
@@ -169,8 +169,7 @@ public class GameResources {
 		sun_Camera.setYaw(sunRotation.x);
 		sun_Camera.setPitch(sunRotation.y);
 		sun_Camera.setRoll(sunRotation.z);
-		sun_Camera.updateRay(64, 64, masterShadowRenderer.getProjectionMatrix(),
-				new Vector2f(64f / 2f, 64f / 2f));
+		sun_Camera.updateRay(64, 64, masterShadowRenderer.getProjectionMatrix(), new Vector2f(64f / 2f, 64f / 2f));
 		lightPos = new Vector3f(1000 * sun_Camera.getRay().direction.x, 1000 * sun_Camera.getRay().direction.y,
 				1000 * sun_Camera.getRay().direction.z);
 		Vector3f.add(sun_Camera.getPosition(), lightPos, lightPos);
