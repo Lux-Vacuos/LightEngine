@@ -35,7 +35,6 @@ public class OptionsState extends State {
 				InfinityVariables.useVolumetricLight = !InfinityVariables.useVolumetricLight;
 		}
 		if (gm.getMenuSystem().optionsMenu.getExitButton().pressed()) {
-			gm.getMenuSystem().mainMenu.load(gm);
 			gm.getCamera().setPosition(new Vector3f(0, 0, 1));
 			gm.getGameSettings().updateSetting();
 			gm.getGameSettings().save();

@@ -24,15 +24,9 @@
 
 package net.guerra24.infinity.client.menu;
 
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
-
 import net.guerra24.infinity.client.core.InfinityVariables;
 import net.guerra24.infinity.client.graphics.MenuRendering;
 import net.guerra24.infinity.client.resources.GameResources;
-import net.guerra24.infinity.client.resources.models.FontType;
-import net.guerra24.infinity.client.resources.models.GUIText;
 import net.guerra24.infinity.universal.util.vector.Vector2f;
 
 public class MainMenu {
@@ -40,30 +34,17 @@ public class MainMenu {
 	private Button playButton;
 	private Button exitButton;
 	private Button optionsButton;
-	private List<GUIText> texts;
 
 	private float xScale, yScale;
 
 	public MainMenu(GameResources gm) {
-		FontType font = gm.getTextHandler().getFont();
 		float width = InfinityVariables.WIDTH;
 		float height = InfinityVariables.HEIGHT;
 		yScale = height / 720f;
 		xScale = width / 1280f;
-		playButton = new Button(new Vector2f(177 * xScale, 532 * yScale), new Vector2f(215, 80));
-		exitButton = new Button(new Vector2f(177 * xScale, 224 * yScale), new Vector2f(215, 80));
-		optionsButton = new Button(new Vector2f(177 * xScale, 376 * yScale), new Vector2f(215, 80));
-
-		texts = new ArrayList<GUIText>();
-		GUIText textVersion = new GUIText("Infinity Engine " + InfinityVariables.version + " " + InfinityVariables.state
-				+ " Build " + InfinityVariables.build, 1, font, new Vector2f(0.002f, 0.97f), 1, false);
-		textVersion.setColour(0.79f, 0.79f, 0.79f);
-		texts.add(textVersion);
-		GUIText textMAC = new GUIText("Infinity is running on OSX, some things did not work well", 1, font,
-				new Vector2f(0.002f, 0.002f), 1, false);
-		textMAC.setColour(1, 0, 0);
-		if (InfinityVariables.runningOnMac)
-			texts.add(textMAC);
+		playButton = new Button(new Vector2f(177 * xScale, 532 * yScale), new Vector2f(215 * xScale, 80 * yScale));
+		exitButton = new Button(new Vector2f(177 * xScale, 224 * yScale), new Vector2f(215 * xScale, 80 * yScale));
+		optionsButton = new Button(new Vector2f(177 * xScale, 376 * yScale), new Vector2f(215 * xScale, 80 * yScale));
 	}
 
 	public void render() {
@@ -74,10 +55,8 @@ public class MainMenu {
 				optionsButton.insideButton());
 		MenuRendering.renderButton(null, "Exit", "Roboto-Bold", 170 * xScale, 425 * yScale, 215 * xScale, 80 * yScale,
 				MenuRendering.rgba(255, 255, 255, 255, MenuRendering.colorA), exitButton.insideButton());
-	}
-
-	public void load(GameResources gm) {
-		gm.getTextHandler().switchTo(texts);
+		MenuRendering.renderText("Infinity Engine " + InfinityVariables.version + " " + InfinityVariables.state
+				+ " Build " + InfinityVariables.build, "Roboto-Bold", 0, 710 * yScale, 20);
 	}
 
 	public Button getPlayButton() {

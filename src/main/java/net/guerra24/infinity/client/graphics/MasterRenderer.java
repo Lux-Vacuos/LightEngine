@@ -162,6 +162,8 @@ public class MasterRenderer {
 	public void prepare() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		glClearColor(InfinityVariables.RED, InfinityVariables.GREEN, InfinityVariables.BLUE, 1);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
 	}
 
 	/**

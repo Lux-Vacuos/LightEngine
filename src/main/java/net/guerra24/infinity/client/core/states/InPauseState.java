@@ -2,6 +2,7 @@ package net.guerra24.infinity.client.core.states;
 
 import net.guerra24.infinity.client.core.GlobalStates;
 import net.guerra24.infinity.client.core.GlobalStates.GameState;
+import net.guerra24.infinity.client.graphics.opengl.Display;
 import net.guerra24.infinity.client.core.State;
 import net.guerra24.infinity.client.core.Infinity;
 import net.guerra24.infinity.client.core.InfinityVariables;
@@ -26,8 +27,7 @@ public class InPauseState extends State {
 	public void update(Infinity voxel, GlobalStates states, float delta) {
 		GameResources gm = voxel.getGameResources();
 		while (Mouse.next()) {
-			if (gm.getMenuSystem().pauseMenu.getBackToMain().pressed()) {
-				gm.getMenuSystem().mainMenu.load(gm);
+			if (gm.getMenuSystem().pauseMenu.getExitButton().pressed()) {
 				gm.getCamera().setPosition(new Vector3f(0, 0, 1));
 				gm.getCamera().setPitch(0);
 				gm.getCamera().setYaw(0);
@@ -48,12 +48,16 @@ public class InPauseState extends State {
 		}
 		gm.getDeferredShadingRenderer().getPost_fbo().begin();
 		gm.getRenderer().prepare();
-		gm.getSkyboxRenderer().render(InfinityVariables.RED, InfinityVariables.GREEN, InfinityVariables.BLUE, delta, gm);
+		gm.getSkyboxRenderer().render(InfinityVariables.RED, InfinityVariables.GREEN, InfinityVariables.BLUE, delta,
+				gm);
 		gm.getRenderer().renderEntity(gm.getPhysics().getMobManager().getMobs(), gm);
 		ParticleMaster.getInstance().render(gm.getCamera());
 		gm.getDeferredShadingRenderer().getPost_fbo().end();
 		gm.getRenderer().prepare();
 		gm.getDeferredShadingRenderer().render(gm);
+		Display.beingNVGFrame();
+		gm.getMenuSystem().pauseMenu.render();
+		Display.endNVGFrame();
 	}
 
 }

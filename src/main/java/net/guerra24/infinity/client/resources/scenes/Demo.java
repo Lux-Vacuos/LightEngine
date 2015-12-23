@@ -36,13 +36,13 @@ public class Demo {
 				waters.add(new WaterTile(-12.028f + x, -3.1f - z, 0.43f));
 			}
 		}
-/*
+
 		Tessellator tess = new Tessellator(gm);
-		SimplexNoise noise = new SimplexNoise(512, 0.5, gm.getRand().nextInt());
+		SimplexNoise noise = new SimplexNoise(128, 0.2, gm.getRand().nextInt());
 
 		tess.begin(tex);
-		for (int x = 0; x < 512; x++) {
-			for (int z = 0; z < 512; z++) {
+		for (int x = 0; x < 128; x++) {
+			for (int z = 0; z < 128; z++) {
 				genFace(tess, noise, x, z, new Vector2f(0, 0), new Vector4f(0, 0, 0, 0));
 				genFace(tess, noise, x, z + 1, new Vector2f(0, 1), new Vector4f(0, 0, 0, 0));
 				genFace(tess, noise, x + 1, z + 1, new Vector2f(1, 1), new Vector4f(0, 0, 0, 0));
@@ -52,7 +52,7 @@ public class Demo {
 
 		tess.end();
 		models.add(tess);
-	*/}
+	}
 
 	private void genFace(Tessellator tess, SimplexNoise noise, float x, float z, Vector2f texcoords, Vector4f data) {
 		float Zup = ((float) noise.getNoise((int) x, (int) z + 1) * 2.0f - 1.0f);

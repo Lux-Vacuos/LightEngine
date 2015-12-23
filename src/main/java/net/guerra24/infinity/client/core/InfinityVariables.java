@@ -44,7 +44,7 @@ public class InfinityVariables {
 	public static final boolean debug = true;
 	public static final String version = "0.0.1";
 	public static final String state = "ALPHA";
-	public static final int build = 4;
+	public static final int build = 5;
 	public static int FOV = 90;
 	public static int WIDTH = 1280;
 	public static int HEIGHT = 720;

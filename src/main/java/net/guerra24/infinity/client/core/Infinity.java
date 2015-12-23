@@ -108,7 +108,6 @@ public class Infinity {
 	 * PostInit phase, starts music and runs the API PostInit
 	 */
 	private void postInit() {
-		gameResources.getMenuSystem().mainMenu.load(gameResources);
 	}
 
 	/**

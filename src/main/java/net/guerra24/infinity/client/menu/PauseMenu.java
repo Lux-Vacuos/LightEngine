@@ -24,40 +24,30 @@
 
 package net.guerra24.infinity.client.menu;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.guerra24.infinity.client.core.InfinityVariables;
+import net.guerra24.infinity.client.graphics.MenuRendering;
 import net.guerra24.infinity.client.resources.GameResources;
-import net.guerra24.infinity.client.resources.models.FontType;
-import net.guerra24.infinity.client.resources.models.GUIText;
 import net.guerra24.infinity.universal.util.vector.Vector2f;
 
 public class PauseMenu {
-	private Button backToMain;
-
-	private List<GUIText> texts;
-	private FontType font;
+	private Button exitButton;
+	private float yScale, xScale;
 
 	public PauseMenu(GameResources gm) {
-		this.font = gm.getTextHandler().getFont();
 		float width = InfinityVariables.WIDTH;
 		float height = InfinityVariables.HEIGHT;
-		float yScale = height / 720f;
-		float xScale = width / 1280f;
-		texts = new ArrayList<GUIText>();
-		backToMain = new Button(new Vector2f(537 * xScale, 35 * yScale), new Vector2f(215, 100));
-		GUIText textBack = new GUIText("Back", 2, font, new Vector2f(0.467f, 0.86f), 1, false);
-		textBack.setColour(0.79f, 0.79f, 0.79f);
-		texts.add(textBack);
+		yScale = height / 720f;
+		xScale = width / 1280f;
+		exitButton = new Button(new Vector2f(530 * xScale, 35 * yScale), new Vector2f(215 * xScale, 80 * yScale));
 	}
 
-	public Button getBackToMain() {
-		return backToMain;
+	public void render() {
+		MenuRendering.renderButton(null, "Back to Main Menu", "Roboto-Bold", 528 * xScale, 607 * yScale, 280 * xScale,
+				80 * yScale, MenuRendering.rgba(255, 255, 255, 255, MenuRendering.colorA), exitButton.insideButton());
 	}
 
-	public List<GUIText> getTexts() {
-		return texts;
+	public Button getExitButton() {
+		return exitButton;
 	}
 
 }

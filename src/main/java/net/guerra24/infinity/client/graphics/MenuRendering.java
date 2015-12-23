@@ -13,12 +13,12 @@ import java.nio.ByteBuffer;
 
 public class MenuRendering {
 
-	private static final NVGPaint paintA = NVGPaint.create();
-	private static final NVGPaint paintB = NVGPaint.create();
-	private static final NVGPaint paintC = NVGPaint.create();
+	public static final NVGPaint paintA = NVGPaint.create();
+	public static final NVGPaint paintB = NVGPaint.create();
+	public static final NVGPaint paintC = NVGPaint.create();
 	public static final NVGColor colorA = NVGColor.create();
-	private static final NVGColor colorB = NVGColor.create();
-	private static final NVGColor colorC = NVGColor.create();
+	public static final NVGColor colorB = NVGColor.create();
+	public static final NVGColor colorC = NVGColor.create();
 
 	private static boolean isBlack(NVGColor col) {
 		return col.r() == 0.0f && col.g() == 0.0f && col.b() == 0.0f && col.a() == 0.0f;
@@ -30,6 +30,20 @@ public class MenuRendering {
 		color.b(b / 255.0f);
 		color.a(a / 255.0f);
 		return color;
+	}
+
+	public static void renderText(String text, String font, float x, float y, float fontSize) {
+		ByteBuffer textEncoded = memEncodeASCII(text, BufferAllocator.MALLOC);
+		long vg = Display.getVg();
+		nvgFontSize(vg, fontSize);
+		nvgFontFace(vg, font);
+		nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
+		nvgFillColor(vg, rgba(0, 0, 0, 160, colorA));
+		nvgText(vg, x, y, textEncoded, NULL);
+		nvgFillColor(vg, rgba(255, 255, 255, 160, colorA));
+		nvgText(vg, x, y, textEncoded, NULL);
+
+		memFree(textEncoded);
 	}
 
 	public static void renderButton(ByteBuffer preicon, String text, String font, float x, float y, float w, float h,
@@ -45,6 +59,7 @@ public class MenuRendering {
 			w -= 6;
 			h -= 6;
 		}
+		float fontSize = h / 2;
 
 		nvgLinearGradient(vg, x, y, x, y + h, rgba(255, 255, 255, isBlack(color) ? 16 : 32, colorB),
 				rgba(0, 0, 0, isBlack(color) ? 16 : 32, colorC), bg);
@@ -64,7 +79,7 @@ public class MenuRendering {
 
 		ByteBuffer textEncoded = memEncodeASCII(text, BufferAllocator.MALLOC);
 
-		nvgFontSize(vg, 40.0f);
+		nvgFontSize(vg, fontSize);
 		nvgFontFace(vg, font);
 		tw = nvgTextBounds(vg, 0, 0, textEncoded, NULL, (ByteBuffer) null);
 		if (preicon != null) {
@@ -82,7 +97,7 @@ public class MenuRendering {
 			nvgText(vg, x + w * 0.5f - tw * 0.5f - iw * 0.75f, y + h * 0.5f, preicon, NULL);
 		}
 
-		nvgFontSize(vg, 40.0f);
+		nvgFontSize(vg, fontSize);
 		nvgFontFace(vg, font);
 		nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
 		nvgFillColor(vg, rgba(0, 0, 0, 160, colorA));

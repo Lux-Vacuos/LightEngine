@@ -17,7 +17,6 @@ import net.guerra24.infinity.client.graphics.opengl.Display;
 import net.guerra24.infinity.client.particle.ParticleMaster;
 import net.guerra24.infinity.client.resources.GameResources;
 import net.guerra24.infinity.client.resources.models.Tessellator;
-import net.guerra24.infinity.client.resources.scenes.Demo;
 
 /**
  * Single Player GameState
@@ -52,7 +51,6 @@ public class GameSPState extends State {
 	@Override
 	public void render(Infinity voxel, GlobalStates states, float delta) {
 		GameResources gm = voxel.getGameResources();
-		Display display = voxel.getDisplay();
 
 		gm.getFrustum().calculateFrustum(gm.getRenderer().getProjectionMatrix(), gm.getCamera());
 		gm.getSun_Camera().setPosition(gm.getCamera().getPosition());
