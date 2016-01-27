@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Guerra24
+ * Copyright (c) 2015-2016 Guerra24
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,22 +24,33 @@
 
 package net.guerra24.infinity.client.resources;
 
+import static org.lwjgl.glfw.GLFW.GLFW_OPENGL_API;
+import static org.lwjgl.glfw.GLFW.GLFW_OPENGL_CORE_PROFILE;
+
 import java.util.Random;
 
+import com.badlogic.ashley.core.Engine;
 import com.esotericsoftware.kryo.Kryo;
 
 import net.guerra24.infinity.client.core.GameSettings;
 import net.guerra24.infinity.client.core.GlobalStates;
+import net.guerra24.infinity.client.core.Infinity;
+import net.guerra24.infinity.client.core.InfinityVariables;
 import net.guerra24.infinity.client.graphics.DeferredShadingRenderer;
 import net.guerra24.infinity.client.graphics.Frustum;
-import net.guerra24.infinity.client.graphics.GuiRenderer;
 import net.guerra24.infinity.client.graphics.MasterRenderer;
 import net.guerra24.infinity.client.graphics.MasterShadowRenderer;
 import net.guerra24.infinity.client.graphics.OcclusionRenderer;
 import net.guerra24.infinity.client.graphics.SkyboxRenderer;
-import net.guerra24.infinity.client.graphics.TextMasterRenderer;
+import net.guerra24.infinity.client.graphics.VectorsRendering;
+import net.guerra24.infinity.client.graphics.nanovg.Timers;
+import net.guerra24.infinity.client.graphics.opengl.ContextFormat;
+import net.guerra24.infinity.client.graphics.opengl.Display;
+import net.guerra24.infinity.client.graphics.shaders.ShaderProgram;
 import net.guerra24.infinity.client.graphics.shaders.TessellatorBasicShader;
 import net.guerra24.infinity.client.graphics.shaders.TessellatorShader;
+import net.guerra24.infinity.client.input.Keyboard;
+import net.guerra24.infinity.client.input.Mouse;
 import net.guerra24.infinity.client.menu.Menu;
 import net.guerra24.infinity.client.particle.ParticleMaster;
 import net.guerra24.infinity.client.particle.ParticleTexture;
@@ -50,12 +61,12 @@ import net.guerra24.infinity.client.sound.soundsystem.SoundSystemConfig;
 import net.guerra24.infinity.client.sound.soundsystem.SoundSystemException;
 import net.guerra24.infinity.client.sound.soundsystem.codecs.CodecJOgg;
 import net.guerra24.infinity.client.util.Logger;
-import net.guerra24.infinity.client.world.Physics;
+import net.guerra24.infinity.client.util.LoggerSoundSystem;
 import net.guerra24.infinity.client.world.entities.Camera;
-import net.guerra24.infinity.client.world.entities.Entity;
-import net.guerra24.infinity.client.world.entities.Mob;
+import net.guerra24.infinity.client.world.entities.PlayerCamera;
+import net.guerra24.infinity.client.world.entities.SunCamera;
+import net.guerra24.infinity.client.world.physics.PhysicsSystem;
 import net.guerra24.infinity.universal.resources.UniversalResources;
-import net.guerra24.infinity.universal.util.vector.Vector2f;
 import net.guerra24.infinity.universal.util.vector.Vector3f;
 
 /**
@@ -66,33 +77,42 @@ import net.guerra24.infinity.universal.util.vector.Vector3f;
  */
 public class GameResources {
 
+	private static GameResources instance = null;
+
+	public static GameResources instance() {
+		if (instance == null)
+			instance = new GameResources();
+		return instance;
+	}
+
 	/**
 	 * GameResources Data
 	 */
+	private Display display;
 	private Random rand;
 	private Loader loader;
 	private Camera camera;
 	private Camera sun_Camera;
 	private MasterRenderer renderer;
 	private SkyboxRenderer skyboxRenderer;
-	private GuiRenderer guiRenderer;
-	private TextHandler textHandler;
 	private GlobalStates globalStates;
 	private DeferredShadingRenderer deferredShadingRenderer;
 	private MasterShadowRenderer masterShadowRenderer;
 	private OcclusionRenderer occlusionRenderer;
+
+	private Engine physicsEngine;
+	private PhysicsSystem physicsSystem;
+
 	private SoundSystem soundSystem;
 	private Frustum frustum;
 	private Kryo kryo;
-	private Physics physics;
 	private Menu menuSystem;
 	private GameSettings gameSettings;
 
-	private Vector3f sunRotation = new Vector3f(5, 0, -40);
+	private Vector3f sunRotation = new Vector3f(5, 0, -45);
 	private Vector3f lightPos = new Vector3f(0, 0, 0);
+	private Vector3f invertedLightPosition = new Vector3f(0, 0, 0);
 	private ParticleTexture torchTexture;
-
-	public Mob player;
 
 	public Demo demo;
 
@@ -100,66 +120,73 @@ public class GameResources {
 	 * Constructor
 	 * 
 	 */
-	public GameResources() {
+	private GameResources() {
 		gameSettings = new GameSettings();
+		display = new Display();
+		display.create(InfinityVariables.WIDTH, InfinityVariables.HEIGHT, "Infinity", InfinityVariables.VSYNC, false,
+				false, new ContextFormat(3, 3, GLFW_OPENGL_API, GLFW_OPENGL_CORE_PROFILE, true),
+				new String[] { "assets/icon/icon32.png", "assets/icon/icon64.png" });
+		Keyboard.setDisplay(display);
+		Mouse.setDisplay(display);
+		VectorsRendering.setDisplay(display);
+		Timers.setDisplay(display);
+		ShaderProgram.setDisplay(display);
 	}
 
 	/**
 	 * Initialize the Game Objects
 	 * 
 	 */
-	public void init() {
-		loader = new Loader();
+	public void init(Infinity infinity) {
+		loader = new Loader(display);
 		rand = new Random();
-		masterShadowRenderer = new MasterShadowRenderer();
+		masterShadowRenderer = new MasterShadowRenderer(display);
 		renderer = new MasterRenderer(this);
-		sun_Camera = new Camera(renderer.getProjectionMatrix());
+		sun_Camera = new SunCamera(masterShadowRenderer.getProjectionMatrix());
 		sun_Camera.setPosition(new Vector3f(0, 0, 0));
 		sun_Camera.setYaw(sunRotation.x);
 		sun_Camera.setPitch(sunRotation.y);
 		sun_Camera.setRoll(sunRotation.z);
-		camera = new Camera(renderer.getProjectionMatrix());
+		camera = new PlayerCamera(renderer.getProjectionMatrix(), display);
+		camera.setPosition(new Vector3f(0, 5, 0));
 		kryo = new Kryo();
-		guiRenderer = new GuiRenderer(loader);
 		occlusionRenderer = new OcclusionRenderer(renderer.getProjectionMatrix());
 		skyboxRenderer = new SkyboxRenderer(loader, renderer.getProjectionMatrix());
-		deferredShadingRenderer = new DeferredShadingRenderer(loader, this);
+		deferredShadingRenderer = new DeferredShadingRenderer(this);
 		TessellatorShader.getInstance();
 		TessellatorBasicShader.getInstance();
 		ParticleMaster.getInstance().init(loader, renderer.getProjectionMatrix());
-		physics = new Physics(this);
 		frustum = new Frustum();
-		TextMasterRenderer.getInstance().init(loader);
-		textHandler = new TextHandler(this);
+
+		physicsEngine = new Engine();
+		physicsSystem = new PhysicsSystem();
+		physicsEngine.addSystem(physicsSystem);
+		physicsEngine.addEntity(camera);
+
 		try {
 			SoundSystemConfig.addLibrary(LibraryLWJGLOpenAL.class);
 			SoundSystemConfig.setCodec("ogg", CodecJOgg.class);
+			SoundSystemConfig.setSoundFilesPackage("assets/sounds/");
+			SoundSystemConfig.setLogger(new LoggerSoundSystem());
 		} catch (SoundSystemException e) {
-			Logger.error("Unable to bind SoundSystem Libs");
+			Logger.error("Unable to setting up Sound System Configuration");
 			e.printStackTrace();
+			System.exit(-1);
 		}
 		soundSystem = new SoundSystem();
-		globalStates = new GlobalStates(loader);
+		globalStates = new GlobalStates();
 		UniversalResources.loadUniversalResources(this);
 		menuSystem = new Menu(this);
-		loadMusic();
-		loader.loadNVGFont("Roboto-Bold", "Roboto-Bold");
 	}
 
 	/**
-	 * Load Music
-	 * 
-	 */
-	public void loadMusic() {
-	}
-
-	/**
-	 * Load Resources like Mobs
+	 * Load Resources
 	 * 
 	 */
 	public void loadResources() {
-		player = new Mob(new Entity(UniversalResources.player, new Vector3f(-11, 2, 3), 0, 0, 180, 1));
-		physics.getMobManager().registerMob(player);
+		soundSystem.backgroundMusic("menu1", "menu/menu1.ogg", false);
+		soundSystem.backgroundMusic("menu2", "menu/menu2.ogg", false);
+		loader.loadNVGFont("Roboto-Bold", "Roboto-Bold");
 		torchTexture = new ParticleTexture(loader.loadTextureParticle("fire0"), 4);
 		demo = new Demo(this);
 	}
@@ -169,10 +196,21 @@ public class GameResources {
 		sun_Camera.setYaw(sunRotation.x);
 		sun_Camera.setPitch(sunRotation.y);
 		sun_Camera.setRoll(sunRotation.z);
-		sun_Camera.updateRay(64, 64, masterShadowRenderer.getProjectionMatrix(), new Vector2f(64f / 2f, 64f / 2f));
+		((SunCamera) sun_Camera).updateShadowRay(this, false);
 		lightPos = new Vector3f(1000 * sun_Camera.getRay().direction.x, 1000 * sun_Camera.getRay().direction.y,
 				1000 * sun_Camera.getRay().direction.z);
 		Vector3f.add(sun_Camera.getPosition(), lightPos, lightPos);
+
+		((SunCamera) sun_Camera).updateShadowRay(this, true);
+		invertedLightPosition = new Vector3f(1000 * sun_Camera.getRay().direction.x,
+				1000 * sun_Camera.getRay().direction.y, 1000 * sun_Camera.getRay().direction.z);
+		Vector3f.add(sun_Camera.getPosition(), invertedLightPosition, invertedLightPosition);
+	}
+
+	public void reload(Infinity infinity) {
+		cleanUp();
+		init(infinity);
+		loadResources();
 	}
 
 	/**
@@ -181,14 +219,12 @@ public class GameResources {
 	 */
 	public void cleanUp() {
 		gameSettings.save();
-		TextMasterRenderer.getInstance().cleanUp();
 		TessellatorShader.getInstance().cleanUp();
 		TessellatorBasicShader.getInstance().cleanUp();
 		masterShadowRenderer.cleanUp();
 		occlusionRenderer.cleanUp();
 		ParticleMaster.getInstance().cleanUp();
 		deferredShadingRenderer.cleanUp();
-		guiRenderer.cleanUp();
 		renderer.cleanUp();
 		loader.cleanUp();
 		soundSystem.cleanup();
@@ -218,10 +254,6 @@ public class GameResources {
 		return skyboxRenderer;
 	}
 
-	public GuiRenderer getGuiRenderer() {
-		return guiRenderer;
-	}
-
 	public SoundSystem getSoundSystem() {
 		return soundSystem;
 	}
@@ -232,14 +264,6 @@ public class GameResources {
 
 	public Frustum getFrustum() {
 		return frustum;
-	}
-
-	public Physics getPhysics() {
-		return physics;
-	}
-
-	public TextHandler getTextHandler() {
-		return textHandler;
 	}
 
 	public GlobalStates getGlobalStates() {
@@ -256,6 +280,10 @@ public class GameResources {
 
 	public Vector3f getLightPos() {
 		return lightPos;
+	}
+
+	public Vector3f getInvertedLightPosition() {
+		return invertedLightPosition;
 	}
 
 	public GameSettings getGameSettings() {
@@ -276,6 +304,14 @@ public class GameResources {
 
 	public Vector3f getSunRotation() {
 		return sunRotation;
+	}
+
+	public Engine getPhysicsEngine() {
+		return physicsEngine;
+	}
+
+	public Display getDisplay() {
+		return display;
 	}
 
 }

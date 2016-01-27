@@ -1,6 +1,6 @@
 # Infinity
 
-![Infinity](/images/Infinity-Logo.png?raw=true)
+![Infinity](docs/images/Infinity-Logo.png?raw=true)
 
 # Build Status
 [![Build Status](https://travis-ci.org/Guerra24/Infinity.svg)](https://travis-ci.org/Guerra24/Infinity)

@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Guerra24
+ * Copyright (c) 2015-2016 Guerra24
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -53,40 +53,34 @@ public class SkyboxRenderer {
 	 * Skybox Data
 	 */
 	private final float[] VERTICES = { -InfinityVariables.SIZE, InfinityVariables.SIZE, -InfinityVariables.SIZE,
-			-InfinityVariables.SIZE, -InfinityVariables.SIZE, -InfinityVariables.SIZE, InfinityVariables.SIZE,
-			-InfinityVariables.SIZE, -InfinityVariables.SIZE, InfinityVariables.SIZE, -InfinityVariables.SIZE,
-			-InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE, -InfinityVariables.SIZE,
+			-InfinityVariables.SIZE, -InfinityVariables.SIZE, -InfinityVariables.SIZE, InfinityVariables.SIZE, -InfinityVariables.SIZE,
+			-InfinityVariables.SIZE, InfinityVariables.SIZE, -InfinityVariables.SIZE, -InfinityVariables.SIZE, InfinityVariables.SIZE,
+			InfinityVariables.SIZE, -InfinityVariables.SIZE, -InfinityVariables.SIZE, InfinityVariables.SIZE, -InfinityVariables.SIZE,
+
+			-InfinityVariables.SIZE, -InfinityVariables.SIZE, InfinityVariables.SIZE, -InfinityVariables.SIZE, -InfinityVariables.SIZE,
+			-InfinityVariables.SIZE, -InfinityVariables.SIZE, InfinityVariables.SIZE, -InfinityVariables.SIZE, -InfinityVariables.SIZE,
+			InfinityVariables.SIZE, -InfinityVariables.SIZE, -InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE,
+			-InfinityVariables.SIZE, -InfinityVariables.SIZE, InfinityVariables.SIZE,
+
+			InfinityVariables.SIZE, -InfinityVariables.SIZE, -InfinityVariables.SIZE, InfinityVariables.SIZE, -InfinityVariables.SIZE,
+			InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE,
+			InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE, -InfinityVariables.SIZE,
+			InfinityVariables.SIZE, -InfinityVariables.SIZE, -InfinityVariables.SIZE,
+
+			-InfinityVariables.SIZE, -InfinityVariables.SIZE, InfinityVariables.SIZE, -InfinityVariables.SIZE, InfinityVariables.SIZE,
+			InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE,
+			InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE, -InfinityVariables.SIZE, InfinityVariables.SIZE,
+			-InfinityVariables.SIZE, -InfinityVariables.SIZE, InfinityVariables.SIZE,
+
+			-InfinityVariables.SIZE, InfinityVariables.SIZE, -InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE,
+			-InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE,
+			InfinityVariables.SIZE, InfinityVariables.SIZE, -InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE,
 			-InfinityVariables.SIZE, InfinityVariables.SIZE, -InfinityVariables.SIZE,
 
-			-InfinityVariables.SIZE, -InfinityVariables.SIZE, InfinityVariables.SIZE, -InfinityVariables.SIZE,
-			-InfinityVariables.SIZE, -InfinityVariables.SIZE, -InfinityVariables.SIZE, InfinityVariables.SIZE,
-			-InfinityVariables.SIZE, -InfinityVariables.SIZE, InfinityVariables.SIZE, -InfinityVariables.SIZE,
-			-InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE, -InfinityVariables.SIZE,
-			-InfinityVariables.SIZE, InfinityVariables.SIZE,
-
-			InfinityVariables.SIZE, -InfinityVariables.SIZE, -InfinityVariables.SIZE, InfinityVariables.SIZE,
-			-InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE,
-			InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE,
-			InfinityVariables.SIZE, InfinityVariables.SIZE, -InfinityVariables.SIZE, InfinityVariables.SIZE,
-			-InfinityVariables.SIZE, -InfinityVariables.SIZE,
-
-			-InfinityVariables.SIZE, -InfinityVariables.SIZE, InfinityVariables.SIZE, -InfinityVariables.SIZE,
-			InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE,
-			InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE,
-			InfinityVariables.SIZE, -InfinityVariables.SIZE, InfinityVariables.SIZE, -InfinityVariables.SIZE,
-			-InfinityVariables.SIZE, InfinityVariables.SIZE,
-
-			-InfinityVariables.SIZE, InfinityVariables.SIZE, -InfinityVariables.SIZE, InfinityVariables.SIZE,
-			InfinityVariables.SIZE, -InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE,
-			InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE,
-			-InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE, -InfinityVariables.SIZE,
-			InfinityVariables.SIZE, -InfinityVariables.SIZE,
-
 			-InfinityVariables.SIZE, -InfinityVariables.SIZE, -InfinityVariables.SIZE, -InfinityVariables.SIZE,
-			-InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE, -InfinityVariables.SIZE,
-			-InfinityVariables.SIZE, InfinityVariables.SIZE, -InfinityVariables.SIZE, -InfinityVariables.SIZE,
-			-InfinityVariables.SIZE, -InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE,
-			-InfinityVariables.SIZE, InfinityVariables.SIZE };
+			-InfinityVariables.SIZE, InfinityVariables.SIZE, InfinityVariables.SIZE, -InfinityVariables.SIZE, -InfinityVariables.SIZE,
+			InfinityVariables.SIZE, -InfinityVariables.SIZE, -InfinityVariables.SIZE, -InfinityVariables.SIZE, -InfinityVariables.SIZE,
+			InfinityVariables.SIZE, InfinityVariables.SIZE, -InfinityVariables.SIZE, InfinityVariables.SIZE };
 
 	private String[] TEXTURE_FILES = { "day/right", "day/left", "day/top", "day/bottom", "day/front", "day/back" };
 	private String[] NIGHT_TEXTURE_FILES = { "night/right", "night/left", "night/top", "night/bottom", "night/front",
@@ -117,7 +111,7 @@ public class SkyboxRenderer {
 		shader.connectTextureUnits();
 		shader.loadProjectionMatrix(projectionMatrix);
 		shader.stop();
-		time = 10000;
+		time = 8000;
 	}
 
 	/**
@@ -136,6 +130,7 @@ public class SkyboxRenderer {
 	 */
 	public void render(float r, float g, float b, float delta, GameResources gm) {
 		shader.start();
+		shader.loadProjectionMatrix(gm.getRenderer().getProjectionMatrix());
 		shader.loadViewMatrix(gm.getCamera(), delta);
 		shader.loadFog(r, g, b);
 		glBindVertexArray(cube.getVaoID());

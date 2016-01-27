@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Guerra24
+ * Copyright (c) 2015-2016 Guerra24
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@
 package net.guerra24.infinity.client.graphics;
 
 import static org.lwjgl.opengl.GL11.GL_BACK;
+import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
@@ -36,6 +37,7 @@ import static org.lwjgl.opengl.GL11.glBlendFunc;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.opengl.GL11.glCullFace;
+import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
 
 import java.util.ArrayList;
@@ -43,14 +45,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.utils.ImmutableArray;
+
 import net.guerra24.infinity.client.core.InfinityVariables;
-import net.guerra24.infinity.client.graphics.opengl.Display;
 import net.guerra24.infinity.client.graphics.shaders.EntityShader;
 import net.guerra24.infinity.client.graphics.shaders.WaterShader;
 import net.guerra24.infinity.client.resources.GameResources;
 import net.guerra24.infinity.client.resources.models.TexturedModel;
-import net.guerra24.infinity.client.world.entities.Entity;
-import net.guerra24.infinity.client.world.entities.IEntity;
+import net.guerra24.infinity.client.world.entities.GameEntity;
 import net.guerra24.infinity.universal.util.vector.Matrix4f;
 
 /**
@@ -65,12 +68,11 @@ public class MasterRenderer {
 	 * Master Renderer Data
 	 */
 	private Matrix4f projectionMatrix;
-	private Map<TexturedModel, List<Entity>> entities = new HashMap<TexturedModel, List<Entity>>();
+	private Map<TexturedModel, List<GameEntity>> entities = new HashMap<TexturedModel, List<GameEntity>>();
 	private WaterShader waterShader;
 	private WaterRenderer waterRenderer;
 	private EntityShader shader = new EntityShader();
 	private EntityRenderer entityRenderer;
-	public float aspectRatio;
 
 	/**
 	 * Constructor, Initializes the OpenGL code, creates the projection matrix,
@@ -81,8 +83,8 @@ public class MasterRenderer {
 	 */
 	public MasterRenderer(GameResources gm) {
 		initGL();
-		projectionMatrix = createProjectionMatrix(Display.getWidth(), Display.getHeight(), InfinityVariables.FOV,
-				InfinityVariables.NEAR_PLANE, InfinityVariables.FAR_PLANE);
+		projectionMatrix = createProjectionMatrix(gm.getDisplay().getDisplayWidth(), gm.getDisplay().getDisplayHeight(),
+				InfinityVariables.FOV, InfinityVariables.NEAR_PLANE, InfinityVariables.FAR_PLANE);
 		entityRenderer = new EntityRenderer(shader, gm, projectionMatrix);
 		waterShader = new WaterShader();
 		waterRenderer = new WaterRenderer(gm, projectionMatrix);
@@ -109,11 +111,13 @@ public class MasterRenderer {
 	 * @param camera
 	 *            A Camera
 	 */
-	public void renderEntity(List<IEntity> list, GameResources gm) {
-		for (IEntity entity : list) {
-			if (entity != null)
-				if (entity.getEntity() != null)
-					processEntity(entity.getEntity());
+	public void renderEntity(ImmutableArray<Entity> immutableArray, GameResources gm) {
+		for (Entity entity : immutableArray) {
+			if (entity instanceof GameEntity) {
+				GameEntity ent = (GameEntity) entity;
+				if (gm.getFrustum().pointInFrustum(ent.getPosition().x, ent.getPosition().y, ent.getPosition().z))
+					processEntity(ent);
+			}
 		}
 		renderEntity(gm);
 	}
@@ -143,13 +147,13 @@ public class MasterRenderer {
 	 * @param entity
 	 *            An Entity
 	 */
-	private void processEntity(Entity entity) {
+	private void processEntity(GameEntity entity) {
 		TexturedModel entityModel = entity.getModel();
-		List<Entity> batch = entities.get(entityModel);
+		List<GameEntity> batch = entities.get(entityModel);
 		if (batch != null) {
 			batch.add(entity);
 		} else {
-			List<Entity> newBatch = new ArrayList<Entity>();
+			List<GameEntity> newBatch = new ArrayList<GameEntity>();
 			newBatch.add(entity);
 			entities.put(entityModel, newBatch);
 		}
@@ -164,27 +168,36 @@ public class MasterRenderer {
 		glClearColor(InfinityVariables.RED, InfinityVariables.GREEN, InfinityVariables.BLUE, 1);
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
+		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
-	/**
-	 * Creates the Projection Matrix
-	 * 
-	 */
-	public Matrix4f createProjectionMatrix(int width, int height, float fov, float nearPlane, float farPlane) {
-		aspectRatio = (float) width / (float) height;
-		float y_scale = (float) ((1f / Math.tan(Math.toRadians(fov / 2f))) * aspectRatio);
+	public void update(GameResources gm) {
+		projectionMatrix = createProjectionMatrix(projectionMatrix, gm.getDisplay().getDisplayWidth(),
+				gm.getDisplay().getDisplayHeight(), InfinityVariables.FOV, InfinityVariables.NEAR_PLANE,
+				InfinityVariables.FAR_PLANE);
+	}
+
+	public static Matrix4f createProjectionMatrix(int width, int height, float fov, float nearPlane, float farPlane) {
+		return createProjectionMatrix(new Matrix4f(), width, height, fov, nearPlane, farPlane);
+	}
+
+	public static Matrix4f createProjectionMatrix(Matrix4f proj, int width, int height, float fov, float nearPlane,
+			float farPlane) {
+		float aspectRatio = (float) width / (float) height;
+		float y_scale = (float) ((1f / Math.tan(Math.toRadians(fov / 2f))));
 		float x_scale = y_scale / aspectRatio;
 		float frustrum_length = farPlane - nearPlane;
 
-		Matrix4f projectionMatrix = new Matrix4f();
-		projectionMatrix.setIdentity();
-		projectionMatrix.m00 = x_scale;
-		projectionMatrix.m11 = y_scale;
-		projectionMatrix.m22 = -((farPlane + nearPlane) / frustrum_length);
-		projectionMatrix.m23 = -1;
-		projectionMatrix.m32 = -((2 * nearPlane * farPlane) / frustrum_length);
-		projectionMatrix.m33 = 0;
-		return projectionMatrix;
+		proj.setIdentity();
+		proj.m00 = x_scale;
+		proj.m11 = y_scale;
+		proj.m22 = -((farPlane + nearPlane) / frustrum_length);
+		proj.m23 = -1;
+		proj.m32 = -((2 * nearPlane * farPlane) / frustrum_length);
+		proj.m33 = 0;
+		return proj;
 	}
 
 	/**

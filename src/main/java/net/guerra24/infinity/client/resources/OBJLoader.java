@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Guerra24
+ * Copyright (c) 2015-2016 Guerra24
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,9 +25,8 @@
 package net.guerra24.infinity.client.resources;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,26 +42,24 @@ import net.guerra24.infinity.universal.util.vector.Vector3f;
  * @category Assets
  */
 public class OBJLoader {
+
+	private Loader loader;
+
+	public OBJLoader(Loader loader) {
+		this.loader = loader;
+	}
+
 	/**
 	 * Load an ObjModel
 	 * 
 	 * @param fileName
-	 *            File Name
-	 * @param loader
-	 *            Loader
-	 * @return RawModel
+	 *            OBJ File name
+	 * @return RawModel that contains all the data loaded to the GPU
 	 */
-	public RawModel loadObjModel(String fileName, Loader loader) {
-		FileReader fr = null;
-		try {
-			String file = "assets/models/" + fileName + ".obj";
-			fr = new FileReader(new File(file));
-			Logger.log("Loading Model: " + fileName + ".obj");
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			Logger.error("Couldn' load model file");
-		}
-		BufferedReader reader = new BufferedReader(fr);
+	public RawModel loadObjModel(String fileName) {
+		InputStream file = getClass().getClassLoader().getResourceAsStream("assets/models/" + fileName + ".obj");
+		Logger.log("Loading Model: " + fileName + ".obj");
+		BufferedReader reader = new BufferedReader(new InputStreamReader(file));
 		String line;
 		List<Vector3f> vertices = new ArrayList<Vector3f>();
 		List<Vector2f> textures = new ArrayList<Vector2f>();

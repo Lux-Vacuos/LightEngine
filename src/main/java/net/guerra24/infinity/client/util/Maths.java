@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Guerra24
+ * Copyright (c) 2015-2016 Guerra24
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -128,6 +128,10 @@ public class Maths {
 		return matrix;
 	}
 
+	public static Matrix4f invert(Matrix4f viewMatrix) {
+		return Matrix4f.rotate(180, new Vector3f(1, 0, 0), viewMatrix, null);
+	}
+
 	/**
 	 * Clamp the value to Generation Terrain
 	 * 
@@ -138,6 +142,19 @@ public class Maths {
 	 */
 	public static float clamp(double d) {
 		return (float) Math.max(0, Math.min(128, d));
+	}
+
+	/**
+	 * 
+	 * Clamp a value
+	 * 
+	 * @param d
+	 *            Value
+	 * @return Clamped Value
+	 * @author Guerra24 <pablo230699@hotmail.com>
+	 */
+	public static float clamp(double d, double min, double max) {
+		return (float) Math.max(min, Math.min(max, d));
 	}
 
 	/**

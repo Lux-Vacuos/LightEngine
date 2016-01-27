@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Guerra24
+ * Copyright (c) 2015-2016 Guerra24
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,9 +33,8 @@ import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 
 import net.guerra24.infinity.client.bootstrap.Bootstrap;
-import net.guerra24.infinity.client.graphics.TextMasterRenderer;
-import net.guerra24.infinity.client.graphics.opengl.Display;
-import net.guerra24.infinity.client.network.DedicatedClient;
+import net.guerra24.infinity.client.graphics.nanovg.Timers;
+import net.guerra24.infinity.client.input.Mouse;
 import net.guerra24.infinity.client.resources.GameResources;
 import net.guerra24.infinity.client.util.Logger;
 
@@ -54,8 +53,6 @@ public class Infinity {
 	 * Game Data
 	 */
 	private GameResources gameResources;
-	private Display display;
-	private DedicatedClient client;
 
 	/**
 	 * Constructor of the Kernel, Initializes the Game and starts the loop
@@ -64,17 +61,17 @@ public class Infinity {
 		mainLoop();
 	}
 
+	public Infinity(String test) {
+		Logger.log("Running infinity in test mode");
+	}
+
 	/**
 	 * PreInit phase, initialize the display and runs the API PreInit
 	 * 
-	 * @throws VersionException
 	 */
 	public void preInit() {
-		gameResources = new GameResources();
-		display = new Display();
-		display.initDsiplay(InfinityVariables.WIDTH, InfinityVariables.HEIGHT);
-		display.startUp();
 		Logger.log("Loading");
+		gameResources = GameResources.instance();
 		Logger.log("Infinity Version: " + InfinityVariables.version);
 		Logger.log("Build: " + InfinityVariables.build);
 		Logger.log("Running on: " + Bootstrap.getPlatform());
@@ -83,6 +80,7 @@ public class Infinity {
 		Logger.log("OpenGL Version: " + glGetString(GL_VERSION));
 		Logger.log("Vendor: " + glGetString(GL_VENDOR));
 		Logger.log("Renderer: " + glGetString(GL_RENDERER));
+		gameResources.getDisplay().setVisible();
 
 		if (Bootstrap.getPlatform() == Bootstrap.Platform.MACOSX) {
 			InfinityVariables.runningOnMac = true;
@@ -93,27 +91,31 @@ public class Infinity {
 	 * Init phase, initialize the game data (models,textures,music,etc) and runs
 	 * the API Init
 	 */
-	private void init() {
-		gameResources.init();
+	public void init() {
+		gameResources.init(this);
 		gameResources.loadResources();
 		Logger.log("Initializing Threads");
-		/*
-		 * new Thread(new Runnable() { public void run() {
-		 * Thread.currentThread().setName("Voxel-Client"); client = new
-		 * DedicatedClient(gameResources); } }).start();
-		 */
+		gameResources.getRenderer().prepare();
+
 	}
 
 	/**
 	 * PostInit phase, starts music and runs the API PostInit
 	 */
-	private void postInit() {
+	public void postInit() {
+		gameResources.getSoundSystem().stop("menu1");
+		gameResources.getSoundSystem().stop("menu2");
+		if (gameResources.getRand().nextBoolean())
+			gameResources.getSoundSystem().play("menu1");
+		else
+			gameResources.getSoundSystem().play("menu2");
+		Mouse.setHidden(true);
+		Timers.initDebugDisplay();
 	}
 
 	/**
-	 * Voxel Main Loop
+	 * Infinity Main Loop
 	 * 
-	 * @throws VersionException
 	 */
 	public void mainLoop() {
 		preInit();
@@ -122,24 +124,27 @@ public class Infinity {
 		float delta = 0;
 		float accumulator = 0f;
 		float interval = 1f / InfinityVariables.UPS;
+		float alpha = 0;
 		while (gameResources.getGlobalStates().loop) {
-			if (Display.timeCountRender > 1f) {
-				Logger.log("FPS: " + Display.fps);
-				Logger.log("UPS: " + Display.ups);
-				Display.checkVRAM();
-				Display.fps = Display.fpsCount;
-				Display.fpsCount = 0;
-				Display.ups = Display.upsCount;
-				Display.upsCount = 0;
-				Display.timeCountRender -= 1f;
+			Timers.startCPUTimer();
+			if (gameResources.getDisplay().getTimeCount() > 1f) {
+				CoreInfo.ups = CoreInfo.upsCount;
+				CoreInfo.upsCount = 0;
+				gameResources.getDisplay().setTimeCount(gameResources.getDisplay().getTimeCount() - 1);
 			}
-			delta = Display.getDeltaRender();
+			delta = gameResources.getDisplay().getDelta();
 			accumulator += delta;
 			while (accumulator >= interval) {
 				update(interval);
 				accumulator -= interval;
 			}
-			render(delta);
+			alpha = accumulator / interval;
+			Timers.stopCPUTimer();
+			Timers.startGPUTimer();
+			render(alpha);
+			Timers.stopGPUTimer();
+			Timers.update();
+			gameResources.getDisplay().updateDisplay(InfinityVariables.FPS);
 		}
 		dispose();
 	}
@@ -151,10 +156,7 @@ public class Infinity {
 	 *            Delta value from Render Thread
 	 */
 	private void render(float delta) {
-		Display.fpsCount++;
 		gameResources.getGlobalStates().doRender(this, delta);
-		TextMasterRenderer.getInstance().render();
-		display.updateDisplay(InfinityVariables.FPS, gameResources);
 	}
 
 	/**
@@ -163,8 +165,8 @@ public class Infinity {
 	 * @param delta
 	 *            Delta value from Update Thread
 	 */
-	public void update(float delta) {
-		Display.upsCount++;
+	private void update(float delta) {
+		CoreInfo.upsCount++;
 		gameResources.getGlobalStates().doUpdate(this, delta);
 	}
 
@@ -174,19 +176,11 @@ public class Infinity {
 	public void dispose() {
 		Logger.log("Closing Game");
 		gameResources.cleanUp();
-		display.closeDisplay();
+		gameResources.getDisplay().closeDisplay();
 	}
 
 	public GameResources getGameResources() {
 		return gameResources;
-	}
-
-	public DedicatedClient getClient() {
-		return client;
-	}
-
-	public Display getDisplay() {
-		return display;
 	}
 
 }

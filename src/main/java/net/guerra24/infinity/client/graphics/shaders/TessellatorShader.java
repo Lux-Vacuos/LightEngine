@@ -1,3 +1,27 @@
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2015-2016 Guerra24
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package net.guerra24.infinity.client.graphics.shaders;
 
 import net.guerra24.infinity.client.core.InfinityVariables;
@@ -26,8 +50,11 @@ public class TessellatorShader extends ShaderProgram {
 
 	private int loc_texture;
 	private int loc_depth;
+	private int loc_normalMap;
+	private int loc_heightMap;
 
 	private int loc_useShadows;
+	private int loc_useParallax;
 
 	public TessellatorShader() {
 		super(InfinityVariables.VERTEX_FILE_TESSELLATOR, InfinityVariables.FRAGMENT_FILE_TESSELLATOR);
@@ -36,6 +63,8 @@ public class TessellatorShader extends ShaderProgram {
 	public void conectTextureUnits() {
 		super.loadInt(loc_texture, 0);
 		super.loadInt(loc_depth, 1);
+		super.loadInt(loc_normalMap, 2);
+		super.loadInt(loc_heightMap, 3);
 	}
 
 	@Override
@@ -49,6 +78,9 @@ public class TessellatorShader extends ShaderProgram {
 		loc_texture = super.getUniformLocation("texture0");
 		loc_depth = super.getUniformLocation("depth");
 		loc_useShadows = super.getUniformLocation("useShadows");
+		loc_normalMap = super.getUniformLocation("normalMap");
+		loc_heightMap = super.getUniformLocation("heightMap");
+		loc_useParallax = super.getUniformLocation("useParallax");
 	}
 
 	@Override
@@ -57,6 +89,8 @@ public class TessellatorShader extends ShaderProgram {
 		super.bindAttribute(1, "textureCoords");
 		super.bindAttribute(2, "normal");
 		super.bindAttribute(3, "data");
+		super.bindAttribute(4, "tangent");
+		super.bindAttribute(5, "bitangent");
 	}
 
 	/**
@@ -73,8 +107,8 @@ public class TessellatorShader extends ShaderProgram {
 		super.loadMatrix(loc_viewMatrix, matrix);
 		super.loadVector(loc_cameraPos, camera.getPosition());
 	}
-	
-	public void loadBiasMatrix(GameResources gm){
+
+	public void loadBiasMatrix(GameResources gm) {
 		Matrix4f biasMatrix = new Matrix4f();
 		biasMatrix.m00 = 0.5f;
 		biasMatrix.m01 = 0;
@@ -97,8 +131,12 @@ public class TessellatorShader extends ShaderProgram {
 	}
 
 	public void loadLightMatrix(GameResources gm) {
-		super.loadBoolean(loc_useShadows, InfinityVariables.useShadows);
 		super.loadMatrix(loc_viewLightMatrix, Maths.createViewMatrix(gm.getSun_Camera()));
+	}
+
+	public void loadSettings(boolean useShadows, boolean useParallax) {
+		super.loadBoolean(loc_useShadows, useShadows);
+		super.loadBoolean(loc_useParallax, useParallax);
 	}
 
 	/**

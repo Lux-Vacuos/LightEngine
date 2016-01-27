@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Guerra24
+ * Copyright (c) 2015-2016 Guerra24
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,8 @@
 
 package net.guerra24.infinity.client.core;
 
+import net.guerra24.infinity.client.bootstrap.Bootstrap;
+
 /**
  * Locations of all global variables
  * 
@@ -37,14 +39,15 @@ public class InfinityVariables {
 	public static int FPS = 60;
 	public static int UPS = 30;
 	public static boolean VSYNC = false;
-	public static final String Title = "Infinity Engine";
+	public static final String Title = "Infinity";
 	/**
 	 * Game Settings
 	 */
-	public static final boolean debug = true;
-	public static final String version = "0.0.1";
+	public static boolean debug = false;
+	public static boolean hideHud = false;
+	public static final String version = "0.0.2";
 	public static final String state = "ALPHA";
-	public static final int build = 5;
+	public static final int build = 6;
 	public static int FOV = 90;
 	public static int WIDTH = 1280;
 	public static int HEIGHT = 720;
@@ -56,7 +59,12 @@ public class InfinityVariables {
 	public static boolean runningOnMac = false;
 	public static boolean autostart = false;
 	public static boolean christmas = false;
-	public static final String settings = "assets/game/settings.conf";
+	public static final String settings = Bootstrap.getPrefix() + "infinity/assets/game/settings.conf";
+
+	/**
+	 * External Data
+	 */
+	public static final String web = "https://guerra24.github.io/";
 	/**
 	 * Graphic Settings
 	 */
@@ -64,19 +72,20 @@ public class InfinityVariables {
 	public static boolean useFXAA = false;
 	public static boolean useDOF = false;
 	public static boolean useMotionBlur = false;
-	public static boolean useBloom = false;
 	public static boolean useVolumetricLight = false;
+	public static boolean useParallax = false;
+	public static boolean useReflections = false;
 	public static float fogDensity = 0.02f;
 	/**
 	 * World Settings
 	 */
-	public static final float GRAVITY = -10;
+	public static final float GRAVITY = 9.8f;
 	/**
 	 * Graphics Settings
 	 */
 	public static final float WAVE_SPEED = 4f;
 	public static final float SIZE = 500f;
-	public static final float ROTATE_SPEED = 0.2f;
+	public static final float ROTATE_SPEED = 0.02f;
 	/**
 	 * Shader Files
 	 */
@@ -102,6 +111,10 @@ public class InfinityVariables {
 	public static final String FRAGMENT_FILE_TESSELLATOR = "FragmentTessellator.glsl";
 	public static final String VERTEX_FILE_TESSELLATOR_BASIC = "VertexTessellatorBasic.glsl";
 	public static final String FRAGMENT_FILE_TESSELLATOR_BASIC = "FragmentTessellatorBasic.glsl";
+	/**
+	 * World Folder Path
+	 */
+	public static final String worldPath = Bootstrap.getPrefix() + "infinity/assets/game/world/";
 
 
 }

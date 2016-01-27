@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Guerra24
+ * Copyright (c) 2015-2016 Guerra24
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -63,16 +63,18 @@ public class DeferredShadingShader extends ShaderProgram {
 	private int loc_cameraPosition;
 	private int loc_previousCameraPosition;
 	private int loc_lightPosition;
+	private int loc_invertedLightPosition;
 	private int loc_skyColor;
 	private int loc_skyboxDay;
 	private int loc_skyboxNight;
 	private int loc_skyboxBlendFactor;
+	private int loc_exposure;
 
 	private int loc_useFXAA;
 	private int loc_useDOF;
 	private int loc_useMotionBlur;
-	private int loc_useBloom;
 	private int loc_useVolumetricLight;
+	private int loc_useReflections;
 
 	private float time;
 
@@ -105,6 +107,7 @@ public class DeferredShadingShader extends ShaderProgram {
 		loc_gData0 = super.getUniformLocation("gData0");
 		loc_gData1 = super.getUniformLocation("gData1");
 		loc_lightPosition = super.getUniformLocation("lightPosition");
+		loc_invertedLightPosition = super.getUniformLocation("invertedLightPosition");
 		loc_composite0 = super.getUniformLocation("composite0");
 		loc_composite1 = super.getUniformLocation("composite1");
 		loc_sunPositionInScreen = super.getUniformLocation("sunPositionInScreen");
@@ -112,11 +115,12 @@ public class DeferredShadingShader extends ShaderProgram {
 		loc_skyboxDay = super.getUniformLocation("skyboxDay");
 		loc_skyboxNight = super.getUniformLocation("skyboxNight");
 		loc_skyboxBlendFactor = super.getUniformLocation("skyboxBlendFactor");
+		loc_exposure = super.getUniformLocation("exposure");
 
 		loc_useFXAA = super.getUniformLocation("useFXAA");
 		loc_useDOF = super.getUniformLocation("useDOF");
 		loc_useMotionBlur = super.getUniformLocation("useMotionBlur");
-		loc_useBloom = super.getUniformLocation("useBloom");
+		loc_useReflections = super.getUniformLocation("useReflections");
 		loc_useVolumetricLight = super.getUniformLocation("useVolumetricLight");
 	}
 
@@ -148,12 +152,17 @@ public class DeferredShadingShader extends ShaderProgram {
 		time %= 10;
 	}
 
+	public void loadExposure(float bright) {
+		super.loadFloat(loc_exposure, bright);
+	}
+
 	public void loadSkyColor(Vector3f color) {
 		super.loadVector(loc_skyColor, color);
 	}
 
-	public void loadLightPosition(Vector3f pos) {
+	public void loadLightPosition(Vector3f pos, Vector3f invertPos) {
 		super.loadVector(loc_lightPosition, pos);
+		super.loadVector(loc_invertedLightPosition, invertPos);
 	}
 
 	public void loadSunPosition(Vector2f pos) {
@@ -170,12 +179,13 @@ public class DeferredShadingShader extends ShaderProgram {
 		super.load2DVector(loc_resolution, res);
 	}
 
-	public void loadSettings() {
-		super.loadBoolean(loc_useDOF, InfinityVariables.useDOF);
-		super.loadBoolean(loc_useFXAA, InfinityVariables.useFXAA);
-		super.loadBoolean(loc_useMotionBlur, InfinityVariables.useMotionBlur);
-		super.loadBoolean(loc_useBloom, InfinityVariables.useBloom);
-		super.loadBoolean(loc_useVolumetricLight, InfinityVariables.useVolumetricLight);
+	public void loadSettings(boolean useDOF, boolean useFXAA, boolean useMotionBlur, boolean useVolumetricLight,
+			boolean useReflections) {
+		super.loadBoolean(loc_useDOF, useDOF);
+		super.loadBoolean(loc_useFXAA, useFXAA);
+		super.loadBoolean(loc_useMotionBlur, useMotionBlur);
+		super.loadBoolean(loc_useVolumetricLight, useVolumetricLight);
+		super.loadBoolean(loc_useReflections, useReflections);
 	}
 
 	public void loadMotionBlurData(Matrix4f projectionMatrix, Camera camera, Matrix4f previousViewMatrix,

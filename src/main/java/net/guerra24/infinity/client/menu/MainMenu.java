@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Guerra24
+ * Copyright (c) 2015-2016 Guerra24
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,7 @@
 package net.guerra24.infinity.client.menu;
 
 import net.guerra24.infinity.client.core.InfinityVariables;
-import net.guerra24.infinity.client.graphics.MenuRendering;
+import net.guerra24.infinity.client.graphics.VectorsRendering;
 import net.guerra24.infinity.client.resources.GameResources;
 import net.guerra24.infinity.universal.util.vector.Vector2f;
 
@@ -34,6 +34,9 @@ public class MainMenu {
 	private Button playButton;
 	private Button exitButton;
 	private Button optionsButton;
+	private Button newsRefreshButton;
+
+	private WebRenderer webRenderer;
 
 	private float xScale, yScale;
 
@@ -42,21 +45,38 @@ public class MainMenu {
 		float height = InfinityVariables.HEIGHT;
 		yScale = height / 720f;
 		xScale = width / 1280f;
-		playButton = new Button(new Vector2f(177 * xScale, 532 * yScale), new Vector2f(215 * xScale, 80 * yScale));
-		exitButton = new Button(new Vector2f(177 * xScale, 224 * yScale), new Vector2f(215 * xScale, 80 * yScale));
-		optionsButton = new Button(new Vector2f(177 * xScale, 376 * yScale), new Vector2f(215 * xScale, 80 * yScale));
+		playButton = new Button(new Vector2f(177, 532), new Vector2f(215, 80), xScale, yScale);
+		exitButton = new Button(new Vector2f(177, 224), new Vector2f(215, 80), xScale, yScale);
+		optionsButton = new Button(new Vector2f(177, 376), new Vector2f(215, 80), xScale, yScale);
+		newsRefreshButton = new Button(new Vector2f(1096, 627), new Vector2f(100, 40), xScale, yScale);
+		webRenderer = new WebRenderer(InfinityVariables.web + "news/menuInfinity.webtag", 460 * xScale, 120 * yScale);
+		webRenderer.update();
 	}
 
+	float b = 0;
+
 	public void render() {
-		MenuRendering.renderButton(null, "Play", "Roboto-Bold", 170 * xScale, 112 * yScale, 215 * xScale, 80 * yScale,
-				MenuRendering.rgba(255, 255, 255, 255, MenuRendering.colorA), playButton.insideButton());
-		MenuRendering.renderButton(null, "Options", "Roboto-Bold", 170 * xScale, 270 * yScale, 215 * xScale,
-				80 * yScale, MenuRendering.rgba(255, 255, 255, 255, MenuRendering.colorA),
-				optionsButton.insideButton());
-		MenuRendering.renderButton(null, "Exit", "Roboto-Bold", 170 * xScale, 425 * yScale, 215 * xScale, 80 * yScale,
-				MenuRendering.rgba(255, 255, 255, 255, MenuRendering.colorA), exitButton.insideButton());
-		MenuRendering.renderText("Infinity Engine " + InfinityVariables.version + " " + InfinityVariables.state
-				+ " Build " + InfinityVariables.build, "Roboto-Bold", 0, 710 * yScale, 20);
+		playButton.render("Play");
+		optionsButton.render("Options");
+		exitButton.render("Exit");
+
+		VectorsRendering.renderText(
+				"Infinity " + InfinityVariables.version + " " + InfinityVariables.state + " Build " + InfinityVariables.build,
+				"Roboto-Bold", 0, 710 * yScale, 20 * yScale, VectorsRendering.rgba(255, 255, 255, 160, VectorsRendering.colorA),
+				VectorsRendering.rgba(255, 255, 255, 160, VectorsRendering.colorB));
+		VectorsRendering.renderWindow("Infinity News", "Roboto-Bold", 450 * xScale, 50 * yScale, 750 * xScale, 600 * yScale);
+		webRenderer.render();
+
+		newsRefreshButton.render("Reload", VectorsRendering.rgba(80, 80, 80, 80, VectorsRendering.colorA));
+
+		VectorsRendering.renderButton(null, "Reload", "Roboto-Bold", 1096 * xScale, 53 * yScale, 100 * xScale, 40 * yScale,
+				VectorsRendering.rgba(80, 80, 80, 80, VectorsRendering.colorA), newsRefreshButton.insideButton());
+
+	}
+
+	public void update() {
+		if (newsRefreshButton.pressed())
+			webRenderer.update();
 	}
 
 	public Button getPlayButton() {

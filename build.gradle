@@ -3,7 +3,7 @@ apply plugin:'eclipse'
 apply plugin:'application'
 
 mainClassName = 'net.guerra24.infinity.client.bootstrap.Bootstrap'
-version = '0.0.1-ALPHA'
+version = '0.0.2-ALPHA'
 
 if (System.getProperty("os.name").toLowerCase().contains("mac os x")) {
   applicationDefaultJvmArgs = ["-XstartOnFirstThread"]
@@ -12,7 +12,9 @@ if (System.getProperty("os.name").toLowerCase().contains("mac os x")) {
 jar {
 	include("*net/**")
 	include("*org/**")
-	include("assets/**")
+	include("*org/**")
+	include("*assets/**") 
+	include("log4j.properties")
 	
     manifest {
         attributes 'Infinity-Branch': 'Develop',
@@ -26,6 +28,7 @@ buildscript {
     	maven {
      	 url "https://plugins.gradle.org/m2/"
      	 url "https://oss.sonatype.org/content/repositories/snapshots/"
+     	 url "https://oss.sonatype.org/content/repositories/releases/" 
     	}
   	}
 }
@@ -39,6 +42,8 @@ repositories {
 }
 
 dependencies {
+	compile 'log4j:log4j:1.2.17'
+	compile 'com.badlogicgames.ashley:ashley:1.6.0'
 	compile 'org.l33tlabs.twl:pngdecoder:1.+'
 	compile 'de.jarnbjo:j-ogg-all:1.0.+'
 	compile 'org.jcraft:jorbis:0.0.+'
@@ -47,7 +52,17 @@ dependencies {
 	compile 'org.lwjgl:lwjgl-platform:3.0.0-SNAPSHOT:natives-windows'
 	compile 'org.lwjgl:lwjgl-platform:3.0.0-SNAPSHOT:natives-linux'
 	compile 'org.lwjgl:lwjgl-platform:3.0.0-SNAPSHOT:natives-osx'
-    compile fileTree(dir: "libs", includes: ["*.jar"])
+	compile 'io.netty:netty-all:5.0.0.Alpha2'
+	compile group: 'commons-collections', name: 'commons-collections', version: '3.2'
+    testCompile group: 'junit', name: 'junit', version: '4.+'
+}
+
+task generateJavaDoc(type: Javadoc) {
+	failOnError = false
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.10'
 }
 
 sourceSets {

@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Guerra24
+ * Copyright (c) 2015-2016 Guerra24
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,9 +24,7 @@
 
 package net.guerra24.infinity.client.bootstrap;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
+import java.io.File;
 import java.util.Calendar;
 
 import net.guerra24.infinity.client.core.Infinity;
@@ -39,6 +37,21 @@ import net.guerra24.infinity.client.util.Logger;
  * @author Guerra24 <pablo230699@hotmail.com>
  */
 public class Bootstrap {
+
+	private static String prefix;
+
+	static {
+		if (getPlatform().equals(Platform.WINDOWS_32) || getPlatform().equals(Platform.WINDOWS_64))
+			prefix = System.getenv("AppData");
+		else if (getPlatform().equals(Platform.LINUX_32) || getPlatform().equals(Platform.LINUX_64))
+			prefix = System.getProperty("user.home");
+		else if (getPlatform().equals(Platform.MACOSX)) {
+			prefix = System.getProperty("user.home");
+			prefix += "/Library/Application Support";
+		}
+		prefix += "/.";
+	}
+
 	/**
 	 * OS info
 	 */
@@ -84,6 +97,12 @@ public class Bootstrap {
 
 	}
 
+	static {
+		File file = new File(Bootstrap.getPrefix() + "infinity/assets/game/logs");
+		if (!file.exists())
+			file.mkdirs();
+	}
+
 	/**
 	 * Launcher main function
 	 * 
@@ -91,18 +110,7 @@ public class Bootstrap {
 	 *            Not Used
 	 */
 	public static void main(String[] args) {
-		Thread.currentThread().setName("Infinity Engine Main");
-		if (!InfinityVariables.debug) {
-			PrintStream out;
-			try {
-				out = new PrintStream(new FileOutputStream("assets/log.txt"));
-				System.setOut(out);
-				System.setErr(out);
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
-		}
-
+		Thread.currentThread().setName("Infinity Main");
 		try {
 			parseArgs(args);
 		} catch (ArrayIndexOutOfBoundsException aioe) {
@@ -113,6 +121,7 @@ public class Bootstrap {
 			System.exit(1);
 		}
 		checkSomeValues();
+
 		new Infinity();
 	}
 
@@ -127,16 +136,14 @@ public class Bootstrap {
 	}
 
 	/**
-	 * Handles all Voxel available args
+	 * Handles all Infinity available args
 	 * 
 	 * @param args
 	 *            Array of args
 	 */
 	private static void parseArgs(String[] args) {
 		boolean gaveWidth = false, gaveHeight = false, gaveFov = false;
-		boolean gaveFps = false, gaveShadows = false;
-		boolean gaveAutostart = false, gaveFXAA = false, gaveDOF = false;
-		boolean gaveMotionBlur = false, gaveBloom = false;
+		boolean gaveFps = false, gaveAutostart = false;
 
 		for (int i = 0; i < args.length; i++) {
 			switch (args[i]) {
@@ -160,8 +167,8 @@ public class Bootstrap {
 				if (gaveFov)
 					throw new IllegalStateException("FOV already given");
 				InfinityVariables.FOV = Integer.parseInt(args[++i]);
-				if (InfinityVariables.FOV <= 20 || InfinityVariables.FOV >= 120)
-					throw new IllegalArgumentException("FOV must be in (20, 120) range");
+				if (InfinityVariables.FOV <= 20 || InfinityVariables.FOV >= 140)
+					throw new IllegalArgumentException("FOV must be in (20, 140) range");
 				gaveFov = true;
 				break;
 			case "-fps":
@@ -172,40 +179,6 @@ public class Bootstrap {
 					throw new IllegalArgumentException("FPS must be positive");
 				}
 				gaveFps = true;
-				break;
-			case "-useShadows":
-				if (gaveShadows)
-					throw new IllegalStateException("Shadows already given");
-				InfinityVariables.useShadows = true;
-				gaveShadows = true;
-				break;
-			case "-useFXAA":
-				if (gaveFXAA)
-					throw new IllegalStateException("FXAA already given");
-				InfinityVariables.useFXAA = true;
-				gaveFXAA = true;
-				break;
-			case "-useDOF":
-				if (gaveDOF)
-					throw new IllegalStateException("DOF already given");
-				if (InfinityVariables.useMotionBlur)
-					throw new IllegalArgumentException("DOF only be activated if Motion Blur is disabled");
-				InfinityVariables.useDOF = true;
-				gaveDOF = true;
-				break;
-			case "-useMotionBlur":
-				if (gaveMotionBlur)
-					throw new IllegalStateException("Motion Blur already given");
-				if (InfinityVariables.useDOF)
-					throw new IllegalArgumentException("Motion Blur only be activated if DOF is disabled");
-				InfinityVariables.useMotionBlur = true;
-				gaveMotionBlur = true;
-				break;
-			case "-useBloom":
-				if (gaveBloom)
-					throw new IllegalStateException("Bloom already given");
-				InfinityVariables.useBloom = true;
-				gaveBloom = true;
 				break;
 			case "-autostart":
 				if (gaveAutostart)
@@ -221,6 +194,10 @@ public class Bootstrap {
 				}
 			}
 		}
+	}
+
+	public static String getPrefix() {
+		return prefix;
 	}
 
 }

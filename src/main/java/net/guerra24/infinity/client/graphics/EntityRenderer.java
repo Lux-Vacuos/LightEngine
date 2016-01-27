@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Guerra24
+ * Copyright (c) 2015-2016 Guerra24
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,7 +44,7 @@ import net.guerra24.infinity.client.resources.GameResources;
 import net.guerra24.infinity.client.resources.models.RawModel;
 import net.guerra24.infinity.client.resources.models.TexturedModel;
 import net.guerra24.infinity.client.util.Maths;
-import net.guerra24.infinity.client.world.entities.Entity;
+import net.guerra24.infinity.client.world.entities.GameEntity;
 import net.guerra24.infinity.universal.util.vector.Matrix4f;
 
 /**
@@ -82,11 +82,11 @@ public class EntityRenderer {
 	 * @param blockEntities
 	 *            A List of entity's
 	 */
-	public void renderEntity(Map<TexturedModel, List<Entity>> blockEntities, GameResources gm) {
+	public void renderEntity(Map<TexturedModel, List<GameEntity>> blockEntities, GameResources gm) {
 		for (TexturedModel model : blockEntities.keySet()) {
 			prepareTexturedModel(model, gm);
-			List<Entity> batch = blockEntities.get(model);
-			for (Entity entity : batch) {
+			List<GameEntity> batch = blockEntities.get(model);
+			for (GameEntity entity : batch) {
 				shader.loadEntityLight(1);
 				prepareInstance(entity);
 				glDrawElements(GL_TRIANGLES, model.getRawModel().getVertexCount(), GL_UNSIGNED_INT, 0);
@@ -129,7 +129,7 @@ public class EntityRenderer {
 	 * 
 	 * @param entity
 	 */
-	private void prepareInstance(Entity entity) {
+	private void prepareInstance(GameEntity entity) {
 		Matrix4f transformationMatrix = Maths.createTransformationMatrix(entity.getPosition(), entity.getRotX(),
 				entity.getRotY(), entity.getRotZ(), entity.getScale());
 		shader.loadTransformationMatrix(transformationMatrix);

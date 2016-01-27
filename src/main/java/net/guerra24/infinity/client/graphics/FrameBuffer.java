@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Guerra24
+ * Copyright (c) 2015-2016 Guerra24
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,7 +36,6 @@ import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_S;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_T;
-import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
 import static org.lwjgl.opengl.GL11.glBindTexture;
 import static org.lwjgl.opengl.GL11.glDeleteTextures;
 import static org.lwjgl.opengl.GL11.glDrawBuffer;
@@ -48,19 +47,22 @@ import static org.lwjgl.opengl.GL11.glTexParameteri;
 import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
 import static org.lwjgl.opengl.GL13.GL_CLAMP_TO_BORDER;
+import static org.lwjgl.opengl.GL14.GL_COMPARE_R_TO_TEXTURE;
+import static org.lwjgl.opengl.GL14.GL_TEXTURE_COMPARE_MODE;
 import static org.lwjgl.opengl.GL30.GL_COLOR_ATTACHMENT0;
 import static org.lwjgl.opengl.GL30.GL_DEPTH_ATTACHMENT;
 import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER;
 import static org.lwjgl.opengl.GL30.GL_RENDERBUFFER;
+import static org.lwjgl.opengl.GL30.GL_RGBA16F;
 import static org.lwjgl.opengl.GL30.glBindFramebuffer;
 import static org.lwjgl.opengl.GL30.glBindRenderbuffer;
 import static org.lwjgl.opengl.GL30.glDeleteFramebuffers;
 import static org.lwjgl.opengl.GL30.glDeleteRenderbuffers;
 import static org.lwjgl.opengl.GL30.glFramebufferRenderbuffer;
+import static org.lwjgl.opengl.GL30.glFramebufferTexture2D;
 import static org.lwjgl.opengl.GL30.glGenFramebuffers;
 import static org.lwjgl.opengl.GL30.glGenRenderbuffers;
 import static org.lwjgl.opengl.GL30.glRenderbufferStorage;
-import static org.lwjgl.opengl.GL30.glFramebufferTexture2D;
 import static org.lwjgl.opengl.GL32.glFramebufferTexture;
 
 import java.nio.ByteBuffer;
@@ -81,11 +83,11 @@ public class FrameBuffer {
 	private int renderBuffer;
 	private int texture;
 
-	public FrameBuffer(boolean depth, int width, int height) {
-		initialiseFrameBuffer(depth,width, height);
+	public FrameBuffer(boolean depth, int width, int height, Display display) {
+		initialiseFrameBuffer(depth, width, height, display);
 	}
 
-	private void initialiseFrameBuffer(boolean depth, int width, int height) {
+	private void initialiseFrameBuffer(boolean depth, int width, int height, Display display) {
 		frameBuffer = createFrameBuffer(depth);
 		if (depth) {
 			texture = createDepthTextureAttachment(width, height);
@@ -94,16 +96,17 @@ public class FrameBuffer {
 		}
 		if (!depth)
 			renderBuffer = createDepthBufferAttachment(width, height);
-		end();
+		end(display);
 	}
 
 	public void begin(int width, int height) {
 		bindFrameBuffer(frameBuffer, width, height);
 	}
 
-	public void end() {
+	public void end(Display display) {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glViewport(0, 0, Display.getWidth(), Display.getHeight());
+		glViewport(0, 0, (int) (display.getDisplayWidth() * display.getPixelRatio()),
+				(int) (display.getDisplayHeight() * display.getPixelRatio()));
 	}
 
 	private void bindFrameBuffer(int frameBuffer, int width, int height) {
@@ -125,7 +128,7 @@ public class FrameBuffer {
 	private int createTextureAttachment(int width, int height) {
 		int texture = glGenTextures();
 		glBindTexture(GL_TEXTURE_2D, texture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (ByteBuffer) null);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, (ByteBuffer) null);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -143,6 +146,7 @@ public class FrameBuffer {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
 		float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 		FloatBuffer border = BufferUtils.createFloatBuffer(4);
 		border.put(borderColor);

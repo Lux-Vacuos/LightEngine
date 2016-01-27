@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Guerra24
+ * Copyright (c) 2015-2016 Guerra24
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -55,8 +55,10 @@ import static org.lwjgl.opengl.GL14.GL_TEXTURE_LOD_BIAS;
 import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL15.GL_ELEMENT_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
+import static org.lwjgl.opengl.GL15.GL_STREAM_DRAW;
 import static org.lwjgl.opengl.GL15.glBindBuffer;
 import static org.lwjgl.opengl.GL15.glBufferData;
+import static org.lwjgl.opengl.GL15.glBufferSubData;
 import static org.lwjgl.opengl.GL15.glDeleteBuffers;
 import static org.lwjgl.opengl.GL15.glGenBuffers;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
@@ -64,6 +66,7 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 import static org.lwjgl.opengl.GL30.glGenerateMipmap;
+import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -83,13 +86,15 @@ import org.lwjgl.BufferUtils;
 
 import de.matthiasmann.twl.utils.PNGDecoder;
 import de.matthiasmann.twl.utils.PNGDecoder.Format;
+import net.guerra24.infinity.client.graphics.VectorsRendering;
 import net.guerra24.infinity.client.graphics.opengl.Display;
 import net.guerra24.infinity.client.resources.models.EntityTexture;
 import net.guerra24.infinity.client.resources.models.RawModel;
 import net.guerra24.infinity.client.util.Logger;
 
 /**
- * Loader
+ * This objects handles all loading methods from any type of data, models,
+ * textures, fonts, etc.
  * 
  * @author Guerra24 <pablo230699@hotmail.com>
  * @category Assets
@@ -111,10 +116,16 @@ public class Loader {
 	 * Texture List
 	 */
 	private List<Integer> textures = new ArrayList<Integer>();
+	/*
+	 * NanoVG Fonts
+	 */
+	private List<ByteBuffer> nvgFont = new ArrayList<ByteBuffer>();
 	private OBJLoader objLoader;
+	private Display display;
 
-	public Loader() {
-		objLoader = new OBJLoader();
+	public Loader(Display display) {
+		objLoader = new OBJLoader(this);
+		this.display = display;
 	}
 
 	/**
@@ -164,6 +175,35 @@ public class Loader {
 		return new RawModel(vaoID, positions.length / dimensions);
 	}
 
+	public int createEmptyVBO(int floatCount) {
+		int vbo = glGenBuffers();
+		vbos.add(vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER, floatCount * 4, GL_STREAM_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		return vbo;
+	}
+
+	public void updateVBO(int vbo, float[] data, FloatBuffer buffer) {
+		buffer.clear();
+		buffer.put(data);
+		buffer.flip();
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER, buffer.capacity() * 4, GL_STREAM_DRAW);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, buffer);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+
+	public void addInstacedAttribute(int vao, int vbo, int attribute, int dataSize, int instancedDataLenght,
+			int offset) {
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBindVertexArray(vao);
+		glVertexAttribPointer(attribute, dataSize, GL_FLOAT, false, instancedDataLenght * 4, offset * 4);
+		glVertexAttribDivisor(attribute, 1);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
+
 	/**
 	 * Load Block Texture
 	 * 
@@ -208,6 +248,14 @@ public class Loader {
 		return texture_id;
 	}
 
+	/**
+	 * 
+	 * @param fileName
+	 *            Name of the file to load
+	 * @return Texture ID
+	 * @deprecated Use {@link Loader#loadNVGFont(String, String)} due to there
+	 *             is no more FontRenderer
+	 */
 	public int loadTextureFont(String fileName) {
 		int texture = 0;
 		try {
@@ -253,6 +301,11 @@ public class Loader {
 	 * @param fileName
 	 *            Gui Texture Name
 	 * @return Texture ID
+	 * @deprecated Use
+	 *             {@link VectorsRendering#renderWindow(float, float, float, float)}
+	 *             or
+	 *             {@link VectorsRendering#renderWindow(String, String, float, float, float, float)}
+	 *             due to there is no more GuiRenderer
 	 */
 	public int loadTextureGui(String fileName) {
 		int texture = 0;
@@ -286,8 +339,9 @@ public class Loader {
 		Logger.log("Loading NVGFont: " + filename + ".ttf");
 		int font = 0;
 		try {
-			font = nvgCreateFontMem(Display.getVg(), name,
-					ioResourceToByteBuffer("assets/fonts/" + filename + ".ttf", 150 * 1024), 0);
+			ByteBuffer buffer = ioResourceToByteBuffer("assets/fonts/" + filename + ".ttf", 150 * 1024);
+			nvgFont.add(buffer);
+			font = nvgCreateFontMem(display.getVg(), name, buffer, 0);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -296,21 +350,12 @@ public class Loader {
 	}
 
 	public int loadNVGTexture(String file) {
-		int width = 0;
-		int height = 0;
 		ByteBuffer buffer = null;
 		int tex = 0;
 		try {
 			Logger.log("Loading NVGTexture: " + file + ".png");
-			InputStream in = getClass().getClassLoader().getResourceAsStream("assets/textures/menu/" + file + ".png");
-			PNGDecoder decoder = new PNGDecoder(in);
-			width = decoder.getWidth();
-			height = decoder.getHeight();
-			buffer = ByteBuffer.allocateDirect(4 * width * height);
-			decoder.decode(buffer, width * 4, Format.RGBA);
-			buffer.flip();
-			in.close();
-			tex = nvgCreateImageMem(Display.getVg(), 0, buffer);
+			buffer = ioResourceToByteBuffer("assets/textures/menu/" + file + ".png", 32 * 1024);
+			tex = nvgCreateImageMem(display.getVg(), 0, buffer);
 		} catch (Exception e) {
 			e.printStackTrace();
 			Logger.error("Tried to load texture " + file + ", didn't work");
@@ -334,7 +379,7 @@ public class Loader {
 			glDeleteTextures(texture);
 		}
 		for (int texture : nvgData) {
-			nvgDeleteImage(Display.getVg(), texture);
+			nvgDeleteImage(display.getVg(), texture);
 		}
 	}
 

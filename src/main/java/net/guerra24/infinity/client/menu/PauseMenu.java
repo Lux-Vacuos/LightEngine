@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 Guerra24
+ * Copyright (c) 2015-2016 Guerra24
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,12 +25,12 @@
 package net.guerra24.infinity.client.menu;
 
 import net.guerra24.infinity.client.core.InfinityVariables;
-import net.guerra24.infinity.client.graphics.MenuRendering;
 import net.guerra24.infinity.client.resources.GameResources;
 import net.guerra24.infinity.universal.util.vector.Vector2f;
 
 public class PauseMenu {
 	private Button exitButton;
+	private Button optionsButton;
 	private float yScale, xScale;
 
 	public PauseMenu(GameResources gm) {
@@ -38,16 +38,21 @@ public class PauseMenu {
 		float height = InfinityVariables.HEIGHT;
 		yScale = height / 720f;
 		xScale = width / 1280f;
-		exitButton = new Button(new Vector2f(530 * xScale, 35 * yScale), new Vector2f(215 * xScale, 80 * yScale));
+		exitButton = new Button(new Vector2f(500, 35), new Vector2f(280, 80), xScale, yScale);
+		optionsButton = new Button(new Vector2f(500, 135), new Vector2f(280, 80), xScale, yScale);
 	}
 
 	public void render() {
-		MenuRendering.renderButton(null, "Back to Main Menu", "Roboto-Bold", 528 * xScale, 607 * yScale, 280 * xScale,
-				80 * yScale, MenuRendering.rgba(255, 255, 255, 255, MenuRendering.colorA), exitButton.insideButton());
+		exitButton.render("Back to Main Menu");
+		optionsButton.render("Options");
 	}
 
 	public Button getExitButton() {
 		return exitButton;
+	}
+
+	public Button getOptionsButton() {
+		return optionsButton;
 	}
 
 }
