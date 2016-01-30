@@ -32,7 +32,6 @@ import java.util.Random;
 import com.badlogic.ashley.core.Engine;
 import com.esotericsoftware.kryo.Kryo;
 
-import net.guerra24.infinity.client.core.GameSettings;
 import net.guerra24.infinity.client.core.GlobalStates;
 import net.guerra24.infinity.client.core.Infinity;
 import net.guerra24.infinity.client.core.InfinityVariables;
@@ -51,10 +50,7 @@ import net.guerra24.infinity.client.graphics.shaders.TessellatorBasicShader;
 import net.guerra24.infinity.client.graphics.shaders.TessellatorShader;
 import net.guerra24.infinity.client.input.Keyboard;
 import net.guerra24.infinity.client.input.Mouse;
-import net.guerra24.infinity.client.menu.Menu;
 import net.guerra24.infinity.client.particle.ParticleMaster;
-import net.guerra24.infinity.client.particle.ParticleTexture;
-import net.guerra24.infinity.client.resources.scenes.Demo;
 import net.guerra24.infinity.client.sound.LibraryLWJGLOpenAL;
 import net.guerra24.infinity.client.sound.soundsystem.SoundSystem;
 import net.guerra24.infinity.client.sound.soundsystem.SoundSystemConfig;
@@ -106,22 +102,16 @@ public class GameResources {
 	private SoundSystem soundSystem;
 	private Frustum frustum;
 	private Kryo kryo;
-	private Menu menuSystem;
-	private GameSettings gameSettings;
 
 	private Vector3f sunRotation = new Vector3f(5, 0, -45);
 	private Vector3f lightPos = new Vector3f(0, 0, 0);
 	private Vector3f invertedLightPosition = new Vector3f(0, 0, 0);
-	private ParticleTexture torchTexture;
-
-	public Demo demo;
 
 	/**
 	 * Constructor
 	 * 
 	 */
 	private GameResources() {
-		gameSettings = new GameSettings();
 		display = new Display();
 		display.create(InfinityVariables.WIDTH, InfinityVariables.HEIGHT, "Infinity", InfinityVariables.VSYNC, false,
 				false, new ContextFormat(3, 3, GLFW_OPENGL_API, GLFW_OPENGL_CORE_PROFILE, true),
@@ -176,7 +166,6 @@ public class GameResources {
 		soundSystem = new SoundSystem();
 		globalStates = new GlobalStates();
 		UniversalResources.loadUniversalResources(this);
-		menuSystem = new Menu(this);
 	}
 
 	/**
@@ -187,8 +176,7 @@ public class GameResources {
 		soundSystem.backgroundMusic("menu1", "menu/menu1.ogg", false);
 		soundSystem.backgroundMusic("menu2", "menu/menu2.ogg", false);
 		loader.loadNVGFont("Roboto-Bold", "Roboto-Bold");
-		torchTexture = new ParticleTexture(loader.loadTextureParticle("fire0"), 4);
-		demo = new Demo(this);
+		loader.loadNVGFont("Roboto-Regular", "Roboto-Regular");
 	}
 
 	public void update(float rot) {
@@ -218,7 +206,6 @@ public class GameResources {
 	 * 
 	 */
 	public void cleanUp() {
-		gameSettings.save();
 		TessellatorShader.getInstance().cleanUp();
 		TessellatorBasicShader.getInstance().cleanUp();
 		masterShadowRenderer.cleanUp();
@@ -286,20 +273,9 @@ public class GameResources {
 		return invertedLightPosition;
 	}
 
-	public GameSettings getGameSettings() {
-		return gameSettings;
-	}
 
 	public OcclusionRenderer getOcclusionRenderer() {
 		return occlusionRenderer;
-	}
-
-	public Menu getMenuSystem() {
-		return menuSystem;
-	}
-
-	public ParticleTexture getTorchTexture() {
-		return torchTexture;
 	}
 
 	public Vector3f getSunRotation() {

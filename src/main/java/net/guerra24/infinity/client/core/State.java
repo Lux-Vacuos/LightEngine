@@ -24,6 +24,8 @@
 
 package net.guerra24.infinity.client.core;
 
+import net.guerra24.infinity.client.resources.GameResources;
+
 /**
  * State
  * 
@@ -31,15 +33,9 @@ package net.guerra24.infinity.client.core;
  * @category Kernel
  */
 public interface State {
+	
+	void init(GameResources gm);
 
-	/**
-	 * 
-	 * This method is called every time in the game loop, it applies update
-	 * 
-	 * @param infinity
-	 * @param states
-	 * @param delta
-	 */
 	void update(Infinity infinity, GlobalStates states, float delta);
 
 	void render(Infinity infinity, GlobalStates states, float alpha);

@@ -24,8 +24,6 @@
 
 package net.guerra24.infinity.client.core;
 
-import net.guerra24.infinity.client.bootstrap.Bootstrap;
-
 /**
  * Locations of all global variables
  * 
@@ -40,6 +38,7 @@ public class InfinityVariables {
 	public static int UPS = 30;
 	public static boolean VSYNC = false;
 	public static final String Title = "Infinity";
+	public static String gameName = "Infinity";
 	/**
 	 * Game Settings
 	 */
@@ -47,7 +46,7 @@ public class InfinityVariables {
 	public static boolean hideHud = false;
 	public static final String version = "0.0.2";
 	public static final String state = "ALPHA";
-	public static final int build = 6;
+	public static final int build = 7;
 	public static int FOV = 90;
 	public static int WIDTH = 1280;
 	public static int HEIGHT = 720;
@@ -59,12 +58,7 @@ public class InfinityVariables {
 	public static boolean runningOnMac = false;
 	public static boolean autostart = false;
 	public static boolean christmas = false;
-	public static final String settings = Bootstrap.getPrefix() + "infinity/assets/game/settings.conf";
 
-	/**
-	 * External Data
-	 */
-	public static final String web = "https://guerra24.github.io/";
 	/**
 	 * Graphic Settings
 	 */
@@ -111,10 +105,5 @@ public class InfinityVariables {
 	public static final String FRAGMENT_FILE_TESSELLATOR = "FragmentTessellator.glsl";
 	public static final String VERTEX_FILE_TESSELLATOR_BASIC = "VertexTessellatorBasic.glsl";
 	public static final String FRAGMENT_FILE_TESSELLATOR_BASIC = "FragmentTessellatorBasic.glsl";
-	/**
-	 * World Folder Path
-	 */
-	public static final String worldPath = Bootstrap.getPrefix() + "infinity/assets/game/world/";
-
 
 }

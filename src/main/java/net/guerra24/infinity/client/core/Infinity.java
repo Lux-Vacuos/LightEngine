@@ -47,9 +47,6 @@ import net.guerra24.infinity.client.util.Logger;
 public class Infinity {
 
 	/**
-	 * Game Threads
-	 */
-	/**
 	 * Game Data
 	 */
 	private GameResources gameResources;
@@ -57,19 +54,15 @@ public class Infinity {
 	/**
 	 * Constructor of the Kernel, Initializes the Game and starts the loop
 	 */
-	public Infinity() {
-		mainLoop();
-	}
-
-	public Infinity(String test) {
-		Logger.log("Running infinity in test mode");
+	public Infinity(State state) {
+		mainLoop(state);
 	}
 
 	/**
 	 * PreInit phase, initialize the display and runs the API PreInit
 	 * 
 	 */
-	public void preInit() {
+	private void preInit() {
 		Logger.log("Loading");
 		gameResources = GameResources.instance();
 		Logger.log("Infinity Version: " + InfinityVariables.version);
@@ -91,36 +84,30 @@ public class Infinity {
 	 * Init phase, initialize the game data (models,textures,music,etc) and runs
 	 * the API Init
 	 */
-	public void init() {
+	private void init() {
 		gameResources.init(this);
 		gameResources.loadResources();
 		Logger.log("Initializing Threads");
-		gameResources.getRenderer().prepare();
-
 	}
 
 	/**
 	 * PostInit phase, starts music and runs the API PostInit
 	 */
-	public void postInit() {
-		gameResources.getSoundSystem().stop("menu1");
-		gameResources.getSoundSystem().stop("menu2");
-		if (gameResources.getRand().nextBoolean())
-			gameResources.getSoundSystem().play("menu1");
-		else
-			gameResources.getSoundSystem().play("menu2");
-		Mouse.setHidden(true);
+	private void postInit(State state) {
+		Mouse.setGrabbed(true);
 		Timers.initDebugDisplay();
+		state.init(gameResources);
+		gameResources.getGlobalStates().setState(state);
 	}
 
 	/**
 	 * Infinity Main Loop
 	 * 
 	 */
-	public void mainLoop() {
+	private void mainLoop(State state) {
 		preInit();
 		init();
-		postInit();
+		postInit(state);
 		float delta = 0;
 		float accumulator = 0f;
 		float interval = 1f / InfinityVariables.UPS;

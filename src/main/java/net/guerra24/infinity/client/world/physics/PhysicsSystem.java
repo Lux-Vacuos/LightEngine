@@ -72,8 +72,8 @@ public class PhysicsSystem extends EntitySystem {
 			velocityV.x *= 0.6f - velocityV.x * 0.01f;
 			velocityV.z *= 0.6f - velocityV.z * 0.01f;
 
-			collison.boundingBox.set(new Vector3(positionV.x, positionV.y, positionV.z),
-					new Vector3(positionV.x + 1f, positionV.y + 1f, positionV.z + 1f));
+			collison.boundingBox.set(new Vector3(positionV.x - 0.5f, positionV.y - 1.0f, positionV.z - 0.5f),
+					new Vector3(positionV.x + 0.5f, positionV.y + 0.2f, positionV.z + 0.5f));
 			if (velocityV.y < 0)
 				if (collison.boundingBox.intersects(ground))
 					velocityV.y = 0;

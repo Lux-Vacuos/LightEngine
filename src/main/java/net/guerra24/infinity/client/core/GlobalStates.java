@@ -24,13 +24,6 @@
 
 package net.guerra24.infinity.client.core;
 
-import net.guerra24.infinity.client.core.states.GameSPState;
-import net.guerra24.infinity.client.core.states.InPauseState;
-import net.guerra24.infinity.client.core.states.LoadingSPState;
-import net.guerra24.infinity.client.core.states.MainMenuState;
-import net.guerra24.infinity.client.core.states.OptionsState;
-import net.guerra24.infinity.client.core.states.WorldSelectionState;
-
 /**
  * States Handler
  * 
@@ -41,48 +34,28 @@ public class GlobalStates {
 
 	public boolean loop = false;
 
-	private GameState state;
-
-	private GameState oldState;
-
-	public enum GameState {
-		GAME_SP(new GameSPState()), MAINMENU(new MainMenuState()), IN_PAUSE(new InPauseState()), LOADING_WORLD(
-				new LoadingSPState()), OPTIONS(new OptionsState()), WORLD_SELECTION(new WorldSelectionState());
-
-		GameState(State state) {
-			this.state = state;
-		}
-
-		State state;
-	}
+	private State state;
 
 	public GlobalStates() {
 		loop = true;
-		state = InfinityVariables.autostart ? GameState.LOADING_WORLD : GameState.MAINMENU;
 	}
 
 	public void doUpdate(Infinity infinity, float delta) {
-		state.state.update(infinity, this, delta);
+		state.update(infinity, this, delta);
 		if (infinity.getGameResources().getDisplay().isCloseRequested())
 			loop = false;
 	}
 
 	public void doRender(Infinity infinity, float alpha) {
-		state.state.render(infinity, this, alpha);
+		state.render(infinity, this, alpha);
 	}
 
-	public GameState getState() {
+	public State getState() {
 		return state;
 	}
 
-	public void setState(GameState state) {
-		if (!state.equals(this.state)) {
-			this.oldState = this.state;
-			this.state = state;
-		}
+	public void setState(State state) {
+		this.state = state;
 	}
 
-	public GameState getOldState() {
-		return oldState;
-	}
 }

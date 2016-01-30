@@ -2,11 +2,9 @@ package net.guerra24.infinity.test;
 
 import static net.guerra24.infinity.client.input.Keyboard.*;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-import net.guerra24.infinity.client.core.Infinity;
 import net.guerra24.infinity.client.core.InfinityVariables;
 import net.guerra24.infinity.client.input.KeyCodes;
 
@@ -16,7 +14,6 @@ public class BasicTests {
 	public void testVariables() {
 		assertEquals(0.1f, InfinityVariables.NEAR_PLANE, 0.0001);
 		assertEquals(1000f, InfinityVariables.FAR_PLANE, 0.0001);
-		assertEquals("https://guerra24.github.io/", InfinityVariables.web);
 	}
 
 	@Test
@@ -145,36 +142,5 @@ public class BasicTests {
 		assertEquals(91, KeyCodes.toGlfwKey(KEY_LBRACKET));
 		assertEquals(93, KeyCodes.toGlfwKey(KEY_RBRACKET));
 		assertEquals(39, KeyCodes.toGlfwKey(KEY_APOSTROPHE));
-	}
-
-	@Test
-	public void testRun() {
-
-		Infinity infinity = new Infinity("test");
-
-		assertNotNull(infinity);
-		/*
-		 * infinity.preInit(); infinity.init(); infinity.postInit();
-		 * assertFalse(infinity.getGameResources().getCamera().isUnderWater());
-		 * assertFalse(infinity.getGameResources().getCamera().isMoved);
-		 * assertNotNull(infinity.getGameResources().getRand());
-		 * assertNotNull(infinity.getGameResources().getLoader());
-		 * assertNotNull(infinity.getGameResources().getCamera());
-		 * assertNotNull(infinity.getGameResources().getSun_Camera());
-		 * assertNotNull(infinity.getGameResources().getRenderer());
-		 * assertNotNull(infinity.getGameResources().getSkyboxRenderer());
-		 * assertNotNull(infinity.getGameResources().getGlobalStates());
-		 * assertNotNull(infinity.getGameResources().getDeferredShadingRenderer());
-		 * assertNotNull(infinity.getGameResources().getMasterShadowRenderer());
-		 * assertNotNull(infinity.getGameResources().getOcclusionRenderer());
-		 * assertNotNull(infinity.getGameResources().getPhysicsEngine());
-		 * assertNotNull(infinity.getGameResources().getSoundSystem());
-		 * assertNotNull(infinity.getGameResources().getFrustum());
-		 * assertNotNull(infinity.getGameResources().getKryo());
-		 * assertNotNull(infinity.getGameResources().getMenuSystem());
-		 * assertNotNull(infinity.getGameResources().getGameSettings());
-		 * 
-		 * infinity.dispose();
-		 */
 	}
 }

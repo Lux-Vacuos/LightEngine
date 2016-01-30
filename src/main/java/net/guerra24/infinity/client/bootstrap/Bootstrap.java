@@ -24,33 +24,12 @@
 
 package net.guerra24.infinity.client.bootstrap;
 
-import java.io.File;
-import java.util.Calendar;
-
-import net.guerra24.infinity.client.core.Infinity;
-import net.guerra24.infinity.client.core.InfinityVariables;
-import net.guerra24.infinity.client.util.Logger;
-
 /**
  * Initialize the basic game code
  * 
  * @author Guerra24 <pablo230699@hotmail.com>
  */
 public class Bootstrap {
-
-	private static String prefix;
-
-	static {
-		if (getPlatform().equals(Platform.WINDOWS_32) || getPlatform().equals(Platform.WINDOWS_64))
-			prefix = System.getenv("AppData");
-		else if (getPlatform().equals(Platform.LINUX_32) || getPlatform().equals(Platform.LINUX_64))
-			prefix = System.getProperty("user.home");
-		else if (getPlatform().equals(Platform.MACOSX)) {
-			prefix = System.getProperty("user.home");
-			prefix += "/Library/Application Support";
-		}
-		prefix += "/.";
-	}
 
 	/**
 	 * OS info
@@ -95,109 +74,6 @@ public class Bootstrap {
 	public enum Platform {
 		WINDOWS_32, WINDOWS_64, MACOSX, LINUX_32, LINUX_64, UNKNOWN;
 
-	}
-
-	static {
-		File file = new File(Bootstrap.getPrefix() + "infinity/assets/game/logs");
-		if (!file.exists())
-			file.mkdirs();
-	}
-
-	/**
-	 * Launcher main function
-	 * 
-	 * @param args
-	 *            Not Used
-	 */
-	public static void main(String[] args) {
-		Thread.currentThread().setName("Infinity Main");
-		try {
-			parseArgs(args);
-		} catch (ArrayIndexOutOfBoundsException aioe) {
-			Logger.error("Error: Arguments were wrong", aioe);
-			System.exit(1);
-		} catch (Exception ex) {
-			Logger.error(ex);
-			System.exit(1);
-		}
-		checkSomeValues();
-
-		new Infinity();
-	}
-
-	private static void checkSomeValues() {
-		Calendar christmas = Calendar.getInstance();
-		if (christmas.get(Calendar.MONTH) == Calendar.DECEMBER) {
-			InfinityVariables.christmas = true;
-			InfinityVariables.RED = 0.882f;
-			InfinityVariables.GREEN = 1;
-			InfinityVariables.BLUE = 1;
-		}
-	}
-
-	/**
-	 * Handles all Infinity available args
-	 * 
-	 * @param args
-	 *            Array of args
-	 */
-	private static void parseArgs(String[] args) {
-		boolean gaveWidth = false, gaveHeight = false, gaveFov = false;
-		boolean gaveFps = false, gaveAutostart = false;
-
-		for (int i = 0; i < args.length; i++) {
-			switch (args[i]) {
-			case "-width":
-				if (gaveWidth)
-					throw new IllegalStateException("Width already given");
-				InfinityVariables.WIDTH = Integer.parseInt(args[++i]);
-				if (InfinityVariables.WIDTH <= 0)
-					throw new IllegalArgumentException("Width must be positive");
-				gaveWidth = true;
-				break;
-			case "-height":
-				if (gaveHeight)
-					throw new IllegalStateException("Height already given");
-				InfinityVariables.HEIGHT = Integer.parseInt(args[++i]);
-				if (InfinityVariables.HEIGHT <= 0)
-					throw new IllegalArgumentException("Height must be positive");
-				gaveHeight = true;
-				break;
-			case "-fov":
-				if (gaveFov)
-					throw new IllegalStateException("FOV already given");
-				InfinityVariables.FOV = Integer.parseInt(args[++i]);
-				if (InfinityVariables.FOV <= 20 || InfinityVariables.FOV >= 140)
-					throw new IllegalArgumentException("FOV must be in (20, 140) range");
-				gaveFov = true;
-				break;
-			case "-fps":
-				if (gaveFps)
-					throw new IllegalStateException("FPS already given");
-				InfinityVariables.FPS = Integer.parseInt(args[++i]);
-				if (InfinityVariables.FPS <= 0) {
-					throw new IllegalArgumentException("FPS must be positive");
-				}
-				gaveFps = true;
-				break;
-			case "-autostart":
-				if (gaveAutostart)
-					throw new IllegalStateException("Autostart already given");
-				InfinityVariables.autostart = true;
-				gaveAutostart = true;
-				break;
-			default:
-				if (args[i].startsWith("-")) {
-					throw new IllegalArgumentException("Unknown argument: " + args[i].substring(1));
-				} else {
-					throw new IllegalArgumentException("Unknown token: " + args[i]);
-				}
-			}
-		}
-	}
-
-	public static String getPrefix() {
-		return prefix;
 	}
 
 }
