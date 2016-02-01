@@ -74,8 +74,8 @@ public class PhysicsSystem extends EntitySystem {
 
 			velocityV.y += -9.8f * deltaTime;
 
-			velocityV.x *= 0.6f - velocityV.x * 0.01f;
-			velocityV.z *= 0.6f - velocityV.z * 0.01f;
+			velocityV.x *= 0.4f - velocityV.x * 0.01f;
+			velocityV.z *= 0.4f - velocityV.z * 0.01f;
 
 			collison.boundingBox.set(new Vector3(positionV.x - 0.5f, positionV.y - 1.0f, positionV.z - 0.5f),
 					new Vector3(positionV.x + 0.5f, positionV.y + 0.2f, positionV.z + 0.5f));

@@ -3,7 +3,7 @@ apply plugin:'eclipse'
 apply plugin:'application'
 
 mainClassName = 'net.guerra24.infinity.client.bootstrap.Bootstrap'
-version = '0.0.2-ALPHA'
+version = '0.0.3-ALPHA'
 
 if (System.getProperty("os.name").toLowerCase().contains("mac os x")) {
   applicationDefaultJvmArgs = ["-XstartOnFirstThread"]
@@ -11,8 +11,6 @@ if (System.getProperty("os.name").toLowerCase().contains("mac os x")) {
 
 jar {
 	include("*net/**")
-	include("*org/**")
-	include("*org/**")
 	include("*assets/**") 
 	include("log4j.properties")
 	

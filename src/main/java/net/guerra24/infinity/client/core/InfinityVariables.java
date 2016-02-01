@@ -41,9 +41,9 @@ public class InfinityVariables {
 	/**
 	 * Game Settings
 	 */
-	public static final String version = "0.0.2";
+	public static final String version = "0.0.3";
 	public static final String state = "ALPHA";
-	public static final int build = 8;
+	public static final int build = 9;
 	public static int FOV = 90;
 	public static int WIDTH = 1280;
 	public static int HEIGHT = 720;
