@@ -94,6 +94,8 @@ void main(void){
     if(data.b != 1) {
     	normal = normalize(normal);
     	float b = ((max(dot(normal.xyz,lightDir),-1.0)) - data.a);
+    	if(b <= data1.a)
+    		b = data1.a;
     	b = clamp(b,0.04,1.0);
     	image = b * image;
     	if(data.r == 1)
@@ -129,11 +131,10 @@ void main(void){
 		}
 	}
 	if(data.b != 1) {
-		//FOG
-		//float distance = length(cameraPosition-position.xyz);
-		//float visibility = exp(-pow((distance*density),gradient));
-		//visibility = clamp(visibility,0.0,1.1);
-    	//image.rgb = mix(skyColor.rgb, image.rgb, visibility);
+		float distance = length(cameraPosition-position.xyz);
+		float visibility = exp(-pow((distance*density),gradient));
+		visibility = clamp(visibility,0.4,1.1);
+    	image.rgb = mix(skyColor.rgb, image.rgb, visibility);
 	}
     
     if(camUnderWater == 1){

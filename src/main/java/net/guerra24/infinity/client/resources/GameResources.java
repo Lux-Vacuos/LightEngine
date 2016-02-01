@@ -62,7 +62,6 @@ import net.guerra24.infinity.client.world.entities.Camera;
 import net.guerra24.infinity.client.world.entities.PlayerCamera;
 import net.guerra24.infinity.client.world.entities.SunCamera;
 import net.guerra24.infinity.client.world.physics.PhysicsSystem;
-import net.guerra24.infinity.universal.resources.UniversalResources;
 import net.guerra24.infinity.universal.util.vector.Vector3f;
 
 /**
@@ -165,7 +164,6 @@ public class GameResources {
 		}
 		soundSystem = new SoundSystem();
 		globalStates = new GlobalStates();
-		UniversalResources.loadUniversalResources(this);
 	}
 
 	/**
@@ -173,8 +171,6 @@ public class GameResources {
 	 * 
 	 */
 	public void loadResources() {
-		soundSystem.backgroundMusic("menu1", "menu/menu1.ogg", false);
-		soundSystem.backgroundMusic("menu2", "menu/menu2.ogg", false);
 		loader.loadNVGFont("Roboto-Bold", "Roboto-Bold");
 		loader.loadNVGFont("Roboto-Regular", "Roboto-Regular");
 	}
@@ -193,12 +189,6 @@ public class GameResources {
 		invertedLightPosition = new Vector3f(1000 * sun_Camera.getRay().direction.x,
 				1000 * sun_Camera.getRay().direction.y, 1000 * sun_Camera.getRay().direction.z);
 		Vector3f.add(sun_Camera.getPosition(), invertedLightPosition, invertedLightPosition);
-	}
-
-	public void reload(Infinity infinity) {
-		cleanUp();
-		init(infinity);
-		loadResources();
 	}
 
 	/**
@@ -272,7 +262,6 @@ public class GameResources {
 	public Vector3f getInvertedLightPosition() {
 		return invertedLightPosition;
 	}
-
 
 	public OcclusionRenderer getOcclusionRenderer() {
 		return occlusionRenderer;

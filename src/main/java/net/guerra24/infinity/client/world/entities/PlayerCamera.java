@@ -26,11 +26,9 @@ package net.guerra24.infinity.client.world.entities;
 
 import static net.guerra24.infinity.client.input.Keyboard.KEY_A;
 import static net.guerra24.infinity.client.input.Keyboard.KEY_D;
-import static net.guerra24.infinity.client.input.Keyboard.KEY_LCONTROL;
 import static net.guerra24.infinity.client.input.Keyboard.KEY_LSHIFT;
 import static net.guerra24.infinity.client.input.Keyboard.KEY_S;
 import static net.guerra24.infinity.client.input.Keyboard.KEY_SPACE;
-import static net.guerra24.infinity.client.input.Keyboard.KEY_T;
 import static net.guerra24.infinity.client.input.Keyboard.KEY_W;
 import static net.guerra24.infinity.client.input.Keyboard.isKeyDown;
 import static net.guerra24.infinity.client.input.Mouse.getDX;
@@ -39,17 +37,14 @@ import static net.guerra24.infinity.client.input.Mouse.setCursorPosition;
 import static net.guerra24.infinity.client.input.Mouse.setGrabbed;
 
 import net.guerra24.infinity.client.graphics.opengl.Display;
-import net.guerra24.infinity.client.input.Keyboard;
 import net.guerra24.infinity.client.resources.GameResources;
-import net.guerra24.infinity.universal.resources.UniversalResources;
 import net.guerra24.infinity.universal.util.vector.Matrix4f;
 import net.guerra24.infinity.universal.util.vector.Vector2f;
-import net.guerra24.infinity.universal.util.vector.Vector3f;
 
 public class PlayerCamera extends Camera {
 
 	private float speed;
-	private float multiplierMouse = 24;
+	private float multiplierMouse = 14;
 	private boolean underWater = false;
 	private int mouseSpeed = 2;
 	private final int maxLookUp = 90;
@@ -112,25 +107,6 @@ public class PlayerCamera extends Camera {
 		} else {
 			speed = 3;
 		}
-		if (isKeyDown(KEY_LCONTROL)) {
-			speed = 10;
-		} else {
-			speed = 3;
-		}
-
-		if (isKeyDown(Keyboard.KEY_Y)) {
-			System.out.println(positionComponent.toString());
-			System.out.println(velocityComponent.toString());
-		}
-
-		if (isKeyDown(KEY_T)) {
-			gm.getPhysicsEngine()
-					.addEntity(new GameEntity(UniversalResources.player,
-							new Vector3f(this.getPosition().x, this.getPosition().y + 2, this.getPosition().z),
-							velocityComponent.velocity.x, velocityComponent.velocity.y, velocityComponent.velocity.z, 0,
-							0, 0, 1));
-		}
-
 		updateRay(gm.getRenderer().getProjectionMatrix(), gm.getDisplay().getDisplayWidth(),
 				gm.getDisplay().getDisplayHeight(), center);
 	}

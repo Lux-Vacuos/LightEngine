@@ -38,15 +38,12 @@ public class InfinityVariables {
 	public static int UPS = 30;
 	public static boolean VSYNC = false;
 	public static final String Title = "Infinity";
-	public static String gameName = "Infinity";
 	/**
 	 * Game Settings
 	 */
-	public static boolean debug = false;
-	public static boolean hideHud = false;
 	public static final String version = "0.0.2";
 	public static final String state = "ALPHA";
-	public static final int build = 7;
+	public static final int build = 8;
 	public static int FOV = 90;
 	public static int WIDTH = 1280;
 	public static int HEIGHT = 720;
@@ -56,8 +53,6 @@ public class InfinityVariables {
 	public static float GREEN = 0.555f;
 	public static float BLUE = 0.655f;
 	public static boolean runningOnMac = false;
-	public static boolean autostart = false;
-	public static boolean christmas = false;
 
 	/**
 	 * Graphic Settings

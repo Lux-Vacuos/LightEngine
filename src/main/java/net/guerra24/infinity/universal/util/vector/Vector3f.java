@@ -113,6 +113,13 @@ public class Vector3f extends Vector implements Serializable, ReadableVector3f, 
 		z = src.getZ();
 		return this;
 	}
+	
+
+	public void set(Vector3 src) {
+		x = src.x;
+		y = src.y;
+		z = src.z;
+	}
 
 	/**
 	 * @return the length squared of the vector

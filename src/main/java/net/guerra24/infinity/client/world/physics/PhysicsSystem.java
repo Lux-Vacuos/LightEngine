@@ -24,6 +24,9 @@
 
 package net.guerra24.infinity.client.world.physics;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
@@ -44,10 +47,10 @@ public class PhysicsSystem extends EntitySystem {
 	private ComponentMapper<PositionComponent> pm = ComponentMapper.getFor(PositionComponent.class);
 	private ComponentMapper<VelocityComponent> vm = ComponentMapper.getFor(VelocityComponent.class);
 	private ComponentMapper<CollisionComponent> cm = ComponentMapper.getFor(CollisionComponent.class);
-	private BoundingBox ground;
+	private List<BoundingBox> colliders;
 
 	public PhysicsSystem() {
-		ground = new BoundingBox(new Vector3(-512, -1, -512), new Vector3(512, 1.5f, 512));
+		colliders = new ArrayList<>();
 	}
 
 	@Override
@@ -58,6 +61,8 @@ public class PhysicsSystem extends EntitySystem {
 
 	@Override
 	public void update(float deltaTime) {
+		Vector3f tempdir0 = new Vector3f();
+		Vector3 tempdir1 = new Vector3();
 		for (Entity entity : entities) {
 
 			PositionComponent position = pm.get(entity);
@@ -74,13 +79,39 @@ public class PhysicsSystem extends EntitySystem {
 
 			collison.boundingBox.set(new Vector3(positionV.x - 0.5f, positionV.y - 1.0f, positionV.z - 0.5f),
 					new Vector3(positionV.x + 0.5f, positionV.y + 0.2f, positionV.z + 0.5f));
-			if (velocityV.y < 0)
-				if (collison.boundingBox.intersects(ground))
-					velocityV.y = 0;
+			for (BoundingBox boundingBox : colliders) {
+				tempdir1 = boundingBox.getCenter(tempdir1);
+				tempdir0.set(tempdir1);
+				Vector3f dir = Vector3f.sub(positionV, tempdir0, null);
+				dir.normalise();
+				if (dir.y > 0 && velocityV.y < 0) {
+					if (collison.boundingBox.intersects(boundingBox))
+						velocityV.y = 0;
+				} else if (dir.y < 0 && velocityV.y > 0) {
+					if (collison.boundingBox.intersects(boundingBox))
+						velocityV.y = 0;
+				} else if (dir.x > 0 && velocityV.x < 0) {
+					if (collison.boundingBox.intersects(boundingBox))
+						velocityV.x = 0;
+				} else if (dir.x < 0 && velocityV.x > 0) {
+					if (collison.boundingBox.intersects(boundingBox))
+						velocityV.x = 0;
+				} else if (dir.z > 0 && velocityV.z < 0) {
+					if (collison.boundingBox.intersects(boundingBox))
+						velocityV.z = 0;
+				} else if (dir.z < 0 && velocityV.z > 0) {
+					if (collison.boundingBox.intersects(boundingBox))
+						velocityV.z = 0;
+				}
+			}
 			position.position.x += velocityV.x * deltaTime;
 			position.position.y += velocityV.y * deltaTime;
 			position.position.z += velocityV.z * deltaTime;
 		}
+	}
+
+	public void addCollider(BoundingBox box) {
+		colliders.add(box);
 	}
 
 }
