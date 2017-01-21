@@ -1,0 +1,332 @@
+/*
+ * This file is part of Infinity
+ * 
+ * Copyright (C) 2016-2017 Lux Vacuos
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ */
+
+package net.luxvacuos.infinity.client.core.states;
+
+import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+
+import net.luxvacuos.infinity.client.core.ClientInternalSubsystem;
+import net.luxvacuos.infinity.client.core.ClientVariables;
+import net.luxvacuos.infinity.client.input.Mouse;
+import net.luxvacuos.infinity.client.rendering.api.glfw.Window;
+import net.luxvacuos.infinity.client.rendering.api.opengl.Renderer;
+import net.luxvacuos.infinity.client.ui.UIButton;
+import net.luxvacuos.infinity.client.ui.UIWindow;
+import net.luxvacuos.infinity.universal.core.AbstractInfinity;
+import net.luxvacuos.infinity.universal.core.states.StateMachine;
+
+/**
+ * Options State, here all the options are stored.
+ * 
+ * @author danirod
+ */
+public class OptionsState extends AbstractFadeState {
+
+	private UIButton exitButton;
+	private UIButton dofButton;
+	private UIButton shadowsButton;
+	private UIButton godraysButton;
+	private UIButton fxaaButton;
+	private UIButton motionBlurButton;
+	private UIButton reflectionsButton;
+	private UIButton parallaxButton;
+	private UIButton ambientOccButton;
+	private UIButton chromaticAberrationButton;
+	private UIButton lensFlaresButton;
+	private UIWindow uiWindow;
+
+	public OptionsState() {
+		super(StateNames.OPTIONS);
+	}
+
+	@Override
+	public void init() {
+		Window window = ClientInternalSubsystem.getInstance().getGameWindow();
+		uiWindow = new UIWindow(20, window.getHeight() - 20, window.getWidth() - 40, window.getHeight() - 40,
+				"Options");
+
+		exitButton = new UIButton(uiWindow.getWidth() / 2 - 100, -uiWindow.getHeight() + 20, 200, 40, "Back");
+		godraysButton = new UIButton(40, -110, 200, 40, "Volumetric Light");
+		shadowsButton = new UIButton(40, -170, 200, 40, "Shadows");
+		dofButton = new UIButton(40, -230, 200, 40, "Depth of Field");
+		fxaaButton = new UIButton(40, -290, 200, 40, "FXAA");
+		motionBlurButton = new UIButton(40, -350, 200, 40, "Motion Blur");
+
+		reflectionsButton = new UIButton(260, -110, 200, 40, "Reflections");
+		parallaxButton = new UIButton(260, -170, 200, 40, "Parallax");
+		parallaxButton.setEnabled(false);
+
+		ambientOccButton = new UIButton(260, -230, 200, 40, "Ambient Occlusion");
+		chromaticAberrationButton = new UIButton(260, -290, 200, 40, "Chromatic Aberration");
+		lensFlaresButton = new UIButton(260, -350, 200, 40, "Lens Flares");
+
+		if (ClientVariables.useVolumetricLight) {
+			godraysButton.setText("Volumetric Light: ON");
+			godraysButton.setColor(100, 255, 100, 255);
+		} else {
+			godraysButton.setText("Volumetric Light: OFF");
+			godraysButton.setColor(255, 100, 100, 255);
+		}
+
+		if (ClientVariables.useShadows) {
+			shadowsButton.setText("Shadows: ON");
+			shadowsButton.setColor(100, 255, 100, 255);
+		} else {
+			shadowsButton.setText("Shadows: OFF");
+			shadowsButton.setColor(255, 100, 100, 255);
+		}
+
+		if (ClientVariables.useDOF) {
+			dofButton.setText("Depth of Field: ON");
+			dofButton.setColor(100, 255, 100, 255);
+		} else {
+			dofButton.setText("Depth of Field: OFF");
+			dofButton.setColor(255, 100, 100, 255);
+		}
+
+		if (ClientVariables.useFXAA) {
+			fxaaButton.setText("FXAA: ON");
+			fxaaButton.setColor(100, 255, 100, 255);
+		} else {
+			fxaaButton.setText("FXAA: OFF");
+			fxaaButton.setColor(255, 100, 100, 255);
+		}
+
+		if (ClientVariables.useMotionBlur) {
+			motionBlurButton.setText("Motion Blur: ON");
+			motionBlurButton.setColor(100, 255, 100, 255);
+		} else {
+			motionBlurButton.setText("Motion Blur: OFF");
+			motionBlurButton.setColor(255, 100, 100, 255);
+		}
+
+		if (ClientVariables.useReflections) {
+			reflectionsButton.setText("Reflections: ON");
+			reflectionsButton.setColor(100, 255, 100, 255);
+		} else {
+			reflectionsButton.setText("Reflections: OFF");
+			reflectionsButton.setColor(255, 100, 100, 255);
+		}
+
+		if (ClientVariables.useParallax) {
+			parallaxButton.setText("Parallax: ON");
+			parallaxButton.setColor(100, 255, 100, 255);
+		} else {
+			parallaxButton.setText("Parallax: OFF");
+			parallaxButton.setColor(255, 100, 100, 255);
+		}
+
+		if (ClientVariables.useAmbientOcclusion) {
+			ambientOccButton.setText("Ambient Occlusion: ON");
+			ambientOccButton.setColor(100, 255, 100, 255);
+		} else {
+			ambientOccButton.setText("Ambient Occlusion: OFF");
+			ambientOccButton.setColor(255, 100, 100, 255);
+		}
+
+		if (ClientVariables.useChromaticAberration) {
+			chromaticAberrationButton.setText("Chromatic Aberration: ON");
+			chromaticAberrationButton.setColor(100, 255, 100, 255);
+		} else {
+			chromaticAberrationButton.setText("Chromatic Aberration: OFF");
+			chromaticAberrationButton.setColor(255, 100, 100, 255);
+		}
+		
+		if (ClientVariables.useLensFlares) {
+			lensFlaresButton.setText("Lens Flares: ON");
+			lensFlaresButton.setColor(100, 255, 100, 255);
+		} else {
+			lensFlaresButton.setText("Lens Flares: OFF");
+			lensFlaresButton.setColor(255, 100, 100, 255);
+		}
+
+		exitButton.setOnButtonPress((button, delta) -> {
+			ClientInternalSubsystem.getInstance().getGameSettings().update();
+			ClientInternalSubsystem.getInstance().getGameSettings().save();
+			this.switchTo(StateMachine.getPreviousState().getName());
+		});
+
+		shadowsButton.setOnButtonPress((button, delta) -> {
+			ClientVariables.useShadows = !ClientVariables.useShadows;
+			if (ClientVariables.useShadows) {
+				shadowsButton.setText("Shadows: ON");
+				shadowsButton.setColor(100, 255, 100, 255);
+			} else {
+				shadowsButton.setText("Shadows: OFF");
+				shadowsButton.setColor(255, 100, 100, 255);
+			}
+		});
+
+		dofButton.setOnButtonPress((button, delta) -> {
+			ClientVariables.useDOF = !ClientVariables.useDOF;
+			if (ClientVariables.useDOF) {
+				dofButton.setText("Depth of Field: ON");
+				dofButton.setColor(100, 255, 100, 255);
+			} else {
+				dofButton.setText("Depth of Field: OFF");
+				dofButton.setColor(255, 100, 100, 255);
+			}
+
+		});
+
+		godraysButton.setOnButtonPress((button, delta) -> {
+			ClientVariables.useVolumetricLight = !ClientVariables.useVolumetricLight;
+			if (ClientVariables.useVolumetricLight) {
+				godraysButton.setText("Volumetric Light: ON");
+				godraysButton.setColor(100, 255, 100, 255);
+			} else {
+				godraysButton.setText("Volumetric Light: OFF");
+				godraysButton.setColor(255, 100, 100, 255);
+			}
+		});
+
+		fxaaButton.setOnButtonPress((button, delta) -> {
+			ClientVariables.useFXAA = !ClientVariables.useFXAA;
+
+			if (ClientVariables.useFXAA) {
+				fxaaButton.setText("FXAA: ON");
+				fxaaButton.setColor(100, 255, 100, 255);
+			} else {
+				fxaaButton.setText("FXAA: OFF");
+				fxaaButton.setColor(255, 100, 100, 255);
+			}
+		});
+
+		parallaxButton.setOnButtonPress((button, delta) -> {
+			ClientVariables.useParallax = !ClientVariables.useParallax;
+			if (ClientVariables.useParallax) {
+				parallaxButton.setText("Parallax: ON");
+				parallaxButton.setColor(100, 255, 100, 255);
+			} else {
+				parallaxButton.setText("Parallax: OFF");
+				parallaxButton.setColor(255, 100, 100, 255);
+			}
+
+		});
+
+		motionBlurButton.setOnButtonPress((button, delta) -> {
+			ClientVariables.useMotionBlur = !ClientVariables.useMotionBlur;
+			if (ClientVariables.useMotionBlur) {
+				motionBlurButton.setText("Motion Blur: ON");
+				motionBlurButton.setColor(100, 255, 100, 255);
+			} else {
+				motionBlurButton.setText("Motion Blur: OFF");
+				motionBlurButton.setColor(255, 100, 100, 255);
+			}
+
+		});
+
+		reflectionsButton.setOnButtonPress((button, delta) -> {
+			ClientVariables.useReflections = !ClientVariables.useReflections;
+			if (ClientVariables.useReflections) {
+				reflectionsButton.setText("Reflections: ON");
+				reflectionsButton.setColor(100, 255, 100, 255);
+			} else {
+				reflectionsButton.setText("Reflections: OFF");
+				reflectionsButton.setColor(255, 100, 100, 255);
+			}
+		});
+
+		ambientOccButton.setOnButtonPress((button, delta) -> {
+			ClientVariables.useAmbientOcclusion = !ClientVariables.useAmbientOcclusion;
+			if (ClientVariables.useAmbientOcclusion) {
+				ambientOccButton.setText("Ambient Occlusion: ON");
+				ambientOccButton.setColor(100, 255, 100, 255);
+			} else {
+				ambientOccButton.setText("Ambient Occlusion: OFF");
+				ambientOccButton.setColor(255, 100, 100, 255);
+			}
+		});
+		
+		chromaticAberrationButton.setOnButtonPress((button, delta) -> {
+			ClientVariables.useChromaticAberration = !ClientVariables.useChromaticAberration;
+			if (ClientVariables.useChromaticAberration) {
+				chromaticAberrationButton.setText("Chromatic Aberration: ON");
+				chromaticAberrationButton.setColor(100, 255, 100, 255);
+			} else {
+				chromaticAberrationButton.setText("Chromatic Aberration: OFF");
+				chromaticAberrationButton.setColor(255, 100, 100, 255);
+			}
+		});
+		
+		lensFlaresButton.setOnButtonPress((button, delta) -> {
+			ClientVariables.useLensFlares = !ClientVariables.useLensFlares;
+			if (ClientVariables.useLensFlares) {
+				lensFlaresButton.setText("Lens Flares: ON");
+				lensFlaresButton.setColor(100, 255, 100, 255);
+			} else {
+				lensFlaresButton.setText("Lens Flares: OFF");
+				lensFlaresButton.setColor(255, 100, 100, 255);
+			}
+		});
+
+		uiWindow.addChildren(exitButton);
+		uiWindow.addChildren(shadowsButton);
+		uiWindow.addChildren(dofButton);
+		uiWindow.addChildren(godraysButton);
+		uiWindow.addChildren(fxaaButton);
+		uiWindow.addChildren(parallaxButton);
+		uiWindow.addChildren(motionBlurButton);
+		uiWindow.addChildren(reflectionsButton);
+		uiWindow.addChildren(ambientOccButton);
+		uiWindow.addChildren(chromaticAberrationButton);
+		uiWindow.addChildren(lensFlaresButton);
+	}
+
+	@Override
+	public void start() {
+		uiWindow.setFadeAlpha(0);
+	}
+
+	@Override
+	public void end() {
+		uiWindow.setFadeAlpha(1);
+	}
+
+	@Override
+	public void update(AbstractInfinity voxel, float delta) {
+		while (Mouse.next()) {
+			uiWindow.update(delta);
+		}
+		super.update(voxel, delta);
+	}
+
+	@Override
+	public void render(AbstractInfinity voxel, float alpha) {
+		Window window = ClientInternalSubsystem.getInstance().getGameWindow();
+		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		Renderer.clearColors(1, 1, 1, 1);
+		window.beingNVGFrame();
+		uiWindow.render(window.getID());
+		window.endNVGFrame();
+	}
+
+	@Override
+	protected boolean fadeIn(float delta) {
+		return this.uiWindow.fadeIn(4, delta);
+	}
+
+	@Override
+	protected boolean fadeOut(float delta) {
+		return this.uiWindow.fadeOut(4, delta);
+	}
+
+}

@@ -1,0 +1,2 @@
+rootProject.name = 'Infinity'
+include 'ashley', 'utils', 'client', 'universal'
