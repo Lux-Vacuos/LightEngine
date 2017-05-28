@@ -3,10 +3,10 @@ plugins {
 	id 'net.nemerosa.versioning' version '2.0.0'
 }
 
-mainClassName = 'net.luxvacuos.voxel.client.bootstrap.Bootstrap'
+mainClassName = 'net.luxvacuos.lightengine.client.bootstrap.Bootstrap'
 sourceCompatibility = 1.8
 
-if (System.getProperty("os.name").toLowerCase().contains("mac os x")) {
+if (System.getProperty("os.name").toLowerCase().contains("mac")) {
 	applicationDefaultJvmArgs = ["-XstartOnFirstThread"]
 }
 
@@ -25,10 +25,10 @@ jar {
 	version = "0.0.10-" + versioning.info.full
 	manifest {
 		attributes (
-				"Specification-Title": "Infinity-Client",
+				"Specification-Title": "Light Engine-Client",
 				"Specification-Version": version,
 				"Specification-Vendor": "Lux Vacuos",
-				"Implementation-Title": "net.luxvacuos.voxel.client",
+				"Implementation-Title": "net.luxvacuos.lightengine.client",
 				"Implementation-Version": versioning.info.full,
 				"Implementation-Vendor": "Lux Vacuos"
 				)

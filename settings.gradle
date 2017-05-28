@@ -1,2 +1,2 @@
-rootProject.name = 'Infinity'
-include 'ashley', 'utils', 'client', 'universal'
+rootProject.name = 'LightEngine'
+include 'utils', 'client', 'server', 'universal', 'assets', 'demo'

@@ -30,7 +30,7 @@ public final class Logger {
 	private static org.apache.log4j.Logger log;
 
 	public static void init() {
-		log = org.apache.log4j.Logger.getLogger("Infinity");
+		log = org.apache.log4j.Logger.getLogger("Light Engine");
 	}
 
 	/**

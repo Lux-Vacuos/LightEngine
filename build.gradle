@@ -1,7 +1,3 @@
-import org.gradle.internal.os.OperatingSystem
-
-task wrapper(type: Wrapper) { gradleVersion = '3.2.1' }
-
 subprojects {
 	apply plugin: "eclipse"
 	apply plugin: "idea"
@@ -14,33 +10,14 @@ subprojects {
 	}
 }
 
-project(":ashley") {
-	dependencies { compile project(':utils') }
-}
-
 project(":client") {
 
-	switch ( OperatingSystem.current() ) {
-		case OperatingSystem.WINDOWS:
-			project.ext.lwjglNatives = "natives-windows"
-			break
-		case OperatingSystem.LINUX:
-			project.ext.lwjglNatives = "natives-linux"
-			break
-		case OperatingSystem.MAC_OS:
-			project.ext.lwjglNatives = "natives-macos"
-			break
-	}
-
-	project.ext.lwjglVersion = "3.1.1"
+	project.ext.lwjglVersion = "3.1.2"
 
 	dependencies {
-		compile project(':ashley')
 		compile project(':universal')
-		compile project(':utils')
+		compile project(':assets')
 		compile 'de.jarnbjo:j-ogg-all:1.0.0'
-		compile 'org.jcraft:jorbis:0.0.17'
-		compile 'io.netty:netty-all:4.1.6.Final'
 
 		// LWJGL dependencies
 		compile "org.lwjgl:lwjgl:${lwjglVersion}"
@@ -51,15 +28,43 @@ project(":client") {
 		compile "org.lwjgl:lwjgl-opengl:${lwjglVersion}"
 		compile "org.lwjgl:lwjgl-stb:${lwjglVersion}"
 		compile "org.lwjgl:lwjgl-vulkan:${lwjglVersion}"
-		// LWJGL natives
-		runtime "org.lwjgl:lwjgl:${lwjglVersion}:${lwjglNatives}"
-		runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:${lwjglNatives}"
-		runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:${lwjglNatives}"
-		runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:${lwjglNatives}"
-		runtime "org.lwjgl:lwjgl-nanovg:${lwjglVersion}:${lwjglNatives}"
-		runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:${lwjglNatives}"
-		runtime "org.lwjgl:lwjgl-stb:${lwjglVersion}:${lwjglNatives}"
+		compile "org.lwjgl:lwjgl-assimp:${lwjglVersion}"
+		// LWJGL natives Windows
+		runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-windows"
+		runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-windows"
+		runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-windows"
+		runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-windows"
+		runtime "org.lwjgl:lwjgl-nanovg:${lwjglVersion}:natives-windows"
+		runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-windows"
+		runtime "org.lwjgl:lwjgl-stb:${lwjglVersion}:natives-windows"
+		runtime "org.lwjgl:lwjgl-assimp:${lwjglVersion}:natives-windows"
+		// LWJGL Natives Linux
+		runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-linux"
+		runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-linux"
+		runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-linux"
+		runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-linux"
+		runtime "org.lwjgl:lwjgl-nanovg:${lwjglVersion}:natives-linux"
+		runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-linux"
+		runtime "org.lwjgl:lwjgl-stb:${lwjglVersion}:natives-linux"
+		runtime "org.lwjgl:lwjgl-assimp:${lwjglVersion}:natives-linux"
+		// LWJGL Natives OSX
+		runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-macos"
+		runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-macos"
+		runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-macos"
+		runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-macos"
+		runtime "org.lwjgl:lwjgl-nanovg:${lwjglVersion}:natives-macos"
+		runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-macos"
+		runtime "org.lwjgl:lwjgl-stb:${lwjglVersion}:natives-macos"
+		runtime "org.lwjgl:lwjgl-assimp:${lwjglVersion}:natives-macos"
 
+		testCompile group: 'junit', name: 'junit', version: '4.12'
+	}
+}
+
+project(":server") {
+	dependencies {
+		compile project(':universal')
+		compile project(':assets')
 		testCompile group: 'junit', name: 'junit', version: '4.12'
 	}
 }
@@ -68,7 +73,8 @@ project(":universal") {
 	dependencies {
 		compile 'org.codehaus.groovy:groovy:2.4.7'
 		compile 'org.codehaus.groovy:groovy-jsr223:2.4.7'
-		compile project(':ashley')
+		compile 'io.netty:netty-all:4.1.9.Final'
+		compile 'com.google.code.gson:gson:2.8.0'
 		compile project(':utils')
 		testCompile group: 'junit', name: 'junit', version: '4.12'
 	}
@@ -81,3 +87,12 @@ project(":utils") {
 		testCompile group: 'junit', name: 'junit', version: '4.12'
 	}
 }
+
+project(":demo") {
+	dependencies {
+		compile project(':client')
+		testCompile group: 'junit', name: 'junit', version: '4.12'
+	}
+}
+
+task wrapper(type: Wrapper) { gradleVersion = '3.5' }

@@ -1,3 +1,3 @@
-## Infinity Game Engine (Prototype)
+## Light Engine (Prototype)
 
-Based from Voxel code.
+Based from Light Engine code.
