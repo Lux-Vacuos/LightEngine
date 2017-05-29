@@ -99,10 +99,10 @@ public class MainState extends AbstractState {
 		// new Vector3f(1, 1, 1)));
 		// Renderer.getLightRenderer().addLight(new Light(new Vector3f(0, 5, 0),
 		// new Vector3f(1, 1, 1)));
-		Renderer.getLightRenderer().addLight(new Light(new Vector3f(5, 5, 12), new Vector3f(100, 100, 100),
-				new Vector3f(-0.5f, -0.5f, -1f), 20, 15));
-		Renderer.getLightRenderer().addLight(new Light(new Vector3f(-5, 5, 12), new Vector3f(100, 100, 100),
-				new Vector3f(0.5f, -0.5f, -1f), 20, 15));
+		Renderer.getLightRenderer().addLight(new Light(new Vector3f(2.2f, 4.3f, -0.8f), new Vector3f(20, 20, 20),
+				new Vector3f(-0.5f, -0.5f, -0.5f), 70, 65));
+		//Renderer.getLightRenderer().addLight(new Light(new Vector3f(-5, 2, 12), new Vector3f(100, 100, 100),
+//				new Vector3f(0.5f, -0.5f, -1f), 20, 15));
 
 		mat1 = new RenderEntity("", sphere);
 		mat1.getComponent(Position.class).set(0, 1, 0);
@@ -128,10 +128,9 @@ public class MainState extends AbstractState {
 		rocket = new RenderEntity("", rocketM);
 		rocket.getComponent(Position.class).set(0, 0, -5);*/
 
-		planeM = aLoader.loadModel("levels/test_state/models/plane.blend");
+		planeM = aLoader.loadModel("levels/test_state/models/level.blend");
 
 		plane = new RenderEntity("", planeM);
-		plane.getComponent(Scale.class).setScale(1f);
 
 		/*characterM = aLoader.loadModel("levels/test_state/models/monkey.blend");
 
@@ -172,8 +171,8 @@ public class MainState extends AbstractState {
 		physicsSystem.getEngine().addEntity(plane);
 		physicsSystem.getEngine().addEntity(mat1);
 		physicsSystem.getEngine().addEntity(mat2);
-		physicsSystem.getEngine().addEntity(mat3);
-		physicsSystem.getEngine().addEntity(mat4);
+		//physicsSystem.getEngine().addEntity(mat3);
+		//physicsSystem.getEngine().addEntity(mat4);
 		//physicsSystem.getEngine().addEntity(mat5);
 		//physicsSystem.getEngine().addEntity(rocket);
 		//physicsSystem.getEngine().addEntity(character);

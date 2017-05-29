@@ -139,7 +139,6 @@ public class Shell extends RootComponentWindow implements IShell {
 			fadeIn = false;
 			fadeOut = true;
 		}
-		System.out.println(enabled);
 	}
 
 	@Override

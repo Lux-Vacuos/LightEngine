@@ -28,7 +28,7 @@ import static org.lwjgl.assimp.Assimp.aiProcess_FindInvalidData;
 import static org.lwjgl.assimp.Assimp.aiProcess_FlipUVs;
 import static org.lwjgl.assimp.Assimp.aiProcess_GenNormals;
 import static org.lwjgl.assimp.Assimp.aiProcess_ImproveCacheLocality;
-import static org.lwjgl.assimp.Assimp.aiProcess_JoinIdenticalVertices;
+import static org.lwjgl.assimp.Assimp.*;
 import static org.lwjgl.assimp.Assimp.aiProcess_OptimizeMeshes;
 import static org.lwjgl.assimp.Assimp.aiProcess_SplitLargeMeshes;
 import static org.lwjgl.assimp.Assimp.aiProcess_Triangulate;
@@ -37,6 +37,7 @@ import static org.lwjgl.assimp.Assimp.aiProcess_ValidateDataStructure;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import org.lwjgl.assimp.AIPropertyStore;
 import org.lwjgl.assimp.AIScene;
 
 import net.luxvacuos.igl.Logger;
@@ -44,7 +45,11 @@ import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Model;
 
 public class AssimpResourceLoader {
 
+	private AIPropertyStore propertyStore;
+
 	public AssimpResourceLoader() {
+		propertyStore = aiCreatePropertyStore();
+		aiSetImportPropertyFloat(propertyStore, AI_CONFIG_PP_CT_MAX_SMOOTHING_ANGLE, 60f);
 	}
 
 	public Model loadModel(String filePath) {
@@ -58,9 +63,9 @@ public class AssimpResourceLoader {
 			e.printStackTrace();
 		}
 		AIScene scene = aiImportFileFromMemory(bFile,
-				aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals | aiProcess_SplitLargeMeshes
-						| aiProcess_OptimizeMeshes | aiProcess_CalcTangentSpace | aiProcess_ImproveCacheLocality
-						| aiProcess_ValidateDataStructure | aiProcess_FindInvalidData | aiProcess_JoinIdenticalVertices,
+				aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_SplitLargeMeshes | aiProcess_OptimizeMeshes
+						| aiProcess_ValidateDataStructure | aiProcess_FindInvalidData | aiProcess_JoinIdenticalVertices
+						| aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_ImproveCacheLocality,
 				ext);
 		if (scene == null || scene.mFlags() == AI_SCENE_FLAGS_INCOMPLETE || scene.mRootNode() == null) {
 			Logger.error(aiGetErrorString());
