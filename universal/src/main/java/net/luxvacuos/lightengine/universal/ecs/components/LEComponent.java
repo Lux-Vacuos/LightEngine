@@ -18,11 +18,16 @@
  * 
  */
 
-package net.luxvacuos.lightengine.universal.tools;
+package net.luxvacuos.lightengine.universal.ecs.components;
 
-public interface ICustomToolTier {
+import com.badlogic.ashley.core.Component;
+import com.hackhalo2.nbt.exceptions.NBTException;
+import com.hackhalo2.nbt.tags.TagCompound;
 
-	public int getTier();
+public interface LEComponent extends Component {
 	
-	public float getMultiplier();
+	public void load(TagCompound compound) throws NBTException;
+	
+	public TagCompound save();
+
 }

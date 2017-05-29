@@ -32,11 +32,6 @@ public class ServerGameSettings extends AbstractGameSettings {
 		REGISTRY.register(new Key("/Light Engine/Settings/Core/ups", true), 					Integer.parseInt(getValue("UPS", "20")));
 
 		REGISTRY.register(new Key("/Light Engine/Server/port", true),						 	Integer.parseInt(getValue("port", "44454")));
-
-		REGISTRY.register(new Key("/Light Engine/Settings/World/chunkRadius", true), 			Integer.parseInt(getValue("chunkRadius", "6")));
-		REGISTRY.register(new Key("/Light Engine/Settings/World/chunkManagerThreads", true), 	Integer.parseInt(getValue("chunkManagerThreads", "3")));
-
-		REGISTRY.register(new Key("/Light Engine/Simulation/World/name", true), 				getValue("worldName", "world"));
 	}
 
 	@Override

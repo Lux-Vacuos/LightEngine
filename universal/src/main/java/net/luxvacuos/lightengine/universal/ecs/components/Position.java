@@ -6,7 +6,7 @@ import com.hackhalo2.nbt.tags.TagCompound;
 
 import net.luxvacuos.igl.vector.Vector3d;
 
-public class Position implements VoxelComponent {
+public class Position implements LEComponent {
 
 	private double x, y, z;
 	

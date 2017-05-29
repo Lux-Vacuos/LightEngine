@@ -20,7 +20,6 @@
 
 package net.luxvacuos.lightengine.client.core;
 
-import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.core.WorldSimulation;
 
 /**

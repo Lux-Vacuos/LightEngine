@@ -24,7 +24,7 @@ import com.hackhalo2.nbt.CompoundBuilder;
 import com.hackhalo2.nbt.exceptions.NBTException;
 import com.hackhalo2.nbt.tags.TagCompound;
 
-public class Name implements VoxelComponent {
+public class Name implements LEComponent {
 	
 	private String name;
 	

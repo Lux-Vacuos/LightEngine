@@ -8,7 +8,7 @@ import com.hackhalo2.nbt.tags.TagCompound;
 
 import net.luxvacuos.igl.vector.Vector3d;
 
-public class AABB implements VoxelComponent {
+public class AABB implements LEComponent {
 
 	private BoundingBox bb = new BoundingBox();
 

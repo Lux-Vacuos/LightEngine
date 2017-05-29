@@ -6,7 +6,7 @@ import com.hackhalo2.nbt.tags.TagCompound;
 
 import net.luxvacuos.igl.vector.Vector3d;
 
-public class Velocity implements VoxelComponent {
+public class Velocity implements LEComponent {
 private double x, y, z;
 	
 	public Velocity() {

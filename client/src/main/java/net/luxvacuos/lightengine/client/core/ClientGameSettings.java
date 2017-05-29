@@ -69,9 +69,6 @@ public final class ClientGameSettings extends AbstractGameSettings {
 		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/titleBarBorder", true), 	false);
 		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/theme", true), 			"Nano");
 		
-		REGISTRY.register(new Key("/Light Engine/Settings/World/chunkRadius", true), 				4);
-		REGISTRY.register(new Key("/Light Engine/Settings/World/chunkManagerThreads", true), 		3);
-		
 		REGISTRY.register(new Key("/Light Engine/Settings/Regional/lang", true), 					"en_US");
 	}
 

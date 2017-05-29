@@ -50,6 +50,7 @@ import net.luxvacuos.lightengine.client.ecs.entities.Sun;
 import net.luxvacuos.lightengine.client.ecs.entities.SunCamera;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CubeMapTexture;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Light;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.ParticleTexture;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.pipeline.MultiPass;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.pipeline.PostProcess;
@@ -155,6 +156,16 @@ public class Renderer {
 				shadowPass.render(camera, sunCamera, frustum, shadowFBO);
 			entityShadowRenderer.renderEntity(entities, sunCamera);
 			shadowFBO.end();
+
+			for (Light light : lightRenderer.getLights()) {
+				if (light.isShadow()) {
+					light.getShadowMap().begin();
+					if (shadowPass != null)
+						shadowPass.render(camera, light.getCamera(), frustum, null);
+					entityShadowRenderer.renderEntity(entities, light.getCamera());
+					light.getShadowMap().end();
+				}
+			}
 		}
 
 		frustum.calculateFrustum(camera);
@@ -189,6 +200,10 @@ public class Renderer {
 		postProcessPipeline.preRender(window.getNVGID(), camera);
 	}
 
+	public static void update(float delta) {
+		lightRenderer.update(delta);
+	}
+
 	public static void cleanUp() {
 		if (environmentRenderer != null)
 			environmentRenderer.cleanUp();
@@ -208,6 +223,8 @@ public class Renderer {
 			irradianceCapture.dispose();
 		if (preFilteredEnvironment != null)
 			preFilteredEnvironment.dispose();
+		if (lightRenderer != null)
+			lightRenderer.dispose();
 	}
 
 	public static int getResultTexture() {

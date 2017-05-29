@@ -20,32 +20,51 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.opengl.objects;
 
+import net.luxvacuos.igl.vector.Vector3d;
 import net.luxvacuos.igl.vector.Vector3f;
+import net.luxvacuos.lightengine.client.ecs.entities.SpotlightCamera;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.LightShadowMap;
 
 public class Light {
 
-	private Vector3f position;
+	private Vector3d position;
 	private Vector3f color;
-	private Vector3f direction;
+	private Vector3d rotation;
 	private float radius, inRadius;
 	private int type;
+	private boolean shadow;
+	private LightShadowMap shadowMap;
+	private SpotlightCamera camera;
 
-	public Light(Vector3f position, Vector3f color, Vector3f direction, float radius, float inRadius) {
+	public Light(Vector3d position, Vector3f color, Vector3d rotation, float radius, float inRadius) {
 		this.position = position;
 		this.color = color;
-		this.direction = direction;
+		this.rotation = rotation;
 		this.radius = radius;
 		this.inRadius = inRadius;
 		type = 1;
 	}
 
-	public Light(Vector3f position, Vector3f color) {
+	public Light(Vector3d position, Vector3f color) {
 		this.position = position;
 		this.color = color;
 		type = 0;
 	}
 
-	public Vector3f getPosition() {
+	public void init() {
+		camera = new SpotlightCamera(radius, 256, 256);
+		if (shadow) {
+			shadowMap = new LightShadowMap(256, 256);
+		}
+	}
+
+	public void update(float delta) {
+		camera.setPosition(position);
+		camera.setRotation(rotation);
+		camera.update(delta);
+	}
+
+	public Vector3d getPosition() {
 		return position;
 	}
 
@@ -53,8 +72,12 @@ public class Light {
 		return color;
 	}
 
-	public Vector3f getDirection() {
-		return direction;
+	public Vector3d getRotation() {
+		return rotation;
+	}
+
+	public Vector3d getDirection() {
+		return camera.getDirection();
 	}
 
 	public float getRadius() {
@@ -67,6 +90,22 @@ public class Light {
 
 	public int getType() {
 		return type;
+	}
+
+	public boolean isShadow() {
+		return shadow;
+	}
+
+	public LightShadowMap getShadowMap() {
+		return shadowMap;
+	}
+	
+	public SpotlightCamera getCamera() {
+		return camera;
+	}
+
+	public void setShadow(boolean shadow) {
+		this.shadow = shadow;
 	}
 
 }

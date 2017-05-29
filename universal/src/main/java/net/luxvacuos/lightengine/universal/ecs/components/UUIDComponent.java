@@ -26,7 +26,7 @@ import com.hackhalo2.nbt.CompoundBuilder;
 import com.hackhalo2.nbt.exceptions.NBTException;
 import com.hackhalo2.nbt.tags.TagCompound;
 
-public class UUIDComponent implements VoxelComponent {
+public class UUIDComponent implements LEComponent {
 	
 	private UUID uuid;
 

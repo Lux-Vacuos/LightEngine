@@ -23,7 +23,7 @@ package net.luxvacuos.lightengine.universal.ecs.components;
 import com.hackhalo2.nbt.exceptions.NBTException;
 import com.hackhalo2.nbt.tags.TagCompound;
 
-public class NBTComponent implements VoxelComponent {
+public class NBTComponent implements LEComponent {
 	private TagCompound compound;
 
 	public NBTComponent() {

@@ -4,7 +4,7 @@ import com.hackhalo2.nbt.CompoundBuilder;
 import com.hackhalo2.nbt.exceptions.NBTException;
 import com.hackhalo2.nbt.tags.TagCompound;
 
-public class Scale implements VoxelComponent {
+public class Scale implements LEComponent {
 	
 	private float scale;
 	

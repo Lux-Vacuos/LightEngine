@@ -24,9 +24,9 @@ import com.hackhalo2.nbt.exceptions.NBTException;
 import com.hackhalo2.nbt.tags.TagCompound;
 
 import net.luxvacuos.igl.vector.Matrix4d;
-import net.luxvacuos.lightengine.universal.ecs.components.VoxelComponent;
+import net.luxvacuos.lightengine.universal.ecs.components.LEComponent;
 
-public class ViewMatrix implements VoxelComponent {
+public class ViewMatrix implements LEComponent {
 	
 	private Matrix4d viewMatrix;
 

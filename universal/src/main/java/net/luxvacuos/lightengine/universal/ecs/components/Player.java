@@ -23,7 +23,7 @@ package net.luxvacuos.lightengine.universal.ecs.components;
 import com.hackhalo2.nbt.exceptions.NBTException;
 import com.hackhalo2.nbt.tags.TagCompound;
 
-public class Player implements VoxelComponent {
+public class Player implements LEComponent {
 
 	@Override
 	public void load(TagCompound compound) throws NBTException {
