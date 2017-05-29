@@ -27,7 +27,7 @@ import net.luxvacuos.lightengine.server.commands.TimeCommand;
 import net.luxvacuos.lightengine.server.console.Console;
 import net.luxvacuos.lightengine.server.core.ServerWorldSimulation;
 import net.luxvacuos.lightengine.universal.commands.ICommandManager;
-import net.luxvacuos.lightengine.universal.core.AbstractVoxel;
+import net.luxvacuos.lightengine.universal.core.AbstractEngine;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 
 public class MPWorldState extends AbstractState {
@@ -61,7 +61,7 @@ public class MPWorldState extends AbstractState {
 	}
 
 	@Override
-	public void update(AbstractVoxel lightengine, float delta) {
+	public void update(AbstractEngine lightengine, float delta) {
 		worldSimulation.update(delta);
 	}
 

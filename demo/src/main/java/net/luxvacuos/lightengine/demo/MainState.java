@@ -33,7 +33,7 @@ import net.luxvacuos.lightengine.client.resources.ResourceLoader;
 import net.luxvacuos.lightengine.client.ui.windows.GameWindow;
 import net.luxvacuos.lightengine.client.world.particles.ParticleSystem;
 import net.luxvacuos.lightengine.demo.ui.PauseWindow;
-import net.luxvacuos.lightengine.universal.core.AbstractVoxel;
+import net.luxvacuos.lightengine.universal.core.AbstractEngine;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.ecs.components.Position;
@@ -191,7 +191,7 @@ public class MainState extends AbstractState {
 	}
 
 	@Override
-	public void update(AbstractVoxel lightengine, float delta) {
+	public void update(AbstractEngine lightengine, float delta) {
 		GraphicalSubsystem.getWindowManager().update(delta);
 		Window window = GraphicalSubsystem.getMainWindow();
 		KeyboardHandler kbh = window.getKeyboardHandler();
@@ -236,7 +236,7 @@ public class MainState extends AbstractState {
 	}
 
 	@Override
-	public void render(AbstractVoxel lightengine, float alpha) {
+	public void render(AbstractEngine lightengine, float alpha) {
 		Renderer.render(engine.getEntities(), ParticleDomain.getParticles(), camera, worldSimulation, sun, alpha);
 		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		Renderer.clearColors(1, 1, 1, 1);

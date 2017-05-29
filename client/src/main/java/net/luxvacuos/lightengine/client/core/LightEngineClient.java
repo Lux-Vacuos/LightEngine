@@ -35,14 +35,14 @@ import net.luxvacuos.lightengine.client.core.subsystems.SoundSubsystem;
 import net.luxvacuos.lightengine.client.input.Mouse;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.Timers;
-import net.luxvacuos.lightengine.universal.core.AbstractVoxel;
+import net.luxvacuos.lightengine.universal.core.AbstractEngine;
 import net.luxvacuos.lightengine.universal.core.EngineType;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
-public class LightEngineClient extends AbstractVoxel {
+public class LightEngineClient extends AbstractEngine {
 
 	public LightEngineClient() {
 		GLFW.glfwSetErrorCallback(GLFWErrorCallback.createPrint(System.err));

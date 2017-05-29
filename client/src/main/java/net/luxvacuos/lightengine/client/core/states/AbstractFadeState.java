@@ -20,7 +20,7 @@
 
 package net.luxvacuos.lightengine.client.core.states;
 
-import net.luxvacuos.lightengine.universal.core.AbstractVoxel;
+import net.luxvacuos.lightengine.universal.core.AbstractEngine;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 
@@ -33,7 +33,7 @@ public abstract class AbstractFadeState extends AbstractState {
 	}
 
 	@Override
-	public void update(AbstractVoxel lightengine, float deltaTime) {
+	public void update(AbstractEngine lightengine, float deltaTime) {
 		if(this.switching) {
 			if(this.fadeOut(deltaTime)) {
 				this.switching = false;

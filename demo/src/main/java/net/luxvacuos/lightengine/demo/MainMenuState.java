@@ -29,7 +29,7 @@ import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
 import net.luxvacuos.lightengine.client.ui.windows.BackgroundWindow;
 import net.luxvacuos.lightengine.demo.ui.MainWindow;
-import net.luxvacuos.lightengine.universal.core.AbstractVoxel;
+import net.luxvacuos.lightengine.universal.core.AbstractEngine;
 import net.luxvacuos.lightengine.universal.core.GlobalVariables;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
@@ -68,14 +68,14 @@ public class MainMenuState extends AbstractState {
 	}
 
 	@Override
-	public void render(AbstractVoxel lightengine, float delta) {
+	public void render(AbstractEngine lightengine, float delta) {
 		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		Renderer.clearColors(1, 1, 1, 1);
 		GraphicalSubsystem.getWindowManager().render();
 	}
 
 	@Override
-	public void update(AbstractVoxel lightengine, float delta) {
+	public void update(AbstractEngine lightengine, float delta) {
 		GraphicalSubsystem.getWindowManager().update(delta);
 	}
 

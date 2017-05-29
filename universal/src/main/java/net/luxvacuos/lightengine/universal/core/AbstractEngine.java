@@ -27,13 +27,13 @@ import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.universal.core.subsystems.ISubsystem;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
-public abstract class AbstractVoxel implements IVoxel, IDisposable {
+public abstract class AbstractEngine implements IVoxel, IDisposable {
 
 	protected EngineType engineType;
 
 	private List<ISubsystem> subsystems;
 
-	public AbstractVoxel() {
+	public AbstractEngine() {
 		subsystems = new ArrayList<>();
 	}
 

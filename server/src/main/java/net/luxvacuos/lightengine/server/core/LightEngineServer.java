@@ -27,7 +27,7 @@ import net.luxvacuos.lightengine.server.bootstrap.Bootstrap;
 import net.luxvacuos.lightengine.server.core.states.MPWorldState;
 import net.luxvacuos.lightengine.server.core.states.StateNames;
 import net.luxvacuos.lightengine.server.core.subsystems.ServerCoreSubsystem;
-import net.luxvacuos.lightengine.universal.core.AbstractVoxel;
+import net.luxvacuos.lightengine.universal.core.AbstractEngine;
 import net.luxvacuos.lightengine.universal.core.EngineType;
 import net.luxvacuos.lightengine.universal.core.GlobalVariables;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
@@ -35,7 +35,7 @@ import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
-public class LightEngineServer extends AbstractVoxel {
+public class LightEngineServer extends AbstractEngine {
 
 	private double lastLoopTime;
 	private float timeCount;

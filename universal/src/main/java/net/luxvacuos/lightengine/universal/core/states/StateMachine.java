@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.luxvacuos.igl.Logger;
-import net.luxvacuos.lightengine.universal.core.AbstractVoxel;
+import net.luxvacuos.lightengine.universal.core.AbstractEngine;
 import net.luxvacuos.lightengine.universal.core.EngineType;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
@@ -62,7 +62,7 @@ public final class StateMachine {
 			return false;
 	}
 
-	public static boolean update(AbstractVoxel lightengine, float deltaTime) {
+	public static boolean update(AbstractEngine lightengine, float deltaTime) {
 		if (currentState == null)
 			return false;
 
@@ -70,7 +70,7 @@ public final class StateMachine {
 		return true;
 	}
 
-	public static boolean render(AbstractVoxel lightengine, float alpha) {
+	public static boolean render(AbstractEngine lightengine, float alpha) {
 		if (currentState == null || lightengine.getType() != EngineType.CLIENT)
 			return false;
 
