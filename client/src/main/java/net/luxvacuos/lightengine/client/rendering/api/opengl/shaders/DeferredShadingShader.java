@@ -103,8 +103,8 @@ public class DeferredShadingShader extends ShaderProgram {
 
 	public DeferredShadingShader(String type) {
 		super("deferred/V_" + type + ".glsl", "deferred/F_" + type + ".glsl", new Attribute(0, "position"));
-		lights = new UniformLight[128];
-		for (int x = 0; x < 128; x++) {
+		lights = new UniformLight[18];
+		for (int x = 0; x < 18; x++) {
 			lights[x] = new UniformLight("lights[" + x + "]");
 		}
 		super.storeUniformArray(lights);
@@ -179,7 +179,7 @@ public class DeferredShadingShader extends ShaderProgram {
 
 	public void loadPointLightsPos(List<Light> lights) {
 		for (int x = 0; x < lights.size(); x++) {
-			this.lights[x].loadLight(lights.get(x));
+			this.lights[x].loadLight(lights.get(x), 14, x);
 		}
 		totalLights.loadInteger(lights.size());
 	}

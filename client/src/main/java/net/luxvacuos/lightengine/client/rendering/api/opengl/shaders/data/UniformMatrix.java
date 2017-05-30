@@ -33,7 +33,7 @@ import net.luxvacuos.igl.vector.Matrix4f;
 public class UniformMatrix extends Uniform {
 
 	private static DoubleBuffer matrixBuffer = BufferUtils.createDoubleBuffer(16);
-	private  static FloatBuffer matrixFBuffer = BufferUtils.createFloatBuffer(16);
+	private static FloatBuffer matrixFBuffer = BufferUtils.createFloatBuffer(16);
 
 	public UniformMatrix(String name) {
 		super(name);

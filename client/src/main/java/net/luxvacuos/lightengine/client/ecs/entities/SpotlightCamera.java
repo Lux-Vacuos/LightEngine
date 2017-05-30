@@ -51,7 +51,7 @@ public class SpotlightCamera extends CameraEntity {
 	}
 	
 	public Vector3d getDirection() {
-		return direction;
+		return direction.negate(null);
 	}
 
 }

@@ -30,8 +30,9 @@ out vec4 out_Color;
 uniform vec3 cameraPosition;
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
+uniform mat4 biasMatrix;
 
-uniform Light lights[128];
+uniform Light lights[18];
 uniform int totalLights;
 
 uniform sampler2D gDiffuse;
@@ -101,7 +102,13 @@ void main(void){
 				float epsilon = lights[i].inRadius - lights[i].radius;
 				float intensity = clamp((theta - lights[i].radius) / epsilon, 0.0, 1.0);    
 				if(intensity > 0.0) {
-					Lo += calcLight(lights[i], position.rgb, diffuse.rgb, L, N, V, kD, F, roughness) * intensity;
+        			float shadow = 1.0;
+					if(lights[i].shadowEnabled == 1)	{
+						vec4 posLight = lights[i].shadowViewMatrix * position;
+						vec4 shadowCoord = biasMatrix * lights[i].shadowProjectionMatrix * posLight;
+						shadow = texture(lights[i].shadowMap, (shadowCoord.xyz/shadowCoord.w), 0);
+					}
+					Lo += calcLight(lights[i], position.rgb, diffuse.rgb, L, N, V, kD, F, roughness) * intensity * shadow;
 				}
 			}
     	}

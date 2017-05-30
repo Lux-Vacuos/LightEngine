@@ -49,22 +49,22 @@ public abstract class DeferredPass implements IDeferredPass {
 	/**
 	 * Deferred Shader
 	 */
-	private DeferredShadingShader shader;
+	protected DeferredShadingShader shader;
 	/**
 	 * FBO
 	 */
-	private FBO fbo;
+	protected FBO fbo;
 
 	/**
 	 * Width and Height of the FBO
 	 */
-	private int width, height;
+	protected int width, height;
 	/**
 	 * Name
 	 */
-	private String name;
+	protected String name;
 
-	private static Matrix4d tmp;
+	protected static Matrix4d tmp;
 
 	/**
 	 * 
@@ -115,7 +115,6 @@ public abstract class DeferredPass implements IDeferredPass {
 						camera.getRotation().getZ(), tmp),
 				width, height));
 		shader.loadExposure(exposure);
-		shader.loadPointLightsPos(lights);
 		shader.loadTime(clientWorldSimulation.getTime());
 		shader.loadLightMatrix(sun.getCamera().getViewMatrix());
 		shader.loadBiasMatrix(((SunCamera) sun.getCamera()).getProjectionArray());

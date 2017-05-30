@@ -52,15 +52,15 @@ public class Light {
 	}
 
 	public void init() {
-		camera = new SpotlightCamera(radius, 256, 256);
+		camera = new SpotlightCamera(radius * 2f, 1024, 1024);
 		if (shadow) {
-			shadowMap = new LightShadowMap(256, 256);
+			shadowMap = new LightShadowMap(1024, 1024);
 		}
 	}
 
 	public void update(float delta) {
 		camera.setPosition(position);
-		camera.setRotation(rotation);
+		camera.setRotation(Vector3d.add(rotation, new Vector3d(180,0,0), null));
 		camera.update(delta);
 	}
 

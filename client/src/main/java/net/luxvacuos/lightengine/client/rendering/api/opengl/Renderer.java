@@ -160,6 +160,7 @@ public class Renderer {
 			for (Light light : lightRenderer.getLights()) {
 				if (light.isShadow()) {
 					light.getShadowMap().begin();
+					clearBuffer(GL_DEPTH_BUFFER_BIT);
 					if (shadowPass != null)
 						shadowPass.render(camera, light.getCamera(), frustum, null);
 					entityShadowRenderer.renderEntity(entities, light.getCamera());

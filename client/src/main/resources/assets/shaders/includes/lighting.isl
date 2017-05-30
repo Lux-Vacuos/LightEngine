@@ -137,5 +137,9 @@ struct Light {
 	float radius;
 	float inRadius;
 	int type;
+	int shadowEnabled;
+	sampler2DShadow shadowMap;
+	mat4 shadowViewMatrix;
+	mat4 shadowProjectionMatrix;
 };
 ##end

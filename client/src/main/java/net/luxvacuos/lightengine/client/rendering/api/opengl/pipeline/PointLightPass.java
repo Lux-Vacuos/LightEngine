@@ -20,33 +20,73 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.opengl.pipeline;
 
+import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
+import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.GL_TRIANGLE_STRIP;
 import static org.lwjgl.opengl.GL11.glBindTexture;
+import static org.lwjgl.opengl.GL11.glDrawArrays;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE1;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE2;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE3;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE4;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE5;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE6;
+import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
 
-import net.luxvacuos.lightengine.client.rendering.api.opengl.IDeferredPipeline;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.ShadowFBO;
+import java.util.ArrayList;
+import java.util.List;
+
+import net.luxvacuos.igl.vector.Matrix4d;
+import net.luxvacuos.igl.vector.Vector2d;
+import net.luxvacuos.igl.vector.Vector3d;
+import net.luxvacuos.lightengine.client.core.ClientVariables;
+import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
+import net.luxvacuos.lightengine.client.ecs.entities.Sun;
+import net.luxvacuos.lightengine.client.ecs.entities.SunCamera;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.DeferredPass;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.FBO;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.IDeferredPipeline;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.ShadowFBO;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CubeMapTexture;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Light;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Texture;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.DeferredShadingShader;
+import net.luxvacuos.lightengine.client.util.Maths;
+import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
+import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class PointLightPass extends DeferredPass {
+
+	private FBO fbos[];
 
 	public PointLightPass(String name, int width, int height) {
 		super(name, width, height);
 	}
 
 	@Override
+	public void init() {
+		fbos = new FBO[2];
+		fbos[0] = new FBO(width, height);
+		fbos[1] = new FBO(width, height);
+		shader = new DeferredShadingShader(name);
+		shader.start();
+		shader.loadResolution(new Vector2d(width, height));
+		shader.loadSkyColor(ClientVariables.skyColor);
+		shader.stop();
+	}
+
+	@Override
 	public void render(FBO[] auxs, IDeferredPipeline pipe, CubeMapTexture irradianceCapture,
 			CubeMapTexture environmentMap, Texture brdfLUT, ShadowFBO shadow) {
+	}
+
+	public void render(FBO[] auxs, IDeferredPipeline pipe, CubeMapTexture irradianceCapture,
+			CubeMapTexture environmentMap, Texture brdfLUT, ShadowFBO shadow, List<Light> lights) {
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, pipe.getMainFBO().getDiffuseTex());
 		glActiveTexture(GL_TEXTURE1);
@@ -61,6 +101,72 @@ public class PointLightPass extends DeferredPass {
 		glBindTexture(GL_TEXTURE_2D, pipe.getMainFBO().getMaskTex());
 		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, auxs[0].getTexture());
+		for (int x = 0; x < lights.size(); x++) {
+			Light l = lights.get(x);
+			if (l.isShadow()) {
+				glActiveTexture(GL_TEXTURE14 + x);
+				glBindTexture(GL_TEXTURE_2D, l.getShadowMap().getShadowMap());
+			}
+		}
+	}
+
+	@Override
+	public void process(CameraEntity camera, Sun sun, Matrix4d previousViewMatrix, Vector3d previousCameraPosition,
+			IWorldSimulation clientWorldSimulation, List<Light> tLights, FBO[] auxs, IDeferredPipeline pipe,
+			RawModel quad, CubeMapTexture irradianceCapture, CubeMapTexture environmentMap, Texture brdfLUT,
+			ShadowFBO shadowFBO, float exposure) {
+		List<List<Light>> totalLights = chopped(tLights, 18);
+		for (List<Light> lights : totalLights) {
+			FBO tmp = fbos[0];
+			fbos[0] = fbos[1];
+			fbos[1] = tmp;
+
+			fbos[0].begin();
+			shader.start();
+			shader.loadUnderWater(false);
+			shader.loadMotionBlurData(camera, previousViewMatrix, previousCameraPosition);
+			shader.loadLightPosition(sun.getSunPosition(), sun.getInvertedSunPosition());
+			shader.loadviewMatrix(camera);
+			shader.loadSettings(false, false, false,
+					(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/volumetricLight")),
+					(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/reflections")),
+					(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/ambientOcclusion")),
+					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/shadowsDrawDistance")),
+					false, (boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/lensFlares")),
+					(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/shadows")));
+			shader.loadSunPosition(Maths.convertTo2F(new Vector3d(sun.getSunPosition()),
+					camera.getProjectionMatrix(), Maths.createViewMatrixRot(camera.getRotation().getX(),
+							camera.getRotation().getY(), camera.getRotation().getZ(), DeferredPass.tmp),
+					width, height));
+			shader.loadExposure(exposure);
+			shader.loadPointLightsPos(lights);
+			shader.loadTime(clientWorldSimulation.getTime());
+			shader.loadLightMatrix(sun.getCamera().getViewMatrix());
+			shader.loadBiasMatrix(((SunCamera) sun.getCamera()).getProjectionArray());
+			Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			render(auxs, pipe, irradianceCapture, environmentMap, brdfLUT, shadowFBO, lights);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, quad.getVertexCount());
+			shader.stop();
+			fbos[0].end();
+
+			auxs[0] = fbos[0];
+		}
+	}
+
+	@Override
+	public void dispose() {
+		fbos[0].cleanUp();
+		fbos[1].cleanUp();
+		shader.dispose();
+	}
+
+	private static <T> List<List<T>> chopped(List<T> list, final int L) {
+		List<List<T>> parts = new ArrayList<List<T>>();
+		final int N = list.size();
+		for (int i = 0; i < N; i += L) {
+			parts.add(new ArrayList<T>(list.subList(i, Math.min(N, i + L))));
+		}
+		return parts;
 	}
 
 }
