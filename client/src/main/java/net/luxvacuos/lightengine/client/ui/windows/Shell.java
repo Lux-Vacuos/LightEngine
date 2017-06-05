@@ -32,12 +32,12 @@ import net.luxvacuos.lightengine.client.ui.Component;
 import net.luxvacuos.lightengine.client.ui.Container;
 import net.luxvacuos.lightengine.client.ui.Direction;
 import net.luxvacuos.lightengine.client.ui.FlowLayout;
-import net.luxvacuos.lightengine.client.ui.RootComponentWindow;
+import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
-public class Shell extends RootComponentWindow implements IShell {
+public class Shell extends ComponentWindow implements IShell {
 
 	private Map<Integer, Component> buttons;
 	private Container apps;

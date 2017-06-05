@@ -25,7 +25,7 @@ import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_MIDDLE;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.ui.Alignment;
-import net.luxvacuos.lightengine.client.ui.RootComponentWindow;
+import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.Text;
 
 public final class WM {
@@ -52,34 +52,34 @@ public final class WM {
 		win4T.setWindowAlignment(Alignment.CENTER);
 		win4T.setFontSize(15);
 
-		RootComponentWindow win0 = new RootComponentWindow(20, 700, 200, 200, "Window0");
+		ComponentWindow win0 = new ComponentWindow(20, 700, 200, 200, "Window0");
 		win0.addComponent(win0T);
-		RootComponentWindow win1 = new RootComponentWindow(240, 700, 200, 200, "Window1");
+		ComponentWindow win1 = new ComponentWindow(240, 700, 200, 200, "Window1");
 		win1.addComponent(win1T);
 		win1.setResizable(false);
-		RootComponentWindow win2 = new RootComponentWindow(480, 700, 200, 200, "Window2");
+		ComponentWindow win2 = new ComponentWindow(480, 700, 200, 200, "Window2");
 		win2.addComponent(win2T);
 		win2.toggleTitleBar();
-		RootComponentWindow win3 = new RootComponentWindow(700, 700, 200, 200, "Window3");
+		ComponentWindow win3 = new ComponentWindow(700, 700, 200, 200, "Window3");
 		win3.addComponent(win3T);
 		win3.setDecorations(false);
-		RootComponentWindow win4 = new RootComponentWindow(920, 700, 200, 200, "Window4");
+		ComponentWindow win4 = new ComponentWindow(920, 700, 200, 200, "Window4");
 		win4.addComponent(win4T);
 		win4.toggleTitleBar();
 		win4.setDecorations(false);
 
-		RootComponentWindow win5 = new RootComponentWindow(20, 480, 200, 200, "Window5");
+		ComponentWindow win5 = new ComponentWindow(20, 480, 200, 200, "Window5");
 		win5.setBackgroundColor(0.4f, 0.4f, 0.4f, 1f);
-		RootComponentWindow win6 = new RootComponentWindow(240, 480, 200, 200, "Window6");
+		ComponentWindow win6 = new ComponentWindow(240, 480, 200, 200, "Window6");
 		win6.setBackgroundColor(0.4f, 0.4f, 0.4f, 1f);
 		win6.setResizable(false);
-		RootComponentWindow win7 = new RootComponentWindow(480, 480, 200, 200, "Window7");
+		ComponentWindow win7 = new ComponentWindow(480, 480, 200, 200, "Window7");
 		win7.setBackgroundColor(0.4f, 0.4f, 0.4f, 1f);
 		win7.toggleTitleBar();
-		RootComponentWindow win8 = new RootComponentWindow(700, 480, 200, 200, "Window8");
+		ComponentWindow win8 = new ComponentWindow(700, 480, 200, 200, "Window8");
 		win8.setBackgroundColor(0.4f, 0.4f, 0.4f, 1f);
 		win8.setDecorations(false);
-		RootComponentWindow win9 = new RootComponentWindow(920, 480, 200, 200, "Window9");
+		ComponentWindow win9 = new ComponentWindow(920, 480, 200, 200, "Window9");
 		win9.setBackgroundColor(0.4f, 0.4f, 0.4f, 1f);
 		win9.toggleTitleBar();
 		win9.setDecorations(false);

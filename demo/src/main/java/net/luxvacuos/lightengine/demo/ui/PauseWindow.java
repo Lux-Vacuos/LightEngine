@@ -25,10 +25,10 @@ import net.luxvacuos.lightengine.client.input.Mouse;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.Button;
-import net.luxvacuos.lightengine.client.ui.RootComponentWindow;
+import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.demo.MainState;
 
-public class PauseWindow extends RootComponentWindow {
+public class PauseWindow extends ComponentWindow {
 
 	public PauseWindow(float x, float y, float w, float h) {
 		super(x, y, w, h, "Pause");

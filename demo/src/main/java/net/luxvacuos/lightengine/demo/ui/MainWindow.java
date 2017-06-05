@@ -28,11 +28,11 @@ import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.Button;
 import net.luxvacuos.lightengine.client.ui.ModalWindow;
-import net.luxvacuos.lightengine.client.ui.RootComponentWindow;
+import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 
-public class MainWindow extends RootComponentWindow {
+public class MainWindow extends ComponentWindow {
 
 	public MainWindow(float x, float y, float w, float h) {
 		super(x, y, w, h, LANG.getRegistryItem("lightengine.mainwindow.name"));
@@ -58,10 +58,11 @@ public class MainWindow extends RootComponentWindow {
 		exitButton.setWindowAlignment(Alignment.CENTER);
 
 		playButton.setOnButtonPress(() -> {
-			GraphicalSubsystem.getWindowManager().toggleShell();
+			/*GraphicalSubsystem.getWindowManager().toggleShell();
 			super.setWindowClose(WindowClose.DISPOSE);
 			super.closeWindow();
-			StateMachine.setCurrentState("mainState");
+			StateMachine.setCurrentState("mainState");*/
+			GraphicalSubsystem.getWindowManager().addWindow(new RectGL(200, 500, 480, 754));
 		});
 
 		optionsButton.setOnButtonPress(() -> {

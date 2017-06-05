@@ -66,7 +66,7 @@ public final class ClientGameSettings extends AbstractGameSettings {
 		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/borderSize", true), 		10f);
 		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/titleBarHeight", true), 	30f);
 		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/scrollBarSize", true), 	16f);
-		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/titleBarBorder", true), 	false);
+		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/titleBarBorder", true), 	true);
 		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/theme", true), 			"Nano");
 		
 		REGISTRY.register(new Key("/Light Engine/Settings/Regional/lang", true), 					"en_US");

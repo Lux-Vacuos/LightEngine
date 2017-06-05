@@ -23,11 +23,11 @@ package net.luxvacuos.lightengine.client.ui;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.NanoWindow;
 
-public class RootComponentWindow extends NanoWindow {
+public class ComponentWindow extends NanoWindow {
 
 	protected RootComponent rootComponent;
 
-	public RootComponentWindow(float x, float y, float w, float h, String title) {
+	public ComponentWindow(float x, float y, float w, float h, String title) {
 		super(x, y, w, h, title);
 		rootComponent = new RootComponent(x, y, w, h);
 	}

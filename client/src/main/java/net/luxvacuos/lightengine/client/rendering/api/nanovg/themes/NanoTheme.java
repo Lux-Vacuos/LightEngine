@@ -25,7 +25,7 @@ import static net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme
 import static net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme.paintA;
 import static net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme.paintB;
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
-import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_CENTER;
+import static org.lwjgl.nanovg.NanoVG.*;
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_LEFT;
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_MIDDLE;
 import static org.lwjgl.nanovg.NanoVG.NVG_CCW;
@@ -99,7 +99,8 @@ public class NanoTheme implements ITheme {
 
 	@Override
 	public void renderWindow(long vg, float x, float y, float w, float h, BackgroundStyle backgroundStyle,
-			NVGColor backgroundColor, boolean decorations, boolean titleBar, boolean maximized) {
+			NVGColor backgroundColor, boolean decorations, boolean titleBar, boolean maximized, float ft, float fb,
+			float fr, float fl) {
 		NVGPaint shadowPaint = paintA;
 		float borderSize = (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/borderSize"));
 		float titleBarHeight = (float) REGISTRY
@@ -117,7 +118,7 @@ public class NanoTheme implements ITheme {
 			} else {
 				// Window
 				nvgBeginPath(vg);
-				nvgRect(vg, x, y, w, h);
+				nvgRect(vg, x + fl, y + ft, w - fr - fl, h - fb - ft);
 				nvgPathWinding(vg, NVG_HOLE);
 				if (titleBar)
 					if (titleBarBorder)
@@ -137,7 +138,7 @@ public class NanoTheme implements ITheme {
 		switch (backgroundStyle) {
 		case SOLID:
 			nvgBeginPath(vg);
-			nvgRect(vg, x, y, w, h);
+			nvgRect(vg, x + fl, y + ft, w - fr - fl, h - fb - ft);
 			nvgFillColor(vg, backgroundColor);
 			nvgFill(vg);
 			break;
@@ -581,9 +582,10 @@ public class NanoTheme implements ITheme {
 	}
 
 	@Override
-	public void renderBox(long vg, float x, float y, float w, float h, NVGColor color) {
+	public void renderBox(long vg, float x, float y, float w, float h, NVGColor color, float rt, float lt, float rb,
+			float lb) {
 		nvgBeginPath(vg);
-		nvgRect(vg, x, y, w, h);
+		nvgRoundedRectVarying(vg, x, y, w, h, lt, rt, lb, rb);
 		nvgFillColor(vg, color);
 		nvgFill(vg);
 	}
@@ -615,7 +617,8 @@ public class NanoTheme implements ITheme {
 	@Override
 	public void renderScrollBarV(long vg, float x, float y, float w, float h, float pos, float sizeV) {
 		float scrollv;
-		float scrollBarSize = (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/scrollBarSize"));
+		float scrollBarSize = (float) REGISTRY
+				.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/scrollBarSize"));
 
 		nvgSave(vg);
 		// Scroll bar

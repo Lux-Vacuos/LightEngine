@@ -31,13 +31,13 @@ import org.lwjgl.nanovg.NVGLUFramebuffer;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.RawModel;
 
-public class Composite {
+public class Compositor {
 
 	private NVGLUFramebuffer[] fbos;
 	private RawModel quad;
-	private List<CompositeEffect> effects;
+	private List<CompositorEffect> effects;
 
-	public Composite(Window window, int width, int height) {
+	public Compositor(Window window, int width, int height) {
 		effects = new ArrayList<>();
 		fbos = new NVGLUFramebuffer[2];
 		fbos[0] = nvgluCreateFramebuffer(window.getNVGID(), width, height, 0);
@@ -47,23 +47,23 @@ public class Composite {
 	}
 
 	public void render(IWindow window, Window wnd) {
-		for (CompositeEffect compositeEffect : effects) {
+		for (CompositorEffect compositorEffect : effects) {
 			NVGLUFramebuffer tmp = fbos[0];
 			fbos[0] = fbos[1];
 			fbos[1] = tmp;
-			compositeEffect.render(fbos, quad, wnd, window);
+			compositorEffect.render(fbos, quad, wnd, window);
 		}
 	}
 
 	public void dispose(Window window) {
 		nvgluDeleteFramebuffer(window.getNVGID(), fbos[0]);
 		nvgluDeleteFramebuffer(window.getNVGID(), fbos[1]);
-		for (CompositeEffect compositeEffect : effects) {
-			compositeEffect.dispose();
+		for (CompositorEffect compositorEffect : effects) {
+			compositorEffect.dispose();
 		}
 	}
 
-	public void addEffect(CompositeEffect effect) {
+	public void addEffect(CompositorEffect effect) {
 		effects.add(effect);
 	}
 

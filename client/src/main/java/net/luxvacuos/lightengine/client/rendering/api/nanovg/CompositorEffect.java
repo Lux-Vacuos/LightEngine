@@ -43,11 +43,11 @@ import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
-public abstract class CompositeEffect implements IDisposable {
+public abstract class CompositorEffect implements IDisposable {
 
 	private WindowManagerShader shader;
 
-	public CompositeEffect(int width, int height, String name) {
+	public CompositorEffect(int width, int height, String name) {
 		shader = new WindowManagerShader(name);
 		shader.start();
 		shader.loadResolution(new Vector2f(width, height));

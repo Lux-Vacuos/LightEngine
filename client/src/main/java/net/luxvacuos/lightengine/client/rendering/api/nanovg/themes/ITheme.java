@@ -33,7 +33,8 @@ import net.luxvacuos.lightengine.client.ui.ScrollPaneElement;
 public interface ITheme {
 
 	public void renderWindow(long vg, float x, float y, float w, float h, BackgroundStyle backgroundStyle,
-			NVGColor backgroundColor, boolean decorations, boolean titleBar, boolean maximized);
+			NVGColor backgroundColor, boolean decorations, boolean titleBar, boolean maximized, float ft, float fb,
+			float fr, float fl);
 
 	public void renderTitleBarText(long vg, String text, String font, int align, float x, float y, float fontSize);
 
@@ -68,11 +69,12 @@ public interface ITheme {
 	public void renderParagraph(long vg, float x, float y, float width, float fontSize, String font, String text,
 			int align, NVGColor color);
 
-	public void renderBox(long vg, float x, float y, float w, float h, NVGColor color);
+	public void renderBox(long vg, float x, float y, float w, float h, NVGColor color, float rt, float lt, float rb,
+			float lb);
 
 	public void renderSlider(long vg, float pos, float x, float y, float w, float h);
 
 	public void renderScrollBarV(long vg, float x, float y, float w, float h, float pos, float sizeV);
-	
+
 	public String getName();
 }

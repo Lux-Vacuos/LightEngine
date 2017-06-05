@@ -29,7 +29,7 @@ import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.Image;
-import net.luxvacuos.lightengine.client.ui.RootComponentWindow;
+import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.Spinner;
 import net.luxvacuos.lightengine.client.ui.windows.Shell;
 import net.luxvacuos.lightengine.universal.core.AbstractEngine;
@@ -47,7 +47,7 @@ import net.luxvacuos.lightengine.universal.util.registry.Key;
  */
 public class SplashScreenState extends AbstractState {
 
-	private RootComponentWindow component;
+	private ComponentWindow component;
 
 	public SplashScreenState() {
 		super(StateNames.SPLASH_SCREEN);
@@ -55,7 +55,7 @@ public class SplashScreenState extends AbstractState {
 
 	@Override
 	public void init() {
-		component = new RootComponentWindow(0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
+		component = new ComponentWindow(0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
 				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
 				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")), "splash");
 		component.toggleTitleBar();

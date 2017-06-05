@@ -27,11 +27,11 @@ import java.io.InputStreamReader;
 import net.luxvacuos.lightengine.client.input.Mouse;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.ui.Alignment;
-import net.luxvacuos.lightengine.client.ui.RootComponentWindow;
+import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.TextArea;
 import net.luxvacuos.lightengine.universal.commands.ICommandManager;
 
-public class Console extends RootComponentWindow {
+public class Console extends ComponentWindow {
 
 	private ICommandManager manager;
 	private TextArea text;

@@ -18,11 +18,11 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.api.nanovg.effects;
+package net.luxvacuos.lightengine.client.rendering.api.nanovg.compositor;
 
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.CompositeEffect;
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.CompositorEffect;
 
-public class Final extends CompositeEffect {
+public class Final extends CompositorEffect {
 
 	public Final(int width, int height) {
 		super(width, height, "Final");

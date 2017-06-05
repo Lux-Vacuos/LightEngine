@@ -54,6 +54,7 @@ public class MainState extends AbstractState {
 	private Vector3d particlesPoint;
 	private GameWindow gameWindow;
 	private PauseWindow pauseWindow;
+	private Light light0, light1;
 
 	private RenderEntity mat1, mat2, mat3, mat4, mat5, rocket, plane, character, cerberus;
 
@@ -99,12 +100,12 @@ public class MainState extends AbstractState {
 		// new Vector3f(1, 1, 1)));
 		// Renderer.getLightRenderer().addLight(new Light(new Vector3f(0, 5, 0),
 		// new Vector3f(1, 1, 1)));
-		Light light0 = new Light(new Vector3d(4.5f, 4.2f, 8f), new Vector3f(100, 100, 100), new Vector3d(225, -45, 0),
-				50, 40);
+		light0 = new Light(new Vector3d(4.5f, 4.2f, 8f), new Vector3f(100, 100, 100), new Vector3d(245, -45, 0), 50,
+				40);
 		light0.setShadow(true);
 		Renderer.getLightRenderer().addLight(light0);
-		Light light1 = new Light(new Vector3d(-4.5f, 4.2f, 8f), new Vector3f(100, 100, 100), new Vector3d(225, 45, 0),
-				50, 40);
+		light1 = new Light(new Vector3d(-4.5f, 4.2f, 8f), new Vector3f(100, 100, 100), new Vector3d(245, 45, 0), 50,
+				40);
 		light1.setShadow(true);
 		Renderer.getLightRenderer().addLight(light1);
 
@@ -119,13 +120,13 @@ public class MainState extends AbstractState {
 
 		mat4 = new RenderEntity("", sphere);
 		mat4.getComponent(Position.class).set(9, 1, 0);
-
+/*
 		dragon = aLoader.loadModel("levels/test_state/models/dragon.blend");
 
 		mat5 = new RenderEntity("", dragon);
 
 		mat5.getComponent(Position.class).set(-3, 0, 3);
-		mat5.getComponent(Scale.class).setScale(0.5f);
+		mat5.getComponent(Scale.class).setScale(0.5f);*/
 
 		/*
 		 * rocketM = aLoader.loadModel("levels/test_state/models/Rocket.obj");
@@ -164,7 +165,7 @@ public class MainState extends AbstractState {
 	@Override
 	public void dispose() {
 		sphere.dispose();
-		dragon.dispose();
+		//dragon.dispose();
 		characterM.dispose();
 		fire.dispose();
 		planeM.dispose();
@@ -181,7 +182,7 @@ public class MainState extends AbstractState {
 		physicsSystem.getEngine().addEntity(mat2);
 		physicsSystem.getEngine().addEntity(mat3);
 		physicsSystem.getEngine().addEntity(mat4);
-		physicsSystem.getEngine().addEntity(mat5);
+		//physicsSystem.getEngine().addEntity(mat5);
 		/*
 		 * physicsSystem.getEngine().addEntity(rocket);
 		 */ physicsSystem.getEngine().addEntity(character);
@@ -207,12 +208,13 @@ public class MainState extends AbstractState {
 		Window window = GraphicalSubsystem.getMainWindow();
 		KeyboardHandler kbh = window.getKeyboardHandler();
 		if (!paused) {
-			System.out.println(camera.getPosition());
 			Renderer.update(delta);
 			engine.update(delta);
 			sun.update(camera.getPosition(), worldSimulation.update(delta), delta);
 			// particleSystem.generateParticles(particlesPoint, delta);
 			ParticleDomain.update(delta, camera);
+			light0.getPosition().set(Math.sin(worldSimulation.getGlobalTime() / 8f) * 3f + 4.5f, 8.2f, 8f);
+			light1.getPosition().set(Math.sin(worldSimulation.getGlobalTime() / 7f) * 3f - 4.5f, 8.2f, 8f);
 
 			if (kbh.isKeyPressed(GLFW.GLFW_KEY_ESCAPE)) {
 				kbh.ignoreKeyUntilRelease(GLFW.GLFW_KEY_ESCAPE);

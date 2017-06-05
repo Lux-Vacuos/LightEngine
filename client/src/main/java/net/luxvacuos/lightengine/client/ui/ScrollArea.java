@@ -52,7 +52,7 @@ public class ScrollArea extends Component {
 	public void render(Window window) {
 		Theme.renderBox(window.getNVGID(), rootComponent.rootX + alignedX,
 				window.getHeight() - rootComponent.rootY - alignedY - h, w, h,
-				Theme.setColor(0.6f, 0.6f, 0.6f, 0f, Theme.colorB));
+				Theme.setColor(0.6f, 0.6f, 0.6f, 0f, Theme.colorB), 0, 0, 0, 0);
 		nvgSave(window.getNVGID());
 		nvgScissor(window.getNVGID(), rootComponent.rootX + alignedX,
 				window.getHeight() - rootComponent.rootY - alignedY - h, w, h);
@@ -64,7 +64,8 @@ public class ScrollArea extends Component {
 
 	@Override
 	public void update(float delta, Window window) {
-		float scrollBarSize = (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/scrollBarSize"));
+		float scrollBarSize = (float) REGISTRY
+				.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/scrollBarSize"));
 		if (Mouse.isButtonDown(0)) {
 			if (Mouse.getX() > rootComponent.rootX + alignedX + w - scrollBarSize
 					&& Mouse.getX() < rootComponent.rootX + alignedX + w

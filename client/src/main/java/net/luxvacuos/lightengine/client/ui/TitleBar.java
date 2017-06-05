@@ -81,16 +81,19 @@ public class TitleBar implements ITitleBar {
 					time = 0;
 				}
 			}
-			left.update(delta, window);
-			right.update(delta, window);
-			center.update(delta, window);
+			if (!dragging) {
+				left.update(delta, window);
+				right.update(delta, window);
+				center.update(delta, window);
+			}
 		}
 	}
 
 	@Override
 	public void alwaysUpdate(float delta, Window window) {
 		if (enabled) {
-			float titleBarHeight = (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
+			float titleBarHeight = (float) REGISTRY
+					.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
 			left.alwaysUpdate(delta, window, this.window.getX(), this.window.getY() + titleBarHeight,
 					this.window.getWidth(), titleBarHeight);
 			right.alwaysUpdate(delta, window, this.window.getX(), this.window.getY() + titleBarHeight,
@@ -121,10 +124,9 @@ public class TitleBar implements ITitleBar {
 	}
 
 	private boolean canDrag(IWindow iWindow) {
-		return Mouse.getX() > iWindow.getX()
-				&& Mouse.getY() < iWindow.getY()
-						+ (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"))
-				&& Mouse.getX() < iWindow.getX() + iWindow.getWidth() - 87 && Mouse.getY() > iWindow.getY();
+		return Mouse.getX() > iWindow.getX() + 100 && Mouse.getY() < iWindow.getY()
+				+ (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"))
+				&& Mouse.getX() < iWindow.getX() + iWindow.getWidth() - 100 && Mouse.getY() > iWindow.getY();
 	}
 
 	@Override

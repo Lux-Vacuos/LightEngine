@@ -37,10 +37,10 @@ import net.luxvacuos.lightengine.client.input.Mouse;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Sync;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.WindowManager;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.effects.Final;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.effects.GaussianH;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.effects.GaussianV;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.effects.MaskBlur;
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.compositor.Final;
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.compositor.GaussianH;
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.compositor.GaussianV;
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.compositor.MaskBlur;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.GLUtil;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
@@ -51,7 +51,7 @@ public class NanoWindowManager implements IWindowManager {
 
 	private List<IWindow> windows;
 	private Window window;
-	private Composite composite;
+	private Compositor compositor;
 	private int width, height;
 	private IWindow focused;
 	private boolean running = true;
@@ -68,11 +68,11 @@ public class NanoWindowManager implements IWindowManager {
 			width = GLUtil.getTextureMaxSize();
 		if (height > GLUtil.getTextureMaxSize())
 			height = GLUtil.getTextureMaxSize();
-		composite = new Composite(win, width, height);
-		composite.addEffect(new MaskBlur(width, height));
-		composite.addEffect(new GaussianV(width, height));
-		composite.addEffect(new GaussianH(width, height));
-		composite.addEffect(new Final(width, height));
+		compositor = new Compositor(win, width, height);
+		compositor.addEffect(new MaskBlur(width, height));
+		compositor.addEffect(new GaussianV(width, height));
+		compositor.addEffect(new GaussianH(width, height));
+		compositor.addEffect(new Final(width, height));
 
 		Thread th = new Thread(() -> {
 			lastLoopTime = WindowManager.getTime();
@@ -104,11 +104,11 @@ public class NanoWindowManager implements IWindowManager {
 		glDisable(GL_BLEND);
 		for (IWindow window : windows) {
 			if (!window.isHidden() && !window.isMinimized())
-				composite.render(window, this.window);
+				compositor.render(window, this.window);
 		}
 		window.beingNVGFrame();
 		Theme.renderImage(this.window.getNVGID(), 0, 0, window.getWidth(), window.getHeight(),
-				composite.getFbos()[0].image(), 1f);
+				compositor.getFbos()[0].image(), 1f);
 		if (ClientVariables.debug) {
 			Timers.renderDebugDisplay(5, 24, 200, 55);
 			Theme.renderText(window.getNVGID(), "Light Engine " + " (" + ClientVariables.version + ")", "Roboto-Bold",
@@ -173,7 +173,7 @@ public class NanoWindowManager implements IWindowManager {
 	@Override
 	public void dispose() {
 		running = false;
-		composite.dispose(window);
+		compositor.dispose(window);
 		for (IWindow window : windows) {
 			window.dispose(this.window);
 		}

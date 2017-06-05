@@ -106,8 +106,10 @@ public class Theme {
 	}
 
 	public static void renderWindow(long vg, float x, float y, float w, float h, BackgroundStyle backgroundStyle,
-			NVGColor backgroundColor, boolean decorations, boolean titleBar, boolean maximized) {
-		theme.renderWindow(vg, x, y, w, h, backgroundStyle, backgroundColor, decorations, titleBar, maximized);
+			NVGColor backgroundColor, boolean decorations, boolean titleBar, boolean maximized, float ft, float fb,
+			float fr, float fl) {
+		theme.renderWindow(vg, x, y, w, h, backgroundStyle, backgroundColor, decorations, titleBar, maximized, ft, fb,
+				fr, fl);
 
 	}
 
@@ -175,8 +177,9 @@ public class Theme {
 		theme.renderParagraph(vg, x, y, width, fontSize, font, text, align, color);
 	}
 
-	public static void renderBox(long vg, float x, float y, float w, float h, NVGColor color) {
-		theme.renderBox(vg, x, y, w, h, color);
+	public static void renderBox(long vg, float x, float y, float w, float h, NVGColor color, float rt, float lt,
+			float rb, float lb) {
+		theme.renderBox(vg, x, y, w, h, color, rt, lt, rb, lb);
 	}
 
 	public static void renderSlider(long vg, float pos, float x, float y, float w, float h) {

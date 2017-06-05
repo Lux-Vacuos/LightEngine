@@ -186,27 +186,14 @@ public class Maths {
 
 	}
 
-	/**
-	 * 
-	 * Clamp a value
-	 * 
-	 * @param d
-	 *            Value
-	 * @return Clamped Value
-	 */
 	public static float clamp(double d, double min, double max) {
 		return (float) Math.max(min, Math.min(max, d));
 	}
+	
+	public static float clamp(double d, double min) {
+		return (float) Math.max(min, d);
+	}
 
-	/**
-	 * Gets a Random int from Range
-	 * 
-	 * @param min
-	 *            Min Value
-	 * @param max
-	 *            Max Value
-	 * @return Random Int
-	 */
 	public static int randInt(int min, int max) {
 		Random rand = new Random();
 		int randomNum = rand.nextInt((max - min) + 1) + min;

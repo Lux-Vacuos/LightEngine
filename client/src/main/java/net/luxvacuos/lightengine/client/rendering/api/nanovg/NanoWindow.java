@@ -48,12 +48,15 @@ import net.luxvacuos.lightengine.client.ui.ITitleBar;
 import net.luxvacuos.lightengine.client.ui.TitleBar;
 import net.luxvacuos.lightengine.client.ui.TitleBarButton;
 import net.luxvacuos.lightengine.client.ui.TitleBarText;
+import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public abstract class NanoWindow implements IWindow {
 
 	private boolean draggable = true, decorations = true, resizable = true, maximized, hidden, exit, alwaysOnTop,
-			background, blurBehind = true, running = true, resizing, minimized, closeButton = true;
+			background, blurBehind = true, running = true, minimized, closeButton = true;
+	private boolean resizingRight, resizingRightBottom, resizingBottom, resizingTop, resizingLeft;
+	private float ft, fb, fr, fl;
 	private BackgroundStyle backgroundStyle = BackgroundStyle.SOLID;
 	private NVGColor backgroundColor = Theme.rgba(0, 0, 0, 255);
 	protected float x, y, w, h, minW = 300, minH = 300;
@@ -152,7 +155,7 @@ public abstract class NanoWindow implements IWindow {
 			Renderer.clearColors(0, 0, 0, 0);
 			window.beingNVGFrame();
 			Theme.renderWindow(window.getNVGID(), x, window.getHeight() - y, w, h, backgroundStyle, backgroundColor,
-					decorations, titleBar.isEnabled(), maximized);
+					decorations, titleBar.isEnabled(), maximized, ft, fb, fr, fl);
 			if (decorations)
 				titleBar.render(window);
 			nvgScissor(window.getNVGID(), x, window.getHeight() - y, w, h);
@@ -165,25 +168,37 @@ public abstract class NanoWindow implements IWindow {
 	@Override
 	public void update(float delta, Window window, IWindowManager nanoWindowManager) {
 		if (decorations && !hidden && !minimized) {
-			titleBar.update(delta, window);
-			if ((Mouse.isButtonDown(0) && canResize()) || resizing) {
-				resizing = Mouse.isButtonDown(0);
-				if (w > minW)
-					w += Mouse.getDX();
-				else {
-					if (Mouse.getDX() > 0)
-						w += Mouse.getDX();
-				}
-				if (h > minH)
-					h -= Mouse.getDY();
-				else {
-					if (Mouse.getDY() < 0)
-						h -= Mouse.getDY();
-				}
-
+			if (!isResizing() && !minimized)
+				titleBar.update(delta, window);
+			float borderSize = (float) REGISTRY
+					.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/borderSize"));
+			if ((Mouse.isButtonDown(0) && canResizeRightBottom(borderSize) && !isResizing()) || resizingRightBottom) {
+				resizingRightBottom = Mouse.isButtonDown(0);
+				w = Maths.clamp(Mouse.getX() - x, minW);
+				h = Maths.clamp(-Mouse.getY() + y, minH);
+			}
+			if ((Mouse.isButtonDown(0) && canResizeRight(borderSize) && !isResizing()) || resizingRight) {
+				resizingRight = Mouse.isButtonDown(0);
+				w = Maths.clamp(Mouse.getX() - x, minW);
+			}
+			if ((Mouse.isButtonDown(0) && canResizeLeft(borderSize) && !isResizing()) || resizingLeft) {
+				resizingLeft = Mouse.isButtonDown(0);
+				x = Mouse.getX();
+				w = Maths.clamp(w - Mouse.getDX(), minW);
+			}
+			if ((Mouse.isButtonDown(0) && canResizeBottom(borderSize) && !isResizing()) || resizingBottom) {
+				resizingBottom = Mouse.isButtonDown(0);
+				h = Maths.clamp(-Mouse.getY() + y, minH);
+			}
+			if ((Mouse.isButtonDown(0) && canResizeTop(borderSize) && !isResizing()) || resizingTop) {
+				resizingTop = Mouse.isButtonDown(0);
+				// h = Maths.clamp(-Mouse.getY() + y, minH);
+				y = Mouse.getY() - (float) REGISTRY
+						.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
+				h = Maths.clamp(h + Mouse.getDY(), minH);
 			}
 		}
-		if (!resizing && !minimized)
+		if (!isResizing() && !minimized)
 			updateApp(delta, window);
 	}
 
@@ -204,9 +219,40 @@ public abstract class NanoWindow implements IWindow {
 	public void onClose() {
 	}
 
-	private boolean canResize() {
-		return Mouse.getX() > x + w - 20 && Mouse.getY() < y - h + 20 && Mouse.getX() < x + w + 20
-				&& Mouse.getY() > y - h - 20 && resizable && !maximized && !minimized;
+	private boolean canResizeBottom(float borderSize) {
+		return Mouse.getX() > x && Mouse.getY() < y - h && Mouse.getX() < x + w && Mouse.getY() > y - h - borderSize
+				&& resizable && !maximized && !minimized;
+	}
+
+	private boolean canResizeTop(float borderSize) {
+		if (titleBar.isEnabled())
+			return Mouse.getX() > x
+					&& Mouse.getY() < y
+							+ (float) REGISTRY
+									.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"))
+							+ borderSize
+					&& Mouse.getX() < x + w
+					&& Mouse.getY() > y + (float) REGISTRY
+							.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"))
+					&& resizable && !maximized && !minimized;
+		else
+			return Mouse.getX() > x && Mouse.getY() < y + borderSize && Mouse.getX() < x + w && Mouse.getY() > y
+					&& resizable && !maximized && !minimized;
+	}
+
+	private boolean canResizeRightBottom(float borderSize) {
+		return Mouse.getX() > x + w && Mouse.getY() < y - h && Mouse.getX() < x + w + borderSize
+				&& Mouse.getY() > y - h - borderSize && resizable && !maximized && !minimized;
+	}
+
+	private boolean canResizeRight(float borderSize) {
+		return Mouse.getX() > x + w && Mouse.getY() < y && Mouse.getX() < x + w + borderSize && Mouse.getY() > y - h
+				&& resizable && !maximized && !minimized;
+	}
+
+	private boolean canResizeLeft(float borderSize) {
+		return Mouse.getX() > x - borderSize && Mouse.getY() < y && Mouse.getX() < x + borderSize
+				&& Mouse.getY() > y - h && resizable && !maximized && !minimized;
 	}
 
 	@Override
@@ -323,11 +369,12 @@ public abstract class NanoWindow implements IWindow {
 				oldW = this.w;
 				oldH = this.h;
 				this.x = 0;
-				this.y = height
-						- (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
+				this.y = height - (float) REGISTRY
+						.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
 				this.w = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
 				this.h = height
-						- (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"))
+						- (float) REGISTRY
+								.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"))
 						- (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/shellHeight"));
 			} else {
 				this.x = oldX;
@@ -336,6 +383,14 @@ public abstract class NanoWindow implements IWindow {
 				this.h = oldH;
 			}
 		}
+	}
+
+	@Override
+	public void extendFrame(float t, float b, float r, float l) {
+		this.ft = t;
+		this.fb = b;
+		this.fr = r;
+		this.fl = l;
 	}
 
 	@Override
@@ -431,7 +486,7 @@ public abstract class NanoWindow implements IWindow {
 		if (minimized || hidden)
 			return false;
 		else
-			return resizing;
+			return resizingRight || resizingRightBottom || resizingBottom || resizingTop || resizingLeft;
 	}
 
 	@Override

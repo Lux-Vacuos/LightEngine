@@ -23,9 +23,9 @@ package net.luxvacuos.lightengine.client.ui.windows;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
 import net.luxvacuos.lightengine.client.ui.Image;
-import net.luxvacuos.lightengine.client.ui.RootComponentWindow;
+import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 
-public class GameWindow extends RootComponentWindow {
+public class GameWindow extends ComponentWindow {
 
 	public GameWindow(float x, float y, float w, float h) {
 		super(x, y, w, h, "Light Engine");

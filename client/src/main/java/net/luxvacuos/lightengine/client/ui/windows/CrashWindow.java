@@ -23,17 +23,14 @@ package net.luxvacuos.lightengine.client.ui.windows;
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_CENTER;
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_MIDDLE;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.Box;
-import net.luxvacuos.lightengine.client.ui.TextArea;
-import net.luxvacuos.lightengine.client.ui.RootComponentWindow;
+import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.Text;
+import net.luxvacuos.lightengine.client.ui.TextArea;
 
-public class CrashWindow extends RootComponentWindow {
+public class CrashWindow extends ComponentWindow {
 
 	private Throwable t;
 
@@ -52,53 +49,49 @@ public class CrashWindow extends RootComponentWindow {
 
 		window.getResourceLoader().loadNVGFont("Px437_IBM_VGA8", "Px437_IBM_VGA8");
 
-		Box titleB = new Box(0, 150, -75, 25);
+		Box titleB = new Box(0, -40, 180, 25);
 		titleB.setAlignment(Alignment.CENTER);
-		titleB.setWindowAlignment(Alignment.CENTER);
+		titleB.setWindowAlignment(Alignment.TOP);
 
-		Text title = new Text("Light Engine", 0, 150);
+		Text title = new Text("Light Engine", 0, -40);
 		title.setAlign(NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
 		title.setFont("Px437_IBM_VGA8");
 		title.setColor(0, 0.5f, 1, 1);
-		title.setWindowAlignment(Alignment.CENTER);
+		title.setWindowAlignment(Alignment.TOP);
 
-		Text line1 = new Text("An error has ocurred and unfortunately Light Engine is unable to", -370, 75);
-		line1.setAlign(NVG_ALIGN_MIDDLE);
-		line1.setFont("Px437_IBM_VGA8");
-		line1.setWindowAlignment(Alignment.CENTER);
+		TextArea text = new TextArea(
+				"An error has ocurred and unfortunately Light Engine is unable to recover from it and continue. Some information might have been lost.",
+				-400, -100, 800);
+		text.setAlign(NVG_ALIGN_MIDDLE);
+		text.setFont("Px437_IBM_VGA8");
+		text.setWindowAlignment(Alignment.TOP);
 
-		Text line2 = new Text("recover from it and continue. Some information might have", -370, 50);
-		line2.setAlign(NVG_ALIGN_MIDDLE);
-		line2.setFont("Px437_IBM_VGA8");
-		line2.setWindowAlignment(Alignment.CENTER);
-
-		Text line3 = new Text("been lost.", -370, 25);
-		line3.setAlign(NVG_ALIGN_MIDDLE);
-		line3.setFont("Px437_IBM_VGA8");
-		line3.setWindowAlignment(Alignment.CENTER);
-
-		Text error = new Text("Kernel Panic", -370, -25);
+		Text error = new Text("Kernel Panic - " + t.getLocalizedMessage(), -400, -200);
 		error.setAlign(NVG_ALIGN_MIDDLE);
 		error.setFont("Px437_IBM_VGA8");
-		error.setWindowAlignment(Alignment.CENTER);
+		error.setWindowAlignment(Alignment.TOP);
 
-		StringWriter sw = new StringWriter();
-		PrintWriter pw = new PrintWriter(sw);
-		t.printStackTrace(pw);
-
-		TextArea errorMessage = new TextArea(sw.toString(), -370, -40, 744);
+		TextArea errorMessage = new TextArea(stackTraceToString(t), -w / 2 + 40, -220, w - 80);
 		errorMessage.setFont("Px437_IBM_VGA8");
-		errorMessage.setWindowAlignment(Alignment.CENTER);
+		errorMessage.setFontSize(20);
+		errorMessage.setWindowAlignment(Alignment.TOP);
 
 		super.addComponent(titleB);
 		super.addComponent(title);
-		super.addComponent(line1);
-		super.addComponent(line2);
-		super.addComponent(line3);
+		super.addComponent(text);
 		super.addComponent(error);
 		super.addComponent(errorMessage);
 
 		super.initApp(window);
+	}
+
+	public String stackTraceToString(Throwable e) {
+		StringBuilder sb = new StringBuilder();
+		for (StackTraceElement element : e.getStackTrace()) {
+			sb.append(element.toString());
+			sb.append("\n");
+		}
+		return sb.toString();
 	}
 
 }

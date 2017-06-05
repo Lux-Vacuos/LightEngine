@@ -18,14 +18,14 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.api.nanovg.effects;
+package net.luxvacuos.lightengine.client.rendering.api.nanovg.compositor;
 
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.CompositeEffect;
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.CompositorEffect;
 
-public class MaskBlur extends CompositeEffect {
+public class GaussianV extends CompositorEffect {
 
-	public MaskBlur(int width, int height) {
-		super(width, height, "MaskBlur");
+	public GaussianV(int width, int height) {
+		super(width, height, "GaussianV");
 	}
 
 }

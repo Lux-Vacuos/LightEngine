@@ -27,7 +27,7 @@ import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_TOP;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
-public class ModalWindow extends RootComponentWindow {
+public class ModalWindow extends ComponentWindow {
 
 	private float mwW, mwH;
 	private String text, title;

@@ -28,6 +28,7 @@ import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 public class Box extends Component {
 
 	private NVGColor color = Theme.rgba(255, 255, 255, 255);
+	private float lt, rt, lb, rb;
 
 	public Box(float x, float y, float w, float h) {
 		this.x = x;
@@ -39,7 +40,7 @@ public class Box extends Component {
 	@Override
 	public void render(Window window) {
 		Theme.renderBox(window.getNVGID(), rootComponent.rootX + alignedX,
-				window.getHeight() - rootComponent.rootY - alignedY - h, w, h, color);
+				window.getHeight() - rootComponent.rootY - alignedY - h, w, h, color, rt, lt, rb, lb);
 	}
 
 	public void setColor(float r, float g, float b, float a) {
@@ -47,6 +48,29 @@ public class Box extends Component {
 		color.g(g);
 		color.b(b);
 		color.a(a);
+	}
+
+	public void setColor(String hex) {
+		color.r(Integer.valueOf(hex.substring(1, 3), 16) / 255f);
+		color.g(Integer.valueOf(hex.substring(3, 5), 16) / 255f);
+		color.b(Integer.valueOf(hex.substring(5, 7), 16) / 255f);
+		color.a(Integer.valueOf(hex.substring(7, 9), 16) / 255f);
+	}
+
+	public void setLeftBottom(float lb) {
+		this.lb = lb;
+	}
+
+	public void setLeftTop(float lt) {
+		this.lt = lt;
+	}
+
+	public void setRightBottom(float rb) {
+		this.rb = rb;
+	}
+
+	public void setRightTop(float rt) {
+		this.rt = rt;
 	}
 
 }

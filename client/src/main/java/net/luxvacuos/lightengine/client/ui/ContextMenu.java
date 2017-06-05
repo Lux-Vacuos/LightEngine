@@ -23,7 +23,7 @@ package net.luxvacuos.lightengine.client.ui;
 import net.luxvacuos.lightengine.client.input.Mouse;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 
-public class ContextMenu extends RootComponentWindow {
+public class ContextMenu extends ComponentWindow {
 
 	public ContextMenu() {
 		super(Mouse.getX() - 5, Mouse.getY() + 5, 180, 100, "Panel");

@@ -30,9 +30,9 @@ import static org.lwjgl.nanovg.NanoVG.nvgStrokeColor;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 import net.luxvacuos.lightengine.client.ui.RenderArea;
-import net.luxvacuos.lightengine.client.ui.RootComponentWindow;
+import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 
-public class BackgroundWindow extends RootComponentWindow {
+public class BackgroundWindow extends ComponentWindow {
 
 	private float time1, time2, time3, time4, time5;
 
@@ -51,23 +51,23 @@ public class BackgroundWindow extends RootComponentWindow {
 			nvgSave(vg);
 			nvgBeginPath(vg);
 			nvgMoveTo(vg, x, (float) Math.sin(time5 * 0.003f) * h / 2.02f + h / 2);
-			for (int s = 0; s < w; s++) {
+			for (int s = 0; s <= w; s++) {
 				nvgLineTo(vg, s, (float) Math.sin((time5 + s) * 0.003f) * h / 2.02f + h / 2);
 			}
 			nvgMoveTo(vg, x, (float) Math.sin(time4 * 0.0025f) * h / 2.02f + h / 2);
-			for (int s = 0; s < w; s++) {
+			for (int s = 0; s <= w; s++) {
 				nvgLineTo(vg, s, (float) Math.sin((time4 + s) * 0.0025f) * h / 2.02f + h / 2);
 			}
 			nvgMoveTo(vg, x, (float) Math.sin(time3 * 0.002f) * h / 2.02f + h / 2);
-			for (int s = 0; s < w; s++) {
+			for (int s = 0; s <= w; s++) {
 				nvgLineTo(vg, s, (float) Math.sin((time3 + s) * 0.002f) * h / 2.02f + h / 2);
 			}
 			nvgMoveTo(vg, x, (float) Math.sin(time2 * 0.0015f) * h / 2.02f + h / 2);
-			for (int s = 0; s < w; s++) {
+			for (int s = 0; s <= w; s++) {
 				nvgLineTo(vg, s, (float) Math.sin((time2 + s) * 0.0015f) * h / 2.02f + h / 2);
 			}
 			nvgMoveTo(vg, x, (float) Math.sin(time1 * 0.001f) * h / 2.02f + h / 2);
-			for (int s = 0; s < w; s++) {
+			for (int s = 0; s <= w; s++) {
 				nvgLineTo(vg, s, (float) Math.sin((time1 + s) * 0.001f) * h / 2.02f + h / 2);
 			}
 			nvgStrokeWidth(vg, 2f);

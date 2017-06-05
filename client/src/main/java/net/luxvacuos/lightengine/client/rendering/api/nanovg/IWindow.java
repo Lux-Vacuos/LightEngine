@@ -61,7 +61,7 @@ public interface IWindow {
 	public void setDecorations(boolean decorations);
 
 	public void setResizable(boolean resizable);
-	
+
 	public void setCloseButton(boolean closeButton);
 
 	public void setBackgroundStyle(BackgroundStyle backgroundStyle);
@@ -83,6 +83,8 @@ public interface IWindow {
 	public void setMinWidth(int width);
 
 	public void setMinHeight(int height);
+
+	public void extendFrame(float t, float b, float r, float l);
 
 	public void toggleMinimize();
 
