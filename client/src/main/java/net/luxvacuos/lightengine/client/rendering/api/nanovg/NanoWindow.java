@@ -198,7 +198,7 @@ public abstract class NanoWindow implements IWindow {
 				h = Maths.clamp(h + Mouse.getDY(), minH);
 			}
 		}
-		if (!isResizing() && !minimized)
+		if (!isResizing() && !minimized && !titleBar.isDragging())
 			updateApp(delta, window);
 	}
 

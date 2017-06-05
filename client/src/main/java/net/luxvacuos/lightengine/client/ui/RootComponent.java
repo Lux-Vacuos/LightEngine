@@ -73,6 +73,14 @@ public class RootComponent {
 		component.init();
 		components.add(component);
 	}
+	
+	public void addAllComponents(List<Component> components) {
+		for (Component component : components) {
+			component.rootComponent = root;
+			component.init();
+			this.components.add(component);
+		}
+	}
 
 	public void removeComponent(Component component) {
 		component.dispose();

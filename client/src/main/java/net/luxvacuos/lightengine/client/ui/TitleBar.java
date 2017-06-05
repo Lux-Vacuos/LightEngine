@@ -22,6 +22,10 @@ package net.luxvacuos.lightengine.client.ui;
 
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.input.Mouse;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.Event;
@@ -30,7 +34,7 @@ import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class TitleBar implements ITitleBar {
 
-	private boolean enabled = true, dragging, pressed;
+	private boolean enabled = true, dragging, pressed, context;
 	private Event drag;
 	private IWindow window;
 	private RootComponent left, right, center;
@@ -63,6 +67,50 @@ public class TitleBar implements ITitleBar {
 				dragging = Mouse.isButtonDown(0);
 				drag.event(window);
 			}
+			if ((Mouse.isButtonDown(1) && canDrag(this.window)) && !context) {
+
+				ContextMenu context = new ContextMenu(180, 75);
+				List<Component> buttons = new ArrayList<>();
+				ContextMenuButton btnRes = new ContextMenuButton(0, 0, 180, 25, "Restore");
+				ContextMenuButton btnMax = new ContextMenuButton(0, 0, 180, 25, "Maximize");
+				ContextMenuButton btnMin = new ContextMenuButton(0, 0, 180, 25, "Minimize");
+				ContextMenuButton btnClo = new ContextMenuButton(0, 0, 180, 25, "Close");
+
+				btnRes.setOnButtonPress(() -> {
+					this.window.toggleMaximize();
+					context.closeWindow();
+				});
+				btnMax.setOnButtonPress(() -> {
+					this.window.toggleMaximize();
+					context.closeWindow();
+				});
+				btnMin.setOnButtonPress(() -> {
+					this.window.toggleMinimize();
+					context.closeWindow();
+				});
+				btnClo.setOnButtonPress(() -> {
+					this.window.closeWindow();
+					context.closeWindow();
+				});
+
+				btnRes.setWindowAlignment(Alignment.LEFT_TOP);
+				btnRes.setAlignment(Alignment.RIGHT_BOTTOM);
+				btnMin.setWindowAlignment(Alignment.LEFT_TOP);
+				btnMin.setAlignment(Alignment.RIGHT_BOTTOM);
+				btnMax.setWindowAlignment(Alignment.LEFT_TOP);
+				btnMax.setAlignment(Alignment.RIGHT_BOTTOM);
+				btnClo.setWindowAlignment(Alignment.LEFT_TOP);
+				btnClo.setAlignment(Alignment.RIGHT_BOTTOM);
+				if (this.window.isMaximized())
+					buttons.add(btnRes);
+				else
+					buttons.add(btnMax);
+				buttons.add(btnMin);
+				buttons.add(btnClo);
+				context.setButtons(buttons);
+				GraphicalSubsystem.getWindowManager().addWindow(context);
+			}
+			context = Mouse.isButtonDown(1);
 			if (Mouse.isButtonDown(0) && canDrag(this.window) || pressed) {
 				if (!pressed) {
 					count = true;

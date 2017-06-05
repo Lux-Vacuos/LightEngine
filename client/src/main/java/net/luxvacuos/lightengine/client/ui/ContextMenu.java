@@ -20,40 +20,26 @@
 
 package net.luxvacuos.lightengine.client.ui;
 
+import java.util.List;
+
 import net.luxvacuos.lightengine.client.input.Mouse;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 
 public class ContextMenu extends ComponentWindow {
 
-	public ContextMenu() {
-		super(Mouse.getX() - 5, Mouse.getY() + 5, 180, 100, "Panel");
+	private List<Component> buttons;
+
+	public ContextMenu(float w, float h) {
+		super(Mouse.getX() - 5, Mouse.getY() + 5, w, h, "Panel");
 	}
 
 	@Override
 	public void initApp(Window window) {
 		super.toggleTitleBar();
 		super.setDecorations(false);
-		super.setBackgroundColor(0.6f, 0.6f, 0.6f, 0.0f);
-		
-		ContextMenuButton btn1 = new ContextMenuButton(0, 0, 180, 25, "Test1");
-		ContextMenuButton btn2 = new ContextMenuButton(0, -25, 180, 25, "Test2");
-		ContextMenuButton btn3 = new ContextMenuButton(0, -50, 180, 25, "Test3");
-		ContextMenuButton btn4 = new ContextMenuButton(0, -75, 180, 25, "Test4");
-		
-		btn1.setWindowAlignment(Alignment.LEFT_TOP);
-		btn1.setAlignment(Alignment.RIGHT_BOTTOM);
-		btn2.setWindowAlignment(Alignment.LEFT_TOP);
-		btn2.setAlignment(Alignment.RIGHT_BOTTOM);
-		btn3.setWindowAlignment(Alignment.LEFT_TOP);
-		btn3.setAlignment(Alignment.RIGHT_BOTTOM);
-		btn4.setWindowAlignment(Alignment.LEFT_TOP);
-		btn4.setAlignment(Alignment.RIGHT_BOTTOM);
-		
-		super.addComponent(btn1);
-		super.addComponent(btn2);
-		super.addComponent(btn3);
-		super.addComponent(btn4);
-
+		super.setBackgroundColor(0f, 0f, 0f, 0f);
+		super.setLayout(new FlowLayout(Direction.DOWN, 0, 0));
+		super.addAllComponents(buttons);
 		super.initApp(window);
 	}
 
@@ -62,6 +48,16 @@ public class ContextMenu extends ComponentWindow {
 		if ((Mouse.isButtonDown(0) || Mouse.isButtonDown(1)) && !insideWindow())
 			super.closeWindow();
 		super.alwaysUpdateApp(delta, window);
+	}
+	
+	@Override
+	public void disposeApp(Window window) {
+		super.disposeApp(window);
+		buttons.clear();
+	}
+	
+	public void setButtons(List<Component> buttons) {
+		this.buttons = buttons;
 	}
 
 }

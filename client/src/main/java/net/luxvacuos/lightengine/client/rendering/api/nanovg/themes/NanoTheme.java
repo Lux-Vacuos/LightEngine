@@ -94,8 +94,8 @@ public class NanoTheme implements ITheme {
 	protected NVGColor titleBarButtonColor = Theme.setColor("#646464C8"),
 			titleBarButtonHighlight = Theme.setColor("#FFFFFFC8"),
 			titleBarButtonCloseHighlight = Theme.setColor("#FF0000C8");
-	protected NVGColor contextButtonColor = Theme.setColor(1, 1, 1, 0.8f),
-			contextButtonHighlight = Theme.setColor(0.7f, 0.7f, 0.7f, 0.8f);
+	protected NVGColor contextButtonColor = Theme.setColor("#646464C8"),
+			contextButtonHighlight = Theme.setColor("#FFFFFFC8");
 
 	@Override
 	public void renderWindow(long vg, float x, float y, float w, float h, BackgroundStyle backgroundStyle,
@@ -407,7 +407,7 @@ public class NanoTheme implements ITheme {
 		nvgFontSize(vg, fontSize);
 		nvgFontFace(vg, font);
 		nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
-		nvgFillColor(vg, Theme.rgba(60, 60, 60, 255, colorA));
+		nvgFillColor(vg, Theme.rgba(255, 255, 255, 255, colorA));
 		nvgText(vg, x + 10f, y + h * 0.5f, text);
 		nvgRestore(vg);
 	}

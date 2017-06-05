@@ -20,6 +20,8 @@
 
 package net.luxvacuos.lightengine.client.ui;
 
+import java.util.List;
+
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.NanoWindow;
 
@@ -58,6 +60,10 @@ public class ComponentWindow extends NanoWindow {
 
 	public void addComponent(Component component) {
 		rootComponent.addComponent(component);
+	}
+	
+	public void addAllComponents(List<Component> components){
+		rootComponent.addAllComponents(components);
 	}
 
 	public void setLayout(ILayout layout) {
