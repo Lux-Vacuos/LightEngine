@@ -21,9 +21,13 @@
 package net.luxvacuos.lightengine.client.ui;
 
 public interface ILayout {
-	
+
 	public void preBuild();
-	
+
 	public void build(Component component);
+
+	public float getFinalW();
+
+	public float getFinalH();
 
 }

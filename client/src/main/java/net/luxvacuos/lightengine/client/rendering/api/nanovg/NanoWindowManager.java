@@ -43,6 +43,7 @@ import net.luxvacuos.lightengine.client.rendering.api.nanovg.compositor.Gaussian
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.compositor.MaskBlur;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.GLUtil;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.GPUProfiler;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
@@ -98,19 +99,29 @@ public class NanoWindowManager implements IWindowManager {
 
 	@Override
 	public void render() {
+		GPUProfiler.start("UI");
+		GPUProfiler.start("Render Windows");
 		for (IWindow window : windows) {
+			GPUProfiler.start(window.getTitle());
 			window.render(this.window, this);
+			GPUProfiler.end();
 		}
+		GPUProfiler.end();
+		GPUProfiler.start("Compositing");
 		glDisable(GL_BLEND);
 		for (IWindow window : windows) {
+			GPUProfiler.start(window.getTitle());
 			if (!window.isHidden() && !window.isMinimized())
 				compositor.render(window, this.window);
+			GPUProfiler.end();
 		}
+		GPUProfiler.end();
+		GPUProfiler.start("Render Final Image");
 		window.beingNVGFrame();
 		Theme.renderImage(this.window.getNVGID(), 0, 0, window.getWidth(), window.getHeight(),
 				compositor.getFbos()[0].image(), 1f);
 		if (ClientVariables.debug) {
-			Timers.renderDebugDisplay(5, 24, 200, 55);
+			/*Timers.renderDebugDisplay(5, 24, 200, 55);
 			Theme.renderText(window.getNVGID(), "Light Engine " + " (" + ClientVariables.version + ")", "Roboto-Bold",
 					NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 12, 20, Theme.rgba(220, 220, 220, 255, Theme.colorA));
 			Theme.renderText(window.getNVGID(),
@@ -118,9 +129,11 @@ public class NanoWindowManager implements IWindowManager {
 					NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 95, 20, Theme.rgba(220, 220, 220, 255, Theme.colorA));
 			Theme.renderText(window.getNVGID(), "Used RAM: " + Runtime.getRuntime().totalMemory() / 1028 + "KB ",
 					"Roboto-Bold", NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 110, 20,
-					Theme.rgba(220, 220, 220, 255, Theme.colorA));
+					Theme.rgba(220, 220, 220, 255, Theme.colorA));*/
 		}
 		this.window.endNVGFrame();
+		GPUProfiler.end();
+		GPUProfiler.end();
 	}
 
 	private void updateThread(float delta) {
@@ -229,6 +242,11 @@ public class NanoWindowManager implements IWindowManager {
 	public boolean isOnTop(IWindow window) {
 		IWindow top = windows.get(windows.size() - 1);
 		return top == window;
+	}
+	
+	@Override
+	public boolean existWindow(IWindow window) {
+		return windows.contains(window);
 	}
 
 	@Override

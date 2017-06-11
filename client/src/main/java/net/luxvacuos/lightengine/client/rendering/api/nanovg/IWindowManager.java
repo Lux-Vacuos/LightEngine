@@ -37,6 +37,8 @@ public interface IWindowManager extends IDisposable {
 	public void bringToFront(IWindow window);
 
 	public boolean isOnTop(IWindow window);
+	
+	public boolean existWindow(IWindow window);
 
 	public void notifyAdd(IWindow window);
 
@@ -47,5 +49,6 @@ public interface IWindowManager extends IDisposable {
 	public void toggleShell();
 
 	public boolean isShellEnabled();
+	
 
 }

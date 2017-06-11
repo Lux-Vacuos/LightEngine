@@ -36,7 +36,7 @@ import net.luxvacuos.lightengine.universal.ecs.components.AABB;
 import net.luxvacuos.lightengine.universal.ecs.components.Health;
 import net.luxvacuos.lightengine.universal.ecs.components.Position;
 import net.luxvacuos.lightengine.universal.ecs.components.Velocity;
-import net.luxvacuos.lightengine.universal.ecs.entities.VoxelEntity;
+import net.luxvacuos.lightengine.universal.ecs.entities.LEEntity;
 
 public class PhysicsSystem extends EntitySystem {
 	private ImmutableArray<Entity> entities;
@@ -59,11 +59,11 @@ public class PhysicsSystem extends EntitySystem {
 			AABB aabb = Components.AABB.get(entity);
 			Health health = Components.HEALTH.get(entity);
 
-			if (entity instanceof VoxelEntity)
-				((VoxelEntity) entity).beforeUpdate(delta);
+			if (entity instanceof LEEntity)
+				((LEEntity) entity).beforeUpdate(delta);
 
-			if (entity instanceof VoxelEntity)
-				((VoxelEntity) entity).update(delta);
+			if (entity instanceof LEEntity)
+				((LEEntity) entity).update(delta);
 
 			velocity.setX(velocity.getX() * 0.7f - velocity.getX() * 0.0001f);
 			velocity.setY(velocity.getY() - 15f * delta);
@@ -110,8 +110,8 @@ public class PhysicsSystem extends EntitySystem {
 			pos.setY(pos.getY() + velocity.getY() * delta);
 			pos.setZ(pos.getZ() + velocity.getZ() * delta);
 
-			if (entity instanceof VoxelEntity)
-				((VoxelEntity) entity).afterUpdate(delta);
+			if (entity instanceof LEEntity)
+				((LEEntity) entity).afterUpdate(delta);
 
 		}
 	}

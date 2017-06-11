@@ -44,14 +44,15 @@ public class OptionsWindow extends ComponentWindow {
 
 	private TitleBarButton backButton;
 
-	public OptionsWindow(float x, float y, float w, float h) {
-		super(x, y, w, h, LANG.getRegistryItem("lightengine.optionswindow.name"));
+	public OptionsWindow() {
+		super((int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")) / 2 - 420,
+				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")) / 2 + 300, 840, 600,
+				LANG.getRegistryItem("lightengine.optionswindow.name"));
 	}
 
 	@Override
 	public void initApp(Window window) {
 		super.setBackgroundColor(0.4f, 0.4f, 0.4f, 1f);
-		super.setResizable(false);
 
 		backButton = new TitleBarButton(0, -1, 28, 28);
 		backButton.setWindowAlignment(Alignment.LEFT_TOP);
@@ -154,23 +155,22 @@ public class OptionsWindow extends ComponentWindow {
 				() -> REGISTRY.register(new Key("/Light Engine/Settings/Graphics/shadows"), shadowsButton.getStatus()));
 		dofButton.setOnButtonPress(
 				() -> REGISTRY.register(new Key("/Light Engine/Settings/Graphics/dof"), dofButton.getStatus()));
-		godraysButton.setOnButtonPress(() -> REGISTRY.register(new Key("/Light Engine/Settings/Graphics/volumetricLight"),
-				godraysButton.getStatus()));
+		godraysButton.setOnButtonPress(() -> REGISTRY
+				.register(new Key("/Light Engine/Settings/Graphics/volumetricLight"), godraysButton.getStatus()));
 		fxaaButton.setOnButtonPress(
 				() -> REGISTRY.register(new Key("/Light Engine/Settings/Graphics/fxaa"), fxaaButton.getStatus()));
-		parallaxButton.setOnButtonPress(
-				() -> REGISTRY.register(new Key("/Light Engine/Settings/Graphics/parallax"), parallaxButton.getStatus()));
-		motionBlurButton.setOnButtonPress(
-				() -> REGISTRY.register(new Key("/Light Engine/Settings/Graphics/motionBlur"), motionBlurButton.getStatus()));
-		reflectionsButton.setOnButtonPress(() -> REGISTRY.register(new Key("/Light Engine/Settings/Graphics/reflections"),
-				reflectionsButton.getStatus()));
-		ambientOccButton.setOnButtonPress(() -> REGISTRY.register(new Key("/Light Engine/Settings/Graphics/ambientOcclusion"),
-				ambientOccButton.getStatus()));
-		chromaticAberrationButton
-				.setOnButtonPress(() -> REGISTRY.register(new Key("/Light Engine/Settings/Graphics/chromaticAberration"),
-						chromaticAberrationButton.getStatus()));
-		lensFlaresButton.setOnButtonPress(
-				() -> REGISTRY.register(new Key("/Light Engine/Settings/Graphics/lensFlares"), lensFlaresButton.getStatus()));
+		parallaxButton.setOnButtonPress(() -> REGISTRY.register(new Key("/Light Engine/Settings/Graphics/parallax"),
+				parallaxButton.getStatus()));
+		motionBlurButton.setOnButtonPress(() -> REGISTRY.register(new Key("/Light Engine/Settings/Graphics/motionBlur"),
+				motionBlurButton.getStatus()));
+		reflectionsButton.setOnButtonPress(() -> REGISTRY
+				.register(new Key("/Light Engine/Settings/Graphics/reflections"), reflectionsButton.getStatus()));
+		ambientOccButton.setOnButtonPress(() -> REGISTRY
+				.register(new Key("/Light Engine/Settings/Graphics/ambientOcclusion"), ambientOccButton.getStatus()));
+		chromaticAberrationButton.setOnButtonPress(() -> REGISTRY.register(
+				new Key("/Light Engine/Settings/Graphics/chromaticAberration"), chromaticAberrationButton.getStatus()));
+		lensFlaresButton.setOnButtonPress(() -> REGISTRY.register(new Key("/Light Engine/Settings/Graphics/lensFlares"),
+				lensFlaresButton.getStatus()));
 
 		Text godText = new Text(LANG.getRegistryItem("lightengine.optionswindow.graphics.volumetriclight"), 20, 0);
 		godText.setWindowAlignment(Alignment.LEFT);
@@ -188,7 +188,8 @@ public class OptionsWindow extends ComponentWindow {
 		parallaxText.setWindowAlignment(Alignment.LEFT);
 		Text ambientOccText = new Text(LANG.getRegistryItem("lightengine.optionswindow.graphics.ao"), 20, 0);
 		ambientOccText.setWindowAlignment(Alignment.LEFT);
-		Text chromaticAberrationText = new Text(LANG.getRegistryItem("lightengine.optionswindow.graphics.chromatic"), 20, 0);
+		Text chromaticAberrationText = new Text(LANG.getRegistryItem("lightengine.optionswindow.graphics.chromatic"),
+				20, 0);
 		chromaticAberrationText.setWindowAlignment(Alignment.LEFT);
 		Text lensFlaresText = new Text(LANG.getRegistryItem("lightengine.optionswindow.graphics.lensflares"), 20, 0);
 		lensFlaresText.setWindowAlignment(Alignment.LEFT);
@@ -248,6 +249,17 @@ public class OptionsWindow extends ComponentWindow {
 		lens.addComponent(lensFlaresButton);
 		lens.addComponent(lensFlaresText);
 
+		godrays.setResizeH(true);
+		shadows.setResizeH(true);
+		dof.setResizeH(true);
+		fxaa.setResizeH(true);
+		motionBlur.setResizeH(true);
+		reflections.setResizeH(true);
+		parallax.setResizeH(true);
+		occlusion.setResizeH(true);
+		aberration.setResizeH(true);
+		lens.setResizeH(true);
+		
 		area.addComponent(godrays);
 		area.addComponent(shadows);
 		area.addComponent(dof);
@@ -266,7 +278,8 @@ public class OptionsWindow extends ComponentWindow {
 
 	private void wmOptions() {
 		float border = (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/borderSize"));
-		Text wmBorderText = new Text(LANG.getRegistryItem("lightengine.optionswindow.wm.border") + ": " + border, 20, 0);
+		Text wmBorderText = new Text(LANG.getRegistryItem("lightengine.optionswindow.wm.border") + ": " + border, 20,
+				0);
 		Slider wmBorder = new Slider(-56, 0, 200, 20, border / 40f);
 
 		wmBorderText.setWindowAlignment(Alignment.LEFT);
@@ -342,8 +355,8 @@ public class OptionsWindow extends ComponentWindow {
 		titleBorderButton.setWindowAlignment(Alignment.RIGHT);
 		titleBorderButton.setAlignment(Alignment.RIGHT);
 
-		titleBorderButton.setOnButtonPress(() -> REGISTRY
-				.register(new Key("/Light Engine/Settings/WindowManager/titleBarBorder"), titleBorderButton.getStatus()));
+		titleBorderButton.setOnButtonPress(() -> REGISTRY.register(
+				new Key("/Light Engine/Settings/WindowManager/titleBarBorder"), titleBorderButton.getStatus()));
 
 		Text titleBorderText = new Text(LANG.getRegistryItem("lightengine.optionswindow.wm.titlebarborder"), 20, 0);
 		titleBorderText.setWindowAlignment(Alignment.LEFT);
@@ -357,7 +370,12 @@ public class OptionsWindow extends ComponentWindow {
 
 		ScrollArea area = new ScrollArea(0, 0, w, h, 0, 0);
 		area.setLayout(new FlowLayout(Direction.DOWN, 10, 10));
-
+		
+		borderC.setResizeH(true);
+		scrollC.setResizeH(true);
+		titleC.setResizeH(true);
+		titleBorder.setResizeH(true);
+		
 		area.addComponent(borderC);
 		area.addComponent(scrollC);
 		area.addComponent(titleC);

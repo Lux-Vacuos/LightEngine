@@ -236,7 +236,7 @@ public class MainState extends AbstractState {
 			pauseWindow.closeWindow();
 			exitWorld = false;
 			paused = false;
-			StateMachine.setCurrentState("mainmenu");
+			StateMachine.setCurrentState("_main");
 		} else {
 			if (kbh.isKeyPressed(GLFW.GLFW_KEY_ESCAPE)) {
 				kbh.ignoreKeyUntilRelease(GLFW.GLFW_KEY_ESCAPE);

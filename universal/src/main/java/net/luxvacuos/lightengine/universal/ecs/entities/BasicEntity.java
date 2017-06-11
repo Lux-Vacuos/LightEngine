@@ -25,7 +25,7 @@ import net.luxvacuos.lightengine.universal.ecs.components.Rotation;
 import net.luxvacuos.lightengine.universal.ecs.components.Scale;
 import net.luxvacuos.lightengine.universal.ecs.components.Velocity;
 
-public class BasicEntity extends VoxelEntity {
+public class BasicEntity extends LEEntity {
 
 	public BasicEntity(String name) {
 		super(name);

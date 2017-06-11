@@ -46,6 +46,8 @@ public class ScrollArea extends Component {
 		this.maxW = maxW;
 		this.maxH = maxH;
 		comp = new RootComponent(x, y - h, w, h);
+		super.resizeH = true;
+		super.resizeV = true;
 	}
 
 	@Override
@@ -59,11 +61,13 @@ public class ScrollArea extends Component {
 		comp.render(window);
 		nvgRestore(window.getNVGID());
 		Theme.renderScrollBarV(window.getNVGID(), rootComponent.rootX + alignedX,
-				window.getHeight() - rootComponent.rootY - alignedY - h, w, h, scrollH / maxH, maxH);
+				window.getHeight() - rootComponent.rootY - alignedY - h, w, h, scrollH / maxH, maxH + h / 2f);
 	}
 
 	@Override
 	public void update(float delta, Window window) {
+		comp.update(delta, window);
+		super.update(delta, window);
 		float scrollBarSize = (float) REGISTRY
 				.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/scrollBarSize"));
 		if (Mouse.isButtonDown(0)) {
@@ -82,19 +86,18 @@ public class ScrollArea extends Component {
 		}
 		if ((Mouse.isButtonDown(0) && scrollBarV(scrollBarSize)) || moveV) {
 			moveV = Mouse.isButtonDown(0);
-			scrollH -= Mouse.getDY() * 2f;
+			scrollH -= Mouse.getDY();
 		}
 		scrollH -= Mouse.getDWheel() * 16;
 		scrollH = Maths.clamp(scrollH, 0, maxH);
-		comp.update(delta, window);
-		super.update(delta, window);
 	}
 
 	@Override
 	public void alwaysUpdate(float delta, Window window) {
-		super.alwaysUpdate(delta, window);
 		comp.alwaysUpdate(delta, window, rootComponent.rootX + alignedX, rootComponent.rootY - alignedY + h + scrollH,
 				w, h);
+		maxH = Maths.clamp(-h + -comp.getFinalH(), 0);
+		super.alwaysUpdate(delta, window);
 	}
 
 	@Override
@@ -108,7 +111,7 @@ public class ScrollArea extends Component {
 	}
 
 	private boolean scrollBarV(float scrollBarSize) {
-		float scrollv = (h / maxH) * (h / 2);
+		float scrollv = (h / (maxH + h / 2f)) * (h / 2);
 		return Mouse.getX() > rootComponent.rootX + alignedX + w - scrollBarSize
 				&& Mouse.getX() < rootComponent.rootX + alignedX + w - scrollBarSize + scrollBarSize
 				&& Mouse.getY() > rootComponent.rootY + alignedY + scrollBarSize

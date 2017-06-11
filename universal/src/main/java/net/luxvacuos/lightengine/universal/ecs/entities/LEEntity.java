@@ -29,21 +29,21 @@ import net.luxvacuos.lightengine.universal.ecs.components.Name;
 import net.luxvacuos.lightengine.universal.ecs.components.UUIDComponent;
 import net.luxvacuos.lightengine.universal.util.IUpdatable;
 
-public class VoxelEntity extends Entity implements IUpdatable {
+public class LEEntity extends Entity implements IUpdatable {
 
-	public VoxelEntity(String name) {
+	public LEEntity(String name) {
 		this.add(new Name(name));
 		this.add(new UUIDComponent());
 		this.add(new NBTComponent());
 	}
 	
-	public VoxelEntity(String name, String uuid) {
+	public LEEntity(String name, String uuid) {
 		this.add(new Name(name));
 		this.add(new UUIDComponent(uuid));
 		this.add(new NBTComponent());
 	}
 	
-	public VoxelEntity(TagCompound in) {
+	public LEEntity(TagCompound in) {
 		this.add(new NBTComponent(in));
 	}
 	

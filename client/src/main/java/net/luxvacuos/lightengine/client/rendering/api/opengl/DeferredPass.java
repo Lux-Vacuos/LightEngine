@@ -97,6 +97,7 @@ public abstract class DeferredPass implements IDeferredPass {
 			IWorldSimulation clientWorldSimulation, List<Light> lights, FBO[] auxs, IDeferredPipeline pipe,
 			RawModel quad, CubeMapTexture irradianceCapture, CubeMapTexture environmentMap, Texture brdfLUT,
 			ShadowFBO shadowFBO, float exposure) {
+		GPUProfiler.start(name);
 		fbo.begin();
 		shader.start();
 		shader.loadUnderWater(false);
@@ -124,6 +125,7 @@ public abstract class DeferredPass implements IDeferredPass {
 		shader.stop();
 		fbo.end();
 		auxs[0] = getFbo();
+		GPUProfiler.end();
 	}
 
 	/**

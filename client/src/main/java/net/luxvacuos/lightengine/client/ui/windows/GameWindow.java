@@ -28,7 +28,7 @@ import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 public class GameWindow extends ComponentWindow {
 
 	public GameWindow(float x, float y, float w, float h) {
-		super(x, y, w, h, "Light Engine");
+		super(x, y, w, h, "game");
 	}
 
 	@Override

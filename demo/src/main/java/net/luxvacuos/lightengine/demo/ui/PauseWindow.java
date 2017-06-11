@@ -51,7 +51,7 @@ public class PauseWindow extends ComponentWindow {
 		optionsButton.setAlignment(Alignment.CENTER);
 		optionsButton.setWindowAlignment(Alignment.BOTTOM);
 		optionsButton.setOnButtonPress(() -> {
-			GraphicalSubsystem.getWindowManager().addWindow(new OptionsWindow(w / 2 - 420 + x, y - 40, 840, 600));
+			GraphicalSubsystem.getWindowManager().addWindow(new OptionsWindow());
 		});
 
 		super.addComponent(backButton);

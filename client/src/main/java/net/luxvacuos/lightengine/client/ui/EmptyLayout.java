@@ -28,5 +28,15 @@ public class EmptyLayout extends Layout {
 	@Override
 	public void build(Component component) {
 	}
+	
+	@Override
+	public float getFinalH() {
+		return 0;
+	}
+	
+	@Override
+	public float getFinalW() {
+		return 0;
+	}
 
 }

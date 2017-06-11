@@ -110,15 +110,21 @@ public class Renderer {
 			CameraEntity camera, IWorldSimulation worldSimulation, Sun sun, float alpha) {
 
 		resetState();
-
+		GPUProfiler.start("Main Renderer");
+		GPUProfiler.start("EnvMap");
 		environmentRenderer.renderEnvironmentMap(camera.getPosition(), skyboxRenderer, worldSimulation,
 				sun.getSunPosition(), window);
+		GPUProfiler.end();
+		GPUProfiler.start("IrrMap");
 		irradianceCapture.render(window, environmentRenderer.getCubeMapTexture().getID());
+		GPUProfiler.end();
+		GPUProfiler.start("PreFilEnv");
 		preFilteredEnvironment.render(window, environmentRenderer.getCubeMapTexture().getID());
+		GPUProfiler.end();
+		GPUProfiler.start("Shadows");
 		SunCamera sunCamera = (SunCamera) sun.getCamera();
-
 		if ((boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/shadows"))) {
-
+			GPUProfiler.start("Directional");
 			sunCamera.switchProjectionMatrix(0);
 			frustum.calculateFrustum(sunCamera);
 
@@ -156,7 +162,8 @@ public class Renderer {
 				shadowPass.render(camera, sunCamera, frustum, shadowFBO);
 			entityShadowRenderer.renderEntity(entities, sunCamera);
 			shadowFBO.end();
-
+			GPUProfiler.end();
+			GPUProfiler.start("Shadow lights");
 			for (Light light : lightRenderer.getLights()) {
 				if (light.isShadow()) {
 					light.getShadowMap().begin();
@@ -167,38 +174,51 @@ public class Renderer {
 					light.getShadowMap().end();
 				}
 			}
+			GPUProfiler.end();
 		}
-
+		GPUProfiler.end();
+		GPUProfiler.start("Occlusion");
 		frustum.calculateFrustum(camera);
 		clearBuffer(GL_DEPTH_BUFFER_BIT);
 		if (occlusionPass != null)
 			occlusionPass.render(camera, sunCamera, frustum, shadowFBO);
-
+		GPUProfiler.end();
+		GPUProfiler.start("G-Buffer pass");
 		deferredPipeline.begin();
-
 		clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		GPUProfiler.start("Skybox");
 		skyboxRenderer.render(ClientVariables.RED, ClientVariables.GREEN, ClientVariables.BLUE, camera, worldSimulation,
 				sun.getSunPosition());
+		GPUProfiler.end();
+		GPUProfiler.start("External");
 		if (deferredPass != null)
 			deferredPass.render(camera, sunCamera, frustum, shadowFBO);
+		GPUProfiler.end();
+		GPUProfiler.start("Entities");
 		entityRenderer.renderEntity(entities, camera);
-
+		GPUProfiler.end();
 		deferredPipeline.end();
-
+		GPUProfiler.end();
+		GPUProfiler.start("Deferred Rendering");
 		deferredPipeline.preRender(camera, sun, worldSimulation, lightRenderer.getLights(),
 				irradianceCapture.getCubeMapTexture(), preFilteredEnvironment.getCubeMapTexture(),
 				preFilteredEnvironment.getBRDFLUT(), shadowFBO, exposure);
-
+		GPUProfiler.end();
+		GPUProfiler.start("Post process pre-pass");
 		postProcessPipeline.begin();
-
 		clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		deferredPipeline.render(postProcessPipeline.getFBO());
+		GPUProfiler.start("Forward");
 		if (forwardPass != null)
 			forwardPass.render(camera, sunCamera, frustum, shadowFBO);
 		particleRenderer.render(particles, camera);
+		GPUProfiler.end();
 		postProcessPipeline.end();
-
+		GPUProfiler.end();
+		GPUProfiler.start("Post process effects");
 		postProcessPipeline.preRender(window.getNVGID(), camera);
+		GPUProfiler.end();
+		GPUProfiler.end();
 	}
 
 	public static void update(float delta) {

@@ -1,7 +1,10 @@
 package net.luxvacuos.lightengine.demo.ui;
 
-import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_LEFT;
-import static org.lwjgl.nanovg.NanoVG.*;
+import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_CENTER;
+import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_MIDDLE;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.ui.Alignment;
@@ -10,8 +13,14 @@ import net.luxvacuos.lightengine.client.ui.Button;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.Container;
 import net.luxvacuos.lightengine.client.ui.Text;
+import net.luxvacuos.lightengine.client.util.Maths;
 
 public class RectGL extends ComponentWindow {
+
+	private List<Ball> selectedBalls = new ArrayList<>();
+	private Container balls;
+	private int points;
+	private Text pointsText;
 
 	public RectGL(float x, float y, float w, float h) {
 		super(x, y, w, h, "Rectball");
@@ -21,6 +30,8 @@ public class RectGL extends ComponentWindow {
 	public void initApp(Window window) {
 		super.setResizable(false);
 		super.setBackgroundColor("#4A6563FF");
+		super.toggleTitleBar();
+		super.setDecorations(false);
 
 		Box helpBox = new Box(10, -20, 60, 50);
 		helpBox.setColor("#FFD229FF");
@@ -58,11 +69,11 @@ public class RectGL extends ComponentWindow {
 		topB3.setAlignment(Alignment.CENTER);
 		topB3.setWindowAlignment(Alignment.TOP);
 		topB3.setColor("#000000FF");
-		
-		Text points = new Text("0000", 0, -138);
-		points.setAlign(NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
-		points.setWindowAlignment(Alignment.TOP);
-		points.setFontSize(80);
+
+		pointsText = new Text("" + this.points, 0, -138);
+		pointsText.setAlign(NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
+		pointsText.setWindowAlignment(Alignment.TOP);
+		pointsText.setFontSize(80);
 
 		Container top = new Container(0, 0, w, 200);
 		top.setWindowAlignment(Alignment.TOP);
@@ -75,10 +86,41 @@ public class RectGL extends ComponentWindow {
 		top.addComponent(topB1);
 		top.addComponent(topB2);
 		top.addComponent(topB3);
-		top.addComponent(points);
+		top.addComponent(pointsText);
+
+		balls = new Container(0, 0, w, w);
+		for (int x = 0; x < 6; x++) {
+			for (int y = 0; y < 6; y++) {
+				int type = Maths.randInt(0, 3);
+				Ball ball = new Ball(8 + x * (w / 6), 8 + y * (w / 6), 64, 64, type);
+				ball.setOnButtonPress(() -> {
+					this.selectedBalls.add(ball);
+				});
+				balls.addComponent(ball);
+			}
+		}
 
 		super.addComponent(top);
+		super.addComponent(balls);
 		super.initApp(window);
+	}
+
+	@Override
+	public void updateApp(float delta, Window window) {
+		super.updateApp(delta, window);
+		if (selectedBalls.size() >= 4) {
+			int type = selectedBalls.get(0).getType();
+			if (selectedBalls.get(1).getType() == type && selectedBalls.get(2).getType() == type
+					&& selectedBalls.get(3).getType() == type) {
+				balls.removeComponent(selectedBalls.get(0));
+				balls.removeComponent(selectedBalls.get(1));
+				balls.removeComponent(selectedBalls.get(2));
+				balls.removeComponent(selectedBalls.get(3));
+				points += 6;
+				pointsText.setText("" + points);
+				selectedBalls.clear();
+			}
+		}
 	}
 
 }

@@ -22,7 +22,7 @@ package net.luxvacuos.lightengine.client.ui;
 
 public class Root {
 	
-	protected float rootX, rootY, rootW, rootH;
+	public float rootX, rootY, rootW, rootH;
 
 	public Root(float rootX, float rootY, float rootW, float rootH) {
 		this.rootX = rootX;

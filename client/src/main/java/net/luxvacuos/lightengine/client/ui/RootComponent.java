@@ -73,7 +73,7 @@ public class RootComponent {
 		component.init();
 		components.add(component);
 	}
-	
+
 	public void addAllComponents(List<Component> components) {
 		for (Component component : components) {
 			component.rootComponent = root;
@@ -93,6 +93,14 @@ public class RootComponent {
 
 	public ILayout getLayout() {
 		return layout;
+	}
+
+	public float getFinalW() {
+		return layout.getFinalW();
+	}
+
+	public float getFinalH() {
+		return layout.getFinalH();
 	}
 
 }

@@ -28,12 +28,11 @@ import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
 import net.luxvacuos.lightengine.client.ui.Alignment;
-import net.luxvacuos.lightengine.client.ui.Image;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
+import net.luxvacuos.lightengine.client.ui.Image;
 import net.luxvacuos.lightengine.client.ui.Spinner;
 import net.luxvacuos.lightengine.client.ui.windows.Shell;
 import net.luxvacuos.lightengine.universal.core.AbstractEngine;
-import net.luxvacuos.lightengine.universal.core.GlobalVariables;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
@@ -100,7 +99,7 @@ public class SplashScreenState extends AbstractState {
 	public void update(AbstractEngine lightengine, float delta) {
 		GraphicalSubsystem.getWindowManager().update(delta);
 		if (TaskManager.isEmpty())
-			StateMachine.setCurrentState(GlobalVariables.MAIN_STATE);
+			StateMachine.setCurrentState("_main");
 	}
 
 }

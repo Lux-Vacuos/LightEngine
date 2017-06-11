@@ -33,6 +33,7 @@ uniform vec4 frame;
 void main(void){
     vec4 window = texture(window, textureCoords);
     out_Color = texture(image, textureCoords);
+    out_Color.a = 1;
     if(blurBehind == 1)
         if(gl_FragCoord.x > frame.x && gl_FragCoord.y > frame.y - frame.w && gl_FragCoord.x < frame.x + frame.z && gl_FragCoord.y < frame.y)
             out_Color.a = 0;

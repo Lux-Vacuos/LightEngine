@@ -74,13 +74,15 @@ public class FlowLayout extends Layout {
 			break;
 		}
 	}
-
-	public float getX() {
-		return x;
-	}
-
-	public float getY() {
+	
+	@Override
+	public float getFinalH() {
 		return y;
+	}
+	
+	@Override
+	public float getFinalW() {
+		return x;
 	}
 
 	public void setDirection(Direction direction) {

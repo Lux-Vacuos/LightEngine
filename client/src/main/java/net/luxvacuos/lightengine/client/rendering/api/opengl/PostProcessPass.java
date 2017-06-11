@@ -84,6 +84,7 @@ public abstract class PostProcessPass implements IPostProcessPass {
 	@Override
 	public void process(CameraEntity camera, Matrix4d previousViewMatrix, Vector3d previousCameraPosition, FBO[] auxs,
 			RawModel quad) {
+		GPUProfiler.start(name);
 		fbo.begin();
 		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		Renderer.clearColors(0, 0, 0, 1);
@@ -101,6 +102,7 @@ public abstract class PostProcessPass implements IPostProcessPass {
 		shader.stop();
 		fbo.end();
 		auxs[0] = getFbo();
+		GPUProfiler.end();
 	}
 
 	/**

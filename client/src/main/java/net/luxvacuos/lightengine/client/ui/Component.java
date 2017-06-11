@@ -27,7 +27,8 @@ public abstract class Component implements IComponent {
 	protected Root rootComponent;
 	protected Alignment alignment = Alignment.RIGHT_TOP, windowAlignment = Alignment.LEFT_BOTTOM;
 	protected float alignedX, alignedY, x, y, w, h;
-	
+	protected boolean resizeH = false, resizeV = false;;
+
 	@Override
 	public void init() {
 	}
@@ -38,7 +39,6 @@ public abstract class Component implements IComponent {
 
 	@Override
 	public void alwaysUpdate(float delta, Window window) {
-		// TODO: Optimize this Sh*t
 		switch (alignment) {
 		case LEFT:
 			alignedX = x;
@@ -119,6 +119,11 @@ public abstract class Component implements IComponent {
 		default:
 			throw new UnsupportedOperationException("Invalid Alignment: " + windowAlignment.name());
 		}
+		if (resizeH)
+			w = rootComponent.rootW;
+		if (resizeV)
+			h = rootComponent.rootH;
+
 	}
 
 	@Override
@@ -131,6 +136,14 @@ public abstract class Component implements IComponent {
 
 	public void setWindowAlignment(Alignment windowAlignment) {
 		this.windowAlignment = windowAlignment;
+	}
+
+	public void setResizeH(boolean resizeH) {
+		this.resizeH = resizeH;
+	}
+
+	public void setResizeV(boolean resizeV) {
+		this.resizeV = resizeV;
 	}
 
 }

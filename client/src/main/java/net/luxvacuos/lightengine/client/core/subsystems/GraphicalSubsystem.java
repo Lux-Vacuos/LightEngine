@@ -83,7 +83,7 @@ public class GraphicalSubsystem implements ISubsystem {
 		WindowHandle handle = WindowManager.generateHandle(
 				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
 				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")), GlobalVariables.PROJECT);
-		handle.canResize(false).isVisible(false).setIcon(icons).setCursor("arrow").useDebugContext(true);
+		handle.canResize(false).isVisible(false).setIcon(icons).setCursor("arrow").useDebugContext(GlobalVariables.debug);
 		PixelBufferHandle pb = new PixelBufferHandle();
 		pb.setSrgbCapable(1);
 		handle.setPixelBuffer(pb);

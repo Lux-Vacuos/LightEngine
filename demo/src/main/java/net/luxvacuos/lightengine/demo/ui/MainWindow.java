@@ -58,15 +58,15 @@ public class MainWindow extends ComponentWindow {
 		exitButton.setWindowAlignment(Alignment.CENTER);
 
 		playButton.setOnButtonPress(() -> {
-			/*GraphicalSubsystem.getWindowManager().toggleShell();
+			GraphicalSubsystem.getWindowManager().toggleShell();
 			super.setWindowClose(WindowClose.DISPOSE);
 			super.closeWindow();
-			StateMachine.setCurrentState("mainState");*/
-			GraphicalSubsystem.getWindowManager().addWindow(new RectGL(200, 500, 480, 754));
+			StateMachine.setCurrentState("mainState");
+			//GraphicalSubsystem.getWindowManager().addWindow(new RectGL(200, 500, 480, 754));
 		});
 
 		optionsButton.setOnButtonPress(() -> {
-			GraphicalSubsystem.getWindowManager().addWindow(new OptionsWindow(w / 2 - 420 + x, y - 40, 840, 600));
+			GraphicalSubsystem.getWindowManager().addWindow(new OptionsWindow());
 		});
 
 		exitButton.setOnButtonPress(() -> {

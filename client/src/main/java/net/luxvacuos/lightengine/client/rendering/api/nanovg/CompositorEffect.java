@@ -39,6 +39,7 @@ import net.luxvacuos.igl.vector.Vector2f;
 import net.luxvacuos.igl.vector.Vector4f;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.shaders.WindowManagerShader;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.GPUProfiler;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
@@ -46,8 +47,10 @@ import net.luxvacuos.lightengine.universal.util.registry.Key;
 public abstract class CompositorEffect implements IDisposable {
 
 	private WindowManagerShader shader;
+	private String name;
 
 	public CompositorEffect(int width, int height, String name) {
+		this.name = name;
 		shader = new WindowManagerShader(name);
 		shader.start();
 		shader.loadResolution(new Vector2f(width, height));
@@ -55,6 +58,7 @@ public abstract class CompositorEffect implements IDisposable {
 	}
 
 	public void render(NVGLUFramebuffer[] fbos, RawModel quad, Window wnd, IWindow window) {
+		GPUProfiler.start(name);
 		float borderSize = (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/borderSize"));
 		float titleBarHeight = (float) REGISTRY
 				.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
@@ -96,6 +100,7 @@ public abstract class CompositorEffect implements IDisposable {
 		glBindVertexArray(0);
 		shader.stop();
 		nvgluBindFramebuffer(wnd.getNVGID(), null);
+		GPUProfiler.end();
 	}
 
 	@Override

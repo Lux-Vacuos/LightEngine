@@ -43,22 +43,27 @@ import net.luxvacuos.lightengine.universal.util.registry.Key;
  */
 public class MainMenuState extends AbstractState {
 
+	private BackgroundWindow background;
+
 	public MainMenuState() {
-		super("mainmenu");
+		super("_main");
 	}
-	
+
 	@Override
 	public void init() {
 		super.init();
 		TaskManager.addTask(() -> StateMachine.registerState(new MainState()));
 	}
-	
+
 	@Override
 	public void start() {
-		GraphicalSubsystem.getWindowManager().addWindow(0,
-				new BackgroundWindow(0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
-						(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
-						(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"))));
+		if (background == null)
+			background = new BackgroundWindow(0,
+					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
+					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
+					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")));
+		if (!GraphicalSubsystem.getWindowManager().existWindow(background))
+			GraphicalSubsystem.getWindowManager().addWindow(0, background);
 		int ww = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
 		int wh = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
 		int x = ww / 2 - 512;
@@ -80,7 +85,6 @@ public class MainMenuState extends AbstractState {
 	}
 
 	public static void main(String[] args) {
-		GlobalVariables.MAIN_STATE = "mainmenu";
 		GlobalVariables.PROJECT = "LightEngineDemo";
 		TaskManager.addTask(() -> StateMachine.registerState(new MainMenuState()));
 		new Bootstrap(args);

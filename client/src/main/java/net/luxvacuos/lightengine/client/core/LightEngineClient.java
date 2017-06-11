@@ -35,6 +35,8 @@ import net.luxvacuos.lightengine.client.core.subsystems.SoundSubsystem;
 import net.luxvacuos.lightengine.client.input.Mouse;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.Timers;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.GPUProfiler;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.GPUTaskProfile;
 import net.luxvacuos.lightengine.universal.core.AbstractEngine;
 import net.luxvacuos.lightengine.universal.core.EngineType;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
@@ -98,7 +100,7 @@ public class LightEngineClient extends AbstractEngine {
 		int fps = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/fps"));
 		Window window = GraphicalSubsystem.getMainWindow();
 		while (StateMachine.isRunning() && !(window.isCloseRequested())) {
-			Timers.startCPUTimer();
+			// Timers.startCPUTimer();
 			TaskManager.update();
 			if (window.getTimeCount() > 1f) {
 				CoreSubsystem.ups = CoreSubsystem.upsCount;
@@ -114,12 +116,22 @@ public class LightEngineClient extends AbstractEngine {
 				accumulator -= interval;
 			}
 			alpha = accumulator / interval;
-			Timers.stopCPUTimer();
-			Timers.startGPUTimer();
+			// Timers.stopCPUTimer();
+			// Timers.startGPUTimer();
+			GPUProfiler.startFrame();
+			GPUProfiler.start("Render");
 			StateMachine.render(this, alpha);
-			Timers.stopGPUTimer();
-			Timers.update();
+			GPUProfiler.end();
+			// Timers.stopGPUTimer();
+			// Timers.update();
 			window.updateDisplay(fps);
+			GPUProfiler.endFrame();
+			/*
+			GPUTaskProfile tp;
+			while ((tp = GPUProfiler.getFrameResults()) != null) {
+				tp.dump();
+				GPUProfiler.recycle(tp);
+			}*/
 		}
 	}
 
