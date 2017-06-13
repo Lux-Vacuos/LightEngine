@@ -96,7 +96,7 @@ public class ScrollArea extends Component {
 	public void alwaysUpdate(float delta, Window window) {
 		comp.alwaysUpdate(delta, window, rootComponent.rootX + alignedX, rootComponent.rootY - alignedY + h + scrollH,
 				w, h);
-		maxH = Maths.clamp(-h + -comp.getFinalH(), 0);
+		maxH = Maths.clamp(-h + -comp.getFinalH(), 0); 
 		super.alwaysUpdate(delta, window);
 	}
 

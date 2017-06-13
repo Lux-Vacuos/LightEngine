@@ -93,6 +93,10 @@ public class GPUTaskProfile implements Poolable {
 		dump(0);
 	}
 
+	public String dumpS() {
+		return dumpS(0);
+	}
+
 	private void dump(int indentation) {
 		for (int i = 0; i < indentation; i++) {
 			System.out.print("    ");
@@ -101,5 +105,17 @@ public class GPUTaskProfile implements Poolable {
 		for (int i = 0; i < children.size(); i++) {
 			children.get(i).dump(indentation + 1);
 		}
+	}
+
+	private String dumpS(int indentation) {
+		StringBuilder ret = new StringBuilder();
+		for (int i = 0; i < indentation; i++) {
+			ret.append("--");
+		}
+		ret.append(name + " : " + getTimeTaken() / 1000 / 1000f + "ms\n");
+		for (int i = 0; i < children.size(); i++) {
+			ret.append(children.get(i).dumpS(indentation + 1));
+		}
+		return ret.toString();
 	}
 }

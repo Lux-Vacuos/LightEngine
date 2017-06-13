@@ -44,7 +44,7 @@ public class TextArea extends Component {
 
 	@Override
 	public void render(Window window) {
-		Theme.renderParagraph(window.getNVGID(), rootComponent.rootX + alignedX,
+		h = Theme.renderParagraph(window.getNVGID(), rootComponent.rootX + alignedX,
 				window.getHeight() - rootComponent.rootY - alignedY, w, fontSize, font, text,
 				align, color);
 	}

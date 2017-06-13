@@ -76,6 +76,7 @@ public class Shell extends ComponentWindow implements IShell {
 		if (fadeIn) {
 			y += 100f * delta;
 			if (y >= h) {
+				CoreSubsystem.REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/shellHeight"), y);
 				fadeIn = false;
 				y = h;
 			}
@@ -83,6 +84,7 @@ public class Shell extends ComponentWindow implements IShell {
 		if (fadeOut) {
 			y -= 100f * delta;
 			if (y <= 0) {
+				CoreSubsystem.REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/shellHeight"), 0f);
 				super.setHidden(!enabled);
 				fadeOut = false;
 				y = 0;

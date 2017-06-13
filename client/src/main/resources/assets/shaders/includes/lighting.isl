@@ -112,10 +112,10 @@ float computeShadow(vec4 position){
     if(useShadows == 1){
         float shadow = 0.0;
 		vec4 posLight = viewLightMatrix * position;
-		ShadowCoord[0] = biasMatrix * projectionLightMatrix[0] * posLight;
-		ShadowCoord[1] = biasMatrix * projectionLightMatrix[1] * posLight;
-		ShadowCoord[2] = biasMatrix * projectionLightMatrix[2] * posLight;
-		ShadowCoord[3] = biasMatrix * projectionLightMatrix[3] * posLight;
+		ShadowCoord[0] = biasMatrix * (projectionLightMatrix[0] * posLight);
+		ShadowCoord[1] = biasMatrix * (projectionLightMatrix[1] * posLight);
+		ShadowCoord[2] = biasMatrix * (projectionLightMatrix[2] * posLight);
+		ShadowCoord[3] = biasMatrix * (projectionLightMatrix[3] * posLight);
 		for(int x = -1; x <= 1; ++x) {
 	    	for(int y = -1; y <= 1; ++y) {
 				shadow += -lookup(vec2(x, y)) + 1;

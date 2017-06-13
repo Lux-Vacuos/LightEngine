@@ -28,6 +28,7 @@ import net.luxvacuos.lightengine.client.bootstrap.Bootstrap;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
 import net.luxvacuos.lightengine.client.ui.windows.BackgroundWindow;
+import net.luxvacuos.lightengine.client.ui.windows.Profiler;
 import net.luxvacuos.lightengine.demo.ui.MainWindow;
 import net.luxvacuos.lightengine.universal.core.AbstractEngine;
 import net.luxvacuos.lightengine.universal.core.GlobalVariables;
@@ -69,6 +70,7 @@ public class MainMenuState extends AbstractState {
 		int x = ww / 2 - 512;
 		int y = wh / 2 - 300;
 		GraphicalSubsystem.getWindowManager().addWindow(new MainWindow(x, wh - y, 1024, 600));
+		GraphicalSubsystem.getWindowManager().addWindow(new Profiler());
 		super.start();
 	}
 

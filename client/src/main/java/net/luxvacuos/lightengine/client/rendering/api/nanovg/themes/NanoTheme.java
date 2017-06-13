@@ -552,7 +552,7 @@ public class NanoTheme implements ITheme {
 	}
 
 	@Override
-	public void renderParagraph(long vg, float x, float y, float width, float fontSize, String font, String text,
+	public float renderParagraph(long vg, float x, float y, float width, float fontSize, String font, String text,
 			int align, NVGColor color) {
 		if (text == null)
 			text = "";
@@ -568,17 +568,19 @@ public class NanoTheme implements ITheme {
 		long start = memAddress(paragraph);
 		long end = start + paragraph.remaining();
 		int nrows;
+		float yy = y;
 		while ((nrows = nnvgTextBreakLines(vg, start, end, width, memAddress(rows), 3)) != 0) {
 			for (int i = 0; i < nrows; i++) {
 				NVGTextRow row = rows.get(i);
 				nvgFillColor(vg, color);
-				nnvgText(vg, x, y, row.start(), row.end());
-				y += lineh.get(0);
+				nnvgText(vg, x, yy, row.start(), row.end());
+				yy += lineh.get(0);
 			}
 			start = rows.get(nrows - 1).next();
 		}
 
 		nvgRestore(vg);
+		return yy - y;
 	}
 
 	@Override

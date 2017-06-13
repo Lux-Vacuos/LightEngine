@@ -126,12 +126,6 @@ public class LightEngineClient extends AbstractEngine {
 			// Timers.update();
 			window.updateDisplay(fps);
 			GPUProfiler.endFrame();
-			/*
-			GPUTaskProfile tp;
-			while ((tp = GPUProfiler.getFrameResults()) != null) {
-				tp.dump();
-				GPUProfiler.recycle(tp);
-			}*/
 		}
 	}
 

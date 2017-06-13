@@ -66,7 +66,7 @@ public interface ITheme {
 
 	public void renderSpinner(long vg, float cx, float cy, float r, float t);
 
-	public void renderParagraph(long vg, float x, float y, float width, float fontSize, String font, String text,
+	public float renderParagraph(long vg, float x, float y, float width, float fontSize, String font, String text,
 			int align, NVGColor color);
 
 	public void renderBox(long vg, float x, float y, float w, float h, NVGColor color, float rt, float lt, float rb,

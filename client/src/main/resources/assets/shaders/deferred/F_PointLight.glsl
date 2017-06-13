@@ -105,7 +105,7 @@ void main(void){
         			float shadow = 1.0;
 					if(lights[i].shadowEnabled == 1)	{
 						vec4 posLight = lights[i].shadowViewMatrix * position;
-						vec4 shadowCoord = biasMatrix * lights[i].shadowProjectionMatrix * posLight;
+						vec4 shadowCoord = biasMatrix * (lights[i].shadowProjectionMatrix * posLight);
 						shadow = texture(lights[i].shadowMap, (shadowCoord.xyz/shadowCoord.w), 0);
 					}
 					Lo += calcLight(lights[i], position.rgb, diffuse.rgb, L, N, V, kD, F, roughness) * intensity * shadow;

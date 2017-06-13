@@ -172,9 +172,9 @@ public class Theme {
 		theme.renderSpinner(vg, cx, cy, r, t);
 	}
 
-	public static void renderParagraph(long vg, float x, float y, float width, float fontSize, String font, String text,
+	public static float renderParagraph(long vg, float x, float y, float width, float fontSize, String font, String text,
 			int align, NVGColor color) {
-		theme.renderParagraph(vg, x, y, width, fontSize, font, text, align, color);
+		return theme.renderParagraph(vg, x, y, width, fontSize, font, text, align, color);
 	}
 
 	public static void renderBox(long vg, float x, float y, float w, float h, NVGColor color, float rt, float lt,
