@@ -54,11 +54,15 @@ public class Button extends Component {
 	public void update(float delta, Window window) {
 		if (!enabled)
 			return;
-		if (onPress != null)
-			if (pressed() && !pressed)
-				onPress.onAction();
-		pressed = pressed();
+
 		inside = insideButton();
+		if (onPress != null)
+			if (pressed() || pressed) {
+				if (!pressed() && pressed)
+					onPress.onAction();
+				pressed = pressed();
+			}
+
 		super.update(delta, window);
 	}
 
@@ -74,7 +78,6 @@ public class Button extends Component {
 		else
 			return false;
 	}
-
 
 	public void setText(String text) {
 		this.text = text;

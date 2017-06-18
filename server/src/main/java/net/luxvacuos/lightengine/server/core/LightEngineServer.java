@@ -42,7 +42,7 @@ public class LightEngineServer extends AbstractEngine {
 	private Sync sync;
 
 	public LightEngineServer() {
-		super.engineType = EngineType.SERVER;
+		StateMachine.setEngineType(EngineType.SERVER);
 		init();
 	}
 
@@ -57,7 +57,7 @@ public class LightEngineServer extends AbstractEngine {
 
 		Logger.log("Light Engine Server Version: " + GlobalVariables.version);
 		Logger.log("Running on: " + Bootstrap.getPlatform());
-		
+
 		StateMachine.registerState(new MPWorldState());
 		sync = new Sync();
 		lastLoopTime = System.currentTimeMillis() / 1000l;
@@ -88,7 +88,7 @@ public class LightEngineServer extends AbstractEngine {
 			delta = getDelta();
 			accumulator += delta;
 			while (accumulator >= interval) {
-				StateMachine.update(this, interval);
+				StateMachine.update(interval);
 				CoreSubsystem.upsCount++;
 				accumulator -= interval;
 			}

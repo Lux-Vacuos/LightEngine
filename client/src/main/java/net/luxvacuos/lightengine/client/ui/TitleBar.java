@@ -172,9 +172,9 @@ public class TitleBar implements ITitleBar {
 	}
 
 	private boolean canDrag(IWindow iWindow) {
-		return Mouse.getX() > iWindow.getX() + 100 && Mouse.getY() < iWindow.getY()
+		return Mouse.getX() > iWindow.getX() + left.getFinalW() && Mouse.getY() < iWindow.getY()
 				+ (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"))
-				&& Mouse.getX() < iWindow.getX() + iWindow.getWidth() - 100 && Mouse.getY() > iWindow.getY();
+				&& Mouse.getX() < iWindow.getX() + iWindow.getWidth() + right.getFinalW() && Mouse.getY() > iWindow.getY();
 	}
 
 	@Override

@@ -27,9 +27,7 @@ import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.universal.core.subsystems.ISubsystem;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
-public abstract class AbstractEngine implements IVoxel, IDisposable {
-
-	protected EngineType engineType;
+public abstract class AbstractEngine implements IEngine, IDisposable {
 
 	private List<ISubsystem> subsystems;
 
@@ -77,11 +75,6 @@ public abstract class AbstractEngine implements IVoxel, IDisposable {
 	@Override
 	public void addSubsystem(ISubsystem subsystem) {
 		subsystems.add(subsystem);
-	}
-
-	@Override
-	public EngineType getType() {
-		return engineType;
 	}
 
 }

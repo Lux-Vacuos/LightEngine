@@ -32,7 +32,6 @@ import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.Image;
 import net.luxvacuos.lightengine.client.ui.Spinner;
 import net.luxvacuos.lightengine.client.ui.windows.Shell;
-import net.luxvacuos.lightengine.universal.core.AbstractEngine;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
@@ -86,7 +85,7 @@ public class SplashScreenState extends AbstractState {
 	}
 
 	@Override
-	public void render(AbstractEngine lightengine, float alpha) {
+	public void render( float alpha) {
 		Window window = GraphicalSubsystem.getMainWindow();
 		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		Renderer.clearColors(1, 1, 1, 1);
@@ -96,7 +95,7 @@ public class SplashScreenState extends AbstractState {
 	}
 
 	@Override
-	public void update(AbstractEngine lightengine, float delta) {
+	public void update(float delta) {
 		GraphicalSubsystem.getWindowManager().update(delta);
 		if (TaskManager.isEmpty())
 			StateMachine.setCurrentState("_main");

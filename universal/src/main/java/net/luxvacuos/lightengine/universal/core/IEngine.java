@@ -22,7 +22,7 @@ package net.luxvacuos.lightengine.universal.core;
 
 import net.luxvacuos.lightengine.universal.core.subsystems.ISubsystem;
 
-public interface IVoxel {
+public interface IEngine {
 	
 	public void init();
 	
@@ -38,6 +38,4 @@ public interface IVoxel {
 	
 	public void addSubsystem(ISubsystem subsystem);
 	
-	public EngineType getType();
-
 }

@@ -35,11 +35,9 @@ import net.luxvacuos.lightengine.client.resources.ResourceLoader;
 import net.luxvacuos.lightengine.client.ui.windows.GameWindow;
 import net.luxvacuos.lightengine.client.world.particles.ParticleSystem;
 import net.luxvacuos.lightengine.demo.ui.PauseWindow;
-import net.luxvacuos.lightengine.universal.core.AbstractEngine;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.ecs.components.Position;
-import net.luxvacuos.lightengine.universal.ecs.components.Scale;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 import net.luxvacuos.lightengine.universal.world.PhysicsSystem;
 
@@ -120,13 +118,14 @@ public class MainState extends AbstractState {
 
 		mat4 = new RenderEntity("", sphere);
 		mat4.getComponent(Position.class).set(9, 1, 0);
-/*
-		dragon = aLoader.loadModel("levels/test_state/models/dragon.blend");
-
-		mat5 = new RenderEntity("", dragon);
-
-		mat5.getComponent(Position.class).set(-3, 0, 3);
-		mat5.getComponent(Scale.class).setScale(0.5f);*/
+		/*
+		 * dragon = aLoader.loadModel("levels/test_state/models/dragon.blend");
+		 * 
+		 * mat5 = new RenderEntity("", dragon);
+		 * 
+		 * mat5.getComponent(Position.class).set(-3, 0, 3);
+		 * mat5.getComponent(Scale.class).setScale(0.5f);
+		 */
 
 		/*
 		 * rocketM = aLoader.loadModel("levels/test_state/models/Rocket.obj");
@@ -159,13 +158,13 @@ public class MainState extends AbstractState {
 		particleSystem.setDirection(new Vector3d(0, -1, 0), 0.4f);
 		particlesPoint = new Vector3d(0, 1.7f, -5);
 
-		//worldSimulation.setTime(22000);
+		// worldSimulation.setTime(22000);
 	}
 
 	@Override
 	public void dispose() {
 		sphere.dispose();
-		//dragon.dispose();
+		// dragon.dispose();
 		characterM.dispose();
 		fire.dispose();
 		planeM.dispose();
@@ -182,7 +181,7 @@ public class MainState extends AbstractState {
 		physicsSystem.getEngine().addEntity(mat2);
 		physicsSystem.getEngine().addEntity(mat3);
 		physicsSystem.getEngine().addEntity(mat4);
-		//physicsSystem.getEngine().addEntity(mat5);
+		// physicsSystem.getEngine().addEntity(mat5);
 		/*
 		 * physicsSystem.getEngine().addEntity(rocket);
 		 */ physicsSystem.getEngine().addEntity(character);
@@ -203,7 +202,7 @@ public class MainState extends AbstractState {
 	}
 
 	@Override
-	public void update(AbstractEngine lightengine, float delta) {
+	public void update(float delta) {
 		GraphicalSubsystem.getWindowManager().update(delta);
 		Window window = GraphicalSubsystem.getMainWindow();
 		KeyboardHandler kbh = window.getKeyboardHandler();
@@ -250,7 +249,7 @@ public class MainState extends AbstractState {
 	}
 
 	@Override
-	public void render(AbstractEngine lightengine, float alpha) {
+	public void render(float alpha) {
 		Renderer.render(engine.getEntities(), ParticleDomain.getParticles(), camera, worldSimulation, sun, alpha);
 		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		Renderer.clearColors(1, 1, 1, 1);

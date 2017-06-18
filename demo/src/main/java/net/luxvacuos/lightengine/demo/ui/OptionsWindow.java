@@ -54,7 +54,7 @@ public class OptionsWindow extends ComponentWindow {
 	public void initApp(Window window) {
 		super.setBackgroundColor(0.4f, 0.4f, 0.4f, 1f);
 
-		backButton = new TitleBarButton(0, -1, 28, 28);
+		backButton = new TitleBarButton(0, 0, 28, 28);
 		backButton.setWindowAlignment(Alignment.LEFT_TOP);
 		backButton.setAlignment(Alignment.RIGHT_BOTTOM);
 		backButton.setStyle(ButtonStyle.LEFT_ARROW);

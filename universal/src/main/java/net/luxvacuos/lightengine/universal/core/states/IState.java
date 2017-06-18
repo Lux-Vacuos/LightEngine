@@ -20,8 +20,6 @@
 
 package net.luxvacuos.lightengine.universal.core.states;
 
-import net.luxvacuos.lightengine.universal.core.AbstractEngine;
-
 public interface IState {
 	
 	public void init();
@@ -30,9 +28,9 @@ public interface IState {
 	
 	public boolean isRunning();
 	
-	public void update(AbstractEngine lightengine, float delta);
+	public void update(float delta);
 	
-	public void render(AbstractEngine lightengine, float alpha);
+	public void render(float alpha);
 	
 	public void end();
 	

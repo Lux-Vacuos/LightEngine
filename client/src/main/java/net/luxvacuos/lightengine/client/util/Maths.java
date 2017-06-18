@@ -193,6 +193,10 @@ public class Maths {
 	public static float clamp(double d, double min) {
 		return (float) Math.max(min, d);
 	}
+	
+	public static float min(double d, double min) {
+		return (float) Math.min(d, min);
+	}
 
 	public static int randInt(int min, int max) {
 		Random rand = new Random();

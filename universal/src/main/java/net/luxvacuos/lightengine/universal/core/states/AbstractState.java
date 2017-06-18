@@ -20,7 +20,6 @@
 
 package net.luxvacuos.lightengine.universal.core.states;
 
-import net.luxvacuos.lightengine.universal.core.AbstractEngine;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
 public abstract class AbstractState implements IState, IDisposable {
@@ -41,7 +40,7 @@ public abstract class AbstractState implements IState, IDisposable {
 	}
 
 	@Override
-	public void render(AbstractEngine lightengine, float alpha) {
+	public void render(float alpha) {
 	}
 
 	@Override

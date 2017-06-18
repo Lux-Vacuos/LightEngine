@@ -102,8 +102,6 @@ public interface IWindow {
 
 	public float getY();
 
-	public Thread getThread();
-
 	public String getTitle();
 
 	public NVGLUFramebuffer getFBO();

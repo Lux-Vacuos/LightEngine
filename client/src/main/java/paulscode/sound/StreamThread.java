@@ -46,11 +46,6 @@ import java.util.ListIterator;
 public class StreamThread extends SimpleThread
 {
 /**
- * Processes status messages, warnings, and error messages.
- */
-    private SoundSystemLogger logger;
-    
-/**
  * List of sources that are currently streaming.
  */
     private List<Source> streamingSources;
@@ -71,9 +66,6 @@ public class StreamThread extends SimpleThread
  */
     public StreamThread()
     {
-        // grab a handle to the message logger:
-        logger = SoundSystemConfig.getLogger();
-        
         streamingSources = new LinkedList<Source>();
         setName(className);
     }
@@ -263,41 +255,4 @@ public class StreamThread extends SimpleThread
         }
     }
     
-/**
- * Prints a message.
- * @param message Message to print.
- */
-    private void message( String message )
-    {
-        logger.message( message, 0 );
-    }
-    
-/**
- * Prints an important message.
- * @param message Message to print.
- */
-    private void importantMessage( String message )
-    {
-        logger.importantMessage( message, 0 );
-    }
-    
-/**
- * Prints the specified message if error is true.
- * @param error True or False.
- * @param message Message to print if error is true.
- * @return True if error is true.
- */
-    private boolean errorCheck( boolean error, String message )
-    {
-        return logger.errorCheck( error, className, message, 0 );
-    }
-    
-/**
- * Prints an error message.
- * @param message Message to print.
- */
-    private void errorMessage( String message )
-    {
-        logger.errorMessage( className, message, 0 );
-    }
 }

@@ -21,8 +21,6 @@
 package net.luxvacuos.lightengine.client.rendering.api.nanovg;
 
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
-import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_LEFT;
-import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_MIDDLE;
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.glDisable;
 
@@ -34,9 +32,7 @@ import org.lwjgl.glfw.GLFW;
 
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.input.Mouse;
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Sync;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
-import net.luxvacuos.lightengine.client.rendering.api.glfw.WindowManager;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.compositor.Final;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.compositor.GaussianH;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.compositor.GaussianV;
@@ -45,7 +41,6 @@ import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.GLUtil;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.GPUProfiler;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
-import net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class NanoWindowManager implements IWindowManager {
@@ -55,8 +50,6 @@ public class NanoWindowManager implements IWindowManager {
 	private Compositor compositor;
 	private int width, height;
 	private IWindow focused;
-	private boolean running = true;
-	private double lastLoopTime;
 	private IShell shell;
 
 	public NanoWindowManager(Window win) {
@@ -74,26 +67,6 @@ public class NanoWindowManager implements IWindowManager {
 		compositor.addEffect(new GaussianV(width, height));
 		compositor.addEffect(new GaussianH(width, height));
 		compositor.addEffect(new Final(width, height));
-
-		Thread th = new Thread(() -> {
-			lastLoopTime = WindowManager.getTime();
-			int ups = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/ups"));
-			float delta = 0;
-			float accumulator = 0f;
-			float interval = 1f / ups;
-			Sync sync = new Sync();
-			while (running) {
-				delta = getDelta();
-				accumulator += delta;
-				while (accumulator >= interval) {
-					updateThread(interval);
-					accumulator -= interval;
-				}
-				sync.sync(ups);
-			}
-		});
-		th.setName("Nano Window Manager");
-		// th.start();
 		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/shellHeight"), 0f);
 	}
 
@@ -121,22 +94,28 @@ public class NanoWindowManager implements IWindowManager {
 		Theme.renderImage(this.window.getNVGID(), 0, 0, window.getWidth(), window.getHeight(),
 				compositor.getFbos()[0].image(), 1f);
 		if (ClientVariables.debug) {
-			/*Timers.renderDebugDisplay(5, 24, 200, 55);
-			Theme.renderText(window.getNVGID(), "Light Engine " + " (" + ClientVariables.version + ")", "Roboto-Bold",
-					NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 12, 20, Theme.rgba(220, 220, 220, 255, Theme.colorA));
-			Theme.renderText(window.getNVGID(),
-					"Used VRam: " + WindowManager.getUsedVRAM() + "KB " + " UPS: " + CoreSubsystem.ups, "Roboto-Bold",
-					NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 95, 20, Theme.rgba(220, 220, 220, 255, Theme.colorA));
-			Theme.renderText(window.getNVGID(), "Used RAM: " + Runtime.getRuntime().totalMemory() / 1028 + "KB ",
-					"Roboto-Bold", NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 110, 20,
-					Theme.rgba(220, 220, 220, 255, Theme.colorA));*/
+			/*
+			 * Timers.renderDebugDisplay(5, 24, 200, 55);
+			 * Theme.renderText(window.getNVGID(), "Light Engine " + " (" +
+			 * ClientVariables.version + ")", "Roboto-Bold", NVG_ALIGN_LEFT |
+			 * NVG_ALIGN_MIDDLE, 5, 12, 20, Theme.rgba(220, 220, 220, 255,
+			 * Theme.colorA)); Theme.renderText(window.getNVGID(), "Used VRam: "
+			 * + WindowManager.getUsedVRAM() + "KB " + " UPS: " +
+			 * CoreSubsystem.ups, "Roboto-Bold", NVG_ALIGN_LEFT |
+			 * NVG_ALIGN_MIDDLE, 5, 95, 20, Theme.rgba(220, 220, 220, 255,
+			 * Theme.colorA)); Theme.renderText(window.getNVGID(), "Used RAM: "
+			 * + Runtime.getRuntime().totalMemory() / 1028 + "KB ",
+			 * "Roboto-Bold", NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 110, 20,
+			 * Theme.rgba(220, 220, 220, 255, Theme.colorA));
+			 */
 		}
 		this.window.endNVGFrame();
 		GPUProfiler.end();
 		GPUProfiler.end();
 	}
 
-	private void updateThread(float delta) {
+	@Override
+	public void update(float delta) {
 		List<IWindow> tmp = new ArrayList<>();
 		IWindow toTop = null;
 		for (IWindow window : windows) {
@@ -179,13 +158,7 @@ public class NanoWindowManager implements IWindowManager {
 	}
 
 	@Override
-	public void update(float delta) {
-		updateThread(delta);
-	}
-
-	@Override
 	public void dispose() {
-		running = false;
 		compositor.dispose(window);
 		for (IWindow window : windows) {
 			window.dispose(this.window);
@@ -243,7 +216,7 @@ public class NanoWindowManager implements IWindowManager {
 		IWindow top = windows.get(windows.size() - 1);
 		return top == window;
 	}
-	
+
 	@Override
 	public boolean existWindow(IWindow window) {
 		return windows.contains(window);
@@ -278,13 +251,6 @@ public class NanoWindowManager implements IWindowManager {
 		if (shell != null)
 			return shell.isEnabled();
 		return false;
-	}
-
-	public float getDelta() {
-		double time = WindowManager.getTime();
-		float delta = (float) (time - this.lastLoopTime);
-		this.lastLoopTime = time;
-		return delta;
 	}
 
 }

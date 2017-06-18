@@ -991,14 +991,14 @@ public class SoundSystemConfig
 /**
  * Codec used to load audio data from this file format.
  */
-        public Class iCodecClass;
+        public Class<ICodec> iCodecClass;
 /**
  * Constructor:  Converts the specified extension string into a regular
  * expression, and associates that with the specified codec.
  * @param extension File extension to be associated with the specified codec.
  * @param iCodec Codec to use for files with the specified extension.
  */
-        public Codec( String extension, Class iCodecClass )
+        public Codec( String extension, Class<ICodec> iCodecClass )
         {
             extensionRegX = "";
             // Make sure an extension was specified:

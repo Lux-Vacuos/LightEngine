@@ -24,13 +24,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.luxvacuos.igl.Logger;
-import net.luxvacuos.lightengine.universal.core.AbstractEngine;
 import net.luxvacuos.lightengine.universal.core.EngineType;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
 public final class StateMachine {
 
 	private static IState currentState, previousState;
+	
+	private static EngineType engineType;
 
 	private static InternalState internalState = InternalState.STOPPED;
 
@@ -43,8 +44,8 @@ public final class StateMachine {
 		Logger.log("StateMachine running");
 		internalState = InternalState.RUNNING;
 	}
-	
-	public static void stop(){
+
+	public static void stop() {
 		internalState = InternalState.STOPPED;
 	}
 
@@ -62,19 +63,19 @@ public final class StateMachine {
 			return false;
 	}
 
-	public static boolean update(AbstractEngine lightengine, float deltaTime) {
+	public static boolean update(float deltaTime) {
 		if (currentState == null)
 			return false;
 
-		currentState.update(lightengine, deltaTime);
+		currentState.update(deltaTime);
 		return true;
 	}
 
-	public static boolean render(AbstractEngine lightengine, float alpha) {
-		if (currentState == null || lightengine.getType() != EngineType.CLIENT)
+	public static boolean render(float alpha) {
+		if (currentState == null || engineType != EngineType.CLIENT)
 			return false;
 
-		currentState.render(lightengine, alpha);
+		currentState.render(alpha);
 		return true;
 	}
 
@@ -95,6 +96,10 @@ public final class StateMachine {
 			return true;
 		} else
 			return false;
+	}
+	
+	public static void setEngineType(EngineType type){
+		engineType = type;
 	}
 
 	public static IState getCurrentState() {
