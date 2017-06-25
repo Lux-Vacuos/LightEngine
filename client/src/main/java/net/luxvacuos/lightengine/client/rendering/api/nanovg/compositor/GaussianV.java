@@ -20,8 +20,6 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.nanovg.compositor;
 
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.CompositorEffect;
-
 public class GaussianV extends CompositorEffect {
 
 	public GaussianV(int width, int height) {

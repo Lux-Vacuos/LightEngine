@@ -18,7 +18,7 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.api.nanovg;
+package net.luxvacuos.lightengine.client.rendering.api.nanovg.compositor;
 
 import static org.lwjgl.nanovg.NanoVGGL3.nvgluCreateFramebuffer;
 import static org.lwjgl.nanovg.NanoVGGL3.nvgluDeleteFramebuffer;
@@ -29,6 +29,7 @@ import java.util.List;
 import org.lwjgl.nanovg.NVGLUFramebuffer;
 
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.IWindow;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.RawModel;
 
 public class Compositor {

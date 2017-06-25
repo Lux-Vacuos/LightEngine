@@ -20,8 +20,6 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.nanovg.compositor;
 
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.CompositorEffect;
-
 public class MaskBlur extends CompositorEffect {
 
 	public MaskBlur(int width, int height) {

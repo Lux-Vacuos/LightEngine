@@ -27,6 +27,8 @@ import net.luxvacuos.lightengine.client.input.Mouse;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.ParticleDomain;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CachedAssets;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CachedTexture;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Light;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Model;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.ParticleTexture;
@@ -57,7 +59,7 @@ public class MainState extends AbstractState {
 	private RenderEntity mat1, mat2, mat3, mat4, mat5, rocket, plane, character, cerberus;
 
 	private Model sphere, dragon, rocketM, planeM, characterM, cerberusM;
-	private ParticleTexture fire;
+	private CachedTexture fire;
 
 	public static boolean paused = false, exitWorld = false;
 
@@ -66,9 +68,8 @@ public class MainState extends AbstractState {
 	}
 
 	@Override
-	public void init() {
+	public void start() {
 		Window window = GraphicalSubsystem.getMainWindow();
-		ResourceLoader loader = window.getResourceLoader();
 
 		Matrix4d projectionMatrix = Renderer.createProjectionMatrix(window.getWidth(), window.getHeight(),
 				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/fov")), ClientVariables.NEAR_PLANE,
@@ -101,11 +102,11 @@ public class MainState extends AbstractState {
 		light0 = new Light(new Vector3d(4.5f, 4.2f, 8f), new Vector3f(100, 100, 100), new Vector3d(245, -45, 0), 50,
 				40);
 		light0.setShadow(true);
-		Renderer.getLightRenderer().addLight(light0);
+		//Renderer.getLightRenderer().addLight(light0);
 		light1 = new Light(new Vector3d(-4.5f, 4.2f, 8f), new Vector3f(100, 100, 100), new Vector3d(245, 45, 0), 50,
 				40);
 		light1.setShadow(true);
-		Renderer.getLightRenderer().addLight(light1);
+		//Renderer.getLightRenderer().addLight(light1);
 
 		mat1 = new RenderEntity("", sphere);
 		mat1.getComponent(Position.class).set(0, 1, 0);
@@ -152,28 +153,18 @@ public class MainState extends AbstractState {
 		 * cerberus.getComponent(Scale.class).setScale(0.5f);
 		 */
 
-		fire = new ParticleTexture(loader.loadTexture("textures/particles/fire0.png").getID(), 4);
+		// worldSimulation.setTime(22000);
+		
+		
+		
+		
+		fire = CachedAssets.loadTexture("textures/particles/fire0.png");
 
-		particleSystem = new ParticleSystem(fire, 1000, 1, -1f, 3f, 6f);
+		particleSystem = new ParticleSystem(new ParticleTexture(fire.getID(), 4), 1000, 1, -1f, 3f, 6f);
 		particleSystem.setDirection(new Vector3d(0, -1, 0), 0.4f);
 		particlesPoint = new Vector3d(0, 1.7f, -5);
-
-		// worldSimulation.setTime(22000);
-	}
-
-	@Override
-	public void dispose() {
-		sphere.dispose();
-		// dragon.dispose();
-		characterM.dispose();
-		fire.dispose();
-		planeM.dispose();
-		// rocketM.dispose();
-		// cerberusM.dispose();
-	}
-
-	@Override
-	public void start() {
+		
+		
 		camera.setPosition(new Vector3d(0, 2, 0));
 		physicsSystem.getEngine().addEntity(camera);
 		physicsSystem.getEngine().addEntity(plane);
@@ -194,11 +185,20 @@ public class MainState extends AbstractState {
 				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
 				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")));
 		GraphicalSubsystem.getWindowManager().addWindow(gameWindow);
+		super.start();
 	}
 
 	@Override
 	public void end() {
+		fire.dispose();
+		sphere.dispose();
+		// dragon.dispose();
+		characterM.dispose();
+		planeM.dispose();
+		// rocketM.dispose();
+		// cerberusM.dispose();
 		physicsSystem.getEngine().removeAllEntities();
+		super.end();
 	}
 
 	@Override

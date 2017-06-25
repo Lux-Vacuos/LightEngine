@@ -23,13 +23,18 @@ package net.luxvacuos.lightengine.demo.ui;
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.LANG;
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 
+import java.util.Arrays;
+
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme.ButtonStyle;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.Button;
 import net.luxvacuos.lightengine.client.ui.Container;
 import net.luxvacuos.lightengine.client.ui.Direction;
+import net.luxvacuos.lightengine.client.ui.DropDown;
+import net.luxvacuos.lightengine.client.ui.EditBox;
 import net.luxvacuos.lightengine.client.ui.FlowLayout;
+import net.luxvacuos.lightengine.client.ui.OnAction;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.ScrollArea;
 import net.luxvacuos.lightengine.client.ui.Slider;
@@ -43,6 +48,7 @@ import net.luxvacuos.lightengine.universal.util.registry.Key;
 public class OptionsWindow extends ComponentWindow {
 
 	private TitleBarButton backButton;
+	private OnAction act;
 
 	public OptionsWindow() {
 		super((int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")) / 2 - 420,
@@ -77,6 +83,8 @@ public class OptionsWindow extends ComponentWindow {
 				super.disposeApp(window);
 				graphicOptions();
 				backButton.setOnButtonPress(() -> {
+					if (act != null)
+						act.onAction();
 					TaskManager.addTask(() -> {
 						super.disposeApp(window);
 						backButton.setEnabled(false);
@@ -95,6 +103,8 @@ public class OptionsWindow extends ComponentWindow {
 				super.disposeApp(window);
 				wmOptions();
 				backButton.setOnButtonPress(() -> {
+					if (act != null)
+						act.onAction();
 					TaskManager.addTask(() -> {
 						super.disposeApp(window);
 						backButton.setEnabled(false);
@@ -129,6 +139,11 @@ public class OptionsWindow extends ComponentWindow {
 				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/chromaticAberration")));
 		ToggleButton lensFlaresButton = new ToggleButton(-50, 0, 80, 30,
 				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/lensFlares")));
+		DropDown<Integer> shadowResDropdown = new DropDown<>(-50, 0, 180, 30,
+				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/shadowsResolution")),
+				Arrays.asList(128, 256, 512, 1024, 2048, 4096));
+		EditBox shadowDistance = new EditBox(-50, 0, 180, 30, Integer.toString(
+				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/shadowsDrawDistance"))));
 
 		godraysButton.setWindowAlignment(Alignment.RIGHT);
 		godraysButton.setAlignment(Alignment.RIGHT);
@@ -150,6 +165,10 @@ public class OptionsWindow extends ComponentWindow {
 		chromaticAberrationButton.setAlignment(Alignment.RIGHT);
 		lensFlaresButton.setWindowAlignment(Alignment.RIGHT);
 		lensFlaresButton.setAlignment(Alignment.RIGHT);
+		shadowResDropdown.setWindowAlignment(Alignment.RIGHT);
+		shadowResDropdown.setAlignment(Alignment.RIGHT);
+		shadowDistance.setWindowAlignment(Alignment.RIGHT);
+		shadowDistance.setAlignment(Alignment.RIGHT);
 
 		shadowsButton.setOnButtonPress(
 				() -> REGISTRY.register(new Key("/Light Engine/Settings/Graphics/shadows"), shadowsButton.getStatus()));
@@ -171,6 +190,9 @@ public class OptionsWindow extends ComponentWindow {
 				new Key("/Light Engine/Settings/Graphics/chromaticAberration"), chromaticAberrationButton.getStatus()));
 		lensFlaresButton.setOnButtonPress(() -> REGISTRY.register(new Key("/Light Engine/Settings/Graphics/lensFlares"),
 				lensFlaresButton.getStatus()));
+		shadowResDropdown
+				.setOnButtonPress(() -> REGISTRY.register(new Key("/Light Engine/Settings/Graphics/shadowsResolution"),
+						shadowResDropdown.getValue().intValue()));
 
 		Text godText = new Text(LANG.getRegistryItem("lightengine.optionswindow.graphics.volumetriclight"), 20, 0);
 		godText.setWindowAlignment(Alignment.LEFT);
@@ -193,40 +215,50 @@ public class OptionsWindow extends ComponentWindow {
 		chromaticAberrationText.setWindowAlignment(Alignment.LEFT);
 		Text lensFlaresText = new Text(LANG.getRegistryItem("lightengine.optionswindow.graphics.lensflares"), 20, 0);
 		lensFlaresText.setWindowAlignment(Alignment.LEFT);
+		Text shadowResText = new Text(LANG.getRegistryItem("lightengine.optionswindow.graphics.shadowres"), 20, 0);
+		shadowResText.setWindowAlignment(Alignment.LEFT);
+		Text shadowDisText = new Text(LANG.getRegistryItem("lightengine.optionswindow.graphics.shadowdis"), 20, 0);
+		shadowDisText.setWindowAlignment(Alignment.LEFT);
 
 		ScrollArea area = new ScrollArea(0, 0, w, h, 0, 0);
 		area.setLayout(new FlowLayout(Direction.DOWN, 10, 10));
 
 		Container godrays = new Container(0, 0, w, 30);
-		godrays.setWindowAlignment(Alignment.RIGHT_TOP);
-		godrays.setAlignment(Alignment.LEFT_BOTTOM);
+		godrays.setWindowAlignment(Alignment.LEFT_TOP);
+		godrays.setAlignment(Alignment.RIGHT_BOTTOM);
 		Container shadows = new Container(0, 0, w, 30);
-		shadows.setWindowAlignment(Alignment.RIGHT_TOP);
-		shadows.setAlignment(Alignment.LEFT_BOTTOM);
+		shadows.setWindowAlignment(Alignment.LEFT_TOP);
+		shadows.setAlignment(Alignment.RIGHT_BOTTOM);
 		Container dof = new Container(0, 0, w, 30);
-		dof.setWindowAlignment(Alignment.RIGHT_TOP);
-		dof.setAlignment(Alignment.LEFT_BOTTOM);
+		dof.setWindowAlignment(Alignment.LEFT_TOP);
+		dof.setAlignment(Alignment.RIGHT_BOTTOM);
 		Container fxaa = new Container(0, 0, w, 30);
-		fxaa.setWindowAlignment(Alignment.RIGHT_TOP);
-		fxaa.setAlignment(Alignment.LEFT_BOTTOM);
+		fxaa.setWindowAlignment(Alignment.LEFT_TOP);
+		fxaa.setAlignment(Alignment.RIGHT_BOTTOM);
 		Container motionBlur = new Container(0, 0, w, 30);
-		motionBlur.setWindowAlignment(Alignment.RIGHT_TOP);
-		motionBlur.setAlignment(Alignment.LEFT_BOTTOM);
+		motionBlur.setWindowAlignment(Alignment.LEFT_TOP);
+		motionBlur.setAlignment(Alignment.RIGHT_BOTTOM);
 		Container reflections = new Container(0, 0, w, 30);
-		reflections.setWindowAlignment(Alignment.RIGHT_TOP);
-		reflections.setAlignment(Alignment.LEFT_BOTTOM);
+		reflections.setWindowAlignment(Alignment.LEFT_TOP);
+		reflections.setAlignment(Alignment.RIGHT_BOTTOM);
 		Container parallax = new Container(0, 0, w, 30);
-		parallax.setWindowAlignment(Alignment.RIGHT_TOP);
-		parallax.setAlignment(Alignment.LEFT_BOTTOM);
+		parallax.setWindowAlignment(Alignment.LEFT_TOP);
+		parallax.setAlignment(Alignment.RIGHT_BOTTOM);
 		Container occlusion = new Container(0, 0, w, 30);
-		occlusion.setWindowAlignment(Alignment.RIGHT_TOP);
-		occlusion.setAlignment(Alignment.LEFT_BOTTOM);
+		occlusion.setWindowAlignment(Alignment.LEFT_TOP);
+		occlusion.setAlignment(Alignment.RIGHT_BOTTOM);
 		Container aberration = new Container(0, 0, w, 30);
-		aberration.setWindowAlignment(Alignment.RIGHT_TOP);
-		aberration.setAlignment(Alignment.LEFT_BOTTOM);
+		aberration.setWindowAlignment(Alignment.LEFT_TOP);
+		aberration.setAlignment(Alignment.RIGHT_BOTTOM);
 		Container lens = new Container(0, 0, w, 30);
-		lens.setWindowAlignment(Alignment.RIGHT_TOP);
-		lens.setAlignment(Alignment.LEFT_BOTTOM);
+		lens.setWindowAlignment(Alignment.LEFT_TOP);
+		lens.setAlignment(Alignment.RIGHT_BOTTOM);
+		Container shadowRes = new Container(0, 0, w, 30);
+		shadowRes.setWindowAlignment(Alignment.LEFT_TOP);
+		shadowRes.setAlignment(Alignment.RIGHT_BOTTOM);
+		Container shadowDis = new Container(0, 0, w, 30);
+		shadowDis.setWindowAlignment(Alignment.LEFT_TOP);
+		shadowDis.setAlignment(Alignment.RIGHT_BOTTOM);
 
 		godrays.addComponent(godraysButton);
 		godrays.addComponent(godText);
@@ -248,6 +280,10 @@ public class OptionsWindow extends ComponentWindow {
 		aberration.addComponent(chromaticAberrationText);
 		lens.addComponent(lensFlaresButton);
 		lens.addComponent(lensFlaresText);
+		shadowRes.addComponent(shadowResDropdown);
+		shadowRes.addComponent(shadowResText);
+		shadowDis.addComponent(shadowDistance);
+		shadowDis.addComponent(shadowDisText);
 
 		godrays.setResizeH(true);
 		shadows.setResizeH(true);
@@ -259,7 +295,9 @@ public class OptionsWindow extends ComponentWindow {
 		occlusion.setResizeH(true);
 		aberration.setResizeH(true);
 		lens.setResizeH(true);
-		
+		shadowRes.setResizeH(true);
+		shadowDis.setResizeH(true);
+
 		area.addComponent(godrays);
 		area.addComponent(shadows);
 		area.addComponent(dof);
@@ -270,8 +308,20 @@ public class OptionsWindow extends ComponentWindow {
 		area.addComponent(occlusion);
 		area.addComponent(aberration);
 		area.addComponent(lens);
+		area.addComponent(shadowRes);
+		area.addComponent(shadowDis);
 
 		super.addComponent(area);
+
+		act = new OnAction() {
+
+			@Override
+			public void onAction() {
+				REGISTRY.register(new Key("/Light Engine/Settings/Graphics/shadowsDrawDistance"),
+						Integer.parseInt(shadowDistance.getText()));
+			}
+
+		};
 
 		backButton.setEnabled(true);
 	}
@@ -296,8 +346,8 @@ public class OptionsWindow extends ComponentWindow {
 		});
 
 		Container borderC = new Container(0, 0, w, 20);
-		borderC.setWindowAlignment(Alignment.RIGHT_TOP);
-		borderC.setAlignment(Alignment.LEFT_BOTTOM);
+		borderC.setWindowAlignment(Alignment.LEFT_TOP);
+		borderC.setAlignment(Alignment.RIGHT_BOTTOM);
 		borderC.addComponent(wmBorderText);
 		borderC.addComponent(wmBorder);
 
@@ -320,8 +370,8 @@ public class OptionsWindow extends ComponentWindow {
 		});
 
 		Container scrollC = new Container(0, 0, w, 20);
-		scrollC.setWindowAlignment(Alignment.RIGHT_TOP);
-		scrollC.setAlignment(Alignment.LEFT_BOTTOM);
+		scrollC.setWindowAlignment(Alignment.LEFT_TOP);
+		scrollC.setAlignment(Alignment.RIGHT_BOTTOM);
 		scrollC.addComponent(wmScrollText);
 		scrollC.addComponent(wmScroll);
 
@@ -344,8 +394,8 @@ public class OptionsWindow extends ComponentWindow {
 		});
 
 		Container titleC = new Container(0, 0, w, 20);
-		titleC.setWindowAlignment(Alignment.RIGHT_TOP);
-		titleC.setAlignment(Alignment.LEFT_BOTTOM);
+		titleC.setWindowAlignment(Alignment.LEFT_TOP);
+		titleC.setAlignment(Alignment.RIGHT_BOTTOM);
 		titleC.addComponent(wmTitleText);
 		titleC.addComponent(wmTitle);
 
@@ -362,20 +412,20 @@ public class OptionsWindow extends ComponentWindow {
 		titleBorderText.setWindowAlignment(Alignment.LEFT);
 
 		Container titleBorder = new Container(0, 0, w, 30);
-		titleBorder.setWindowAlignment(Alignment.RIGHT_TOP);
-		titleBorder.setAlignment(Alignment.LEFT_BOTTOM);
+		titleBorder.setWindowAlignment(Alignment.LEFT_TOP);
+		titleBorder.setAlignment(Alignment.RIGHT_BOTTOM);
 
 		titleBorder.addComponent(titleBorderButton);
 		titleBorder.addComponent(titleBorderText);
 
 		ScrollArea area = new ScrollArea(0, 0, w, h, 0, 0);
 		area.setLayout(new FlowLayout(Direction.DOWN, 10, 10));
-		
+
 		borderC.setResizeH(true);
 		scrollC.setResizeH(true);
 		titleC.setResizeH(true);
 		titleBorder.setResizeH(true);
-		
+
 		area.addComponent(borderC);
 		area.addComponent(scrollC);
 		area.addComponent(titleC);

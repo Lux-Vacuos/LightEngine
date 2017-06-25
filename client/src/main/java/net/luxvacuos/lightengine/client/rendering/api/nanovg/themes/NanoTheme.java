@@ -25,8 +25,8 @@ import static net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme
 import static net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme.paintA;
 import static net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme.paintB;
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
+import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_CENTER;
 import static org.lwjgl.nanovg.NanoVG.*;
-import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_LEFT;
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_MIDDLE;
 import static org.lwjgl.nanovg.NanoVG.NVG_CCW;
 import static org.lwjgl.nanovg.NanoVG.NVG_CW;
@@ -52,6 +52,7 @@ import static org.lwjgl.nanovg.NanoVG.nvgMoveTo;
 import static org.lwjgl.nanovg.NanoVG.nvgPathWinding;
 import static org.lwjgl.nanovg.NanoVG.nvgRect;
 import static org.lwjgl.nanovg.NanoVG.nvgRestore;
+import static org.lwjgl.nanovg.NanoVG.nvgRoundedRectVarying;
 import static org.lwjgl.nanovg.NanoVG.nvgSave;
 import static org.lwjgl.nanovg.NanoVG.nvgScissor;
 import static org.lwjgl.nanovg.NanoVG.nvgStroke;
@@ -69,17 +70,14 @@ import static org.lwjgl.system.MemoryUtil.memUTF8;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.List;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.nanovg.NVGColor;
 import org.lwjgl.nanovg.NVGPaint;
 import org.lwjgl.nanovg.NVGTextRow;
 
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme.BackgroundStyle;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme.ButtonStyle;
-import net.luxvacuos.lightengine.client.ui.ScrollPaneElement;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class NanoTheme implements ITheme {
@@ -333,16 +331,22 @@ public class NanoTheme implements ITheme {
 	@Override
 	public void renderEditBox(long vg, String text, String font, float x, float y, float w, float h, float fontSize,
 			boolean selected) {
+		float[] bounds = new float[4];
 		renderEditBoxBase(vg, x, y, w, h, selected);
 		nvgSave(vg);
-		nvgScissor(vg, x, y, w, h);
 		nvgFontSize(vg, fontSize);
 		nvgFontFace(vg, font);
 		nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
-		nvgFillColor(vg, Theme.rgba(0, 0, 0, 255, colorA));
+		nvgFillColor(vg, buttonTextColor);
 		nvgText(vg, x + h * 0.3f, y + h * 0.5f, text);
-		nvgFillColor(vg, Theme.rgba(255, 255, 255, 100, colorA));
-		nvgText(vg, x + h * 0.3f, y + h * 0.5f, text);
+		nvgTextBounds(vg, x + h * 0.3f, y + h * 0.5f, text, bounds);
+		nvgBeginPath(vg);
+		if (selected) {
+			nvgMoveTo(vg, bounds[2], y + 5f);
+			nvgLineTo(vg, bounds[2], y + h - 5f);
+			nvgStrokeColor(vg, Theme.rgba(0, 0, 0, 255, colorA));
+			nvgStroke(vg);
+		}
 		nvgRestore(vg);
 	}
 
@@ -448,85 +452,6 @@ public class NanoTheme implements ITheme {
 	}
 
 	@Override
-	public void renderScrollPane(long vg, float x, float y, float w, float h, float t, int hSize, float cardW,
-			float cardH, List<ScrollPaneElement> elements, Window window) {
-		float stackh = (elements.size() / hSize) * (cardH + 10) + 10;
-		int i;
-		float u = t;
-		float scrollh;
-
-		nvgSave(vg);
-
-		// Window
-		nvgBeginPath(vg);
-		nvgRect(vg, x, y, w, h);
-		nvgFillColor(vg, Theme.rgba(200, 200, 200, 255, colorA));
-		nvgFill(vg);
-
-		nvgSave(vg);
-		nvgScissor(vg, x, y, w, h);
-
-		for (i = 0; i < elements.size(); i++) {
-			float tx, ty;
-			tx = x + 10;
-			ty = y + 10;
-			tx += (i % hSize) * (cardW + 10);
-			ty += (i / hSize) * (cardH + 10) - (stackh - h) * u;
-
-			nvgBeginPath(vg);
-			nvgRect(vg, tx + 0.5f, ty + 0.5f, cardW - 1, cardH - 1);
-			nvgFillColor(vg, Theme.rgba(150, 150, 150, 255, colorA));
-			nvgFill(vg);
-			nvgStrokeWidth(vg, 1.0f);
-			nvgStrokeColor(vg, Theme.rgba(64, 64, 64, 255, colorA));
-			nvgStroke(vg);
-			ScrollPaneElement e = elements.get(i);
-			e.setX(tx);
-			e.setY(window.getHeight() - ty - cardH);
-			e.render(window);
-		}
-		nvgRestore(vg);
-
-		// Scroll bar
-		nvgBeginPath(vg);
-		nvgRect(vg, x + w - 14, y + 14, 14, h - 28);
-		nvgFillColor(vg, Theme.rgba(0, 0, 0, 64, colorB));
-		nvgFill(vg);
-
-		scrollh = (h / stackh) * (h - 8);
-		nvgBeginPath(vg);
-		nvgRect(vg, x + w - 14, y + 14 + (h - 8 - scrollh) * u, 14, scrollh - 20);
-		nvgFillColor(vg, Theme.rgba(220, 220, 220, 255, colorB));
-		nvgFill(vg);
-
-		nvgBeginPath(vg);
-		nvgRect(vg, x + w - 14, y, 14, 14);
-		nvgFillColor(vg, Theme.rgba(0, 0, 0, 64, colorB));
-		nvgFill(vg);
-
-		nvgBeginPath(vg);
-		nvgMoveTo(vg, x + w - 12, y + 10);
-		nvgLineTo(vg, x + w - 7, y + 3);
-		nvgLineTo(vg, x + w - 2, y + 10);
-		nvgStrokeColor(vg, Theme.rgba(0, 0, 0, 200, colorA));
-		nvgStroke(vg);
-
-		nvgBeginPath(vg);
-		nvgRect(vg, x + w - 14, y + h - 14, 14, 14);
-		nvgFillColor(vg, Theme.rgba(0, 0, 0, 64, colorB));
-		nvgFill(vg);
-
-		nvgBeginPath(vg);
-		nvgMoveTo(vg, x + w - 12, y + h - 10);
-		nvgLineTo(vg, x + w - 7, y + h - 3);
-		nvgLineTo(vg, x + w - 2, y + h - 10);
-		nvgStrokeColor(vg, Theme.rgba(0, 0, 0, 200, colorA));
-		nvgStroke(vg);
-
-		nvgRestore(vg);
-	}
-
-	@Override
 	public void renderSpinner(long vg, float cx, float cy, float r, float t) {
 		float a0 = 0.0f + t * 6;
 		float a1 = NVG_PI + t * 6;
@@ -626,7 +551,7 @@ public class NanoTheme implements ITheme {
 		// Scroll bar
 		nvgBeginPath(vg);
 		nvgRect(vg, x + w - scrollBarSize, y + scrollBarSize, scrollBarSize, h - scrollBarSize * 2f);
-		nvgFillColor(vg, Theme.rgba(0, 0, 0, 64, colorB));
+		nvgFillColor(vg, Theme.rgba(128, 128, 128, 140, colorB));
 		nvgFill(vg);
 
 		scrollv = (h / sizeV) * (h / 2);
@@ -638,11 +563,8 @@ public class NanoTheme implements ITheme {
 
 		nvgBeginPath(vg);
 		nvgRect(vg, x + w - scrollBarSize, y, scrollBarSize, scrollBarSize);
-		nvgFillColor(vg, Theme.rgba(0, 0, 0, 100, colorB));
-		nvgFill(vg);
-		nvgBeginPath(vg);
 		nvgRect(vg, x + w - scrollBarSize, y + h - scrollBarSize, scrollBarSize, scrollBarSize);
-		nvgFillColor(vg, Theme.rgba(0, 0, 0, 100, colorB));
+		nvgFillColor(vg, Theme.rgba(80, 80, 80, 140, colorB));
 		nvgFill(vg);
 
 		nvgBeginPath(vg);
@@ -656,6 +578,35 @@ public class NanoTheme implements ITheme {
 		nvgStroke(vg);
 
 		nvgRestore(vg);
+	}
+
+	@Override
+	public void renderDropDownButton(long vg, float x, float y, float w, float h, float fontSize, String font,
+			String entypo, String text, boolean inside) {
+		nvgBeginPath(vg);
+		nvgRect(vg, x + 1, y + 1, w - 2, h - 2);
+		if (inside)
+			nvgFillColor(vg, buttonHighlight);
+		else
+			nvgFillColor(vg, buttonColor);
+		nvgFill(vg);
+
+		nvgBeginPath(vg);
+		nvgRect(vg, x + 0.5f, y + 0.5f, w - 1, h - 1);
+		nvgStrokeColor(vg, Theme.rgba(0, 0, 0, 100, colorA));
+		nvgStroke(vg);
+
+		nvgFontSize(vg, fontSize);
+		nvgFontFace(vg, font);
+		nvgFillColor(vg, buttonTextColor);
+		nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
+		nvgText(vg, x + h * 0.3f, y + h * 0.5f, text);
+
+		nvgFontSize(vg, h * 1.3f);
+		nvgFontFace(vg, entypo);
+		nvgFillColor(vg, Theme.rgba(100, 100, 100, 96, colorA));
+		nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
+		nvgText(vg, x + w - h * 0.5f, y + h * 0.5f, Theme.ICON_CHEVRON_RIGHT);
 	}
 
 	@Override

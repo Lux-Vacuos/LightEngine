@@ -19,5 +19,7 @@
 	"lightengine.optionswindow.wm.border":"Window Border",
 	"lightengine.optionswindow.wm.scrollsize":"Scroll Bar size",
 	"lightengine.optionswindow.wm.titlebarsize":"Title Bar size",
-	"lightengine.optionswindow.wm.titlebarborder":"Title Bar border"
+	"lightengine.optionswindow.wm.titlebarborder":"Title Bar border",
+	"lightengine.optionswindow.graphics.shadowres":"Shadow Resolution",
+	"lightengine.optionswindow.graphics.shadowdis":"Shadow Distance"
 }

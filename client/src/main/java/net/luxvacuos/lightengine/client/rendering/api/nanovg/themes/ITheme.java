@@ -21,14 +21,11 @@
 package net.luxvacuos.lightengine.client.rendering.api.nanovg.themes;
 
 import java.nio.ByteBuffer;
-import java.util.List;
 
 import org.lwjgl.nanovg.NVGColor;
 
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme.BackgroundStyle;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme.ButtonStyle;
-import net.luxvacuos.lightengine.client.ui.ScrollPaneElement;
 
 public interface ITheme {
 
@@ -61,9 +58,6 @@ public interface ITheme {
 	public void renderToggleButton(long vg, String text, String font, float x, float y, float w, float h,
 			float fontSize, boolean status);
 
-	public void renderScrollPane(long vg, float x, float y, float w, float h, float t, int hSize, float cardW,
-			float cardH, List<ScrollPaneElement> elements, Window window);
-
 	public void renderSpinner(long vg, float cx, float cy, float r, float t);
 
 	public float renderParagraph(long vg, float x, float y, float width, float fontSize, String font, String text,
@@ -75,6 +69,9 @@ public interface ITheme {
 	public void renderSlider(long vg, float pos, float x, float y, float w, float h);
 
 	public void renderScrollBarV(long vg, float x, float y, float w, float h, float pos, float sizeV);
+
+	public void renderDropDownButton(long vg, float x, float y, float w, float h, float fontSize, String font,
+			String entypo, String text, boolean inside);
 
 	public String getName();
 }

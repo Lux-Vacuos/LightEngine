@@ -20,13 +20,18 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.opengl.objects;
 
-public class ParticleTexture extends Texture {
+public class ParticleTexture {
 
 	private int numbreOfRows;
+	private int id;
 
 	public ParticleTexture(int id, int numbreOfRows) {
-		super(id);
+		this.id = id;
 		this.numbreOfRows = numbreOfRows;
+	}
+	
+	public int getID() {
+		return id;
 	}
 
 	public int getNumbreOfRows() {

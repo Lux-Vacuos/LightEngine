@@ -38,7 +38,6 @@ import org.lwjgl.assimp.AIMaterial;
 import org.lwjgl.assimp.AIString;
 
 import net.luxvacuos.igl.vector.Vector4f;
-import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
 /**
@@ -106,7 +105,8 @@ public class Material implements IDisposable {
 				this.diffuseTexture = loadTexture(path, rootPath);
 
 		}
-		if (aiGetMaterialTextureCount(material, aiTextureType_DIFFUSE) > 1 || aiGetMaterialTextureCount(material, aiTextureType_NORMALS) > 0) {
+		if (aiGetMaterialTextureCount(material, aiTextureType_DIFFUSE) > 1
+				|| aiGetMaterialTextureCount(material, aiTextureType_NORMALS) > 0) {
 			AIString path = AIString.create();
 			if (aiGetMaterialTexture(material, aiTextureType_DIFFUSE, 1, path, (IntBuffer) null, (IntBuffer) null,
 					(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS
@@ -214,7 +214,7 @@ public class Material implements IDisposable {
 		for (int i = 0; i < count; i++)
 			rootPath = rootPath.substring(0, rootPath.lastIndexOf("/"));
 		file = file.substring(2);
-		return GraphicalSubsystem.getMainWindow().getResourceLoader().loadTexture(rootPath + file);
+		return CachedAssets.loadTexture(rootPath + file);
 	}
 
 	private static Texture loadTextureMisc(AIString path, String rootPath) {
@@ -227,8 +227,7 @@ public class Material implements IDisposable {
 		for (int i = 0; i < count; i++)
 			rootPath = rootPath.substring(0, rootPath.lastIndexOf("/"));
 		file = file.substring(2);
-		return GraphicalSubsystem.getMainWindow().getResourceLoader()
-				.loadTextureMisc(rootPath + file);
+		return CachedAssets.loadTextureMisc(rootPath + file);
 	}
 
 }

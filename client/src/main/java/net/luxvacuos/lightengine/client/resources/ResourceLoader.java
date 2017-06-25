@@ -219,24 +219,10 @@ public class ResourceLoader implements IDisposable {
 		return new Texture(texture_id);
 	}
 
-	/**
-	 * Load Texture
-	 * 
-	 * @param fileName
-	 *            Block Texture Name
-	 * @return Texture ID
-	 */
 	public Texture loadTexture(String fileName) {
 		return loadTexture(fileName, GL_LINEAR, true);
 	}
 
-	/**
-	 * Load Texture
-	 * 
-	 * @param fileName
-	 *            Block Texture Name
-	 * @return Texture ID
-	 */
 	public Texture loadTexture(String fileName, int filter, boolean textureMipMapAF) {
 		int texture = 0;
 		try {
@@ -402,8 +388,7 @@ public class ResourceLoader implements IDisposable {
 	 *             Exception in case of error
 	 */
 	public RawModel loadObjModel(String fileName) {
-		InputStream file = getClass().getClassLoader()
-				.getResourceAsStream("assets/models/" + fileName + ".obj");
+		InputStream file = getClass().getClassLoader().getResourceAsStream("assets/models/" + fileName + ".obj");
 		Logger.log("Loading Model: " + fileName + ".obj");
 		BufferedReader reader = new BufferedReader(new InputStreamReader(file));
 		String line;

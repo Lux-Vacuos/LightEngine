@@ -24,13 +24,9 @@ import static org.lwjgl.nanovg.NanoVGGL3.nvglCreateImageFromHandle;
 import static org.lwjgl.system.MemoryUtil.memUTF8;
 
 import java.nio.ByteBuffer;
-import java.util.List;
 
 import org.lwjgl.nanovg.NVGColor;
 import org.lwjgl.nanovg.NVGPaint;
-
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
-import net.luxvacuos.lightengine.client.ui.ScrollPaneElement;
 
 public class Theme {
 
@@ -163,17 +159,12 @@ public class Theme {
 		theme.renderToggleButton(vg, text, font, x, y, w, h, fontSize, status);
 	}
 
-	public static void renderScrollPane(long vg, float x, float y, float w, float h, float t, int hSize, float cardW,
-			float cardH, List<ScrollPaneElement> elements, Window window) {
-		theme.renderScrollPane(vg, x, y, w, h, t, hSize, cardW, cardH, elements, window);
-	}
-
 	public static void renderSpinner(long vg, float cx, float cy, float r, float t) {
 		theme.renderSpinner(vg, cx, cy, r, t);
 	}
 
-	public static float renderParagraph(long vg, float x, float y, float width, float fontSize, String font, String text,
-			int align, NVGColor color) {
+	public static float renderParagraph(long vg, float x, float y, float width, float fontSize, String font,
+			String text, int align, NVGColor color) {
 		return theme.renderParagraph(vg, x, y, width, fontSize, font, text, align, color);
 	}
 
@@ -188,6 +179,11 @@ public class Theme {
 
 	public static void renderScrollBarV(long vg, float x, float y, float w, float h, float pos, float sizeV) {
 		theme.renderScrollBarV(vg, x, y, w, h, pos, sizeV);
+	}
+
+	public static void renderDropDownButton(long vg, float x, float y, float w, float h, float fontSize, String font,
+			String entypo, String text, boolean inside) {
+		theme.renderDropDownButton(vg, x, y, w, h, fontSize, font, entypo, text, inside);
 	}
 
 }

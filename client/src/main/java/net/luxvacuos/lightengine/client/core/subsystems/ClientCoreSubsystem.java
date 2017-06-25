@@ -31,8 +31,7 @@ public class ClientCoreSubsystem extends CoreSubsystem {
 
 	@Override
 	public void init() {
-		super.init();
-		REGISTRY.register(new Key("/Light Engine/Settings/World/directory"), Bootstrap.getPrefix() + "/world/");
+		super.init();		
 		gameSettings = new ClientGameSettings();
 		gameSettings.read();
 		REGISTRY.load(new File((String) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/file"))));

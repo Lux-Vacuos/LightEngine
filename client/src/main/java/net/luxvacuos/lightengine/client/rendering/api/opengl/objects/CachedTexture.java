@@ -20,24 +20,24 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.opengl.objects;
 
-import net.luxvacuos.lightengine.client.resources.ResourceLoader;
+public class CachedTexture extends Texture {
 
-public final class DefaultData {
+	int totalCached = 1;
+	boolean immortal = false;
+	String path;
 
-	public static CachedTexture diffuse, normal, roughness, metallic;
-
-	public static void init(ResourceLoader loader) {
-		diffuse = CachedAssets.loadTexture("textures/def/d.png", true);
-		normal = CachedAssets.loadTextureMisc("textures/def/d_n.png", true);
-		roughness = CachedAssets.loadTextureMisc("textures/def/d_r.png", true);
-		metallic = CachedAssets.loadTextureMisc("textures/def/d_m.png", true);
+	public CachedTexture(Texture tex, String path) {
+		super(tex.getID());
+		this.path = path;
 	}
 
-	public static void dispose() {
-		diffuse.dispose();
-		normal.dispose();
-		roughness.dispose();
-		metallic.dispose();
+	@Override
+	public void dispose() {
+		totalCached--;
+	}
+
+	void trueDispose() {
+		super.dispose();
 	}
 
 }

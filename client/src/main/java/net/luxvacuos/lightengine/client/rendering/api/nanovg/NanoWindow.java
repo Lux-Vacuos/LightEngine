@@ -51,8 +51,8 @@ import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public abstract class NanoWindow implements IWindow {
 
-	private static final float MAX_ANIM_SPEED = 2000;
-	private static final float MIN_ANIM_SPEED = 2000;
+	private static final float MAX_ANIM_SPEED = 4000;
+	private static final float MIN_ANIM_SPEED = 4000;
 
 	private boolean draggable = true, decorations = true, resizable = true, maximized, hidden, exit, toggleExit,
 			alwaysOnTop, background, blurBehind = true, minimized, closeButton = true, fadeOut, fadeIn, maxFadeIn,
@@ -237,6 +237,11 @@ public abstract class NanoWindow implements IWindow {
 		}
 		if (maxFadeIn) {
 			int height = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
+			int width = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
+			float titlebarHeight = (float) REGISTRY
+					.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
+			float shellHeight = (float) REGISTRY
+					.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/shellHeight"));
 			boolean ready = true;
 			x -= MAX_ANIM_SPEED * delta;
 			if (x <= 0)
@@ -245,26 +250,19 @@ public abstract class NanoWindow implements IWindow {
 				ready = false;
 
 			y += MAX_ANIM_SPEED * delta;
-			if (y >= height
-					- (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight")))
-				y = height - (float) REGISTRY
-						.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
+			if (y >= height - titlebarHeight)
+				y = height - titlebarHeight;
 			else
 				ready = false;
 
 			w += MAX_ANIM_SPEED * delta;
-			if (w >= (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")))
-				w = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
+			if (w >= width)
+				w = width;
 			else
 				ready = false;
 			h += MAX_ANIM_SPEED * delta;
-			if (h >= height
-					- (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"))
-					- (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/shellHeight")))
-				h = height
-						- (float) REGISTRY
-								.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"))
-						- (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/shellHeight"));
+			if (h >= height - titlebarHeight - shellHeight)
+				h = height - titlebarHeight - shellHeight;
 			else
 				ready = false;
 			if (ready) {

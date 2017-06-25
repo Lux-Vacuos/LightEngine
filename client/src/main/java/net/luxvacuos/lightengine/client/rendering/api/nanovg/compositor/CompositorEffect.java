@@ -18,7 +18,7 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.api.nanovg;
+package net.luxvacuos.lightengine.client.rendering.api.nanovg.compositor;
 
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 import static org.lwjgl.nanovg.NanoVGGL3.nvgluBindFramebuffer;
@@ -38,6 +38,7 @@ import org.lwjgl.nanovg.NVGLUFramebuffer;
 import net.luxvacuos.igl.vector.Vector2f;
 import net.luxvacuos.igl.vector.Vector4f;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.IWindow;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.shaders.WindowManagerShader;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.GPUProfiler;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.RawModel;

@@ -28,7 +28,6 @@ import static org.lwjgl.opengl.GL11.glGetString;
 import static org.lwjgl.stb.STBImage.stbi_failure_reason;
 import static org.lwjgl.stb.STBImage.stbi_image_free;
 import static org.lwjgl.stb.STBImage.stbi_info_from_memory;
-import static org.lwjgl.stb.STBImage.stbi_is_hdr_from_memory;
 import static org.lwjgl.stb.STBImage.stbi_load_from_memory;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -108,9 +107,6 @@ public final class WindowManager {
 			if (!stbi_info_from_memory(imageBuffer, w, h, comp))
 				throw new DecodeTextureException("Failed to read image information: " + stbi_failure_reason());
 
-			Logger.log("Image width: " + w.get(0), "Image height: " + h.get(0), "Image components: " + comp.get(0),
-					"Image HDR: " + stbi_is_hdr_from_memory(imageBuffer));
-
 			ByteBuffer image = stbi_load_from_memory(imageBuffer, w, h, comp, 0);
 			if (image == null)
 				throw new DecodeTextureException("Failed to load image: " + stbi_failure_reason());
@@ -138,9 +134,6 @@ public final class WindowManager {
 
 				if (!stbi_info_from_memory(imageBuffer, w, h, comp))
 					throw new DecodeTextureException("Failed to read image information: " + stbi_failure_reason());
-
-				Logger.log("Image width: " + w.get(0), "Image height: " + h.get(0), "Image components: " + comp.get(0),
-						"Image HDR: " + stbi_is_hdr_from_memory(imageBuffer));
 
 				icon.image = stbi_load_from_memory(imageBuffer, w, h, comp, 0);
 				if (icon.image == null)

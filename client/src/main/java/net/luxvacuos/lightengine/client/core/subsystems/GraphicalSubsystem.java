@@ -52,6 +52,7 @@ import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.ThemeManager;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.ParticleDomain;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CachedAssets;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.DefaultData;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.ShaderIncludes;
 import net.luxvacuos.lightengine.client.resources.ResourceLoader;
@@ -137,6 +138,7 @@ public class GraphicalSubsystem implements ISubsystem {
 
 	@Override
 	public void update(float delta) {
+		CachedAssets.update();
 		WindowManager.update();
 	}
 
@@ -152,6 +154,7 @@ public class GraphicalSubsystem implements ISubsystem {
 		entypo.dispose();
 		DefaultData.dispose();
 		Renderer.cleanUp();
+		CachedAssets.dispose();
 		windowManager.dispose();
 		WindowManager.closeAllDisplays();
 		GLFW.glfwTerminate();
