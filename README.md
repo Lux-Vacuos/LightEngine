@@ -1,3 +1,3 @@
-## Light Engine (Prototype)
+## Light Engine (WIP)
 
-Based on Voxel code.
+Advanced OpenGL based game engine.
