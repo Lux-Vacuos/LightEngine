@@ -54,7 +54,6 @@ import static org.lwjgl.nanovg.NanoVG.nvgRect;
 import static org.lwjgl.nanovg.NanoVG.nvgRestore;
 import static org.lwjgl.nanovg.NanoVG.nvgRoundedRectVarying;
 import static org.lwjgl.nanovg.NanoVG.nvgSave;
-import static org.lwjgl.nanovg.NanoVG.nvgScissor;
 import static org.lwjgl.nanovg.NanoVG.nvgStroke;
 import static org.lwjgl.nanovg.NanoVG.nvgStrokeColor;
 import static org.lwjgl.nanovg.NanoVG.nvgStrokeWidth;
@@ -215,15 +214,13 @@ public class NanoTheme implements ITheme {
 			nvgFillColor(vg, titleBarButtonColor);
 		nvgFill(vg);
 
+		nvgBeginPath(vg);
 		switch (style) {
 		case CLOSE:
-			nvgBeginPath(vg);
 			nvgMoveTo(vg, x + w / 2 - 6, y + h / 2 - 6);
 			nvgLineTo(vg, x + w / 2 + 6, y + h / 2 + 6);
 			nvgMoveTo(vg, x + w / 2 - 6, y + h / 2 + 6);
 			nvgLineTo(vg, x + w / 2 + 6, y + h / 2 - 6);
-			nvgStrokeColor(vg, Theme.rgba(0, 0, 0, 255, colorA));
-			nvgStroke(vg);
 			break;
 		case MAXIMIZE:
 			nvgBeginPath(vg);
@@ -232,15 +229,11 @@ public class NanoTheme implements ITheme {
 			nvgLineTo(vg, x + w / 2 + 6, y + h / 2 + 6);
 			nvgLineTo(vg, x + w / 2 - 6, y + h / 2 + 6);
 			nvgLineTo(vg, x + w / 2 - 6, y + h / 2 - 6);
-			nvgStrokeColor(vg, Theme.rgba(0, 0, 0, 255, colorA));
-			nvgStroke(vg);
 			break;
 		case MINIMIZE:
 			nvgBeginPath(vg);
 			nvgMoveTo(vg, x + w / 2 - 6, y + h / 2);
 			nvgLineTo(vg, x + w / 2 + 6, y + h / 2);
-			nvgStrokeColor(vg, Theme.rgba(0, 0, 0, 255, colorA));
-			nvgStroke(vg);
 			break;
 		case LEFT_ARROW:
 			nvgBeginPath(vg);
@@ -249,8 +242,6 @@ public class NanoTheme implements ITheme {
 			nvgLineTo(vg, x + w / 2, y + h / 2 - 6);
 			nvgMoveTo(vg, x + w / 2 - 6, y + h / 2);
 			nvgLineTo(vg, x + w / 2 + 6, y + h / 2);
-			nvgStrokeColor(vg, Theme.rgba(0, 0, 0, 255, colorA));
-			nvgStroke(vg);
 			break;
 		case RIGHT_ARROW:
 			nvgBeginPath(vg);
@@ -259,12 +250,12 @@ public class NanoTheme implements ITheme {
 			nvgLineTo(vg, x + w / 2, y + h / 2 - 6);
 			nvgMoveTo(vg, x + w / 2 + 6, y + h / 2);
 			nvgLineTo(vg, x + w / 2 - 6, y + h / 2);
-			nvgStrokeColor(vg, Theme.rgba(0, 0, 0, 255, colorA));
-			nvgStroke(vg);
 			break;
 		case NONE:
 			break;
 		}
+		nvgStrokeColor(vg, Theme.rgba(0, 0, 0, 255, colorA));
+		nvgStroke(vg);
 		nvgRestore(vg);
 	}
 
