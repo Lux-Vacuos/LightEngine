@@ -98,7 +98,7 @@ public class LightEngineClient extends AbstractEngine {
 		int fps = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/fps"));
 		Window window = GraphicalSubsystem.getMainWindow();
 		while (StateMachine.isRunning() && !(window.isCloseRequested())) {
-			 //Timers.startCPUTimer();
+			 Timers.startCPUTimer();
 			TaskManager.update();
 			if (window.getTimeCount() > 1f) {
 				CoreSubsystem.ups = CoreSubsystem.upsCount;
@@ -114,14 +114,14 @@ public class LightEngineClient extends AbstractEngine {
 				accumulator -= interval;
 			}
 			alpha = accumulator / interval;
-			 //Timers.stopCPUTimer();
-			 //Timers.startGPUTimer();
+			 Timers.stopCPUTimer();
+			 Timers.startGPUTimer();
 			GPUProfiler.startFrame();
 			GPUProfiler.start("Render");
 			StateMachine.render(alpha);
 			GPUProfiler.end();
-			 //Timers.stopGPUTimer();
-			 //Timers.update();
+			 Timers.stopGPUTimer();
+			 Timers.update();
 			window.updateDisplay(fps);
 			GPUProfiler.endFrame();
 		}

@@ -98,7 +98,7 @@ public class NanoWindowManager implements IWindowManager {
 		Theme.renderImage(this.window.getNVGID(), 0, 0, window.getWidth(), window.getHeight(),
 				compositor.getFbos()[0].image(), 1f);
 		if (ClientVariables.debug) {
-/*
+
 			Timers.renderDebugDisplay(5, 24, 200, 55);
 			Theme.renderText(window.getNVGID(), "Light Engine " + " (" + ClientVariables.version + ")", "Roboto-Bold",
 					NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 12, 20, Theme.rgba(220, 220, 220, 255, Theme.colorA));
@@ -108,7 +108,7 @@ public class NanoWindowManager implements IWindowManager {
 			Theme.renderText(window.getNVGID(), "Used RAM: " + Runtime.getRuntime().totalMemory() / 1028 + "KB ",
 					"Roboto-Bold", NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 110, 20,
 					Theme.rgba(220, 220, 220, 255, Theme.colorA));
-*/
+
 		}
 		this.window.endNVGFrame();
 		GPUProfiler.end();
