@@ -22,6 +22,8 @@ package net.luxvacuos.lightengine.client.core;
 
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.Timers;
+
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 
