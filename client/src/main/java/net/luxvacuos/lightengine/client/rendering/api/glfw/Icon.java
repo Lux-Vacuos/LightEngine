@@ -18,7 +18,6 @@
  * 
  */
 
-
 package net.luxvacuos.lightengine.client.rendering.api.glfw;
 
 import java.nio.ByteBuffer;

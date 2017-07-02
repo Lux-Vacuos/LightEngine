@@ -20,12 +20,18 @@
 
 package net.luxvacuos.lightengine.client.ui.windows;
 
+import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
+
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
 import net.luxvacuos.lightengine.client.ui.Image;
+import net.luxvacuos.lightengine.universal.core.TaskManager;
+import net.luxvacuos.lightengine.universal.util.registry.Key;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 
 public class GameWindow extends ComponentWindow {
+
+	private Image game;
 
 	public GameWindow(float x, float y, float w, float h) {
 		super(x, y, w, h, "game");
@@ -33,18 +39,28 @@ public class GameWindow extends ComponentWindow {
 
 	@Override
 	public void initApp(Window window) {
-		super.setBackgroundColor(0.0f, 0.0f, 0.0f, 0.5f);
+		super.setBackgroundColor(0.0f, 0.0f, 0.0f, 1f);
 		super.setResizable(false);
 		super.setDecorations(false);
 		super.setAsBackground(true);
 		super.setBlurBehind(false);
 		super.toggleTitleBar();
 
-		Image game = new Image(0, 0, w, h, Renderer.getResultTexture(), false);
+		game = new Image(0, 0, w, h, Renderer.getResultTexture(), false);
+		game.setResizeH(true);
+		game.setResizeV(true);
 
 		super.addComponent(game);
 
 		super.initApp(window);
+	}
+
+	@Override
+	public void onMainResize() {
+		y = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
+		w = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
+		h = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
+		TaskManager.addTask(() -> game.setImage(Renderer.getResultTexture()));
 	}
 
 }

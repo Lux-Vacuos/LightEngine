@@ -68,7 +68,6 @@ public abstract class AbstractWindow implements IWindow {
 	protected int framebufferWidth = 0;
 	protected int framebufferHeight = 0;
 
-	protected boolean latestResized = false;
 	protected float pixelRatio;
 
 	protected long nvgID;
@@ -97,7 +96,6 @@ public abstract class AbstractWindow implements IWindow {
 		glfwSetWindowRefreshCallback(windowID, WindowManager.windowRefreshCallback);
 		glfwSetFramebufferSizeCallback(windowID, WindowManager.framebufferSizeCallback);
 		glfwSetScrollCallback(windowID, WindowManager.scrollCallback);
-		glfwSetWindowRefreshCallback(windowID, WindowManager.refreshCallback);
 	}
 
 	@Override

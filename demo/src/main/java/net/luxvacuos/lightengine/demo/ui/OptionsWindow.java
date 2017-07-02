@@ -27,6 +27,7 @@ import java.util.Arrays;
 
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme.ButtonStyle;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.Button;
 import net.luxvacuos.lightengine.client.ui.Container;
@@ -190,9 +191,11 @@ public class OptionsWindow extends ComponentWindow {
 				new Key("/Light Engine/Settings/Graphics/chromaticAberration"), chromaticAberrationButton.getStatus()));
 		lensFlaresButton.setOnButtonPress(() -> REGISTRY.register(new Key("/Light Engine/Settings/Graphics/lensFlares"),
 				lensFlaresButton.getStatus()));
-		shadowResDropdown
-				.setOnButtonPress(() -> REGISTRY.register(new Key("/Light Engine/Settings/Graphics/shadowsResolution"),
-						shadowResDropdown.getValue().intValue()));
+		shadowResDropdown.setOnButtonPress(() -> {
+			REGISTRY.register(new Key("/Light Engine/Settings/Graphics/shadowsResolution"),
+					shadowResDropdown.getValue().intValue());
+			Renderer.reloadShadowMaps();
+		});
 
 		Text godText = new Text(LANG.getRegistryItem("lightengine.optionswindow.graphics.volumetriclight"), 20, 0);
 		godText.setWindowAlignment(Alignment.LEFT);
@@ -438,6 +441,8 @@ public class OptionsWindow extends ComponentWindow {
 
 	@Override
 	public void onClose() {
+		if (act != null)
+			act.onAction();
 		CoreSubsystem.REGISTRY.save();
 	}
 

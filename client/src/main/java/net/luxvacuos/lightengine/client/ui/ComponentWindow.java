@@ -69,5 +69,9 @@ public class ComponentWindow extends NanoWindow {
 	public void setLayout(ILayout layout) {
 		rootComponent.setLayout(layout);
 	}
+	
+	public void removeComponent(Component component) {
+		rootComponent.removeComponent(component);
+	}
 
 }

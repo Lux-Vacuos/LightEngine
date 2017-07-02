@@ -36,7 +36,6 @@ import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.client.util.Maths;
-import net.luxvacuos.lightengine.universal.core.TaskManager;
 
 public abstract class PostProcessPipeline implements IPostProcessPipeline {
 
@@ -71,7 +70,7 @@ public abstract class PostProcessPipeline implements IPostProcessPipeline {
 		previousViewMatrix = new Matrix4d();
 		init();
 		for (IPostProcessPass deferredPass : imagePasses) {
-			TaskManager.addTask(() -> deferredPass.init());
+			deferredPass.init();
 		}
 	}
 
@@ -105,7 +104,7 @@ public abstract class PostProcessPipeline implements IPostProcessPipeline {
 	public void dispose() {
 		if (texture != -1)
 			nvgDeleteImage(window.getNVGID(), texture);
-		fbo.cleanUp();
+		fbo.dispose();
 		for (IPostProcessPass deferredPass : imagePasses) {
 			deferredPass.dispose();
 		}

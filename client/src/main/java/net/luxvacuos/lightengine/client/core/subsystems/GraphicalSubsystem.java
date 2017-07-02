@@ -84,7 +84,8 @@ public class GraphicalSubsystem implements ISubsystem {
 		WindowHandle handle = WindowManager.generateHandle(
 				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
 				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")), GlobalVariables.PROJECT);
-		handle.canResize(false).isVisible(false).setIcon(icons).setCursor("arrow").useDebugContext(GlobalVariables.debug);
+		handle.isVisible(false).setIcon(icons).setCursor("arrow")
+				.useDebugContext(GlobalVariables.debug);
 		PixelBufferHandle pb = new PixelBufferHandle();
 		pb.setSrgbCapable(1);
 		handle.setPixelBuffer(pb);
@@ -102,8 +103,6 @@ public class GraphicalSubsystem implements ISubsystem {
 
 		setWindowManager(new NanoWindowManager(window));
 
-		window.setVisible(true);
-		window.updateDisplay((int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/fps")));
 		Timers.initDebugDisplay();
 		ResourceLoader loader = window.getResourceLoader();
 		robotoRegular = loader.loadNVGFont("Roboto-Regular", "Roboto-Regular");
@@ -130,6 +129,11 @@ public class GraphicalSubsystem implements ISubsystem {
 		REGISTRY.register(new Key("/Light Engine/System/assimp"),
 				aiGetVersionMajor() + "." + aiGetVersionMinor() + "." + aiGetVersionRevision());
 		REGISTRY.register(new Key("/Light Engine/System/vk"), "Not Available");
+		window.setVisible(true);
+		for (int x = 0; x < 16; x++) {
+			window.updateDisplay((int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/fps")));
+			WindowManager.update();
+		}
 	}
 
 	@Override
@@ -138,6 +142,12 @@ public class GraphicalSubsystem implements ISubsystem {
 
 	@Override
 	public void update(float delta) {
+		if(window.wasResized()) {
+			REGISTRY.register(new Key("/Light Engine/Display/width"), window.getWidth());
+			REGISTRY.register(new Key("/Light Engine/Display/height"), window.getHeight());
+			Renderer.reloadDeferred();
+			windowManager.reloadCompositor();
+		}
 		CachedAssets.update();
 		WindowManager.update();
 	}

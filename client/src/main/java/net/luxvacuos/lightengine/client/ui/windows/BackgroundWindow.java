@@ -21,6 +21,7 @@
 package net.luxvacuos.lightengine.client.ui.windows;
 
 import static net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme.colorA;
+import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 import static org.lwjgl.nanovg.NanoVG.nvgBeginPath;
 import static org.lwjgl.nanovg.NanoVG.nvgLineTo;
 import static org.lwjgl.nanovg.NanoVG.nvgMoveTo;
@@ -30,6 +31,7 @@ import static org.lwjgl.nanovg.NanoVG.nvgStrokeColor;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 import net.luxvacuos.lightengine.client.ui.RenderArea;
+import net.luxvacuos.lightengine.universal.util.registry.Key;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 
 public class BackgroundWindow extends ComponentWindow {
@@ -47,6 +49,8 @@ public class BackgroundWindow extends ComponentWindow {
 		super.setBlurBehind(false);
 		super.setBackgroundColor("#FFFFFFFF");
 		RenderArea area = new RenderArea(0, 0, w, h);
+		area.setResizeH(true);
+		area.setResizeV(true);
 		area.setOnRender((vg, x, y, w, h) -> {
 			nvgSave(vg);
 			nvgBeginPath(vg);
@@ -85,6 +89,13 @@ public class BackgroundWindow extends ComponentWindow {
 		super.addComponent(area);
 
 		super.initApp(window);
+	}
+	
+	@Override
+	public void onMainResize() {
+		y = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
+		w = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
+		h = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
 	}
 
 }

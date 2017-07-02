@@ -212,6 +212,10 @@ public final class WindowManager {
 	}
 
 	public static void update() {
+		for (Window window : windows) {
+			window.dirty = false;
+			window.resized = false;
+		}
 		glfwPollEvents();
 		Mouse.poll();
 	}
@@ -233,7 +237,6 @@ public final class WindowManager {
 	protected static GLFWWindowRefreshCallback windowRefreshCallback;
 	protected static GLFWFramebufferSizeCallback framebufferSizeCallback;
 	protected static GLFWScrollCallback scrollCallback;
-	protected static GLFWWindowRefreshCallback refreshCallback;
 
 	private static IntBuffer maxVram = BufferUtils.createIntBuffer(1);
 	private static IntBuffer usedVram = BufferUtils.createIntBuffer(1);
@@ -296,6 +299,7 @@ public final class WindowManager {
 				window.height = h.get(0);
 				window.pixelRatio = (float) window.framebufferWidth / (float) window.width;
 				window.resetViewport();
+				window.resized = true;
 			}
 		};
 
@@ -328,13 +332,6 @@ public final class WindowManager {
 					return;
 				window.framebufferWidth = width;
 				window.framebufferHeight = height;
-			}
-		};
-
-		refreshCallback = new GLFWWindowRefreshCallback() {
-			@Override
-			public void invoke(long window) {
-				GLFW.glfwSwapBuffers(window);
 			}
 		};
 

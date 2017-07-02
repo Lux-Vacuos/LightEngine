@@ -57,9 +57,8 @@ import java.nio.ByteBuffer;
 
 import net.luxvacuos.lightengine.client.core.exception.FrameBufferException;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
-import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
-public class LightShadowMap implements IDisposable {
+public class LightShadowMap implements IFBO {
 
 	private int fbo, shadowRB;
 
@@ -73,7 +72,8 @@ public class LightShadowMap implements IDisposable {
 		init(width, height);
 	}
 
-	private void init(int width, int height) {
+	@Override
+	public void init(int width, int height) {
 
 		float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
@@ -111,11 +111,13 @@ public class LightShadowMap implements IDisposable {
 		glDeleteRenderbuffers(shadowRB);
 	}
 
+	@Override
 	public void begin() {
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 		glViewport(0, 0, width, height);
 	}
 
+	@Override
 	public void end() {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		GraphicalSubsystem.getMainWindow().resetViewport();

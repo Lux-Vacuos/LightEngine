@@ -111,7 +111,7 @@ public abstract class PostProcessPass implements IPostProcessPass {
 	@Override
 	public void dispose() {
 		shader.dispose();
-		fbo.cleanUp();
+		fbo.dispose();
 	}
 
 	public FBO getFbo() {

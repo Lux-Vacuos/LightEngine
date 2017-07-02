@@ -60,5 +60,9 @@ public class Image extends Component {
 		if (deleteOnClose)
 			nvgDeleteImage(GraphicalSubsystem.getMainWindow().getNVGID(), image);
 	}
+	
+	public void setImage(int image) {
+		this.image = image;
+	}
 
 }

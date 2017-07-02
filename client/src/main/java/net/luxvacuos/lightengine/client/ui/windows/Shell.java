@@ -20,6 +20,8 @@
 
 package net.luxvacuos.lightengine.client.ui.windows;
 
+import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -141,6 +143,11 @@ public class Shell extends ComponentWindow implements IShell {
 			fadeIn = false;
 			fadeOut = true;
 		}
+	}
+	
+	@Override
+	public void onMainResize() {
+		w = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
 	}
 
 	@Override

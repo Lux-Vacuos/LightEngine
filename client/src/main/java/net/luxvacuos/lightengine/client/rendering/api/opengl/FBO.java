@@ -58,7 +58,7 @@ import java.nio.ByteBuffer;
 import net.luxvacuos.lightengine.client.core.exception.FrameBufferException;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 
-public class FBO {
+public class FBO implements IFBO {
 
 	private int fbo, rt, depthBuffer;
 
@@ -69,10 +69,11 @@ public class FBO {
 	public FBO(int width, int height) {
 		this.width = width;
 		this.height = height;
-		init();
+		init(width, height);
 	}
 
-	private void init() {
+	@Override
+	public void init(int width, int height) {
 		fbo = glGenFramebuffers();
 		rt = glGenRenderbuffers();
 		depthBuffer = glGenRenderbuffers();
@@ -103,17 +104,20 @@ public class FBO {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
+	@Override
 	public void begin() {
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 		glViewport(0, 0, width, height);
 	}
 
+	@Override
 	public void end() {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		GraphicalSubsystem.getMainWindow().resetViewport();
 	}
 
-	public void cleanUp() {
+	@Override
+	public void dispose() {
 		glDeleteTextures(tex);
 		glDeleteFramebuffers(fbo);
 		glDeleteRenderbuffers(rt);

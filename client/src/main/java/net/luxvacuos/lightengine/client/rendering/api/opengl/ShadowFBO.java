@@ -58,7 +58,7 @@ import java.nio.ByteBuffer;
 import net.luxvacuos.lightengine.client.core.exception.FrameBufferException;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 
-public class ShadowFBO {
+public class ShadowFBO implements IFBO {
 
 	private int fbo, shadowRB;
 
@@ -73,7 +73,8 @@ public class ShadowFBO {
 		init(width, height);
 	}
 
-	private void init(int width, int height) {
+	@Override
+	public void init(int width, int height) {
 
 		float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
@@ -137,7 +138,8 @@ public class ShadowFBO {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
-	public void cleanUp() {
+	@Override
+	public void dispose() {
 		for (int i : shadowMaps) {
 			glDeleteTextures(i);
 		}
@@ -145,11 +147,13 @@ public class ShadowFBO {
 		glDeleteRenderbuffers(shadowRB);
 	}
 
+	@Override
 	public void begin() {
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 		glViewport(0, 0, width, height);
 	}
 
+	@Override
 	public void end() {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		GraphicalSubsystem.getMainWindow().resetViewport();

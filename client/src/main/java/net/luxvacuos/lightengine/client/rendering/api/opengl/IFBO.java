@@ -18,39 +18,16 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.api.nanovg;
+package net.luxvacuos.lightengine.client.rendering.api.opengl;
 
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
-public interface IWindowManager extends IDisposable {
-
-	public void render();
-
-	public void update(float delta);
-
-	public void addWindow(IWindow window);
-
-	public void addWindow(int ord, IWindow window);
-
-	public void removeWindow(IWindow window);
-
-	public void bringToFront(IWindow window);
-
-	public boolean isOnTop(IWindow window);
+public interface IFBO extends IDisposable {
 	
-	public boolean existWindow(IWindow window);
-
-	public void notifyAdd(IWindow window);
-
-	public void notifyClose(IWindow window);
-
-	public void setShell(IShell shell);
-
-	public void toggleShell();
-
-	public boolean isShellEnabled();
+	public void init(int width, int height);
 	
-	public void reloadCompositor();
+	public void begin();
 	
+	public void end();
 
 }

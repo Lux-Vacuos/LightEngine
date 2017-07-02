@@ -43,6 +43,7 @@ import java.util.Map;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.utils.ImmutableArray;
 
+import net.luxvacuos.igl.Logger;
 import net.luxvacuos.igl.vector.Matrix4d;
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
@@ -54,6 +55,7 @@ import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Light;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.ParticleTexture;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.pipeline.MultiPass;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.pipeline.PostProcess;
+import net.luxvacuos.lightengine.client.ui.OnAction;
 import net.luxvacuos.lightengine.client.world.particles.Particle;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
@@ -79,9 +81,13 @@ public class Renderer {
 
 	private static IRenderPass shadowPass, deferredPass, forwardPass, occlusionPass;
 
+	private static OnAction onResize;
+
 	private static float exposure = 1;
 
 	private static int shadowResolution;
+
+	private static boolean reloading;
 
 	public static void init(Window window) {
 		Renderer.window = window;
@@ -229,7 +235,7 @@ public class Renderer {
 		if (environmentRenderer != null)
 			environmentRenderer.cleanUp();
 		if (shadowFBO != null)
-			shadowFBO.cleanUp();
+			shadowFBO.dispose();
 		if (entityRenderer != null)
 			entityRenderer.cleanUp();
 		if (entityShadowRenderer != null)
@@ -268,12 +274,40 @@ public class Renderer {
 		Renderer.occlusionPass = occlusionPass;
 	}
 
+	public static void setOnResize(OnAction onResize) {
+		Renderer.onResize = onResize;
+	}
+
 	public static Frustum getFrustum() {
 		return frustum;
 	}
 
 	public static LightRenderer getLightRenderer() {
 		return lightRenderer;
+	}
+
+	public static void reloadShadowMaps() {
+		Logger.log("Reloading Shadow Maps");
+		shadowFBO.dispose();
+		shadowResolution = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/shadowsResolution"));
+
+		if (shadowResolution > GLUtil.getTextureMaxSize())
+			shadowResolution = GLUtil.getTextureMaxSize();
+		shadowFBO = new ShadowFBO(shadowResolution, shadowResolution);
+	}
+
+	public static void reloadDeferred() {
+		if (!reloading) {
+			reloading = true;
+			if (onResize != null)
+				onResize.onAction();
+			Logger.log("Reloading Deferred");
+			deferredPipeline.dispose();
+			postProcessPipeline.dispose();
+			deferredPipeline = new MultiPass();
+			postProcessPipeline = new PostProcess(window);
+			reloading = false;
+		}
 	}
 
 	public static void init() {

@@ -133,5 +133,9 @@ public interface IWindow {
 	public void closeWindow();
 
 	public boolean isAlwaysOnTop();
+	
+	public void reloadFBO(Window window);
+	
+	public void onMainResize();
 
 }

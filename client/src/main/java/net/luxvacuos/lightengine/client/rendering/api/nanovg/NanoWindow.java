@@ -321,10 +321,8 @@ public abstract class NanoWindow implements IWindow {
 	private boolean canResizeTop(float borderSize) {
 		if (titleBar.isEnabled())
 			return Mouse.getX() > x
-					&& Mouse.getY() < y
-							+ (float) REGISTRY
-									.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"))
-							+ borderSize
+					&& Mouse.getY() < y + (float) REGISTRY.getRegistryItem(
+							new Key("/Light Engine/Settings/WindowManager/titleBarHeight")) + borderSize
 					&& Mouse.getX() < x + w
 					&& Mouse.getY() > y + (float) REGISTRY
 							.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"))
@@ -609,6 +607,17 @@ public abstract class NanoWindow implements IWindow {
 			hidden = true;
 			break;
 		}
+	}
+
+	@Override
+	public void reloadFBO(Window window) {
+		nvgluDeleteFramebuffer(window.getNVGID(), fbo);
+		fbo = nvgluCreateFramebuffer(window.getNVGID(), (int) (window.getWidth() * window.getPixelRatio()),
+				(int) (window.getHeight() * window.getPixelRatio()), 0);
+	}
+	
+	@Override
+	public void onMainResize() {
 	}
 
 }

@@ -134,7 +134,7 @@ public abstract class DeferredPass implements IDeferredPass {
 	@Override
 	public void dispose() {
 		shader.dispose();
-		fbo.cleanUp();
+		fbo.dispose();
 	}
 
 	public FBO getFbo() {

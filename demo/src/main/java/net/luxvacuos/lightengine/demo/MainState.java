@@ -12,12 +12,12 @@ import com.badlogic.ashley.core.Engine;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 
-import net.luxvacuos.igl.vector.Matrix4d;
 import net.luxvacuos.igl.vector.Vector3d;
 import net.luxvacuos.igl.vector.Vector3f;
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.core.ClientWorldSimulation;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
+import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.PlayerCamera;
 import net.luxvacuos.lightengine.client.ecs.entities.RenderEntity;
@@ -33,7 +33,6 @@ import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Light;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Model;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.ParticleTexture;
 import net.luxvacuos.lightengine.client.resources.AssimpResourceLoader;
-import net.luxvacuos.lightengine.client.resources.ResourceLoader;
 import net.luxvacuos.lightengine.client.ui.windows.GameWindow;
 import net.luxvacuos.lightengine.client.world.particles.ParticleSystem;
 import net.luxvacuos.lightengine.demo.ui.PauseWindow;
@@ -71,13 +70,18 @@ public class MainState extends AbstractState {
 	public void start() {
 		Window window = GraphicalSubsystem.getMainWindow();
 
-		Matrix4d projectionMatrix = Renderer.createProjectionMatrix(window.getWidth(), window.getHeight(),
-				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/fov")), ClientVariables.NEAR_PLANE,
-				ClientVariables.FAR_PLANE);
-
-		camera = new PlayerCamera(projectionMatrix, "player", UUID.randomUUID().toString());
+		camera = new PlayerCamera("player", UUID.randomUUID().toString());
 		camera.setPosition(new Vector3d(0, 2, 0));
 		sun = new Sun();
+		
+		Renderer.setOnResize(() -> {
+			ClientComponents.PROJECTION_MATRIX.get(camera)
+			.setProjectionMatrix(Renderer.createProjectionMatrix(
+					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
+					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
+					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/fov")),
+					ClientVariables.NEAR_PLANE, ClientVariables.FAR_PLANE));
+		});
 
 		AssimpResourceLoader aLoader = window.getAssimpResourceLoader();
 
@@ -102,11 +106,11 @@ public class MainState extends AbstractState {
 		light0 = new Light(new Vector3d(4.5f, 4.2f, 8f), new Vector3f(100, 100, 100), new Vector3d(245, -45, 0), 50,
 				40);
 		light0.setShadow(true);
-		//Renderer.getLightRenderer().addLight(light0);
+		Renderer.getLightRenderer().addLight(light0);
 		light1 = new Light(new Vector3d(-4.5f, 4.2f, 8f), new Vector3f(100, 100, 100), new Vector3d(245, 45, 0), 50,
 				40);
 		light1.setShadow(true);
-		//Renderer.getLightRenderer().addLight(light1);
+		Renderer.getLightRenderer().addLight(light1);
 
 		mat1 = new RenderEntity("", sphere);
 		mat1.getComponent(Position.class).set(0, 1, 0);
@@ -145,8 +149,7 @@ public class MainState extends AbstractState {
 		character.getComponent(Position.class).set(0, 0, 5);
 		// character.getComponent(Scale.class).setScale(0.21f);
 		/*
-		 * cerberusM =
-		 * aLoader.loadModel("levels/test_state/models/cerberus.blend");
+		 * cerberusM = aLoader.loadModel("levels/test_state/models/cerberus.blend");
 		 * 
 		 * cerberus = new RenderEntity("", cerberusM);
 		 * cerberus.getComponent(Position.class).set(5, 1.25f, 5);
@@ -154,17 +157,13 @@ public class MainState extends AbstractState {
 		 */
 
 		// worldSimulation.setTime(22000);
-		
-		
-		
-		
+
 		fire = CachedAssets.loadTexture("textures/particles/fire0.png");
 
 		particleSystem = new ParticleSystem(new ParticleTexture(fire.getID(), 4), 1000, 1, -1f, 3f, 6f);
 		particleSystem.setDirection(new Vector3d(0, -1, 0), 0.4f);
 		particlesPoint = new Vector3d(0, 1.7f, -5);
-		
-		
+
 		camera.setPosition(new Vector3d(0, 2, 0));
 		physicsSystem.getEngine().addEntity(camera);
 		physicsSystem.getEngine().addEntity(plane);
@@ -210,7 +209,7 @@ public class MainState extends AbstractState {
 			Renderer.update(delta);
 			engine.update(delta);
 			sun.update(camera.getPosition(), worldSimulation.update(delta), delta);
-			// particleSystem.generateParticles(particlesPoint, delta);
+			particleSystem.generateParticles(particlesPoint, delta);
 			ParticleDomain.update(delta, camera);
 			light0.getPosition().set(Math.sin(worldSimulation.getGlobalTime() / 8f) * 3f + 4.5f, 8.2f, 8f);
 			light1.getPosition().set(Math.sin(worldSimulation.getGlobalTime() / 7f) * 3f - 4.5f, 8.2f, 8f);

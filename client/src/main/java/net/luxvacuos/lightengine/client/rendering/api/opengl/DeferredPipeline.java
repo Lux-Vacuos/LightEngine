@@ -54,7 +54,6 @@ import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Texture;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.DeferredShadingShader;
 import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
-import net.luxvacuos.lightengine.universal.core.TaskManager;
 
 public abstract class DeferredPipeline implements IDeferredPipeline {
 
@@ -94,7 +93,7 @@ public abstract class DeferredPipeline implements IDeferredPipeline {
 		finalShader.stop();
 		init();
 		for (IDeferredPass deferredPass : imagePasses) {
-			TaskManager.addTask(() -> deferredPass.init());
+			deferredPass.init();
 		}
 	}
 

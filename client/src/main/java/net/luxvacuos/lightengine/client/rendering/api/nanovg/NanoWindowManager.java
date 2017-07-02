@@ -254,4 +254,25 @@ public class NanoWindowManager implements IWindowManager {
 		return false;
 	}
 
+	@Override
+	public void reloadCompositor() {
+		compositor.dispose(window);
+		width = (int) (window.getWidth() * window.getPixelRatio());
+		height = (int) (window.getHeight() * window.getPixelRatio());
+
+		if (width > GLUtil.getTextureMaxSize())
+			width = GLUtil.getTextureMaxSize();
+		if (height > GLUtil.getTextureMaxSize())
+			height = GLUtil.getTextureMaxSize();
+		compositor = new Compositor(window, width, height);
+		compositor.addEffect(new MaskBlur(width, height));
+		compositor.addEffect(new GaussianV(width, height));
+		compositor.addEffect(new GaussianH(width, height));
+		compositor.addEffect(new Final(width, height));
+		for (IWindow window : windows) {
+			window.reloadFBO(this.window);
+			window.onMainResize();
+		}
+	}
+
 }

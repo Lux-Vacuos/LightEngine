@@ -155,8 +155,8 @@ public class PointLightPass extends DeferredPass {
 
 	@Override
 	public void dispose() {
-		fbos[0].cleanUp();
-		fbos[1].cleanUp();
+		fbos[0].dispose();
+		fbos[1].dispose();
 		shader.dispose();
 	}
 

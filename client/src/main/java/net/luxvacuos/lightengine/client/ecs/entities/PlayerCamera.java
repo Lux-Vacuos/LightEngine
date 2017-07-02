@@ -26,12 +26,13 @@ import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.
 
 import org.lwjgl.glfw.GLFW;
 
-import net.luxvacuos.igl.vector.Matrix4d;
 import net.luxvacuos.igl.vector.Vector2d;
+import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
 import net.luxvacuos.lightengine.client.resources.CastRay;
 import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.ecs.Components;
@@ -50,17 +51,20 @@ public class PlayerCamera extends CameraEntity {
 	private boolean flyMode = false;
 	private Vector2d center;
 
-	public PlayerCamera(Matrix4d projectionMatrix, String name, String uuid) {
+	public PlayerCamera(String name, String uuid) {
 		super(name, uuid);
 		this.speed = 1f;
 
 		if (flyMode)
 			Components.AABB.get(this).setEnabled(false);
-
-		ClientComponents.PROJECTION_MATRIX.get(this).setProjectionMatrix(projectionMatrix);
-		ClientComponents.VIEW_MATRIX.get(this).setViewMatrix(Maths.createViewMatrix(this));
 		int width = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
 		int height = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
+
+		ClientComponents.PROJECTION_MATRIX.get(this)
+				.setProjectionMatrix(Renderer.createProjectionMatrix(width, height,
+						(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/fov")),
+						ClientVariables.NEAR_PLANE, ClientVariables.FAR_PLANE));
+		ClientComponents.VIEW_MATRIX.get(this).setViewMatrix(Maths.createViewMatrix(this));
 		center = new Vector2d(width / 2, height / 2);
 		castRay = new CastRay(getProjectionMatrix(), getViewMatrix(), center, width, height);
 	}
