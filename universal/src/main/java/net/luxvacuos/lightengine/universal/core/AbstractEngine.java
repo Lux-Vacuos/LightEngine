@@ -61,6 +61,13 @@ public abstract class AbstractEngine implements IEngine, IDisposable {
 			subsystem.update(delta);
 		}
 	}
+	
+	@Override
+	public void renderSubsystems(float delta) {
+		for (ISubsystem subsystem : subsystems) {
+			subsystem.render(delta);
+		}
+	}
 
 	@Override
 	public void dispose() {

@@ -24,6 +24,7 @@ import org.lwjgl.glfw.GLFW;
 
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.WindowManager;
+import net.luxvacuos.lightengine.universal.core.TaskManager;
 
 public class Mouse {
 
@@ -136,9 +137,11 @@ public class Mouse {
 	}
 
 	public static void setGrabbed(boolean grab) {
-		GLFW.glfwSetInputMode(window.getID(), GLFW.GLFW_CURSOR,
-				grab ? GLFW.GLFW_CURSOR_DISABLED : GLFW.GLFW_CURSOR_NORMAL);
-		grabbed = grab;
+		TaskManager.addTask(() -> {
+			GLFW.glfwSetInputMode(window.getID(), GLFW.GLFW_CURSOR,
+					grab ? GLFW.GLFW_CURSOR_DISABLED : GLFW.GLFW_CURSOR_NORMAL);
+			grabbed = grab;
+		});
 	}
 
 	public static boolean isGrabbed() {

@@ -20,19 +20,22 @@
 
 package net.luxvacuos.lightengine.client.resources;
 
+import static org.lwjgl.assimp.Assimp.AI_CONFIG_PP_CT_MAX_SMOOTHING_ANGLE;
 import static org.lwjgl.assimp.Assimp.AI_SCENE_FLAGS_INCOMPLETE;
+import static org.lwjgl.assimp.Assimp.aiCreatePropertyStore;
 import static org.lwjgl.assimp.Assimp.aiGetErrorString;
 import static org.lwjgl.assimp.Assimp.aiImportFileFromMemory;
 import static org.lwjgl.assimp.Assimp.aiProcess_CalcTangentSpace;
 import static org.lwjgl.assimp.Assimp.aiProcess_FindInvalidData;
 import static org.lwjgl.assimp.Assimp.aiProcess_FlipUVs;
-import static org.lwjgl.assimp.Assimp.aiProcess_GenNormals;
+import static org.lwjgl.assimp.Assimp.aiProcess_GenSmoothNormals;
 import static org.lwjgl.assimp.Assimp.aiProcess_ImproveCacheLocality;
-import static org.lwjgl.assimp.Assimp.*;
+import static org.lwjgl.assimp.Assimp.aiProcess_JoinIdenticalVertices;
 import static org.lwjgl.assimp.Assimp.aiProcess_OptimizeMeshes;
 import static org.lwjgl.assimp.Assimp.aiProcess_SplitLargeMeshes;
 import static org.lwjgl.assimp.Assimp.aiProcess_Triangulate;
 import static org.lwjgl.assimp.Assimp.aiProcess_ValidateDataStructure;
+import static org.lwjgl.assimp.Assimp.aiSetImportPropertyFloat;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

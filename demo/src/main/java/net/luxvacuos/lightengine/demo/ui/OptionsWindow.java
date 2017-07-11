@@ -30,13 +30,12 @@ import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme.Button
 import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.Button;
+import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.Container;
 import net.luxvacuos.lightengine.client.ui.Direction;
 import net.luxvacuos.lightengine.client.ui.DropDown;
 import net.luxvacuos.lightengine.client.ui.EditBox;
 import net.luxvacuos.lightengine.client.ui.FlowLayout;
-import net.luxvacuos.lightengine.client.ui.OnAction;
-import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.ScrollArea;
 import net.luxvacuos.lightengine.client.ui.Slider;
 import net.luxvacuos.lightengine.client.ui.Text;
@@ -49,7 +48,6 @@ import net.luxvacuos.lightengine.universal.util.registry.Key;
 public class OptionsWindow extends ComponentWindow {
 
 	private TitleBarButton backButton;
-	private OnAction act;
 
 	public OptionsWindow() {
 		super((int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")) / 2 - 420,
@@ -84,8 +82,6 @@ public class OptionsWindow extends ComponentWindow {
 				super.disposeApp(window);
 				graphicOptions();
 				backButton.setOnButtonPress(() -> {
-					if (act != null)
-						act.onAction();
 					TaskManager.addTask(() -> {
 						super.disposeApp(window);
 						backButton.setEnabled(false);
@@ -104,8 +100,6 @@ public class OptionsWindow extends ComponentWindow {
 				super.disposeApp(window);
 				wmOptions();
 				backButton.setOnButtonPress(() -> {
-					if (act != null)
-						act.onAction();
 					TaskManager.addTask(() -> {
 						super.disposeApp(window);
 						backButton.setEnabled(false);
@@ -195,6 +189,10 @@ public class OptionsWindow extends ComponentWindow {
 			REGISTRY.register(new Key("/Light Engine/Settings/Graphics/shadowsResolution"),
 					shadowResDropdown.getValue().intValue());
 			Renderer.reloadShadowMaps();
+		});
+		shadowDistance.setOnUnselect(() -> {
+			REGISTRY.register(new Key("/Light Engine/Settings/Graphics/shadowsDrawDistance"),
+					Integer.parseInt(shadowDistance.getText()));
 		});
 
 		Text godText = new Text(LANG.getRegistryItem("lightengine.optionswindow.graphics.volumetriclight"), 20, 0);
@@ -316,16 +314,6 @@ public class OptionsWindow extends ComponentWindow {
 
 		super.addComponent(area);
 
-		act = new OnAction() {
-
-			@Override
-			public void onAction() {
-				REGISTRY.register(new Key("/Light Engine/Settings/Graphics/shadowsDrawDistance"),
-						Integer.parseInt(shadowDistance.getText()));
-			}
-
-		};
-
 		backButton.setEnabled(true);
 	}
 
@@ -441,8 +429,6 @@ public class OptionsWindow extends ComponentWindow {
 
 	@Override
 	public void onClose() {
-		if (act != null)
-			act.onAction();
 		CoreSubsystem.REGISTRY.save();
 	}
 

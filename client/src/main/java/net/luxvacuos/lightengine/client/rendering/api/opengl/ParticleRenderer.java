@@ -35,6 +35,7 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL31.glDrawArraysInstanced;
 
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -82,11 +83,13 @@ public class ParticleRenderer {
 		shader.loadProjectionMatrix(camera.getProjectionMatrix());
 		for (ParticleTexture texture : particles.keySet()) {
 			bindTexture(texture);
-			List<Particle> particleList = particles.get(texture);
+			List<Particle> particleList = new ArrayList<>(particles.get(texture));
 			pointer = 0;
 			float[] vboData = new float[particleList.size() * INSTANCE_DATA_LENGHT];
 
-			for (Particle particle : particles.get(texture)) {
+			for (Particle particle : particleList) {
+				if (particle == null)
+					continue;
 				updateModelViewMatrix(particle.getPosition(), particle.getRotation(), particle.getScale(),
 						camera.getViewMatrix(), vboData);
 				updateTexCoordInfo(particle, vboData);

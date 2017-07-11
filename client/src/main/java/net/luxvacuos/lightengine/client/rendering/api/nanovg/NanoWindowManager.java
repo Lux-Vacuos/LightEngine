@@ -78,6 +78,7 @@ public class NanoWindowManager implements IWindowManager {
 	public void render() {
 		GPUProfiler.start("UI");
 		GPUProfiler.start("Render Windows");
+		List<IWindow> windows = new ArrayList<>(this.windows);
 		for (IWindow window : windows) {
 			GPUProfiler.start(window.getTitle());
 			window.render(this.window, this);

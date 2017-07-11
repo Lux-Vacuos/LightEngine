@@ -25,9 +25,10 @@ import net.luxvacuos.lightengine.universal.resources.IDisposable;
 public interface ISubsystem extends IDisposable {
 
 	public void init();
-	
+
 	public void restart();
-	
+
 	public void update(float delta);
 
+	public void render(float delta);
 }

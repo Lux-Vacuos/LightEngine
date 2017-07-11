@@ -22,7 +22,6 @@ package net.luxvacuos.lightengine.universal.ecs.entities;
 
 import net.luxvacuos.igl.vector.Vector3d;
 import net.luxvacuos.lightengine.universal.ecs.components.AABB;
-import net.luxvacuos.lightengine.universal.ecs.components.Health;
 import net.luxvacuos.lightengine.universal.ecs.components.Player;
 
 public class PlayerEntity extends BasicEntity {
@@ -31,14 +30,12 @@ public class PlayerEntity extends BasicEntity {
 		super(name);
 		this.add(new Player());
 		this.add(new AABB(new Vector3d(-0.25f, -1.5f, -0.25f), new Vector3d(0.25f, 0.2f, 0.25f)));
-		this.add(new Health(20));
 	}
 
 	public PlayerEntity(String name, String uuid) {
 		super(name, uuid);
 		this.add(new Player());
 		this.add(new AABB(new Vector3d(-0.25f, -1.5f, -0.25f), new Vector3d(0.25f, 0.2f, 0.25f)));
-		this.add(new Health(20));
 	}
 
 }

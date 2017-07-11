@@ -65,8 +65,11 @@ public class PhysicsSystem extends EntitySystem {
 			if (entity instanceof LEEntity)
 				((LEEntity) entity).update(delta);
 
+			if (aabb.isGravity())
+				velocity.setY(velocity.getY() - 15f * delta);
+			else
+				velocity.setY(velocity.getY() * 0.7f - velocity.getY() * 0.0001f);
 			velocity.setX(velocity.getX() * 0.7f - velocity.getX() * 0.0001f);
-			velocity.setY(velocity.getY() - 15f * delta);
 			velocity.setZ(velocity.getZ() * 0.7f - velocity.getZ() * 0.0001f);
 
 			aabb.update(pos.getPosition());

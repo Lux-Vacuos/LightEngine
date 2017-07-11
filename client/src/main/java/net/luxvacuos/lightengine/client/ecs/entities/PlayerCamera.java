@@ -36,6 +36,7 @@ import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
 import net.luxvacuos.lightengine.client.resources.CastRay;
 import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.ecs.Components;
+import net.luxvacuos.lightengine.universal.ecs.components.Health;
 import net.luxvacuos.lightengine.universal.ecs.components.Rotation;
 import net.luxvacuos.lightengine.universal.ecs.components.Velocity;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
@@ -43,8 +44,7 @@ import net.luxvacuos.lightengine.universal.util.registry.Key;
 public class PlayerCamera extends CameraEntity {
 
 	private boolean jump = false;
-	private float speed;
-	private boolean underWater = false;
+	private float speed = 1f;
 	private int mouseSpeed = 8;
 	private final int maxLookUp = 90;
 	private final int maxLookDown = -90;
@@ -53,7 +53,7 @@ public class PlayerCamera extends CameraEntity {
 
 	public PlayerCamera(String name, String uuid) {
 		super(name, uuid);
-		this.speed = 1f;
+		this.add(new Health(20));
 
 		if (flyMode)
 			Components.AABB.get(this).setEnabled(false);
@@ -132,15 +132,6 @@ public class PlayerCamera extends CameraEntity {
 			if (vel.getY() == 0 && !kbh.isKeyPressed(GLFW.GLFW_KEY_SPACE))
 				jump = false;
 		}
-	}
-
-	@Override
-	public void afterUpdate(float delta) {
-		ClientComponents.VIEW_MATRIX.get(this).setViewMatrix(Maths.createViewMatrix(this));
-	}
-
-	public boolean isUnderWater() {
-		return underWater;
 	}
 
 }

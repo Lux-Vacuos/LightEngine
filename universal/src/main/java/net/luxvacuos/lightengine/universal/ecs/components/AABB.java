@@ -14,6 +14,7 @@ public class AABB implements LEComponent {
 
 	private Vector3 min, max;
 	private boolean enabled = true;
+	private boolean gravity = true;
 
 	public AABB() {
 		this(new Vector3(), new Vector3());
@@ -101,6 +102,14 @@ public class AABB implements LEComponent {
 
 	public boolean isEnabled() {
 		return this.enabled;
+	}
+	
+	public void setGravity(boolean gravity) {
+		this.gravity = gravity;
+	}
+	
+	public boolean isGravity() {
+		return gravity;
 	}
 
 	public BoundingBox getBoundingBox() {

@@ -60,6 +60,10 @@ public class SoundSubsystem implements ISubsystem {
 	}
 
 	@Override
+	public void render(float delta) {
+	}
+
+	@Override
 	public void dispose() {
 		soundSystem.cleanup();
 	}

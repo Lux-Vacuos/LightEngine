@@ -28,6 +28,7 @@ public class EditBox extends Component {
 	private String text, font = "Poppins-Medium";
 	private float fontSize = 20f;
 	private boolean selected = false;
+	private OnAction onAction;
 
 	public EditBox(float x, float y, float width, float height, String text) {
 		this.x = x;
@@ -51,6 +52,8 @@ public class EditBox extends Component {
 				window.getKeyboardHandler().clearInputData();
 				selected = true;
 			} else {
+				if (selected && onAction != null)
+					onAction.onAction();
 				selected = false;
 			}
 		}
@@ -79,5 +82,9 @@ public class EditBox extends Component {
 
 	public String getText() {
 		return text;
+	}
+
+	public void setOnUnselect(OnAction onAction) {
+		this.onAction = onAction;
 	}
 }

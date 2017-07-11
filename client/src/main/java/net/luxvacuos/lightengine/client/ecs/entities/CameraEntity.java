@@ -26,6 +26,7 @@ import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.ecs.components.ProjectionMatrix;
 import net.luxvacuos.lightengine.client.ecs.components.ViewMatrix;
 import net.luxvacuos.lightengine.client.resources.CastRay;
+import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.ecs.Components;
 import net.luxvacuos.lightengine.universal.ecs.entities.PlayerEntity;
 
@@ -42,12 +43,19 @@ public class CameraEntity extends PlayerEntity {
 		super(name);
 		this.add(new ViewMatrix(new Matrix4d()));
 		this.add(new ProjectionMatrix(new Matrix4d()));
+		Components.AABB.get(this).setEnabled(false);
 	}
 
 	protected CameraEntity(String name, String uuid) {
 		super(name, uuid);
 		this.add(new ViewMatrix(new Matrix4d()));
 		this.add(new ProjectionMatrix(new Matrix4d()));
+	}
+	
+	@Override
+	public void afterUpdate(float delta) {
+		super.afterUpdate(delta);
+		ClientComponents.VIEW_MATRIX.get(this).setViewMatrix(Maths.createViewMatrix(this));
 	}
 
 	public Vector3d getPosition() {

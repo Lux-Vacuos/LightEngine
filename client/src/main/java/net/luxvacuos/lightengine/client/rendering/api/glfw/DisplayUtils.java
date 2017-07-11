@@ -23,6 +23,7 @@ package net.luxvacuos.lightengine.client.rendering.api.glfw;
 import static org.lwjgl.opengl.GL11.GL_INVALID_ENUM;
 import static org.lwjgl.opengl.GL11.GL_INVALID_OPERATION;
 import static org.lwjgl.opengl.GL11.GL_INVALID_VALUE;
+import static org.lwjgl.opengl.GL11.GL_NO_ERROR;
 import static org.lwjgl.opengl.GL11.GL_OUT_OF_MEMORY;
 import static org.lwjgl.opengl.GL11.GL_STACK_OVERFLOW;
 import static org.lwjgl.opengl.GL11.GL_STACK_UNDERFLOW;
@@ -34,14 +35,13 @@ import net.luxvacuos.lightengine.client.core.exception.OpenGLException;
 
 public class DisplayUtils {
 
-	private Sync sync;
+	private ClientSync clientSync;
 
 	public DisplayUtils() {
-		sync = new Sync();
+		clientSync = new ClientSync();
 	}
 
 	public void checkErrors() {
-		/*
 		switch (glGetError()) {
 		case GL_INVALID_ENUM:
 			throw new OpenGLException("GL_INVALID_ENUM");
@@ -59,12 +59,13 @@ public class DisplayUtils {
 			throw new OpenGLException("GL_INVALID_FRAMEBUFFER_OPERATION");
 		case GL_CONTEXT_LOST:
 			throw new OpenGLException("GL_CONTEXT_LOST");
+		case GL_NO_ERROR:
+			break;
 		}
-*/
 	}
 
 	public void sync(int fps) {
-		sync.sync(fps);
+		clientSync.sync(fps);
 	}
 
 }

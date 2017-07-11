@@ -29,7 +29,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.luxvacuos.lightengine.server.core;
+package net.luxvacuos.lightengine.universal.core;
 
 /**
  * A highly accurate sync method that continually adapts to the system it runs
@@ -44,6 +44,8 @@ public class Sync {
 	private long nextFrame = 0;
 	private RunningAvg sleepDurations = new RunningAvg(10);
 	private RunningAvg yieldDurations = new RunningAvg(10);
+	private double lastLoopTime;
+	public float timeCount;
 
 	public void sync(int fps) {
 		if (fps <= 0)
@@ -71,6 +73,15 @@ public class Sync {
 		sleepDurations.init(1000 * 1000);
 		yieldDurations.init((int) (-(getTime() - getTime()) * 1.333));
 		nextFrame = getTime();
+		lastLoopTime = System.nanoTime();
+	}
+
+	public float getDelta() {
+		long time = System.nanoTime();
+		double delta = (float) (time - this.lastLoopTime);
+		this.lastLoopTime = time;
+		this.timeCount += delta / 1000000000;
+		return (float) (delta / 1000000000);
 	}
 
 	/**
@@ -79,7 +90,7 @@ public class Sync {
 	 * @return will return the current time in nano's
 	 */
 	private static long getTime() {
-		return ((long) (System.currentTimeMillis() / 1000l * 1000) * NANOS_IN_SECOND) / 1000;
+		return System.nanoTime();
 	}
 
 	private class RunningAvg {

@@ -23,19 +23,21 @@ package net.luxvacuos.lightengine.universal.core;
 import net.luxvacuos.lightengine.universal.core.subsystems.ISubsystem;
 
 public interface IEngine {
-	
+
 	public void init();
-	
+
 	public void initSubsystems();
-	
+
 	public void restart();
-	
+
 	public void update();
-	
+
 	public void updateSubsystems(float delta);
 
+	public void renderSubsystems(float delta);
+
 	public void handleError(Throwable e);
-	
+
 	public void addSubsystem(ISubsystem subsystem);
-	
+
 }

@@ -39,6 +39,7 @@ import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.GPUProfiler;
 import net.luxvacuos.lightengine.universal.core.AbstractEngine;
 import net.luxvacuos.lightengine.universal.core.EngineType;
+import net.luxvacuos.lightengine.universal.core.Sync;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem;
@@ -93,39 +94,49 @@ public class LightEngineClient extends AbstractEngine {
 	 */
 	@Override
 	public void update() {
-		float delta = 0;
-		float accumulator = 0f;
-		float interval = 1f / (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/ups"));
-		float alpha = 0;
 		int fps = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/fps"));
+		int ups = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/ups"));
+		Thread update = new Thread(() -> {
+			float delta = 0;
+			float accumulator = 0f;
+			float interval = 1f / ups;
+			Sync sync = new Sync();
+			while (StateMachine.isRunning()) {
+				Timers.startCPUTimer();
+				if (sync.timeCount > 1f) {
+					CoreSubsystem.ups = CoreSubsystem.upsCount;
+					CoreSubsystem.upsCount = 0;
+					sync.timeCount--;
+				}
+				delta = sync.getDelta();
+				accumulator += delta;
+				while (accumulator >= interval) {
+					super.updateSubsystems(interval);
+					StateMachine.update(interval);
+					CoreSubsystem.upsCount++;
+					accumulator -= interval;
+				}
+				Timers.stopCPUTimer();
+				sync.sync(ups);
+			}
+		});
+		update.setName("Update Thread");
+		update.start();
 		Window window = GraphicalSubsystem.getMainWindow();
-		while (StateMachine.isRunning() && !(window.isCloseRequested())) {
-			 Timers.startCPUTimer();
+		float delta = 0;
+		while (StateMachine.isRunning()) {
 			TaskManager.update();
-			if (window.getTimeCount() > 1f) {
-				CoreSubsystem.ups = CoreSubsystem.upsCount;
-				CoreSubsystem.upsCount = 0;
-				window.setTimeCount(window.getTimeCount() - 1);
-			}
 			delta = window.getDelta();
-			accumulator += delta;
-			while (accumulator >= interval) {
-				super.updateSubsystems(interval);
-				StateMachine.update(interval);
-				CoreSubsystem.upsCount++;
-				accumulator -= interval;
-			}
-			alpha = accumulator / interval;
-			 Timers.stopCPUTimer();
-			 Timers.startGPUTimer();
+			Timers.startGPUTimer();
 			GPUProfiler.startFrame();
 			GPUProfiler.start("Render");
-			StateMachine.render(alpha);
+			super.renderSubsystems(delta);
+			StateMachine.render(delta);
 			GPUProfiler.end();
-			 Timers.stopGPUTimer();
-			 Timers.update();
-			window.updateDisplay(fps);
 			GPUProfiler.endFrame();
+			Timers.stopGPUTimer();
+			Timers.update();
+			window.updateDisplay(fps);
 		}
 	}
 

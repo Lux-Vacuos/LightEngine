@@ -30,12 +30,13 @@ import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CachedAssets;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CachedTexture;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Light;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Model;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.ParticleTexture;
 import net.luxvacuos.lightengine.client.resources.AssimpResourceLoader;
 import net.luxvacuos.lightengine.client.ui.windows.GameWindow;
+import net.luxvacuos.lightengine.client.world.ClientPhysicsSystem;
 import net.luxvacuos.lightengine.client.world.particles.ParticleSystem;
 import net.luxvacuos.lightengine.demo.ui.PauseWindow;
+import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.ecs.components.Position;
@@ -57,10 +58,9 @@ public class MainState extends AbstractState {
 
 	private RenderEntity mat1, mat2, mat3, mat4, mat5, rocket, plane, character, cerberus;
 
-	private Model sphere, dragon, rocketM, planeM, characterM, cerberusM;
 	private CachedTexture fire;
 
-	public static boolean paused = false, exitWorld = false;
+	public static boolean paused = false, exitWorld = false, loaded = false;
 
 	protected MainState() {
 		super("mainState");
@@ -68,140 +68,135 @@ public class MainState extends AbstractState {
 
 	@Override
 	public void start() {
-		Window window = GraphicalSubsystem.getMainWindow();
+		TaskManager.addTask(() -> {
+			Window window = GraphicalSubsystem.getMainWindow();
 
-		camera = new PlayerCamera("player", UUID.randomUUID().toString());
-		camera.setPosition(new Vector3d(0, 2, 0));
-		sun = new Sun();
-		
-		Renderer.setOnResize(() -> {
-			ClientComponents.PROJECTION_MATRIX.get(camera)
-			.setProjectionMatrix(Renderer.createProjectionMatrix(
+			camera = new PlayerCamera("player", UUID.randomUUID().toString());
+			camera.setPosition(new Vector3d(0, 2, 0));
+			sun = new Sun();
+
+			Renderer.setOnResize(() -> {
+				ClientComponents.PROJECTION_MATRIX.get(camera)
+						.setProjectionMatrix(Renderer.createProjectionMatrix(
+								(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
+								(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
+								(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/fov")),
+								ClientVariables.NEAR_PLANE, ClientVariables.FAR_PLANE));
+			});
+
+			AssimpResourceLoader aLoader = window.getAssimpResourceLoader();
+
+			worldSimulation = new ClientWorldSimulation(10000);
+			engine = new Engine();
+			physicsSystem = new ClientPhysicsSystem();
+			physicsSystem.addBox(new BoundingBox(new Vector3(-50, -1, -50), new Vector3(50, 0, 50)));
+			engine.addSystem(physicsSystem);
+
+			// Renderer.getLightRenderer().addLight(new Light(new Vector3f(-8, 5,
+			// -8), new Vector3f(1, 1, 1)));
+			// Renderer.getLightRenderer().addLight(new Light(new Vector3f(-8, 5,
+			// 8), new Vector3f(1, 1, 1)));
+			// Renderer.getLightRenderer().addLight(new Light(new Vector3f(8, 5,
+			// -8), new Vector3f(1, 1, 1)));
+			// Renderer.getLightRenderer().addLight(new Light(new Vector3f(8, 5, 8),
+			// new Vector3f(1, 1, 1)));
+			// Renderer.getLightRenderer().addLight(new Light(new Vector3f(0, 5, 0),
+			// new Vector3f(1, 1, 1)));
+			light0 = new Light(new Vector3d(4.5f, 4.2f, 8f), new Vector3f(100, 100, 100), new Vector3d(245, -45, 0), 50,
+					40);
+			light0.setShadow(true);
+			Renderer.getLightRenderer().addLight(light0);
+			light1 = new Light(new Vector3d(-4.5f, 4.2f, 8f), new Vector3f(100, 100, 100), new Vector3d(245, 45, 0), 50,
+					40);
+			light1.setShadow(true);
+			Renderer.getLightRenderer().addLight(light1);
+
+			mat1 = new RenderEntity("", aLoader.loadModel("levels/test_state/models/sphere.blend"));
+			mat1.getComponent(Position.class).set(0, 1, 0);
+
+			mat2 = new RenderEntity("", aLoader.loadModel("levels/test_state/models/sphere.blend"));
+			mat2.getComponent(Position.class).set(3, 1, 0);
+
+			mat3 = new RenderEntity("", aLoader.loadModel("levels/test_state/models/sphere.blend"));
+			mat3.getComponent(Position.class).set(6, 1, 0);
+
+			mat4 = new RenderEntity("", aLoader.loadModel("levels/test_state/models/sphere.blend"));
+			mat4.getComponent(Position.class).set(9, 1, 0);
+			/*
+			 * dragon = aLoader.loadModel("levels/test_state/models/dragon.blend");
+			 * 
+			 * mat5 = new RenderEntity("", dragon);
+			 * 
+			 * mat5.getComponent(Position.class).set(-3, 0, 3);
+			 * mat5.getComponent(Scale.class).setScale(0.5f);
+			 */
+
+			/*
+			 * rocketM = aLoader.loadModel("levels/test_state/models/Rocket.obj");
+			 * 
+			 * rocket = new RenderEntity("", rocketM);
+			 * rocket.getComponent(Position.class).set(0, 0, -5);
+			 */
+
+			plane = new RenderEntity("", aLoader.loadModel("levels/test_state/models/plane.blend"));
+
+			character = new RenderEntity("", aLoader.loadModel("levels/test_state/models/monkey.blend"));
+			character.getComponent(Position.class).set(0, 0, 5);
+			// character.getComponent(Scale.class).setScale(0.21f);
+			/*
+			 * cerberusM = aLoader.loadModel("levels/test_state/models/cerberus.blend");
+			 * 
+			 * cerberus = new RenderEntity("", cerberusM);
+			 * cerberus.getComponent(Position.class).set(5, 1.25f, 5);
+			 * cerberus.getComponent(Scale.class).setScale(0.5f);
+			 */
+
+			// worldSimulation.setTime(22000);
+
+			fire = CachedAssets.loadTexture("textures/particles/fire0.png");
+
+			particleSystem = new ParticleSystem(new ParticleTexture(fire.getID(), 4), 1000, 1, -1f, 3f, 6f);
+			particleSystem.setDirection(new Vector3d(0, -1, 0), 0.4f);
+			particlesPoint = new Vector3d(0, 1.7f, -5);
+
+			camera.setPosition(new Vector3d(0, 2, 0));
+			physicsSystem.getEngine().addEntity(camera);
+			physicsSystem.getEngine().addEntity(plane);
+			physicsSystem.getEngine().addEntity(mat1);
+			physicsSystem.getEngine().addEntity(mat2);
+			physicsSystem.getEngine().addEntity(mat3);
+			physicsSystem.getEngine().addEntity(mat4);
+			// physicsSystem.getEngine().addEntity(mat5);
+			/*
+			 * physicsSystem.getEngine().addEntity(rocket);
+			 */ physicsSystem.getEngine().addEntity(character);
+			/*
+			 * physicsSystem.getEngine().addEntity(cerberus);
+			 */
+			Mouse.setGrabbed(true);
+			Renderer.render(engine.getEntities(), ParticleDomain.getParticles(), camera, worldSimulation, sun, 0);
+			gameWindow = new GameWindow(0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
 					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
-					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
-					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/fov")),
-					ClientVariables.NEAR_PLANE, ClientVariables.FAR_PLANE));
+					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")));
+			GraphicalSubsystem.getWindowManager().addWindow(gameWindow);
+			loaded = true;
 		});
-
-		AssimpResourceLoader aLoader = window.getAssimpResourceLoader();
-
-		worldSimulation = new ClientWorldSimulation(10000);
-		engine = new Engine();
-		physicsSystem = new PhysicsSystem();
-		physicsSystem.addBox(new BoundingBox(new Vector3(-50, -1, -50), new Vector3(50, 0, 50)));
-		engine.addSystem(physicsSystem);
-
-		sphere = aLoader.loadModel("levels/test_state/models/sphere.blend");
-
-		// Renderer.getLightRenderer().addLight(new Light(new Vector3f(-8, 5,
-		// -8), new Vector3f(1, 1, 1)));
-		// Renderer.getLightRenderer().addLight(new Light(new Vector3f(-8, 5,
-		// 8), new Vector3f(1, 1, 1)));
-		// Renderer.getLightRenderer().addLight(new Light(new Vector3f(8, 5,
-		// -8), new Vector3f(1, 1, 1)));
-		// Renderer.getLightRenderer().addLight(new Light(new Vector3f(8, 5, 8),
-		// new Vector3f(1, 1, 1)));
-		// Renderer.getLightRenderer().addLight(new Light(new Vector3f(0, 5, 0),
-		// new Vector3f(1, 1, 1)));
-		light0 = new Light(new Vector3d(4.5f, 4.2f, 8f), new Vector3f(100, 100, 100), new Vector3d(245, -45, 0), 50,
-				40);
-		light0.setShadow(true);
-		Renderer.getLightRenderer().addLight(light0);
-		light1 = new Light(new Vector3d(-4.5f, 4.2f, 8f), new Vector3f(100, 100, 100), new Vector3d(245, 45, 0), 50,
-				40);
-		light1.setShadow(true);
-		Renderer.getLightRenderer().addLight(light1);
-
-		mat1 = new RenderEntity("", sphere);
-		mat1.getComponent(Position.class).set(0, 1, 0);
-
-		mat2 = new RenderEntity("", sphere);
-		mat2.getComponent(Position.class).set(3, 1, 0);
-
-		mat3 = new RenderEntity("", sphere);
-		mat3.getComponent(Position.class).set(6, 1, 0);
-
-		mat4 = new RenderEntity("", sphere);
-		mat4.getComponent(Position.class).set(9, 1, 0);
-		/*
-		 * dragon = aLoader.loadModel("levels/test_state/models/dragon.blend");
-		 * 
-		 * mat5 = new RenderEntity("", dragon);
-		 * 
-		 * mat5.getComponent(Position.class).set(-3, 0, 3);
-		 * mat5.getComponent(Scale.class).setScale(0.5f);
-		 */
-
-		/*
-		 * rocketM = aLoader.loadModel("levels/test_state/models/Rocket.obj");
-		 * 
-		 * rocket = new RenderEntity("", rocketM);
-		 * rocket.getComponent(Position.class).set(0, 0, -5);
-		 */
-
-		planeM = aLoader.loadModel("levels/test_state/models/plane.blend");
-
-		plane = new RenderEntity("", planeM);
-
-		characterM = aLoader.loadModel("levels/test_state/models/monkey.blend");
-
-		character = new RenderEntity("", characterM);
-		character.getComponent(Position.class).set(0, 0, 5);
-		// character.getComponent(Scale.class).setScale(0.21f);
-		/*
-		 * cerberusM = aLoader.loadModel("levels/test_state/models/cerberus.blend");
-		 * 
-		 * cerberus = new RenderEntity("", cerberusM);
-		 * cerberus.getComponent(Position.class).set(5, 1.25f, 5);
-		 * cerberus.getComponent(Scale.class).setScale(0.5f);
-		 */
-
-		// worldSimulation.setTime(22000);
-
-		fire = CachedAssets.loadTexture("textures/particles/fire0.png");
-
-		particleSystem = new ParticleSystem(new ParticleTexture(fire.getID(), 4), 1000, 1, -1f, 3f, 6f);
-		particleSystem.setDirection(new Vector3d(0, -1, 0), 0.4f);
-		particlesPoint = new Vector3d(0, 1.7f, -5);
-
-		camera.setPosition(new Vector3d(0, 2, 0));
-		physicsSystem.getEngine().addEntity(camera);
-		physicsSystem.getEngine().addEntity(plane);
-		physicsSystem.getEngine().addEntity(mat1);
-		physicsSystem.getEngine().addEntity(mat2);
-		physicsSystem.getEngine().addEntity(mat3);
-		physicsSystem.getEngine().addEntity(mat4);
-		// physicsSystem.getEngine().addEntity(mat5);
-		/*
-		 * physicsSystem.getEngine().addEntity(rocket);
-		 */ physicsSystem.getEngine().addEntity(character);
-		/*
-		 * physicsSystem.getEngine().addEntity(cerberus);
-		 */
-		Mouse.setGrabbed(true);
-		Renderer.render(engine.getEntities(), ParticleDomain.getParticles(), camera, worldSimulation, sun, 0);
-		gameWindow = new GameWindow(0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
-				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
-				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")));
-		GraphicalSubsystem.getWindowManager().addWindow(gameWindow);
 		super.start();
 	}
 
 	@Override
 	public void end() {
-		fire.dispose();
-		sphere.dispose();
-		// dragon.dispose();
-		characterM.dispose();
-		planeM.dispose();
-		// rocketM.dispose();
-		// cerberusM.dispose();
-		physicsSystem.getEngine().removeAllEntities();
+		TaskManager.addTask(() -> {
+			fire.dispose();
+			physicsSystem.getEngine().removeAllEntities();
+		});
 		super.end();
 	}
 
 	@Override
 	public void update(float delta) {
+		if (!loaded)
+			return;
 		GraphicalSubsystem.getWindowManager().update(delta);
 		Window window = GraphicalSubsystem.getMainWindow();
 		KeyboardHandler kbh = window.getKeyboardHandler();
@@ -249,6 +244,8 @@ public class MainState extends AbstractState {
 
 	@Override
 	public void render(float alpha) {
+		if (!loaded)
+			return;
 		Renderer.render(engine.getEntities(), ParticleDomain.getParticles(), camera, worldSimulation, sun, alpha);
 		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		Renderer.clearColors(1, 1, 1, 1);

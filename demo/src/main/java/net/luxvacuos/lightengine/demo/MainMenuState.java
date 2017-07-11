@@ -28,7 +28,6 @@ import net.luxvacuos.lightengine.client.bootstrap.Bootstrap;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
 import net.luxvacuos.lightengine.client.ui.windows.BackgroundWindow;
-import net.luxvacuos.lightengine.client.ui.windows.Profiler;
 import net.luxvacuos.lightengine.demo.ui.MainWindow;
 import net.luxvacuos.lightengine.universal.core.GlobalVariables;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
@@ -53,6 +52,7 @@ public class MainMenuState extends AbstractState {
 	public void init() {
 		super.init();
 		TaskManager.addTask(() -> StateMachine.registerState(new MainState()));
+		//TaskManager.addTask(() -> StateMachine.registerState(new GameState()));
 	}
 
 	@Override
