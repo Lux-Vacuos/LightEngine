@@ -57,6 +57,7 @@ import java.nio.ByteBuffer;
 
 import net.luxvacuos.lightengine.client.core.exception.FrameBufferException;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
+import net.luxvacuos.lightengine.universal.core.TaskManager;
 
 public class ShadowFBO implements IFBO {
 
@@ -140,11 +141,13 @@ public class ShadowFBO implements IFBO {
 
 	@Override
 	public void dispose() {
-		for (int i : shadowMaps) {
-			glDeleteTextures(i);
-		}
-		glDeleteFramebuffers(fbo);
-		glDeleteRenderbuffers(shadowRB);
+		TaskManager.addTask(() -> {
+			for (int i : shadowMaps) {
+				glDeleteTextures(i);
+			}
+			glDeleteFramebuffers(fbo);
+			glDeleteRenderbuffers(shadowRB);
+		});
 	}
 
 	@Override
