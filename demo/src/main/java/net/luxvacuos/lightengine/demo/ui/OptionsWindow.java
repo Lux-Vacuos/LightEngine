@@ -188,7 +188,7 @@ public class OptionsWindow extends ComponentWindow {
 		shadowResDropdown.setOnButtonPress(() -> {
 			REGISTRY.register(new Key("/Light Engine/Settings/Graphics/shadowsResolution"),
 					shadowResDropdown.getValue().intValue());
-			Renderer.reloadShadowMaps();
+			TaskManager.addTask(() -> Renderer.reloadShadowMaps());
 		});
 		shadowDistance.setOnUnselect(() -> {
 			REGISTRY.register(new Key("/Light Engine/Settings/Graphics/shadowsDrawDistance"),
