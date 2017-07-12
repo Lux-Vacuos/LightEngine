@@ -120,7 +120,7 @@ public class NanoWindowManager implements IWindowManager {
 	public void update(float delta) {
 		List<IWindow> tmp = new ArrayList<>();
 		IWindow toTop = null;
-		for (IWindow window : windows) {
+		for (IWindow window : new ArrayList<>(this.windows)) {
 			if (window.shouldClose()) {
 				notifyClose(window);
 				TaskManager.addTask(() -> {
