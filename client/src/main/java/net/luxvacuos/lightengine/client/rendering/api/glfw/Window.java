@@ -31,7 +31,7 @@ public class Window extends AbstractWindow {
 	@Override
 	public void updateDisplay(int fps) {
 		glfwSwapBuffers(this.windowID);
-		this.displayUtils.checkErrors();
+		DisplayUtils.checkErrors();
 		this.displayUtils.sync(fps);
 	}
 

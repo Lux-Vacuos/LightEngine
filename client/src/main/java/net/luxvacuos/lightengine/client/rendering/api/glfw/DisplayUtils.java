@@ -41,7 +41,7 @@ public class DisplayUtils {
 		clientSync = new ClientSync();
 	}
 
-	public void checkErrors() {
+	public static void checkErrors() {
 		switch (glGetError()) {
 		case GL_INVALID_ENUM:
 			throw new OpenGLException("GL_INVALID_ENUM");

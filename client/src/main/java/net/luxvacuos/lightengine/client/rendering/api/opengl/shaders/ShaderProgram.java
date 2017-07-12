@@ -62,14 +62,16 @@ public abstract class ShaderProgram implements IDisposable {
 	 * Program ID
 	 */
 	private int programID;
+
+	private boolean loaded;
 	/**
 	 * Shader bind status
 	 */
 	private static boolean binded = false;
 
 	/**
-	 * Constructor, Creates a Shader Program Using a Vertex Shader and a
-	 * Fragment Shader
+	 * Constructor, Creates a Shader Program Using a Vertex Shader and a Fragment
+	 * Shader
 	 * 
 	 * @param vertexFile
 	 *            Vertex Shader Path
@@ -89,6 +91,7 @@ public abstract class ShaderProgram implements IDisposable {
 		glDetachShader(programID, fragmentShaderID);
 		glDeleteShader(vertexShaderID);
 		glDeleteShader(fragmentShaderID);
+		loaded = true;
 	}
 
 	/**
@@ -141,8 +144,11 @@ public abstract class ShaderProgram implements IDisposable {
 	 */
 	@Override
 	public void dispose() {
+		if (!loaded)
+			return;
 		stop();
 		glDeleteProgram(programID);
+		loaded = false;
 	}
 
 	/**

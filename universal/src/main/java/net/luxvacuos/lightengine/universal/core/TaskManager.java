@@ -27,15 +27,9 @@ public class TaskManager {
 
 	private static Queue<Runnable> tasks = new LinkedList<>();
 
-	private static float timer;
-
 	public static void update() {
 		if (!tasks.isEmpty()) {
-			timer += 1 * 0.33;
-			if (timer > 1) {
-				tasks.poll().run();
-				timer = 0;
-			}
+			tasks.poll().run();
 		}
 	}
 
