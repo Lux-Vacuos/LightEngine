@@ -23,7 +23,8 @@ package net.luxvacuos.lightengine.client.rendering.api.opengl;
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLE_STRIP;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL30.GL_RGBA16F;
 import static org.lwjgl.opengl.GL11.glDrawArrays;
 
 import java.util.List;
@@ -84,7 +85,7 @@ public abstract class DeferredPass implements IDeferredPass {
 	 */
 	@Override
 	public void init() {
-		fbo = new FBO(width, height);
+		fbo = new FBO(width, height, GL_RGBA16F, GL_RGBA, GL_FLOAT);
 		shader = new DeferredShadingShader(name);
 		shader.start();
 		shader.loadResolution(new Vector2d(width, height));

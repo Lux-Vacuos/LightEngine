@@ -23,7 +23,9 @@ package net.luxvacuos.lightengine.client.rendering.api.opengl;
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_RGB;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLE_STRIP;
+import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
 import static org.lwjgl.opengl.GL11.glDrawArrays;
 
 import net.luxvacuos.igl.vector.Matrix4d;
@@ -73,7 +75,7 @@ public abstract class PostProcessPass implements IPostProcessPass {
 	 */
 	@Override
 	public void init() {
-		fbo = new FBO(width, height);
+		fbo = new FBO(width, height, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
 		shader = new DeferredShadingShader(name);
 		shader.start();
 		shader.loadResolution(new Vector2d(width, height));
@@ -94,8 +96,10 @@ public abstract class PostProcessPass implements IPostProcessPass {
 		shader.loadviewMatrix(camera);
 		shader.loadSettings((boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/dof")),
 				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/fxaa")),
-				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/motionBlur")), false, false, false, 0,
-				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/chromaticAberration")), false, false);
+				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/motionBlur")), false, false,
+				false, 0,
+				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/chromaticAberration")),
+				false, false);
 
 		render(auxs);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, quad.getVertexCount());

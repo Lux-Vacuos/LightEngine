@@ -24,7 +24,7 @@ import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
 public interface IFBO extends IDisposable {
 	
-	public void init(int width, int height);
+	public void init(int width, int height, int internalFormat, int format, int type);
 	
 	public void begin();
 	

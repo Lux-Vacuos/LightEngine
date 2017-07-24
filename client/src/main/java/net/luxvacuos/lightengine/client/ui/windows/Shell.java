@@ -103,32 +103,47 @@ public class Shell extends ComponentWindow implements IShell {
 	}
 
 	@Override
-	public void notifyAdd(IWindow window) {
-		if (!(window.hasDecorations() && !window.isHidden()))
-			return;
-		Button btn = new Button(0, 0, 100, h, window.getTitle());
-		// btn.setColor("#00000000");
-		// btn.setHighlightColor("#FFFFFF64");
-		// btn.setTextColor("#FFFFFFFF");
-		btn.setOnButtonPress(() -> {
-			if (!GraphicalSubsystem.getWindowManager().isOnTop(window) && !window.isMinimized()) {
-				GraphicalSubsystem.getWindowManager().bringToFront(window);
+	public void notifyWindow(Window wind, WindowMessages message, Object param) {
+		switch (message) {
+		case SHELL_WINDOW_CLOSED:
+			IWindow window = (IWindow) param;
+			if (!(window.hasDecorations() && !window.isHidden()))
 				return;
-			}
-			if (window.isMinimized())
-				GraphicalSubsystem.getWindowManager().bringToFront(window);
-			window.toggleMinimize();
-		});
-		apps.addComponent(btn);
-		buttons.put(window.hashCode(), btn);
+			apps.removeComponent(buttons.get(window.hashCode()));
+			buttons.remove(window.hashCode());
+			break;
+		case SHELL_WINDOW_CREATED:
+			 window = (IWindow) param;
+			if (!(window.hasDecorations() && !window.isHidden()))
+				return;
+			Button btn = new Button(0, 0, 100, h, window.getTitle());
+			// btn.setColor("#00000000");
+			// btn.setHighlightColor("#FFFFFF64");
+			// btn.setTextColor("#FFFFFFFF");
+			btn.setOnButtonPress(() -> {
+				if (!GraphicalSubsystem.getWindowManager().isOnTop(window) && !window.isMinimized()) {
+					GraphicalSubsystem.getWindowManager().bringToFront(window);
+					return;
+				}
+				if (window.isMinimized())
+					GraphicalSubsystem.getWindowManager().bringToFront(window);
+				window.toggleMinimize();
+			});
+			apps.addComponent(btn);
+			buttons.put(window.hashCode(), btn);
+			break;
+		default:
+			super.notifyWindow(wind, message, param);
+			break;
+		}
+	}
+
+	@Override
+	public void notifyAdd(IWindow window) {
 	}
 
 	@Override
 	public void notifyClose(IWindow window) {
-		if (!(window.hasDecorations() && !window.isHidden()))
-			return;
-		apps.removeComponent(buttons.get(window.hashCode()));
-		buttons.remove(window.hashCode());
 	}
 
 	@Override
@@ -144,7 +159,7 @@ public class Shell extends ComponentWindow implements IShell {
 			fadeOut = true;
 		}
 	}
-	
+
 	@Override
 	public void onMainResize() {
 		w = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));

@@ -31,8 +31,8 @@ public class TitleBarText extends Text {
 
 	@Override
 	public void render(Window window) {
-		Theme.renderTitleBarText(window.getNVGID(), text, font, align, rootComponent.rootX + alignedX,
-				window.getHeight() - rootComponent.rootY - alignedY, fontSize);
+		w = Theme.renderTitleBarText(window.getNVGID(), text, font, align, rootComponent.rootX + alignedX + 10,
+				window.getHeight() - rootComponent.rootY - alignedY, fontSize) - rootComponent.rootX - alignedX + 10;
 	}
 
 }

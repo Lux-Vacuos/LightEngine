@@ -22,7 +22,7 @@
 
 in vec2 textureCoords;
 
-out vec4 out_Color;
+out vec3 out_Color;
 
 uniform sampler2D composite0;
 uniform sampler2D gDepth;
@@ -31,7 +31,7 @@ uniform int useDOF;
 
 void main(void){
 	vec2 texcoord = textureCoords;
-	vec4 textureColour = texture(composite0, texcoord);
+	vec3 textureColour = texture(composite0, texcoord).rgb;
 	if(useDOF == 1){
 		vec3 sum = textureColour.rgb;
 		float bias = min(abs(texture(gDepth, texcoord).x - texture(gDepth, vec2(0.5)).x) * .01, .005);
@@ -41,7 +41,7 @@ void main(void){
 			}
 		}
 		sum /= 65.0;
-		textureColour = vec4(sum,1.0);
+		textureColour = sum;
 	}
 	
     out_Color = textureColour;

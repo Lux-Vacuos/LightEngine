@@ -21,7 +21,7 @@
 package net.luxvacuos.lightengine.client.rendering.api.nanovg;
 
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
-import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_CENTER;
+import static org.lwjgl.nanovg.NanoVG.*;
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_MIDDLE;
 import static org.lwjgl.nanovg.NanoVG.nvgScissor;
 import static org.lwjgl.nanovg.NanoVGGL3.nvgluBindFramebuffer;
@@ -47,6 +47,7 @@ import net.luxvacuos.lightengine.client.ui.TitleBar;
 import net.luxvacuos.lightengine.client.ui.TitleBarButton;
 import net.luxvacuos.lightengine.client.ui.TitleBarText;
 import net.luxvacuos.lightengine.client.util.Maths;
+import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public abstract class NanoWindow implements IWindow {
@@ -70,6 +71,8 @@ public abstract class NanoWindow implements IWindow {
 	private float reY, reX;
 	private float oldMinY;
 
+	private boolean compositor = true;
+
 	public NanoWindow(float x, float y, float w, float h, String title) {
 		this.x = x;
 		this.y = y;
@@ -82,8 +85,10 @@ public abstract class NanoWindow implements IWindow {
 
 	@Override
 	public void init(Window wind) {
-		fbo = nvgluCreateFramebuffer(wind.getNVGID(), (int) (wind.getWidth() * wind.getPixelRatio()),
-				(int) (wind.getHeight() * wind.getPixelRatio()), 0);
+		compositor = (boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/compositor"));
+		if (compositor)
+			fbo = nvgluCreateFramebuffer(wind.getNVGID(), (int) (wind.getWidth() * wind.getPixelRatio()),
+					(int) (wind.getHeight() * wind.getPixelRatio()), 0);
 		titleBar.getLeft().setLayout(new FlowLayout(Direction.RIGHT, 1, 0));
 		titleBar.getRight().setLayout(new FlowLayout(Direction.LEFT, 1, 0));
 		initApp(wind);
@@ -138,18 +143,24 @@ public abstract class NanoWindow implements IWindow {
 	@Override
 	public void render(Window window, IWindowManager nanoWindowManager) {
 		if (!hidden && !minimized) {
-			nvgluBindFramebuffer(window.getNVGID(), fbo);
-			Renderer.clearBuffer(GL_COLOR_BUFFER_BIT);
-			Renderer.clearColors(0, 0, 0, 0);
-			window.beingNVGFrame();
+			if (compositor) {
+				nvgluBindFramebuffer(window.getNVGID(), fbo);
+				Renderer.clearBuffer(GL_COLOR_BUFFER_BIT);
+				Renderer.clearColors(0, 0, 0, 0);
+				window.beingNVGFrame();
+			}
+			nvgSave(window.getNVGID());
 			Theme.renderWindow(window.getNVGID(), x, window.getHeight() - y, w, h, backgroundStyle, backgroundColor,
 					decorations, titleBar.isEnabled(), maximized, ft, fb, fr, fl);
 			if (decorations)
 				titleBar.render(window);
 			nvgScissor(window.getNVGID(), x, window.getHeight() - y, w, h);
 			renderApp(window);
-			window.endNVGFrame();
-			nvgluBindFramebuffer(window.getNVGID(), null);
+			nvgRestore(window.getNVGID());
+			if (compositor) {
+				window.endNVGFrame();
+				nvgluBindFramebuffer(window.getNVGID(), null);
+			}
 		}
 	}
 
@@ -305,12 +316,34 @@ public abstract class NanoWindow implements IWindow {
 
 	@Override
 	public void dispose(Window window) {
-		nvgluDeleteFramebuffer(window.getNVGID(), fbo);
+		if (compositor)
+			nvgluDeleteFramebuffer(window.getNVGID(), fbo);
 		disposeApp(window);
 	}
 
 	@Override
 	public void onClose() {
+	}
+
+	@Override
+	public void notifyWindow(Window window, WindowMessages message, Object param) {
+		switch (message) {
+		case COMPOSITOR_DISABLED:
+			compositor = false;
+			TaskManager.addTask(() -> {
+				nvgluDeleteFramebuffer(window.getNVGID(), fbo);
+				fbo = null;
+			});
+			break;
+		case COMPOSITOR_ENABLED:
+			compositor = true;
+			TaskManager.addTask(() -> fbo = nvgluCreateFramebuffer(window.getNVGID(),
+					(int) (window.getWidth() * window.getPixelRatio()),
+					(int) (window.getHeight() * window.getPixelRatio()), 0));
+			break;
+		default:
+			break;
+		}
 	}
 
 	private boolean canResizeBottom(float borderSize) {
@@ -615,7 +648,7 @@ public abstract class NanoWindow implements IWindow {
 		fbo = nvgluCreateFramebuffer(window.getNVGID(), (int) (window.getWidth() * window.getPixelRatio()),
 				(int) (window.getHeight() * window.getPixelRatio()), 0);
 	}
-	
+
 	@Override
 	public void onMainResize() {
 	}

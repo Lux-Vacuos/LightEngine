@@ -37,20 +37,23 @@ public interface IWindowManager extends IDisposable {
 	public void bringToFront(IWindow window);
 
 	public boolean isOnTop(IWindow window);
-	
+
 	public boolean existWindow(IWindow window);
 
 	public void notifyAdd(IWindow window);
 
 	public void notifyClose(IWindow window);
 
+	public void enableCompositor();
+
+	public void disableCompositor();
+
 	public void setShell(IShell shell);
 
 	public void toggleShell();
 
 	public boolean isShellEnabled();
-	
+
 	public void reloadCompositor();
-	
 
 }

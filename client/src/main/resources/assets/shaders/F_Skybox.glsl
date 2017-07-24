@@ -20,7 +20,7 @@
 
 #version 330 core
 
-in vec3 textureCoords;
+in vec2 pass_textureCoords;
 in vec3 pass_position;
 in vec3 pass_normal;
 
@@ -29,6 +29,9 @@ out vec4 [5] out_Color;
 uniform float time;
 uniform vec3 fogColour;
 uniform vec3 lightPosition;
+
+#define SUN_LOWER_LIMIT 0.51
+#define SUN_UPPER_LIMIT 0.5
 
 #define PI 3.141592
 #define iSteps 16
@@ -157,7 +160,16 @@ void main(void){
 
 	color = 1.0 - exp(-1.0 * color);
 
-    out_Color[0].rgb = color.rgb;
+    vec3 V = normalize(pass_normal);
+    vec3 L = normalize(lightPosition);
+
+    float vl = dot(V, L);
+    float factorSun = clamp((pass_textureCoords.y - SUN_LOWER_LIMIT) / (SUN_UPPER_LIMIT - SUN_LOWER_LIMIT), 0.0, 1.0);
+
+	if(vl > 0.999) 
+        color = mix(color, mix(color, vec3(1.0), (0.999 - vl) / (0.999 - 0.9991)), factorSun);
+
+    out_Color[0].rgb = color;
     out_Color[0].a = 1;
     out_Color[1] = vec4(pass_position.xyz * 10, 0);
     out_Color[2] = vec4(0.0);

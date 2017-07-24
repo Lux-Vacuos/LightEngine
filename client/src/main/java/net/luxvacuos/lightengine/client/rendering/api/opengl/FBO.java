@@ -21,9 +21,7 @@
 package net.luxvacuos.lightengine.client.rendering.api.opengl;
 
 import static org.lwjgl.opengl.GL11.GL_DEPTH_COMPONENT;
-import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_LINEAR;
-import static org.lwjgl.opengl.GL11.GL_RGBA;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
@@ -41,7 +39,6 @@ import static org.lwjgl.opengl.GL30.GL_DEPTH_ATTACHMENT;
 import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER;
 import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_COMPLETE;
 import static org.lwjgl.opengl.GL30.GL_RENDERBUFFER;
-import static org.lwjgl.opengl.GL30.GL_RGBA16F;
 import static org.lwjgl.opengl.GL30.glBindFramebuffer;
 import static org.lwjgl.opengl.GL30.glBindRenderbuffer;
 import static org.lwjgl.opengl.GL30.glCheckFramebufferStatus;
@@ -52,8 +49,6 @@ import static org.lwjgl.opengl.GL30.glFramebufferTexture2D;
 import static org.lwjgl.opengl.GL30.glGenFramebuffers;
 import static org.lwjgl.opengl.GL30.glGenRenderbuffers;
 import static org.lwjgl.opengl.GL30.glRenderbufferStorage;
-
-import java.nio.ByteBuffer;
 
 import net.luxvacuos.lightengine.client.core.exception.FrameBufferException;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
@@ -66,14 +61,14 @@ public class FBO implements IFBO {
 
 	private int width, height;
 
-	public FBO(int width, int height) {
+	public FBO(int width, int height, int internalFormat, int format, int type) {
 		this.width = width;
 		this.height = height;
-		init(width, height);
+		init(width, height, internalFormat, format, type);
 	}
 
 	@Override
-	public void init(int width, int height) {
+	public void init(int width, int height, int internalFormat, int format, int type) {
 		fbo = glGenFramebuffers();
 		rt = glGenRenderbuffers();
 		depthBuffer = glGenRenderbuffers();
@@ -81,7 +76,7 @@ public class FBO implements IFBO {
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
 		glBindRenderbuffer(GL_RENDERBUFFER, rt);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA16F, width, height);
+		glRenderbufferStorage(GL_RENDERBUFFER, format, width, height);
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, rt);
 
 		glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
@@ -90,7 +85,7 @@ public class FBO implements IFBO {
 
 		tex = glGenTextures();
 		glBindTexture(GL_TEXTURE_2D, tex);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, (ByteBuffer) null);
+		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, 0);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

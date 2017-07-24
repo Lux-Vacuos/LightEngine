@@ -32,6 +32,10 @@ public interface IWindow {
 		DISPOSE, DO_NOTHING, HIDE
 	};
 
+	public enum WindowMessages {
+		COMPOSITOR_ENABLED, COMPOSITOR_DISABLED, SHELL_WINDOW_CREATED, SHELL_WINDOW_CLOSED
+	}
+
 	public void init(Window window);
 
 	public void initApp(Window window);
@@ -133,9 +137,11 @@ public interface IWindow {
 	public void closeWindow();
 
 	public boolean isAlwaysOnTop();
-	
+
 	public void reloadFBO(Window window);
-	
+
 	public void onMainResize();
+
+	public void notifyWindow(Window window, WindowMessages message, Object param);
 
 }

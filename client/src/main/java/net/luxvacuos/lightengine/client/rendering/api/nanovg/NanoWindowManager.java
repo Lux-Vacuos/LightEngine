@@ -35,6 +35,7 @@ import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.input.Mouse;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.WindowManager;
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.IWindow.WindowMessages;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.compositor.Compositor;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.compositor.Final;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.compositor.GaussianH;
@@ -55,9 +56,12 @@ public class NanoWindowManager implements IWindowManager {
 	private int width, height;
 	private IWindow focused;
 	private IShell shell;
+	private boolean compositorEnabled;
 
 	public NanoWindowManager(Window win) {
 		this.window = win;
+		compositorEnabled = (boolean) REGISTRY
+				.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/compositor"));
 		windows = new ArrayList<>();
 		width = (int) (win.getWidth() * win.getPixelRatio());
 		height = (int) (win.getHeight() * win.getPixelRatio());
@@ -76,44 +80,80 @@ public class NanoWindowManager implements IWindowManager {
 
 	@Override
 	public void render() {
-		GPUProfiler.start("UI");
-		GPUProfiler.start("Render Windows");
-		List<IWindow> windows = new ArrayList<>(this.windows);
-		for (IWindow window : windows) {
-			GPUProfiler.start(window.getTitle());
-			window.render(this.window, this);
+		if (compositorEnabled) {
+			GPUProfiler.start("UI");
+			GPUProfiler.start("Render Windows");
+			List<IWindow> windows = new ArrayList<>(this.windows);
+			for (IWindow window : windows) {
+				if (window.getFBO() != null) {
+					GPUProfiler.start(window.getTitle());
+					window.render(this.window, this);
+					GPUProfiler.end();
+				}
+			}
 			GPUProfiler.end();
-		}
-		GPUProfiler.end();
-		GPUProfiler.start("Compositing");
-		glDisable(GL_BLEND);
-		for (IWindow window : windows) {
-			GPUProfiler.start(window.getTitle());
-			if (!window.isHidden() && !window.isMinimized())
-				compositor.render(window, this.window);
+			GPUProfiler.start("Compositing");
+			glDisable(GL_BLEND);
+			for (IWindow window : windows) {
+				if (window.getFBO() != null) {
+					GPUProfiler.start(window.getTitle());
+					if (!window.isHidden() && !window.isMinimized())
+						compositor.render(window, this.window);
+					GPUProfiler.end();
+				}
+			}
 			GPUProfiler.end();
-		}
-		GPUProfiler.end();
-		GPUProfiler.start("Render Final Image");
-		window.beingNVGFrame();
-		Theme.renderImage(this.window.getNVGID(), 0, 0, window.getWidth(), window.getHeight(),
-				compositor.getFbos()[0].image(), 1f);
-		if (ClientVariables.debug) {
+			GPUProfiler.start("Render Final Image");
+			window.beingNVGFrame();
+			Theme.renderImage(this.window.getNVGID(), 0, 0, window.getWidth(), window.getHeight(),
+					compositor.getFbos()[0].image(), 1f);
+			if (ClientVariables.debug) {
 
-			Timers.renderDebugDisplay(5, 24, 200, 55);
-			Theme.renderText(window.getNVGID(), "Light Engine " + " (" + ClientVariables.version + ")", "Roboto-Bold",
-					NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 12, 20, Theme.rgba(220, 220, 220, 255, Theme.colorA));
-			Theme.renderText(window.getNVGID(),
-					"Used VRam: " + WindowManager.getUsedVRAM() + "KB " + " UPS: " + CoreSubsystem.ups, "Roboto-Bold",
-					NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 95, 20, Theme.rgba(220, 220, 220, 255, Theme.colorA));
-			Theme.renderText(window.getNVGID(), "Used RAM: " + Runtime.getRuntime().totalMemory() / 1028 + "KB ",
-					"Roboto-Bold", NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 110, 20,
-					Theme.rgba(220, 220, 220, 255, Theme.colorA));
+				Timers.renderDebugDisplay(5, 24, 200, 55);
+				Theme.renderText(window.getNVGID(), "Light Engine " + " (" + ClientVariables.version + ")",
+						"Roboto-Bold", NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 12, 20,
+						Theme.rgba(220, 220, 220, 255, Theme.colorA));
+				Theme.renderText(window.getNVGID(),
+						"Used VRam: " + WindowManager.getUsedVRAM() + "KB " + " UPS: " + CoreSubsystem.ups,
+						"Roboto-Bold", NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 95, 20,
+						Theme.rgba(220, 220, 220, 255, Theme.colorA));
+				Theme.renderText(window.getNVGID(), "Used RAM: " + Runtime.getRuntime().totalMemory() / 1028 + "KB ",
+						"Roboto-Bold", NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 110, 20,
+						Theme.rgba(220, 220, 220, 255, Theme.colorA));
+
+			}
+			this.window.endNVGFrame();
+			GPUProfiler.end();
+			GPUProfiler.end();
+		} else {
+			GPUProfiler.start("UI");
+			GPUProfiler.start("Render Windows");
+			List<IWindow> windows = new ArrayList<>(this.windows);
+			window.beingNVGFrame();
+			for (IWindow window : windows) {
+				GPUProfiler.start(window.getTitle());
+				window.render(this.window, this);
+				GPUProfiler.end();
+			}
+			if (ClientVariables.debug) {
+				Timers.renderDebugDisplay(5, 24, 200, 55);
+				Theme.renderText(window.getNVGID(), "Light Engine " + " (" + ClientVariables.version + ")",
+						"Roboto-Bold", NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 12, 20,
+						Theme.rgba(220, 220, 220, 255, Theme.colorA));
+				Theme.renderText(window.getNVGID(),
+						"Used VRam: " + WindowManager.getUsedVRAM() + "KB " + " UPS: " + CoreSubsystem.ups,
+						"Roboto-Bold", NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 95, 20,
+						Theme.rgba(220, 220, 220, 255, Theme.colorA));
+				Theme.renderText(window.getNVGID(), "Used RAM: " + Runtime.getRuntime().totalMemory() / 1028 + "KB ",
+						"Roboto-Bold", NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 110, 20,
+						Theme.rgba(220, 220, 220, 255, Theme.colorA));
+
+			}
+			this.window.endNVGFrame();
+			GPUProfiler.end();
+			GPUProfiler.end();
 
 		}
-		this.window.endNVGFrame();
-		GPUProfiler.end();
-		GPUProfiler.end();
 	}
 
 	@Override
@@ -161,7 +201,9 @@ public class NanoWindowManager implements IWindowManager {
 
 	@Override
 	public void dispose() {
-		compositor.dispose(window);
+		if (compositorEnabled) {
+			compositor.dispose(window);
+		}
 		for (IWindow window : windows) {
 			window.dispose(this.window);
 		}
@@ -227,14 +269,42 @@ public class NanoWindowManager implements IWindowManager {
 	@Override
 	public void notifyClose(IWindow window) {
 		if (this.shell != null)
-			this.shell.notifyClose(window);
+			this.shell.notifyWindow(this.window, WindowMessages.SHELL_WINDOW_CLOSED, window);
 	}
 
 	@Override
 	public void notifyAdd(IWindow window) {
 		if (this.shell != null)
 			if (window.hasDecorations() && !window.isHidden())
-				this.shell.notifyAdd(window);
+				this.shell.notifyWindow(this.window, WindowMessages.SHELL_WINDOW_CREATED, window);
+	}
+
+	@Override
+	public void enableCompositor() {
+		if (compositorEnabled)
+			return;
+		TaskManager.addTask(() -> {
+			compositor = new Compositor(window, width, height);
+			compositor.addEffect(new MaskBlur(width, height));
+			compositor.addEffect(new GaussianV(width, height));
+			compositor.addEffect(new GaussianH(width, height));
+			compositor.addEffect(new Final(width, height));
+			compositorEnabled = true;
+		});
+		for (IWindow window : windows) {
+			window.notifyWindow(this.window, WindowMessages.COMPOSITOR_ENABLED, null);
+		}
+	}
+
+	@Override
+	public void disableCompositor() {
+		if (!compositorEnabled)
+			return;
+		TaskManager.addTask(() -> compositor.dispose(window));
+		for (IWindow window : windows) {
+			window.notifyWindow(this.window, WindowMessages.COMPOSITOR_DISABLED, null);
+		}
+		compositorEnabled = false;
 	}
 
 	@Override
@@ -257,21 +327,23 @@ public class NanoWindowManager implements IWindowManager {
 
 	@Override
 	public void reloadCompositor() {
-		compositor.dispose(window);
 		width = (int) (window.getWidth() * window.getPixelRatio());
 		height = (int) (window.getHeight() * window.getPixelRatio());
-
-		if (width > GLUtil.getTextureMaxSize())
-			width = GLUtil.getTextureMaxSize();
-		if (height > GLUtil.getTextureMaxSize())
-			height = GLUtil.getTextureMaxSize();
-		compositor = new Compositor(window, width, height);
-		compositor.addEffect(new MaskBlur(width, height));
-		compositor.addEffect(new GaussianV(width, height));
-		compositor.addEffect(new GaussianH(width, height));
-		compositor.addEffect(new Final(width, height));
+		if (compositorEnabled) {
+			compositor.dispose(window);
+			if (width > GLUtil.getTextureMaxSize())
+				width = GLUtil.getTextureMaxSize();
+			if (height > GLUtil.getTextureMaxSize())
+				height = GLUtil.getTextureMaxSize();
+			compositor = new Compositor(window, width, height);
+			compositor.addEffect(new MaskBlur(width, height));
+			compositor.addEffect(new GaussianV(width, height));
+			compositor.addEffect(new GaussianH(width, height));
+			compositor.addEffect(new Final(width, height));
+		}
 		for (IWindow window : windows) {
-			window.reloadFBO(this.window);
+			if (compositorEnabled)
+				window.reloadFBO(this.window);
 			window.onMainResize();
 		}
 	}

@@ -30,6 +30,7 @@ import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CachedAssets;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CachedTexture;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Light;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Model;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.ParticleTexture;
 import net.luxvacuos.lightengine.client.resources.AssimpResourceLoader;
 import net.luxvacuos.lightengine.client.ui.windows.GameWindow;
@@ -40,6 +41,8 @@ import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.ecs.components.Position;
+import net.luxvacuos.lightengine.universal.ecs.components.Rotation;
+import net.luxvacuos.lightengine.universal.ecs.components.Scale;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 import net.luxvacuos.lightengine.universal.world.PhysicsSystem;
 
@@ -102,14 +105,14 @@ public class MainState extends AbstractState {
 			// new Vector3f(1, 1, 1)));
 			// Renderer.getLightRenderer().addLight(new Light(new Vector3f(0, 5, 0),
 			// new Vector3f(1, 1, 1)));
-			light0 = new Light(new Vector3d(4.5f, 4.2f, 8f), new Vector3f(100, 100, 100), new Vector3d(245, -45, 0), 50,
+			light0 = new Light(new Vector3d(4.5f, 4.2f, 8f), new Vector3f(50, 50, 50), new Vector3d(245, -45, 0), 50,
 					40);
-			light0.setShadow(true);
-			Renderer.getLightRenderer().addLight(light0);
-			light1 = new Light(new Vector3d(-4.5f, 4.2f, 8f), new Vector3f(100, 100, 100), new Vector3d(245, 45, 0), 50,
+			//light0.setShadow(true);
+			//Renderer.getLightRenderer().addLight(light0);
+			light1 = new Light(new Vector3d(-4.5f, 4.2f, 8f), new Vector3f(50, 50, 50), new Vector3d(245, 45, 0), 50,
 					40);
-			light1.setShadow(true);
-			Renderer.getLightRenderer().addLight(light1);
+			//light1.setShadow(true);
+			//Renderer.getLightRenderer().addLight(light1);
 
 			mat1 = new RenderEntity("", aLoader.loadModel("levels/test_state/models/sphere.blend"));
 			mat1.getComponent(Position.class).set(0, 1, 0);
@@ -140,9 +143,9 @@ public class MainState extends AbstractState {
 
 			plane = new RenderEntity("", aLoader.loadModel("levels/test_state/models/plane.blend"));
 
-			character = new RenderEntity("", aLoader.loadModel("levels/test_state/models/monkey.blend"));
-			character.getComponent(Position.class).set(0, 0, 5);
-			// character.getComponent(Scale.class).setScale(0.21f);
+			character = new RenderEntity("", aLoader.loadModel("levels/test_state/models/tigre_sumatra.blend"));
+			character.getComponent(Position.class).set(0, 0.67335f, 5);
+			character.getComponent(Scale.class).setScale(2f);
 			/*
 			 * cerberusM = aLoader.loadModel("levels/test_state/models/cerberus.blend");
 			 * 
@@ -150,8 +153,6 @@ public class MainState extends AbstractState {
 			 * cerberus.getComponent(Position.class).set(5, 1.25f, 5);
 			 * cerberus.getComponent(Scale.class).setScale(0.5f);
 			 */
-
-			// worldSimulation.setTime(22000);
 
 			fire = CachedAssets.loadTexture("textures/particles/fire0.png");
 
@@ -191,6 +192,7 @@ public class MainState extends AbstractState {
 			physicsSystem.getEngine().removeAllEntities();
 		});
 		super.end();
+		loaded = false;
 	}
 
 	@Override
@@ -204,10 +206,11 @@ public class MainState extends AbstractState {
 			Renderer.update(delta);
 			engine.update(delta);
 			sun.update(camera.getPosition(), worldSimulation.update(delta), delta);
-			particleSystem.generateParticles(particlesPoint, delta);
+			//particleSystem.generateParticles(particlesPoint, delta);
 			ParticleDomain.update(delta, camera);
-			light0.getPosition().set(Math.sin(worldSimulation.getGlobalTime() / 8f) * 3f + 4.5f, 8.2f, 8f);
-			light1.getPosition().set(Math.sin(worldSimulation.getGlobalTime() / 7f) * 3f - 4.5f, 8.2f, 8f);
+			//light0.getPosition().set(Math.sin(worldSimulation.getGlobalTime() / 8f) * 3f + 4.5f, 8.2f, 8f);
+			//light1.getPosition().set(Math.sin(worldSimulation.getGlobalTime() / 7f) * 3f - 4.5f, 8.2f, 8f);
+			character.getComponent(Rotation.class).setY(-worldSimulation.getGlobalTime());
 
 			if (kbh.isKeyPressed(GLFW.GLFW_KEY_ESCAPE)) {
 				kbh.ignoreKeyUntilRelease(GLFW.GLFW_KEY_ESCAPE);

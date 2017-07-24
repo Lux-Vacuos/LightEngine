@@ -85,9 +85,11 @@ public class SkyboxRenderer {
 		shader.loadLightPosition(lightPosition);
 		glBindVertexArray(dome.getVaoID());
 		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
 		glEnableVertexAttribArray(2);
 		glDrawElements(GL_TRIANGLES, dome.getVertexCount(), GL_UNSIGNED_INT, 0);
 		glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(1);
 		glDisableVertexAttribArray(2);
 		glBindVertexArray(0);
 		shader.stop();

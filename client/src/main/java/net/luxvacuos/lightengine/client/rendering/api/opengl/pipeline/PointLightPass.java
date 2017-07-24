@@ -23,18 +23,22 @@ package net.luxvacuos.lightengine.client.rendering.api.opengl.pipeline;
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_FLOAT;
+import static org.lwjgl.opengl.GL11.GL_RGBA;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLE_STRIP;
 import static org.lwjgl.opengl.GL11.glBindTexture;
 import static org.lwjgl.opengl.GL11.glDrawArrays;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE1;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE14;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE2;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE3;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE4;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE5;
-import static org.lwjgl.opengl.GL13.*;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE6;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
+import static org.lwjgl.opengl.GL30.GL_RGBA16F;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,8 +75,8 @@ public class PointLightPass extends DeferredPass {
 	@Override
 	public void init() {
 		fbos = new FBO[2];
-		fbos[0] = new FBO(width, height);
-		fbos[1] = new FBO(width, height);
+		fbos[0] = new FBO(width, height, GL_RGBA16F,GL_RGBA ,GL_FLOAT);
+		fbos[1] = new FBO(width, height, GL_RGBA16F,GL_RGBA, GL_FLOAT);
 		shader = new DeferredShadingShader(name);
 		shader.start();
 		shader.loadResolution(new Vector2d(width, height));

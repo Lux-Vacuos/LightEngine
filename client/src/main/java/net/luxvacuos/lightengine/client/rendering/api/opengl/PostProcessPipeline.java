@@ -22,6 +22,8 @@ package net.luxvacuos.lightengine.client.rendering.api.opengl;
 
 import static org.lwjgl.nanovg.NanoVG.NVG_IMAGE_FLIPY;
 import static org.lwjgl.nanovg.NanoVG.nvgDeleteImage;
+import static org.lwjgl.opengl.GL11.GL_RGB;
+import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
 import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
@@ -62,7 +64,7 @@ public abstract class PostProcessPipeline implements IPostProcessPipeline {
 			height = GLUtil.getTextureMaxSize();
 		float[] positions = { -1, 1, -1, -1, 1, 1, 1, -1 };
 		quad = window.getResourceLoader().loadToVAO(positions, 2);
-		fbo = new FBO(width, height);
+		fbo = new FBO(width, height, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
 		imagePasses = new ArrayList<>();
 		auxs = new FBO[3];
 

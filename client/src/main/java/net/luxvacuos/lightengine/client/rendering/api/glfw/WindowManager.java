@@ -44,7 +44,6 @@ import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
 import org.lwjgl.glfw.GLFWScrollCallback;
 import org.lwjgl.glfw.GLFWVidMode;
-import org.lwjgl.glfw.GLFWWindowFocusCallback;
 import org.lwjgl.glfw.GLFWWindowPosCallback;
 import org.lwjgl.glfw.GLFWWindowRefreshCallback;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
@@ -231,7 +230,6 @@ public final class WindowManager {
 	protected static GLFWCursorEnterCallback cursorEnterCallback;
 	protected static GLFWCursorPosCallback cursorPosCallback;
 	protected static GLFWMouseButtonCallback mouseButtonCallback;
-	protected static GLFWWindowFocusCallback windowFocusCallback;
 	protected static GLFWWindowSizeCallback windowSizeCallback;
 	protected static GLFWWindowPosCallback windowPosCallback;
 	protected static GLFWWindowRefreshCallback windowRefreshCallback;
@@ -273,14 +271,6 @@ public final class WindowManager {
 			}
 		};
 
-		windowFocusCallback = new GLFWWindowFocusCallback() {
-			@Override
-			public void invoke(long windowID, boolean focused) {
-				if (focused && getWindow(windowID) != null && !getWindow(windowID).isWindowFocused())
-					GLFW.glfwFocusWindow(windowID);
-			}
-		};
-
 		windowSizeCallback = new GLFWWindowSizeCallback() {
 			@Override
 			public void invoke(long windowID, int width, int height) {
@@ -294,9 +284,8 @@ public final class WindowManager {
 				window.framebufferWidth = w.get(0);
 				window.framebufferHeight = h.get(0);
 
-				GLFW.glfwGetWindowSize(windowID, w, h);
-				window.width = w.get(0);
-				window.height = h.get(0);
+				window.width = width;
+				window.height = height;
 				window.pixelRatio = (float) window.framebufferWidth / (float) window.width;
 				window.resetViewport();
 				window.resized = true;
@@ -332,6 +321,7 @@ public final class WindowManager {
 					return;
 				window.framebufferWidth = width;
 				window.framebufferHeight = height;
+				window.pixelRatio = (float) window.framebufferWidth / (float) window.width;
 			}
 		};
 

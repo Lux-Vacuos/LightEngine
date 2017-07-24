@@ -67,7 +67,7 @@ public class Button extends Component {
 	}
 
 	public boolean insideButton() {
-		return Mouse.getX() > rootComponent.rootX + alignedX && Mouse.getY() > rootComponent.rootY + alignedY
+		return Mouse.getX() >= rootComponent.rootX + alignedX && Mouse.getY() > rootComponent.rootY + alignedY
 				&& Mouse.getX() < rootComponent.rootX + alignedX + w
 				&& Mouse.getY() <= rootComponent.rootY + alignedY + h;
 	}

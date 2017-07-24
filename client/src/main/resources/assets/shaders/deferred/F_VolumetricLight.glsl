@@ -43,11 +43,14 @@ float illuminationDecay = 2.0;
 
 void main(void){
 	vec2 texcoord = textureCoords;
-	vec4 position = texture(gPosition,texcoord);
-    vec3 eyeDir = normalize(cameraPosition-position.xyz);
+	vec4 position = texture(gPosition, texcoord);
+	vec4 positionCenter = texture(gPosition, vec2(0.5, 0.5));
+	vec3 eyeDir = normalize(cameraPosition-position.xyz);
+    vec3 eyeDirCenter = normalize(cameraPosition-positionCenter.xyz);
     vec3 invertedlightDir = invertedLightPosition;
     invertedlightDir = normalize(invertedlightDir);
     float lightDirDOTviewDir = dot(invertedlightDir,eyeDir);
+    float lightDirCenter = dot(invertedlightDir,eyeDirCenter);
 	vec4 raysColor = texture(composite0, texcoord);
 	vec4 image = vec4(0.0);
 	if(useVolumetricLight == 1){
@@ -66,7 +69,7 @@ void main(void){
 				illuminationDecay *= decay;
 			}
 			raysColor *= exposure * lightDirDOTviewDir;
-			image += raysColor;
+			image += raysColor * lightDirCenter;
 		}
 	}
 	out_Color = image;

@@ -62,6 +62,7 @@ public class Compositor {
 		for (CompositorEffect compositorEffect : effects) {
 			compositorEffect.dispose();
 		}
+		effects.clear();
 	}
 
 	public void addEffect(CompositorEffect effect) {

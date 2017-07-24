@@ -9,7 +9,7 @@ import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class Sun {
 
-	private Vector3d rotation = new Vector3d(5, 0, 40);
+	private Vector3d rotation = new Vector3d(5, 0, -40);
 	private Vector3d sunPosition = new Vector3d(0, 0, 0);
 	private Vector3d invertedSunPosition = new Vector3d(0, 0, 0);
 	private SunCamera camera;

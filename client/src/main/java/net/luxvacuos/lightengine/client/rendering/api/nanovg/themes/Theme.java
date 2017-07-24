@@ -109,9 +109,9 @@ public class Theme {
 
 	}
 
-	public static void renderTitleBarText(long vg, String text, String font, int align, float x, float y,
+	public static float renderTitleBarText(long vg, String text, String font, int align, float x, float y,
 			float fontSize) {
-		theme.renderTitleBarText(vg, text, font, align, x, y, fontSize);
+		return theme.renderTitleBarText(vg, text, font, align, x, y, fontSize);
 
 	}
 
@@ -121,9 +121,9 @@ public class Theme {
 
 	}
 
-	public static void renderText(long vg, String text, String font, int align, float x, float y, float fontSize,
+	public static float renderText(long vg, String text, String font, int align, float x, float y, float fontSize,
 			NVGColor color) {
-		theme.renderText(vg, text, font, align, x, y, fontSize, color);
+		return theme.renderText(vg, text, font, align, x, y, fontSize, color);
 
 	}
 

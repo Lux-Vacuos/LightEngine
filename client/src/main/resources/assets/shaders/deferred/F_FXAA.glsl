@@ -23,7 +23,7 @@
 in vec2 textureCoords;
 in vec4 posPos;
 
-out vec4 out_Color;
+out vec3 out_Color;
 
 uniform sampler2D composite0;
 uniform vec2 resolution;
@@ -81,19 +81,16 @@ vec3 FxaaPixelShader(vec4 posPos, sampler2D tex, vec2 rcpFrame) {
     if((lumaB < lumaMin) || (lumaB > lumaMax)) return rgbA;
 		return rgbB; }
  
-vec4 PostFX(sampler2D tex, vec2 uv, float time) {
-	vec4 c = vec4(0.0);
+vec3 PostFX(sampler2D tex, vec2 uv, float time) {
+	vec3 c = vec3(0.0);
 	vec2 rcpFrame = vec2(1.0/rt_w, 1.0/rt_h);
-	c.rgb = FxaaPixelShader(posPos, tex, rcpFrame);
-	c.a = 1.0;
+	c = FxaaPixelShader(posPos, tex, rcpFrame);
 	return c;
 }
 
 void main(void){
-	if (useFXAA == 1) {
+	if (useFXAA == 1) 
 		out_Color = PostFX(composite0, textureCoords, 0);
-	} else {
-		out_Color = texture(composite0,textureCoords);
-	}
-    out_Color.a = 1;
+	else 
+		out_Color = texture(composite0,textureCoords).rgb;
 }

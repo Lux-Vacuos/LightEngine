@@ -33,11 +33,11 @@ public interface ITheme {
 			NVGColor backgroundColor, boolean decorations, boolean titleBar, boolean maximized, float ft, float fb,
 			float fr, float fl);
 
-	public void renderTitleBarText(long vg, String text, String font, int align, float x, float y, float fontSize);
+	public float renderTitleBarText(long vg, String text, String font, int align, float x, float y, float fontSize);
 
 	public void renderTitleBarButton(long vg, float x, float y, float w, float h, ButtonStyle style, boolean highlight);
 
-	public void renderText(long vg, String text, String font, int align, float x, float y, float fontSize,
+	public float renderText(long vg, String text, String font, int align, float x, float y, float fontSize,
 			NVGColor color);
 
 	public void renderImage(long vg, float x, float y, float w, float h, int image, float alpha);

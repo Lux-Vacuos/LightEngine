@@ -61,7 +61,8 @@ public class ScrollArea extends Component {
 		comp.render(window);
 		nvgRestore(window.getNVGID());
 		Theme.renderScrollBarV(window.getNVGID(), rootComponent.rootX + alignedX,
-				window.getHeight() - rootComponent.rootY - alignedY - h, w, h, scrollH / maxH, maxH + h / 2f);
+				window.getHeight() - rootComponent.rootY - alignedY - h, w, h, scrollH / maxH,
+				Maths.clamp(h - maxH, 20));
 	}
 
 	@Override

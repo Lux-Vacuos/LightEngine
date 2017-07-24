@@ -48,7 +48,7 @@ public class PlayerCamera extends CameraEntity {
 	private int mouseSpeed = 8;
 	private final int maxLookUp = 90;
 	private final int maxLookDown = -90;
-	private boolean flyMode = false;
+	private boolean flyMode = true;
 	private Vector2d center;
 
 	public PlayerCamera(String name, String uuid) {
@@ -57,6 +57,7 @@ public class PlayerCamera extends CameraEntity {
 
 		if (flyMode)
 			Components.AABB.get(this).setEnabled(false);
+		Components.AABB.get(this).setGravity(!flyMode);
 		int width = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
 		int height = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
 

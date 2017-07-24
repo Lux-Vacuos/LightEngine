@@ -22,7 +22,7 @@
 
 in vec2 textureCoords;
 
-out vec4 out_Color;
+out vec3 out_Color;
 
 uniform vec2 resolution;
 uniform vec3 cameraPosition;
@@ -38,8 +38,8 @@ uniform int useMotionBlur;
 
 void main(void){
 	vec2 texcoord = textureCoords;
-	vec4 textureColour = vec4(0.0);
-	textureColour = texture(composite0, texcoord);
+	vec3 textureColour = vec3(0.0);
+	textureColour = texture(composite0, texcoord).rgb;
 	if(useMotionBlur == 1){
 		vec3 sum = textureColour.rgb;
 		vec4 tex = vec4(texcoord, 0.0,0.0);
@@ -63,7 +63,7 @@ void main(void){
 				++samples;
 		}	
 		sum = sum/samples;
-		textureColour = vec4(sum, 1.0);
+		textureColour = sum;
 	}
 	
     out_Color = textureColour;

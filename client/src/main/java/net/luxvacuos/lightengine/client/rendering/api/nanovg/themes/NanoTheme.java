@@ -183,7 +183,7 @@ public class NanoTheme implements ITheme {
 	}
 
 	@Override
-	public void renderTitleBarText(long vg, String text, String font, int align, float x, float y, float fontSize) {
+	public float renderTitleBarText(long vg, String text, String font, int align, float x, float y, float fontSize) {
 		nvgSave(vg);
 		nvgFontSize(vg, fontSize);
 		nvgFontFace(vg, font);
@@ -196,7 +196,10 @@ public class NanoTheme implements ITheme {
 		nvgFontBlur(vg, 0);
 		nvgFillColor(vg, Theme.rgba(255, 255, 255, 255, colorA));
 		nvgText(vg, x, y, text);
+		float[] bounds = new float[4];
+		nvgTextBounds(vg, x, y, text, bounds);
 		nvgRestore(vg);
+		return bounds[2];
 	}
 
 	@Override
@@ -214,13 +217,15 @@ public class NanoTheme implements ITheme {
 			nvgFillColor(vg, titleBarButtonColor);
 		nvgFill(vg);
 
-		nvgBeginPath(vg);
 		switch (style) {
 		case CLOSE:
+			nvgBeginPath(vg);
 			nvgMoveTo(vg, x + w / 2 - 6, y + h / 2 - 6);
 			nvgLineTo(vg, x + w / 2 + 6, y + h / 2 + 6);
 			nvgMoveTo(vg, x + w / 2 - 6, y + h / 2 + 6);
 			nvgLineTo(vg, x + w / 2 + 6, y + h / 2 - 6);
+			nvgStrokeColor(vg, Theme.rgba(0, 0, 0, 255, colorA));
+			nvgStroke(vg);
 			break;
 		case MAXIMIZE:
 			nvgBeginPath(vg);
@@ -229,11 +234,15 @@ public class NanoTheme implements ITheme {
 			nvgLineTo(vg, x + w / 2 + 6, y + h / 2 + 6);
 			nvgLineTo(vg, x + w / 2 - 6, y + h / 2 + 6);
 			nvgLineTo(vg, x + w / 2 - 6, y + h / 2 - 6);
+			nvgStrokeColor(vg, Theme.rgba(0, 0, 0, 255, colorA));
+			nvgStroke(vg);
 			break;
 		case MINIMIZE:
 			nvgBeginPath(vg);
 			nvgMoveTo(vg, x + w / 2 - 6, y + h / 2);
 			nvgLineTo(vg, x + w / 2 + 6, y + h / 2);
+			nvgStrokeColor(vg, Theme.rgba(0, 0, 0, 255, colorA));
+			nvgStroke(vg);
 			break;
 		case LEFT_ARROW:
 			nvgBeginPath(vg);
@@ -242,6 +251,8 @@ public class NanoTheme implements ITheme {
 			nvgLineTo(vg, x + w / 2, y + h / 2 - 6);
 			nvgMoveTo(vg, x + w / 2 - 6, y + h / 2);
 			nvgLineTo(vg, x + w / 2 + 6, y + h / 2);
+			nvgStrokeColor(vg, Theme.rgba(0, 0, 0, 255, colorA));
+			nvgStroke(vg);
 			break;
 		case RIGHT_ARROW:
 			nvgBeginPath(vg);
@@ -250,23 +261,28 @@ public class NanoTheme implements ITheme {
 			nvgLineTo(vg, x + w / 2, y + h / 2 - 6);
 			nvgMoveTo(vg, x + w / 2 + 6, y + h / 2);
 			nvgLineTo(vg, x + w / 2 - 6, y + h / 2);
+			nvgStrokeColor(vg, Theme.rgba(0, 0, 0, 255, colorA));
+			nvgStroke(vg);
 			break;
 		case NONE:
 			break;
 		}
-		nvgStrokeColor(vg, Theme.rgba(0, 0, 0, 255, colorA));
-		nvgStroke(vg);
 		nvgRestore(vg);
 	}
 
 	@Override
-	public void renderText(long vg, String text, String font, int align, float x, float y, float fontSize,
+	public float renderText(long vg, String text, String font, int align, float x, float y, float fontSize,
 			NVGColor color) {
+		nvgSave(vg);
 		nvgFontSize(vg, fontSize);
 		nvgFontFace(vg, font);
 		nvgTextAlign(vg, align);
 		nvgFillColor(vg, color);
 		nvgText(vg, x, y, text);
+		float[] bounds = new float[4];
+		nvgTextBounds(vg, x, y, text, bounds);
+		nvgRestore(vg);
+		return bounds[2];
 	}
 
 	@Override
@@ -534,7 +550,6 @@ public class NanoTheme implements ITheme {
 
 	@Override
 	public void renderScrollBarV(long vg, float x, float y, float w, float h, float pos, float sizeV) {
-		float scrollv;
 		float scrollBarSize = (float) REGISTRY
 				.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/scrollBarSize"));
 
@@ -545,10 +560,9 @@ public class NanoTheme implements ITheme {
 		nvgFillColor(vg, Theme.rgba(128, 128, 128, 140, colorB));
 		nvgFill(vg);
 
-		scrollv = (h / sizeV) * (h / 2);
 		nvgBeginPath(vg);
-		nvgRect(vg, x + w - scrollBarSize, y + scrollBarSize + (h - 8 - scrollv) * pos, scrollBarSize,
-				scrollv - scrollBarSize * 2f + 8);
+		nvgRect(vg, x + w - scrollBarSize, y + scrollBarSize + pos * (h - scrollBarSize * 2f - sizeV), scrollBarSize,
+				sizeV);
 		nvgFillColor(vg, Theme.rgba(220, 220, 220, 255, colorB));
 		nvgFill(vg);
 

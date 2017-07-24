@@ -22,7 +22,7 @@
 
 in vec2 textureCoords;
 
-out vec4 out_Color;
+out vec3 out_Color;
 
 uniform vec2 resolution;
 uniform vec3 cameraPosition;
@@ -59,33 +59,33 @@ float remap(float t, float a, float b ) {
 	return sat( (t - a) / (b - a) );
 }
 
-vec4 spectrum_offset(float t ) {
-	vec4 ret;
+vec3 spectrum_offset(float t ) {
+	vec3 ret;
 	float lo = step(t,0.5);
 	float hi = 1.0-lo;
 	float w = linterp( remap( t, 1.0/6.0, 5.0/6.0 ) );
-	ret = vec4(lo,1.0,hi, 1.) * vec4(1.0-w, w, 1.0-w, 1.);
+	ret = vec3(lo,1.0,hi) * vec3(1.0-w, w, 1.0-w);
 
-	return pow( ret, vec4(1.0/2.2) );
+	return pow( ret, vec3(1.0/2.2) );
 }
 
 void main(void){
 	vec2 texcoord = textureCoords;
-	vec4 textureColour = vec4(0.0);
+	vec3 textureColour = vec3(0.0);
 	if(useChromaticAberration == 1) {
 		vec2 uv = (gl_FragCoord.xy/resolution.xy);
-		vec4 sumcol = vec4(0.0);
-		vec4 sumw = vec4(0.0);	
+		vec3 sumcol = vec3(0.0);
+		vec3 sumw = vec3(0.0);	
 		for (int i = 0; i < num_iter; ++i) {
 			float t = float(i) * reci_num_iter_f;
-			vec4 w = spectrum_offset(t);
+			vec3 w = spectrum_offset(t);
 			sumw += w;
-			sumcol += w * texture(composite0, barrelDistortion(uv, .6 * max_distort * t));
+			sumcol += w * texture(composite0, barrelDistortion(uv, .6 * max_distort * t)).rgb;
 		}
 
 		textureColour = sumcol / sumw;
 	} else {
-		textureColour = texture(composite0, texcoord);
+		textureColour = texture(composite0, texcoord).rgb;
 	}
     out_Color = textureColour;
 }
