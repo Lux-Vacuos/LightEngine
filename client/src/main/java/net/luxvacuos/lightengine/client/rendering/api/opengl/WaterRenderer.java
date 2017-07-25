@@ -32,6 +32,7 @@ import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE1;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE2;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE3;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE4;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE_CUBE_MAP;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
@@ -55,24 +56,27 @@ public class WaterRenderer implements IDisposable {
 
 	private RawModel quad;
 	private WaterShader shader;
-	private Texture dudv;
+	private Texture dudv, foamMask;;
 
 	public WaterRenderer(ResourceLoader loader) {
 		shader = new WaterShader();
 		setUpVAO(loader);
 		dudv = loader.loadTextureMisc("textures/waterDUDV.png");
+		foamMask = loader.loadTextureMisc("textures/foamMask.png");
 	}
 
-	public void render(List<WaterTile> water, CameraEntity camera, CubeMapTexture reflection, int refraction,
-			int depth, float time) {
+	public void render(List<WaterTile> water, CameraEntity camera, CubeMapTexture reflection, int refraction, int depth,
+			float time, Frustum frustum) {
 		if (water == null)
 			return;
 		if (water.isEmpty())
 			return;
 		prepareRender(camera, reflection, refraction, depth, time);
 		for (WaterTile tile : water) {
-			shader.loadTransformationMatrix(Maths.createTransformationMatrix(
-					new Vector3d(tile.getX(), tile.getY(), tile.getZ()), 0, 0, 0, WaterTile.TILE_SIZE));
+			float halfTileSize = WaterTile.TILE_SIZE * 2;
+			if (!frustum.cubeInFrustum(tile.getX() + halfTileSize, tile.getY(), tile.getZ() - halfTileSize, halfTileSize))
+				continue;
+			shader.loadTransformationMatrix(Maths.createTransformationMatrix(new Vector3d(tile.getX(), tile.getY(), tile.getZ()), 0, 0, 0, WaterTile.TILE_SIZE));
 			glDrawElements(GL_TRIANGLES, quad.getVertexCount(), GL_UNSIGNED_INT, 0);
 		}
 		unbind();
@@ -96,6 +100,8 @@ public class WaterRenderer implements IDisposable {
 		glBindTexture(GL_TEXTURE_2D, dudv.getID());
 		glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_2D, depth);
+		glActiveTexture(GL_TEXTURE4);
+		glBindTexture(GL_TEXTURE_2D, foamMask.getID());
 	}
 
 	private void unbind() {
@@ -110,6 +116,7 @@ public class WaterRenderer implements IDisposable {
 	public void dispose() {
 		shader.dispose();
 		dudv.dispose();
+		foamMask.dispose();
 	}
 
 	private void setUpVAO(ResourceLoader loader) {

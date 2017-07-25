@@ -34,17 +34,17 @@ uniform float time;
 
 #define PI 3.14159265359
 
-const float A = 0.2;	// amplitude
+const float A = 0.4;	// amplitude
 const float L = 8;	// wavelength
 const float w = 2*PI/L;
-const float Q = 0.8;
+const float Q = 1;
 const float tiling = 2.0;
 
 void main() {
 	vec4 worldPosition = transformationMatrix * vec4(position, 1.0);
 	
 	vec3 P0 = worldPosition.xyz;
-	vec2 D = vec2(1, 1);
+	vec2 D = vec2(1, 0.5);
 	float dotD = dot(P0.xz, D);
 	float C = cos(w*dotD + time/4);
 	float S = sin(w*dotD + time/4);

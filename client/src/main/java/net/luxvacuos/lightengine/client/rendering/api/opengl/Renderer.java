@@ -220,7 +220,7 @@ public class Renderer {
 			forwardPass.render(camera, sunCamera, frustum, shadowFBO);
 		waterRenderer.render(waterTiles, camera, environmentRenderer.getCubeMapTexture(),
 				deferredPipeline.getLastTexture(), deferredPipeline.getMainFBO().getDepthTex(),
-				worldSimulation.getGlobalTime());
+				worldSimulation.getGlobalTime(), frustum);
 		particleRenderer.render(particles, camera);
 		GPUProfiler.end();
 		postProcessPipeline.end();

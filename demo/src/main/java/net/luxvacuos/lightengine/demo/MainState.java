@@ -144,9 +144,9 @@ public class MainState extends AbstractState {
 			physicsSystem.getEngine().addEntity(character);
 
 			waterTiles = new ArrayList<>();
-			for (int x = -64; x <= 64; x++)
-				for (int z = -64; z <= 64; z++)
-					waterTiles.add(new WaterTile(x * WaterTile.TILE_SIZE, 5, z * WaterTile.TILE_SIZE));
+			for (int x = -128; x <= 128; x++)
+				for (int z = -128; z <= 128; z++)
+					waterTiles.add(new WaterTile(x * WaterTile.TILE_SIZE, 75, z * WaterTile.TILE_SIZE));
 
 			Mouse.setGrabbed(true);
 			Renderer.render(engine.getEntities(), ParticleDomain.getParticles(), waterTiles, lightRenderer, camera,

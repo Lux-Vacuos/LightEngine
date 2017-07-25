@@ -32,6 +32,7 @@ uniform samplerCube reflection;
 uniform sampler2D refraction;
 uniform sampler2D dudv;
 uniform sampler2D depth;
+uniform sampler2D foamMask;
 uniform float time;
 
 const float near = 0.1;
@@ -45,36 +46,50 @@ void main(void) {
 
 	vec2 ndc = (clipSpaceOut.xy / clipSpaceOut.w) / 2.0 + 0.5;
 
-	float dist = texture(depth, ndc).r;
-	float floorDistance = 2.0 * near * far / (far + near - (2.0 * dist - 1.0) * (far - near));
+	vec4 refractV = clipSpaceOut;
+	refractV.xyz /= refractV.w;
+	refractV.x = 0.5f*refractV.x + 0.5f;
+	refractV.y = 0.5f*refractV.y + 0.5f;
+	refractV.z = .1f / refractV.z;
 
-	dist = gl_FragCoord.z;
-	float waterDistance = 2.0 * near * far / (far + near - (2.0 * dist - 1.0) * (far - near));
-	float waterDepth = floorDistance - waterDistance;
+	vec3 N = normalize(normal);
+	vec3 V = normalize(cameraPosition - passPositionOut);
+	vec3 R = reflect(-V, N);
 
 	vec2 distortion1 = (texture(dudv, vec2(textureCoordsOut.x + time / 40, textureCoordsOut.y + time / 20)).rg * 2.0 - 1.0) * 0.02;
 	vec2 distortion2 = (texture(dudv, vec2(textureCoordsOut.x + time / 20, textureCoordsOut.y + time / 30)).rg * 2.0 - 1.0) * 0.02;
 	vec2 distortion = distortion1 + distortion2;
 
-	vec3 N = normalize(normal);
-	vec3 V = normalize(cameraPosition - passPositionOut);
-	vec3 R = reflect(-V, N);
+
+	float channelA = texture(foamMask, textureCoordsOut - vec2(time / 40, cos(textureCoordsOut.x))).r; 
+	float channelB = texture(foamMask, textureCoordsOut * 0.5 + vec2(sin(textureCoordsOut.y), time / 40)).b; 
+		
+	float mask = (channelA + channelB) * 0.95;
+	mask = pow(mask, 2);
+	mask = clamp(mask, 0, 1);
+	
+	float dist = texture(depth, ndc).r;
+	float distDistort = texture(depth, refractV.xy - refractV.z * N.xz * 0.5 + distortion).r;
+	float floorDistance = 2.0 * near * far / (far + near - (2.0 * dist - 1.0) * (far - near));
+	float floorDistanceDistort = 2.0 * near * far / (far + near - (2.0 * distDistort - 1.0) * (far - near));
+
+	dist = gl_FragCoord.z;
+	float waterDistance = 2.0 * near * far / (far + near - (2.0 * dist - 1.0) * (far - near));
+	float waterDepth = floorDistance - waterDistance;
+	float waterDepthDistort = floorDistanceDistort - waterDistance;
 
 	float F0 = 0.04;
 	float F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, 0);
 
 	vec3 reflectionColor = texture(reflection, R + (distortion.x, 0, distortion.y)).rgb;
 
-	vec4 refractV = clipSpaceOut;
-	refractV.xyz /= refractV.w;
-	refractV.x = 0.5f*refractV.x + 0.5f;
-	refractV.y = 0.5f*refractV.y + 0.5f;
-	refractV.z = .1f / refractV.z;
-	vec3 refractionColor = texture(refraction, refractV.xy - refractV.z * N.xz + distortion).rgb;
+	vec3 refractionColor = texture(refraction, refractV.xy - refractV.z * N.xz * 0.5 + distortion).rgb;
+	refractionColor = mix(refractionColor, refractionColor * vec3(0.0392156862745098, 0.3647058823529412, 0.6509803921568627), smoothstep(0, 20, waterDepthDistort));
 	outColor.rgb = mix(reflectionColor, refractionColor, 1.0 - F);
 	outColor.a = 1;
-	if(waterDepth < 1) {
-		//outColor.rgb = mix(vec3(1.0), outColor.rgb, 1 - smoothstep(0, 1, waterDepth));
-		outColor.a = smoothstep(0, 1, waterDepth);
+	if(waterDepth <= 2) {
+		outColor.rgb = mix(vec3(0.8), outColor.rgb, smoothstep(0, 0.5, waterDepth));
+		outColor.rgb = mix(outColor.rgb, vec3(0.8), clamp(mask - smoothstep(0, 2, waterDepth), 0, 1) * 0.95);
+		outColor.a = smoothstep(0, 0.2, waterDepth);
 	}
 }

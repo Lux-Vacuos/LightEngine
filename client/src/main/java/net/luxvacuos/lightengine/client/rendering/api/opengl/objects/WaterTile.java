@@ -21,7 +21,7 @@
 package net.luxvacuos.lightengine.client.rendering.api.opengl.objects;
 
 public class WaterTile {
-	public static final float TILE_SIZE = 1;
+	public static final float TILE_SIZE = 2;
 
 	private float x, y, z;
 
