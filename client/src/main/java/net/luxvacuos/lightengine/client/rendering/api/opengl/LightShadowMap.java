@@ -42,15 +42,10 @@ import static org.lwjgl.opengl.GL14.GL_TEXTURE_COMPARE_MODE;
 import static org.lwjgl.opengl.GL30.GL_DEPTH_ATTACHMENT;
 import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER;
 import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_COMPLETE;
-import static org.lwjgl.opengl.GL30.GL_RENDERBUFFER;
 import static org.lwjgl.opengl.GL30.glBindFramebuffer;
-import static org.lwjgl.opengl.GL30.glBindRenderbuffer;
 import static org.lwjgl.opengl.GL30.glCheckFramebufferStatus;
 import static org.lwjgl.opengl.GL30.glDeleteFramebuffers;
-import static org.lwjgl.opengl.GL30.glDeleteRenderbuffers;
 import static org.lwjgl.opengl.GL30.glGenFramebuffers;
-import static org.lwjgl.opengl.GL30.glGenRenderbuffers;
-import static org.lwjgl.opengl.GL30.glRenderbufferStorage;
 import static org.lwjgl.opengl.GL32.glFramebufferTexture;
 
 import java.nio.ByteBuffer;
@@ -60,7 +55,7 @@ import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 
 public class LightShadowMap implements IFBO {
 
-	private int fbo, shadowRB;
+	private int fbo;
 
 	private int shadowMap;
 
@@ -78,11 +73,7 @@ public class LightShadowMap implements IFBO {
 		float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 		fbo = glGenFramebuffers();
-		shadowRB = glGenRenderbuffers();
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
-		glBindRenderbuffer(GL_RENDERBUFFER, shadowRB);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
 
 		shadowMap = glGenTextures();
 		glBindTexture(GL_TEXTURE_2D, shadowMap);
@@ -108,7 +99,6 @@ public class LightShadowMap implements IFBO {
 	public void dispose() {
 		glDeleteTextures(shadowMap);
 		glDeleteFramebuffers(fbo);
-		glDeleteRenderbuffers(shadowRB);
 	}
 
 	@Override

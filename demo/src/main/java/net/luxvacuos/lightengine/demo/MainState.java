@@ -4,6 +4,8 @@ import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.lwjgl.glfw.GLFW;
@@ -25,13 +27,14 @@ import net.luxvacuos.lightengine.client.ecs.entities.Sun;
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
 import net.luxvacuos.lightengine.client.input.Mouse;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.LightRenderer;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.ParticleDomain;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CachedAssets;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CachedTexture;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Light;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Model;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.ParticleTexture;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.WaterTile;
 import net.luxvacuos.lightengine.client.resources.AssimpResourceLoader;
 import net.luxvacuos.lightengine.client.ui.windows.GameWindow;
 import net.luxvacuos.lightengine.client.world.ClientPhysicsSystem;
@@ -41,7 +44,6 @@ import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.ecs.components.Position;
-import net.luxvacuos.lightengine.universal.ecs.components.Rotation;
 import net.luxvacuos.lightengine.universal.ecs.components.Scale;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 import net.luxvacuos.lightengine.universal.world.PhysicsSystem;
@@ -58,10 +60,13 @@ public class MainState extends AbstractState {
 	private GameWindow gameWindow;
 	private PauseWindow pauseWindow;
 	private Light light0, light1;
+	private LightRenderer lightRenderer;
 
-	private RenderEntity mat1, mat2, mat3, mat4, mat5, rocket, plane, character, cerberus;
+	private RenderEntity mat2, plane, character;
 
 	private CachedTexture fire;
+
+	private List<WaterTile> waterTiles;
 
 	public static boolean paused = false, exitWorld = false, loaded = false;
 
@@ -105,54 +110,26 @@ public class MainState extends AbstractState {
 			// new Vector3f(1, 1, 1)));
 			// Renderer.getLightRenderer().addLight(new Light(new Vector3f(0, 5, 0),
 			// new Vector3f(1, 1, 1)));
+
+			lightRenderer = new LightRenderer();
+
 			light0 = new Light(new Vector3d(4.5f, 4.2f, 8f), new Vector3f(50, 50, 50), new Vector3d(245, -45, 0), 50,
 					40);
-			//light0.setShadow(true);
-			//Renderer.getLightRenderer().addLight(light0);
+			// light0.setShadow(true);
+			// Renderer.getLightRenderer().addLight(light0);
 			light1 = new Light(new Vector3d(-4.5f, 4.2f, 8f), new Vector3f(50, 50, 50), new Vector3d(245, 45, 0), 50,
 					40);
-			//light1.setShadow(true);
-			//Renderer.getLightRenderer().addLight(light1);
-
-			mat1 = new RenderEntity("", aLoader.loadModel("levels/test_state/models/sphere.blend"));
-			mat1.getComponent(Position.class).set(0, 1, 0);
+			// light1.setShadow(true);
+			// Renderer.getLightRenderer().addLight(light1);
 
 			mat2 = new RenderEntity("", aLoader.loadModel("levels/test_state/models/sphere.blend"));
 			mat2.getComponent(Position.class).set(3, 1, 0);
 
-			mat3 = new RenderEntity("", aLoader.loadModel("levels/test_state/models/sphere.blend"));
-			mat3.getComponent(Position.class).set(6, 1, 0);
-
-			mat4 = new RenderEntity("", aLoader.loadModel("levels/test_state/models/sphere.blend"));
-			mat4.getComponent(Position.class).set(9, 1, 0);
-			/*
-			 * dragon = aLoader.loadModel("levels/test_state/models/dragon.blend");
-			 * 
-			 * mat5 = new RenderEntity("", dragon);
-			 * 
-			 * mat5.getComponent(Position.class).set(-3, 0, 3);
-			 * mat5.getComponent(Scale.class).setScale(0.5f);
-			 */
-
-			/*
-			 * rocketM = aLoader.loadModel("levels/test_state/models/Rocket.obj");
-			 * 
-			 * rocket = new RenderEntity("", rocketM);
-			 * rocket.getComponent(Position.class).set(0, 0, -5);
-			 */
-
-			plane = new RenderEntity("", aLoader.loadModel("levels/test_state/models/plane.blend"));
+			plane = new RenderEntity("", aLoader.loadModel("levels/test_state/models/city.blend"));
 
 			character = new RenderEntity("", aLoader.loadModel("levels/test_state/models/tigre_sumatra.blend"));
 			character.getComponent(Position.class).set(0, 0.67335f, 5);
 			character.getComponent(Scale.class).setScale(2f);
-			/*
-			 * cerberusM = aLoader.loadModel("levels/test_state/models/cerberus.blend");
-			 * 
-			 * cerberus = new RenderEntity("", cerberusM);
-			 * cerberus.getComponent(Position.class).set(5, 1.25f, 5);
-			 * cerberus.getComponent(Scale.class).setScale(0.5f);
-			 */
 
 			fire = CachedAssets.loadTexture("textures/particles/fire0.png");
 
@@ -163,19 +140,17 @@ public class MainState extends AbstractState {
 			camera.setPosition(new Vector3d(0, 2, 0));
 			physicsSystem.getEngine().addEntity(camera);
 			physicsSystem.getEngine().addEntity(plane);
-			physicsSystem.getEngine().addEntity(mat1);
 			physicsSystem.getEngine().addEntity(mat2);
-			physicsSystem.getEngine().addEntity(mat3);
-			physicsSystem.getEngine().addEntity(mat4);
-			// physicsSystem.getEngine().addEntity(mat5);
-			/*
-			 * physicsSystem.getEngine().addEntity(rocket);
-			 */ physicsSystem.getEngine().addEntity(character);
-			/*
-			 * physicsSystem.getEngine().addEntity(cerberus);
-			 */
+			physicsSystem.getEngine().addEntity(character);
+
+			waterTiles = new ArrayList<>();
+			for (int x = -64; x <= 64; x++)
+				for (int z = -64; z <= 64; z++)
+					waterTiles.add(new WaterTile(x * WaterTile.TILE_SIZE, 5, z * WaterTile.TILE_SIZE));
+
 			Mouse.setGrabbed(true);
-			Renderer.render(engine.getEntities(), ParticleDomain.getParticles(), camera, worldSimulation, sun, 0);
+			Renderer.render(engine.getEntities(), ParticleDomain.getParticles(), waterTiles, lightRenderer, camera,
+					worldSimulation, sun, 0);
 			gameWindow = new GameWindow(0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
 					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
 					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")));
@@ -187,12 +162,14 @@ public class MainState extends AbstractState {
 
 	@Override
 	public void end() {
+		loaded = false;
+		physicsSystem.getEngine().removeAllEntities();
 		TaskManager.addTask(() -> {
+			waterTiles.clear();
 			fire.dispose();
-			physicsSystem.getEngine().removeAllEntities();
+			lightRenderer.dispose();
 		});
 		super.end();
-		loaded = false;
 	}
 
 	@Override
@@ -203,14 +180,15 @@ public class MainState extends AbstractState {
 		Window window = GraphicalSubsystem.getMainWindow();
 		KeyboardHandler kbh = window.getKeyboardHandler();
 		if (!paused) {
-			Renderer.update(delta);
+			lightRenderer.update(delta);
 			engine.update(delta);
 			sun.update(camera.getPosition(), worldSimulation.update(delta), delta);
-			//particleSystem.generateParticles(particlesPoint, delta);
+			// particleSystem.generateParticles(particlesPoint, delta);
 			ParticleDomain.update(delta, camera);
-			//light0.getPosition().set(Math.sin(worldSimulation.getGlobalTime() / 8f) * 3f + 4.5f, 8.2f, 8f);
-			//light1.getPosition().set(Math.sin(worldSimulation.getGlobalTime() / 7f) * 3f - 4.5f, 8.2f, 8f);
-			character.getComponent(Rotation.class).setY(-worldSimulation.getGlobalTime());
+			// light0.getPosition().set(Math.sin(worldSimulation.getGlobalTime() / 8f) * 3f
+			// + 4.5f, 8.2f, 8f);
+			// light1.getPosition().set(Math.sin(worldSimulation.getGlobalTime() / 7f) * 3f
+			// - 4.5f, 8.2f, 8f);
 
 			if (kbh.isKeyPressed(GLFW.GLFW_KEY_ESCAPE)) {
 				kbh.ignoreKeyUntilRelease(GLFW.GLFW_KEY_ESCAPE);
@@ -249,7 +227,8 @@ public class MainState extends AbstractState {
 	public void render(float alpha) {
 		if (!loaded)
 			return;
-		Renderer.render(engine.getEntities(), ParticleDomain.getParticles(), camera, worldSimulation, sun, alpha);
+		Renderer.render(engine.getEntities(), ParticleDomain.getParticles(), waterTiles, lightRenderer, camera,
+				worldSimulation, sun, alpha);
 		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		Renderer.clearColors(1, 1, 1, 1);
 		GraphicalSubsystem.getWindowManager().render();

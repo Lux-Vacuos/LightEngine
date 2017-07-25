@@ -4,6 +4,8 @@ import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.lwjgl.glfw.GLFW;
@@ -22,13 +24,16 @@ import net.luxvacuos.lightengine.client.ecs.entities.RenderEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.Sun;
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.LightRenderer;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.ParticleDomain;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.WaterTile;
 import net.luxvacuos.lightengine.client.resources.AssimpResourceLoader;
 import net.luxvacuos.lightengine.client.ui.windows.GameWindow;
 import net.luxvacuos.lightengine.client.world.ClientPhysicsSystem;
 import net.luxvacuos.lightengine.demo.ecs.entities.TPSCamera;
 import net.luxvacuos.lightengine.demo.ui.PauseWindow;
+import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
@@ -43,10 +48,13 @@ public class GameState extends AbstractState {
 	private CameraEntity camera;
 	private GameWindow gameWindow;
 	private PauseWindow pauseWindow;
-	
-	private RenderEntity level;
+	private LightRenderer lightRenderer;
 
-	public static boolean paused = false, exitWorld = false;
+	private RenderEntity level;
+	
+	private List<WaterTile> waterTiles;
+
+	public static boolean paused = false, exitWorld = false, loaded = false;
 
 	protected GameState() {
 		super("mainState");
@@ -54,61 +62,75 @@ public class GameState extends AbstractState {
 
 	@Override
 	public void start() {
-		Window window = GraphicalSubsystem.getMainWindow();
+		TaskManager.addTask(() -> {
 
-		//camera = new PlayerCamera("player", UUID.randomUUID().toString());
-		camera = new TPSCamera("player", UUID.randomUUID().toString());
-		camera.setRotation(new Vector3d(50, 45, 0));
-		camera.setPosition(new Vector3d(0,10,0));
-		sun = new Sun();
-		
-		Renderer.setOnResize(() -> {
-			ClientComponents.PROJECTION_MATRIX.get(camera)
-			.setProjectionMatrix(Renderer.createProjectionMatrix(
+			Window window = GraphicalSubsystem.getMainWindow();
+
+			// camera = new PlayerCamera("player", UUID.randomUUID().toString());
+			camera = new TPSCamera("player", UUID.randomUUID().toString());
+			camera.setRotation(new Vector3d(50, 45, 0));
+			camera.setPosition(new Vector3d(0, 10, 0));
+			sun = new Sun();
+
+			Renderer.setOnResize(() -> {
+				ClientComponents.PROJECTION_MATRIX.get(camera)
+						.setProjectionMatrix(Renderer.createProjectionMatrix(
+								(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
+								(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
+								(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/fov")),
+								ClientVariables.NEAR_PLANE, ClientVariables.FAR_PLANE));
+			});
+
+			AssimpResourceLoader aLoader = window.getAssimpResourceLoader();
+
+			level = new RenderEntity("", aLoader.loadModel("levels/test_state/models/level.blend"));
+
+			worldSimulation = new ClientWorldSimulation(10000);
+			engine = new Engine();
+			physicsSystem = new ClientPhysicsSystem();
+			physicsSystem.addBox(new BoundingBox(new Vector3(-50, -1, -50), new Vector3(50, 0, 50)));
+			engine.addSystem(physicsSystem);
+
+			physicsSystem.getEngine().addEntity(camera);
+			physicsSystem.getEngine().addEntity(level);
+			
+			waterTiles = new ArrayList<>();
+			
+			Renderer.render(engine.getEntities(), ParticleDomain.getParticles(),waterTiles, lightRenderer, camera, worldSimulation,
+					sun, 0);
+			gameWindow = new GameWindow(0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
 					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
-					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
-					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/fov")),
-					ClientVariables.NEAR_PLANE, ClientVariables.FAR_PLANE));
+					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")));
+			GraphicalSubsystem.getWindowManager().addWindow(gameWindow);
+			loaded = true;
 		});
-
-		AssimpResourceLoader aLoader = window.getAssimpResourceLoader();
-		
-		level = new RenderEntity("", aLoader.loadModel("levels/test_state/models/level.blend"));
-
-		worldSimulation = new ClientWorldSimulation(10000);
-		engine = new Engine();
-		physicsSystem = new ClientPhysicsSystem();
-		physicsSystem.addBox(new BoundingBox(new Vector3(-50, -1, -50), new Vector3(50, 0, 50)));
-		engine.addSystem(physicsSystem);
-
-		physicsSystem.getEngine().addEntity(camera);
-		physicsSystem.getEngine().addEntity(level);
-		Renderer.render(engine.getEntities(), ParticleDomain.getParticles(), camera, worldSimulation, sun, 0);
-		gameWindow = new GameWindow(0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
-				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
-				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")));
-		GraphicalSubsystem.getWindowManager().addWindow(gameWindow);
 		super.start();
 	}
 
 	@Override
 	public void end() {
-		physicsSystem.getEngine().removeAllEntities();
+		loaded = false;
+		TaskManager.addTask(() -> {
+			physicsSystem.getEngine().removeAllEntities();
+			lightRenderer.dispose();
+		});
 		super.end();
 	}
 
 	@Override
 	public void update(float delta) {
+		if (!loaded)
+			return;
 		GraphicalSubsystem.getWindowManager().update(delta);
 		Window window = GraphicalSubsystem.getMainWindow();
 		KeyboardHandler kbh = window.getKeyboardHandler();
 		if (!paused) {
-			Renderer.update(delta);
+			lightRenderer.update(delta);
 			engine.update(delta);
 			sun.update(camera.getPosition(), worldSimulation.update(delta), delta);
-			//particleSystem.generateParticles(particlesPoint, delta);
+			// particleSystem.generateParticles(particlesPoint, delta);
 			ParticleDomain.update(delta, camera);
-			
+
 			if (kbh.isKeyPressed(GLFW.GLFW_KEY_ESCAPE)) {
 				kbh.ignoreKeyUntilRelease(GLFW.GLFW_KEY_ESCAPE);
 				paused = true;
@@ -142,7 +164,10 @@ public class GameState extends AbstractState {
 
 	@Override
 	public void render(float alpha) {
-		Renderer.render(engine.getEntities(), ParticleDomain.getParticles(), camera, worldSimulation, sun, alpha);
+		if (!loaded)
+			return;
+		Renderer.render(engine.getEntities(), ParticleDomain.getParticles(),waterTiles, lightRenderer, camera, worldSimulation,
+				sun, alpha);
 		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		Renderer.clearColors(1, 1, 1, 1);
 		GraphicalSubsystem.getWindowManager().render();

@@ -52,9 +52,9 @@ public class Light {
 	}
 
 	public void init() {
-		camera = new SpotlightCamera(radius * 2f, 1024, 1024);
+		camera = new SpotlightCamera(radius * 2f, 512, 512);
 		if (shadow) {
-			shadowMap = new LightShadowMap(1024, 1024);
+			shadowMap = new LightShadowMap(512, 512);
 		}
 	}
 

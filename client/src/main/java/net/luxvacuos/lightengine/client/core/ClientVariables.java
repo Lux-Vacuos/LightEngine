@@ -72,5 +72,8 @@ public class ClientVariables extends GlobalVariables {
 	public static final String FRAGMENT_PRE_FILTERED_ENV = "F_PreFilteredEnvironment.glsl";
 	public static final String VERTEX_BRDF_INTEGRATION_MAP = "V_BRDFIntegrationMap.glsl";
 	public static final String FRAGMENT_BRDF_INTEGRATION_MAP = "F_BRDFIntegrationMap.glsl";
+	public static final String VERTEX_WATER = "V_Water.glsl";
+	public static final String FRAGMENT_WATER = "F_Water.glsl";
+	public static final String GEOMETRY_WATER = "G_Water.glsl";
 
 }

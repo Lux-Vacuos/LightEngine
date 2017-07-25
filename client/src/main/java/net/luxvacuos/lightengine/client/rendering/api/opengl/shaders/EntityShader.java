@@ -47,12 +47,6 @@ public class EntityShader extends ShaderProgram {
 		super.storeAllUniformLocations(transformationMatrix, projectionMatrix, viewMatrix, material);
 	}
 
-	/**
-	 * Loads Transformation Matrixd to the shader
-	 * 
-	 * @param matrix
-	 *            Transformation Matrixd
-	 */
 	public void loadTransformationMatrix(Matrix4d matrix) {
 		transformationMatrix.loadMatrix(matrix);
 	}
@@ -61,22 +55,10 @@ public class EntityShader extends ShaderProgram {
 		this.material.loadMaterial(mat);
 	}
 
-	/**
-	 * Loads View Matrixd to the shader
-	 * 
-	 * @param camera
-	 *            Camera
-	 */
-	public void loadviewMatrix(CameraEntity camera) {
+	public void loadViewMatrix(CameraEntity camera) {
 		viewMatrix.loadMatrix(camera.getViewMatrix());
 	}
 
-	/**
-	 * Loads Projection Matrixd to the shader
-	 * 
-	 * @param projection
-	 *            Projection Matrixd
-	 */
 	public void loadProjectionMatrix(Matrix4d projection) {
 		projectionMatrix.loadMatrix(projection);
 	}

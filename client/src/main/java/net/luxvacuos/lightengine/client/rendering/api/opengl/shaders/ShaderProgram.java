@@ -24,6 +24,7 @@ import static org.lwjgl.opengl.GL11.GL_FALSE;
 import static org.lwjgl.opengl.GL20.GL_COMPILE_STATUS;
 import static org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER;
 import static org.lwjgl.opengl.GL20.GL_VERTEX_SHADER;
+import static org.lwjgl.opengl.GL32.GL_GEOMETRY_SHADER;
 import static org.lwjgl.opengl.GL20.glAttachShader;
 import static org.lwjgl.opengl.GL20.glBindAttribLocation;
 import static org.lwjgl.opengl.GL20.glCompileShader;
@@ -51,12 +52,6 @@ import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.Attrib
 import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.IUniform;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
-/**
- * Shader Program, Use to create shaders
- * 
- * @author Guerra24 <pablo230699@hotmail.com>
- * @category Rendering
- */
 public abstract class ShaderProgram implements IDisposable {
 	/**
 	 * Program ID
@@ -64,21 +59,8 @@ public abstract class ShaderProgram implements IDisposable {
 	private int programID;
 
 	private boolean loaded;
-	/**
-	 * Shader bind status
-	 */
 	private static boolean binded = false;
 
-	/**
-	 * Constructor, Creates a Shader Program Using a Vertex Shader and a Fragment
-	 * Shader
-	 * 
-	 * @param vertexFile
-	 *            Vertex Shader Path
-	 * @param fragmentFile
-	 *            Fragment Shader Path
-	 * @throws Exception
-	 */
 	public ShaderProgram(String vertexFile, String fragmentFile, Attribute... inVariables) {
 		int vertexShaderID = loadShader(vertexFile, GL_VERTEX_SHADER);
 		int fragmentShaderID = loadShader(fragmentFile, GL_FRAGMENT_SHADER);
@@ -90,6 +72,25 @@ public abstract class ShaderProgram implements IDisposable {
 		glDetachShader(programID, vertexShaderID);
 		glDetachShader(programID, fragmentShaderID);
 		glDeleteShader(vertexShaderID);
+		glDeleteShader(fragmentShaderID);
+		loaded = true;
+	}
+	
+	public ShaderProgram(String vertexFile, String fragmentFile, String geometryFile, Attribute... inVariables) {
+		int vertexShaderID = loadShader(vertexFile, GL_VERTEX_SHADER);
+		int geometryShaderID = loadShader(geometryFile, GL_GEOMETRY_SHADER);
+		int fragmentShaderID = loadShader(fragmentFile, GL_FRAGMENT_SHADER);
+		programID = glCreateProgram();
+		glAttachShader(programID, vertexShaderID);
+		glAttachShader(programID, geometryShaderID);
+		glAttachShader(programID, fragmentShaderID);
+		bindAttributes(inVariables);
+		glLinkProgram(programID);
+		glDetachShader(programID, vertexShaderID);
+		glDetachShader(programID, geometryShaderID);
+		glDetachShader(programID, fragmentShaderID);
+		glDeleteShader(vertexShaderID);
+		glDeleteShader(geometryShaderID);
 		glDeleteShader(fragmentShaderID);
 		loaded = true;
 	}
@@ -139,7 +140,7 @@ public abstract class ShaderProgram implements IDisposable {
 	}
 
 	/**
-	 * Clear all the shader loaded data
+	 * Clear all loaded data
 	 * 
 	 */
 	@Override
@@ -163,16 +164,6 @@ public abstract class ShaderProgram implements IDisposable {
 		}
 	}
 
-	/**
-	 * Load a Shader File
-	 * 
-	 * @param file
-	 *            Shader Path
-	 * @param type
-	 *            Type of Shader
-	 * @return Shader ID
-	 * 
-	 */
 	private int loadShader(String file, int type) {
 		StringBuilder shaderSource = new StringBuilder();
 		InputStream filet = getClass().getClassLoader().getResourceAsStream("assets/shaders/" + file);

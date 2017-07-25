@@ -53,6 +53,7 @@ import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CubeMapTexture;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Light;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.ParticleTexture;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.WaterTile;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.pipeline.MultiPass;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.pipeline.PostProcess;
 import net.luxvacuos.lightengine.client.ui.OnAction;
@@ -68,11 +69,11 @@ public class Renderer {
 	private static SkyboxRenderer skyboxRenderer;
 	private static IDeferredPipeline deferredPipeline;
 	private static IPostProcessPipeline postProcessPipeline;
-	private static LightRenderer lightRenderer;
 	private static EnvironmentRenderer environmentRenderer;
 	private static ParticleRenderer particleRenderer;
 	private static IrradianceCapture irradianceCapture;
 	private static PreFilteredEnvironment preFilteredEnvironment;
+	private static WaterRenderer waterRenderer;
 
 	private static ShadowFBO shadowFBO;
 
@@ -105,16 +106,16 @@ public class Renderer {
 		TaskManager.addTask(() -> deferredPipeline = new MultiPass());
 		TaskManager.addTask(() -> postProcessPipeline = new PostProcess(window));
 		TaskManager.addTask(() -> particleRenderer = new ParticleRenderer(window.getResourceLoader()));
-		lightRenderer = new LightRenderer();
 		TaskManager.addTask(() -> irradianceCapture = new IrradianceCapture(window.getResourceLoader()));
 		TaskManager.addTask(() -> environmentRenderer = new EnvironmentRenderer(
 				new CubeMapTexture(window.getResourceLoader().createEmptyCubeMap(128, true, false), 128)));
 		TaskManager.addTask(() -> preFilteredEnvironment = new PreFilteredEnvironment(window));
+		TaskManager.addTask(() -> waterRenderer = new WaterRenderer(window.getResourceLoader()));
 	}
 
 	public static void render(ImmutableArray<Entity> entities, Map<ParticleTexture, List<Particle>> particles,
-			CameraEntity camera, IWorldSimulation worldSimulation, Sun sun, float alpha) {
-
+			List<WaterTile> waterTiles, LightRenderer lightRenderer, CameraEntity camera,
+			IWorldSimulation worldSimulation, Sun sun, float alpha) {
 		resetState();
 		GPUProfiler.start("Main Renderer");
 		GPUProfiler.start("EnvMap");
@@ -217,6 +218,9 @@ public class Renderer {
 		GPUProfiler.start("Forward");
 		if (forwardPass != null)
 			forwardPass.render(camera, sunCamera, frustum, shadowFBO);
+		waterRenderer.render(waterTiles, camera, environmentRenderer.getCubeMapTexture(),
+				deferredPipeline.getLastTexture(), deferredPipeline.getMainFBO().getDepthTex(),
+				worldSimulation.getGlobalTime());
 		particleRenderer.render(particles, camera);
 		GPUProfiler.end();
 		postProcessPipeline.end();
@@ -225,10 +229,6 @@ public class Renderer {
 		postProcessPipeline.preRender(window.getNVGID(), camera);
 		GPUProfiler.end();
 		GPUProfiler.end();
-	}
-
-	public static void update(float delta) {
-		lightRenderer.update(delta);
 	}
 
 	public static void cleanUp() {
@@ -250,8 +250,8 @@ public class Renderer {
 			irradianceCapture.dispose();
 		if (preFilteredEnvironment != null)
 			preFilteredEnvironment.dispose();
-		if (lightRenderer != null)
-			lightRenderer.dispose();
+		if (waterRenderer != null)
+			waterRenderer.dispose();
 	}
 
 	public static int getResultTexture() {
@@ -280,10 +280,6 @@ public class Renderer {
 
 	public static Frustum getFrustum() {
 		return frustum;
-	}
-
-	public static LightRenderer getLightRenderer() {
-		return lightRenderer;
 	}
 
 	public static void reloadShadowMaps() {

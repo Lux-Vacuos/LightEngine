@@ -86,7 +86,7 @@ public class EntityRenderer {
 
 	private void renderEntity(CameraEntity camera) {
 		shader.start();
-		shader.loadviewMatrix(camera);
+		shader.loadViewMatrix(camera);
 		shader.loadProjectionMatrix(camera.getProjectionMatrix());
 		renderEntity(entities);
 		shader.stop();

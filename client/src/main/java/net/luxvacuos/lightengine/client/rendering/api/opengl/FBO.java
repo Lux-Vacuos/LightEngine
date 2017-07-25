@@ -55,7 +55,7 @@ import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 
 public class FBO implements IFBO {
 
-	private int fbo, rt, depthBuffer;
+	private int fbo, depthBuffer;
 
 	private int tex;
 
@@ -70,14 +70,9 @@ public class FBO implements IFBO {
 	@Override
 	public void init(int width, int height, int internalFormat, int format, int type) {
 		fbo = glGenFramebuffers();
-		rt = glGenRenderbuffers();
 		depthBuffer = glGenRenderbuffers();
 
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
-		glBindRenderbuffer(GL_RENDERBUFFER, rt);
-		glRenderbufferStorage(GL_RENDERBUFFER, format, width, height);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, rt);
 
 		glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
@@ -115,7 +110,6 @@ public class FBO implements IFBO {
 	public void dispose() {
 		glDeleteTextures(tex);
 		glDeleteFramebuffers(fbo);
-		glDeleteRenderbuffers(rt);
 		glDeleteRenderbuffers(depthBuffer);
 	}
 

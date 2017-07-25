@@ -158,6 +158,11 @@ public abstract class DeferredPipeline implements IDeferredPipeline {
 	public RenderingPipelineFBO getMainFBO() {
 		return mainFBO;
 	}
+	
+	@Override
+	public int getLastTexture() {
+		return auxs[0].getTexture();
+	}
 
 	public String getName() {
 		return name;

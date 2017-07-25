@@ -42,15 +42,10 @@ import static org.lwjgl.opengl.GL14.GL_TEXTURE_COMPARE_MODE;
 import static org.lwjgl.opengl.GL30.GL_DEPTH_ATTACHMENT;
 import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER;
 import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_COMPLETE;
-import static org.lwjgl.opengl.GL30.GL_RENDERBUFFER;
 import static org.lwjgl.opengl.GL30.glBindFramebuffer;
-import static org.lwjgl.opengl.GL30.glBindRenderbuffer;
 import static org.lwjgl.opengl.GL30.glCheckFramebufferStatus;
 import static org.lwjgl.opengl.GL30.glDeleteFramebuffers;
-import static org.lwjgl.opengl.GL30.glDeleteRenderbuffers;
 import static org.lwjgl.opengl.GL30.glGenFramebuffers;
-import static org.lwjgl.opengl.GL30.glGenRenderbuffers;
-import static org.lwjgl.opengl.GL30.glRenderbufferStorage;
 import static org.lwjgl.opengl.GL32.glFramebufferTexture;
 
 import net.luxvacuos.lightengine.client.core.exception.FrameBufferException;
@@ -58,7 +53,7 @@ import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 
 public class ShadowFBO implements IFBO {
 
-	private int fbo, shadowRB;
+	private int fbo;
 
 	private int shadowMaps[];
 
@@ -77,11 +72,7 @@ public class ShadowFBO implements IFBO {
 		float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 		fbo = glGenFramebuffers();
-		shadowRB = glGenRenderbuffers();
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
-		glBindRenderbuffer(GL_RENDERBUFFER, shadowRB);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
 
 		shadowMaps[0] = glGenTextures();
 		glBindTexture(GL_TEXTURE_2D, shadowMaps[0]);
@@ -138,7 +129,6 @@ public class ShadowFBO implements IFBO {
 			glDeleteTextures(i);
 		}
 		glDeleteFramebuffers(fbo);
-		glDeleteRenderbuffers(shadowRB);
 	}
 
 	@Override

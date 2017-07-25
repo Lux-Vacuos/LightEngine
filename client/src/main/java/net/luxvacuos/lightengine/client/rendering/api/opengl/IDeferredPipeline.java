@@ -45,5 +45,7 @@ public interface IDeferredPipeline extends IDisposable {
 	public void render(FBO postProcess);
 
 	public RenderingPipelineFBO getMainFBO();
+	
+	public int getLastTexture();
 
 }
