@@ -25,6 +25,7 @@ import static org.lwjgl.assimp.Assimp.aiGetVersionMajor;
 import static org.lwjgl.assimp.Assimp.aiGetVersionMinor;
 import static org.lwjgl.assimp.Assimp.aiGetVersionRevision;
 import static org.lwjgl.glfw.GLFW.glfwInit;
+import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_RENDERER;
 import static org.lwjgl.opengl.GL11.GL_VENDOR;
 import static org.lwjgl.opengl.GL11.GL_VERSION;
@@ -141,6 +142,7 @@ public class GraphicalSubsystem implements ISubsystem {
 
 	@Override
 	public void update(float delta) {
+		GraphicalSubsystem.getWindowManager().update(delta);
 	}
 
 	@Override
@@ -153,6 +155,9 @@ public class GraphicalSubsystem implements ISubsystem {
 		}
 		CachedAssets.update();
 		WindowManager.update();
+		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT);
+		Renderer.clearColors(0, 0, 0, 1);
+		GraphicalSubsystem.getWindowManager().render();
 	}
 
 	@Override

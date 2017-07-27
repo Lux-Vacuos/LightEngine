@@ -20,6 +20,8 @@
 
 package net.luxvacuos.lightengine.server.commands;
 
+import java.io.PrintStream;
+
 import net.luxvacuos.lightengine.universal.commands.SimpleCommand;
 
 public class SayCommand extends SimpleCommand {
@@ -29,12 +31,12 @@ public class SayCommand extends SimpleCommand {
 	}
 
 	@Override
-	public void execute(Object... data) {
+	public void execute(PrintStream out, Object... data) {
 		String fin = "";
 		for (Object object : data) {
 			fin += " " + (String) object;
 		}
-		//ServerHandler.channels.writeAndFlush(new Message("Server", fin));
+		// ServerHandler.channels.writeAndFlush(new Message("Server", fin));
 	}
 
 }

@@ -20,6 +20,9 @@
 
 package net.luxvacuos.lightengine.client.ui;
 
+import org.lwjgl.glfw.GLFW;
+
+import net.luxvacuos.lightengine.client.input.KeyboardHandler;
 import net.luxvacuos.lightengine.client.input.Mouse;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
@@ -28,7 +31,7 @@ public class EditBox extends Component {
 	private String text, font = "Poppins-Medium";
 	private float fontSize = 20f;
 	private boolean selected = false;
-	private OnAction onAction;
+	private OnAction onAction, onEnterFress;
 
 	public EditBox(float x, float y, float width, float height, String text) {
 		this.x = x;
@@ -46,10 +49,11 @@ public class EditBox extends Component {
 
 	@Override
 	public void update(float delta, Window window) {
+		KeyboardHandler kb = window.getKeyboardHandler();
 		if (Mouse.isButtonDown(0)) {
 			if (insideBox()) {
-				window.getKeyboardHandler().enableTextInput();
-				window.getKeyboardHandler().clearInputData();
+				kb.enableTextInput();
+				kb.clearInputData();
 				selected = true;
 			} else {
 				if (selected && onAction != null)
@@ -58,7 +62,13 @@ public class EditBox extends Component {
 			}
 		}
 		if (selected)
-			text = window.getKeyboardHandler().handleInput(text);
+			text = kb.handleInput(text);
+		if (kb.isKeyPressed(GLFW.GLFW_KEY_ENTER)) {
+			kb.ignoreKeyUntilRelease(GLFW.GLFW_KEY_ENTER);
+			if (onEnterFress != null)
+				onEnterFress.onAction();
+			text = "";
+		}
 		super.update(delta, window);
 	}
 
@@ -86,5 +96,9 @@ public class EditBox extends Component {
 
 	public void setOnUnselect(OnAction onAction) {
 		this.onAction = onAction;
+	}
+
+	public void setOnEnterFress(OnAction onEnterFress) {
+		this.onEnterFress = onEnterFress;
 	}
 }

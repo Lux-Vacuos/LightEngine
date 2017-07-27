@@ -55,7 +55,7 @@ public class FlowLayout extends Layout {
 	public void build(Component component) {
 		switch (direction) {
 		case UP:
-			component.y = y;
+			component.y = y + component.h;
 			y += component.h + margin;
 			break;
 		case DOWN:

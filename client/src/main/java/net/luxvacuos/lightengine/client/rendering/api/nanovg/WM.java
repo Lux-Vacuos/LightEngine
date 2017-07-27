@@ -54,6 +54,7 @@ public final class WM {
 
 		ComponentWindow win0 = new ComponentWindow(20, 700, 200, 200, "Window0");
 		win0.addComponent(win0T);
+		win0.extendFrame(10, 10, 10, 10);
 		ComponentWindow win1 = new ComponentWindow(240, 700, 200, 200, "Window1");
 		win1.addComponent(win1T);
 		win1.setResizable(false);

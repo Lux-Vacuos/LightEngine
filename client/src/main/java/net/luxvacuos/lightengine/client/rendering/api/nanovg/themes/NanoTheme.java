@@ -92,7 +92,7 @@ public class NanoTheme implements ITheme {
 			titleBarButtonHighlight = Theme.setColor("#FFFFFFC8"),
 			titleBarButtonCloseHighlight = Theme.setColor("#FF0000C8");
 	protected NVGColor contextButtonColor = Theme.setColor("#646464C8"),
-			contextButtonHighlight = Theme.setColor("#FFFFFFC8");
+			contextButtonHighlight = Theme.setColor("#C8C8C8C8");
 
 	@Override
 	public void renderWindow(long vg, float x, float y, float w, float h, BackgroundStyle backgroundStyle,
@@ -106,28 +106,53 @@ public class NanoTheme implements ITheme {
 				.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarBorder"));
 
 		nvgSave(vg);
+		if (Theme.DEBUG)
+			nvgStrokeWidth(vg, Theme.DEBUG_STROKE);
+
 		if (decorations) {
 			if (maximized) {
 				nvgBeginPath(vg);
 				nvgRect(vg, x, y - titleBarHeight, w, titleBarHeight);
 				nvgFillColor(vg, Theme.rgba(31, 31, 31, 120, colorA));
 				nvgFill(vg);
+				if (Theme.DEBUG) {
+					nvgStrokeColor(vg, Theme.debugA);
+					nvgStroke(vg);
+				}
 			} else {
 				// Window
 				nvgBeginPath(vg);
 				nvgRect(vg, x + fl, y + ft, w - fr - fl, h - fb - ft);
 				nvgPathWinding(vg, NVG_HOLE);
 				if (titleBar)
-					if (titleBarBorder)
+					if (titleBarBorder) {
 						nvgRect(vg, x - borderSize, y - titleBarHeight - borderSize, w + borderSize * 2f,
 								h + titleBarHeight + borderSize * 2f);
-					else
+						nvgFillColor(vg, Theme.rgba(31, 31, 31, 120, colorA));
+						nvgFill(vg);
+						if (Theme.DEBUG) {
+							nvgStrokeColor(vg, Theme.debugA);
+							nvgStroke(vg);
+						}
+					} else {
 						nvgRect(vg, x - borderSize, y - titleBarHeight, w + borderSize * 2f,
 								h + titleBarHeight + borderSize);
-				else
+						nvgFillColor(vg, Theme.rgba(31, 31, 31, 120, colorA));
+						nvgFill(vg);
+						if (Theme.DEBUG) {
+							nvgStrokeColor(vg, Theme.debugA);
+							nvgStroke(vg);
+						}
+					}
+				else {
 					nvgRect(vg, x - borderSize, y - borderSize, w + borderSize * 2f, h + borderSize * 2f);
-				nvgFillColor(vg, Theme.rgba(31, 31, 31, 120, colorA));
-				nvgFill(vg);
+					nvgFillColor(vg, Theme.rgba(31, 31, 31, 120, colorA));
+					nvgFill(vg);
+					if (Theme.DEBUG) {
+						nvgStrokeColor(vg, Theme.debugA);
+						nvgStroke(vg);
+					}
+				}
 			}
 		}
 
@@ -179,6 +204,13 @@ public class NanoTheme implements ITheme {
 
 		}
 
+		if (Theme.DEBUG) {
+			nvgBeginPath(vg);
+			nvgRect(vg, x + fl, y + ft, w - fr - fl, h - fb - ft);
+			nvgStrokeColor(vg, Theme.debugA);
+			nvgStroke(vg);
+		}
+
 		nvgRestore(vg);
 	}
 
@@ -198,6 +230,19 @@ public class NanoTheme implements ITheme {
 		nvgText(vg, x, y, text);
 		float[] bounds = new float[4];
 		nvgTextBounds(vg, x, y, text, bounds);
+
+		if (Theme.DEBUG) {
+			nvgBeginPath(vg);
+			nvgMoveTo(vg, bounds[0], bounds[1]);
+			nvgLineTo(vg, bounds[2], bounds[1]);
+			nvgLineTo(vg, bounds[2], bounds[3]);
+			nvgLineTo(vg, bounds[0], bounds[3]);
+			nvgLineTo(vg, bounds[0], bounds[1]);
+			nvgStrokeWidth(vg, Theme.DEBUG_STROKE);
+			nvgStrokeColor(vg, Theme.debugB);
+			nvgStroke(vg);
+		}
+
 		nvgRestore(vg);
 		return bounds[2];
 	}
@@ -267,6 +312,13 @@ public class NanoTheme implements ITheme {
 		case NONE:
 			break;
 		}
+		if (Theme.DEBUG) {
+			nvgBeginPath(vg);
+			nvgRect(vg, x, y, w, h);
+			nvgStrokeWidth(vg, Theme.DEBUG_STROKE);
+			nvgStrokeColor(vg, Theme.debugB);
+			nvgStroke(vg);
+		}
 		nvgRestore(vg);
 	}
 
@@ -281,6 +333,17 @@ public class NanoTheme implements ITheme {
 		nvgText(vg, x, y, text);
 		float[] bounds = new float[4];
 		nvgTextBounds(vg, x, y, text, bounds);
+		if (Theme.DEBUG) {
+			nvgBeginPath(vg);
+			nvgMoveTo(vg, bounds[0], bounds[1]);
+			nvgLineTo(vg, bounds[2], bounds[1]);
+			nvgLineTo(vg, bounds[2], bounds[3]);
+			nvgLineTo(vg, bounds[0], bounds[3]);
+			nvgLineTo(vg, bounds[0], bounds[1]);
+			nvgStrokeWidth(vg, Theme.DEBUG_STROKE);
+			nvgStrokeColor(vg, Theme.debugB);
+			nvgStroke(vg);
+		}
 		nvgRestore(vg);
 		return bounds[2];
 	}
@@ -332,6 +395,13 @@ public class NanoTheme implements ITheme {
 			nvgStrokeColor(vg, Theme.rgba(70, 70, 70, 255, colorA));
 		nvgStrokeWidth(vg, 1);
 		nvgStroke(vg);
+		if (Theme.DEBUG) {
+			nvgBeginPath(vg);
+			nvgRect(vg, x, y, w, h);
+			nvgStrokeWidth(vg, Theme.DEBUG_STROKE);
+			nvgStrokeColor(vg, Theme.debugB);
+			nvgStroke(vg);
+		}
 		nvgRestore(vg);
 	}
 
@@ -352,6 +422,18 @@ public class NanoTheme implements ITheme {
 			nvgMoveTo(vg, bounds[2], y + 5f);
 			nvgLineTo(vg, bounds[2], y + h - 5f);
 			nvgStrokeColor(vg, Theme.rgba(0, 0, 0, 255, colorA));
+			nvgStroke(vg);
+		}
+		if (Theme.DEBUG) {
+			nvgBeginPath(vg);
+			nvgRect(vg, x, y, w, h);
+			nvgMoveTo(vg, bounds[0], bounds[1]);
+			nvgLineTo(vg, bounds[2], bounds[1]);
+			nvgLineTo(vg, bounds[2], bounds[3]);
+			nvgLineTo(vg, bounds[0], bounds[3]);
+			nvgLineTo(vg, bounds[0], bounds[1]);
+			nvgStrokeWidth(vg, Theme.DEBUG_STROKE);
+			nvgStrokeColor(vg, Theme.debugB);
 			nvgStroke(vg);
 		}
 		nvgRestore(vg);
@@ -386,11 +468,13 @@ public class NanoTheme implements ITheme {
 			iw += h * 0.15f;
 		}
 
+		float[] preiconBounds = new float[4];
 		if (preicon != null) {
 			nvgFontSize(vg, h * 1.3f);
 			nvgFontFace(vg, entypo);
 			nvgFillColor(vg, Theme.rgba(100, 100, 100, 96, colorA));
 			nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
+			nvgTextBounds(vg, x + w * 0.5f - tw * 0.5f - iw * 0.75f, y + h * 0.5f, preicon, preiconBounds);
 			nvgText(vg, x + w * 0.5f - tw * 0.5f - iw * 0.75f, y + h * 0.5f, preicon);
 		}
 
@@ -398,7 +482,28 @@ public class NanoTheme implements ITheme {
 		nvgFontFace(vg, font);
 		nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
 		nvgFillColor(vg, buttonTextColor);
+		float[] bounds = new float[4];
+		nvgTextBounds(vg, x + w * 0.5f - tw * 0.5f + iw * 0.25f, y + h * 0.5f, text, bounds);
 		nvgText(vg, x + w * 0.5f - tw * 0.5f + iw * 0.25f, y + h * 0.5f, text);
+		if (Theme.DEBUG) {
+			nvgBeginPath(vg);
+			nvgRect(vg, x, y, w, h);
+			nvgMoveTo(vg, bounds[0], bounds[1]);
+			nvgLineTo(vg, bounds[2], bounds[1]);
+			nvgLineTo(vg, bounds[2], bounds[3]);
+			nvgLineTo(vg, bounds[0], bounds[3]);
+			nvgLineTo(vg, bounds[0], bounds[1]);
+			if(preicon != null) {
+				nvgMoveTo(vg, preiconBounds[0], preiconBounds[1]);
+				nvgLineTo(vg, preiconBounds[2], preiconBounds[1]);
+				nvgLineTo(vg, preiconBounds[2], preiconBounds[3]);
+				nvgLineTo(vg, preiconBounds[0], preiconBounds[3]);
+				nvgLineTo(vg, preiconBounds[0], preiconBounds[1]);
+			}
+			nvgStrokeWidth(vg, Theme.DEBUG_STROKE);
+			nvgStrokeColor(vg, Theme.debugB);
+			nvgStroke(vg);
+		}
 		nvgRestore(vg);
 	}
 
@@ -419,7 +524,21 @@ public class NanoTheme implements ITheme {
 		nvgFontFace(vg, font);
 		nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
 		nvgFillColor(vg, Theme.rgba(255, 255, 255, 255, colorA));
+		float[] bounds = new float[4];
+		nvgTextBounds(vg, x + 10f, y + h * 0.5f, text, bounds);
 		nvgText(vg, x + 10f, y + h * 0.5f, text);
+		if (Theme.DEBUG) {
+			nvgBeginPath(vg);
+			nvgRect(vg, x, y, w, h);
+			nvgMoveTo(vg, bounds[0], bounds[1]);
+			nvgLineTo(vg, bounds[2], bounds[1]);
+			nvgLineTo(vg, bounds[2], bounds[3]);
+			nvgLineTo(vg, bounds[0], bounds[3]);
+			nvgLineTo(vg, bounds[0], bounds[1]);
+			nvgStrokeWidth(vg, Theme.DEBUG_STROKE);
+			nvgStrokeColor(vg, Theme.debugB);
+			nvgStroke(vg);
+		}
 		nvgRestore(vg);
 	}
 
@@ -454,7 +573,13 @@ public class NanoTheme implements ITheme {
 			nvgRect(vg, x + 5, y + 5, h - 10, h - 10);
 		nvgFillColor(vg, toggleButtonColor);
 		nvgFill(vg);
-
+		if (Theme.DEBUG) {
+			nvgBeginPath(vg);
+			nvgRect(vg, x, y, w, h);
+			nvgStrokeWidth(vg, Theme.DEBUG_STROKE);
+			nvgStrokeColor(vg, Theme.debugB);
+			nvgStroke(vg);
+		}
 		nvgRestore(vg);
 	}
 
@@ -545,6 +670,14 @@ public class NanoTheme implements ITheme {
 		nvgFillColor(vg, Theme.rgba(200, 200, 200, 255, colorB));
 		nvgFill(vg);
 
+		if (Theme.DEBUG) {
+			nvgBeginPath(vg);
+			nvgRect(vg, x, y, w, h);
+			nvgStrokeWidth(vg, Theme.DEBUG_STROKE);
+			nvgStrokeColor(vg, Theme.debugB);
+			nvgStroke(vg);
+		}
+
 		nvgRestore(vg);
 	}
 
@@ -588,6 +721,7 @@ public class NanoTheme implements ITheme {
 	@Override
 	public void renderDropDownButton(long vg, float x, float y, float w, float h, float fontSize, String font,
 			String entypo, String text, boolean inside) {
+		nvgSave(vg);
 		nvgBeginPath(vg);
 		nvgRect(vg, x + 1, y + 1, w - 2, h - 2);
 		if (inside)
@@ -605,6 +739,8 @@ public class NanoTheme implements ITheme {
 		nvgFontFace(vg, font);
 		nvgFillColor(vg, buttonTextColor);
 		nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
+		float[] bounds = new float[4];
+		nvgTextBounds(vg, x + h * 0.3f, y + h * 0.5f, text, bounds);
 		nvgText(vg, x + h * 0.3f, y + h * 0.5f, text);
 
 		nvgFontSize(vg, h * 1.3f);
@@ -612,6 +748,19 @@ public class NanoTheme implements ITheme {
 		nvgFillColor(vg, Theme.rgba(100, 100, 100, 96, colorA));
 		nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
 		nvgText(vg, x + w - h * 0.5f, y + h * 0.5f, Theme.ICON_CHEVRON_RIGHT);
+		if (Theme.DEBUG) {
+			nvgBeginPath(vg);
+			nvgRect(vg, x, y, w, h);
+			nvgMoveTo(vg, bounds[0], bounds[1]);
+			nvgLineTo(vg, bounds[2], bounds[1]);
+			nvgLineTo(vg, bounds[2], bounds[3]);
+			nvgLineTo(vg, bounds[0], bounds[3]);
+			nvgLineTo(vg, bounds[0], bounds[1]);
+			nvgStrokeWidth(vg, Theme.DEBUG_STROKE);
+			nvgStrokeColor(vg, Theme.debugB);
+			nvgStroke(vg);
+		}
+		nvgRestore(vg);
 	}
 
 	@Override

@@ -64,8 +64,8 @@ public class Container extends Component {
 	public void addComponent(Component component) {
 		comp.addComponent(component);
 	}
-	
-	public void removeComponent(Component component){
+
+	public void removeComponent(Component component) {
 		comp.removeComponent(component);
 	}
 

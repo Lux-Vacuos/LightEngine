@@ -20,8 +20,14 @@
 
 package net.luxvacuos.lightengine.server.commands;
 
-import net.luxvacuos.lightengine.universal.commands.AbstractCommandManager;
+import java.io.PrintStream;
 
-public class ServerCommandManager extends AbstractCommandManager {
+import net.luxvacuos.lightengine.universal.commands.CommandManager;
+
+public class ServerCommandManager extends CommandManager {
+
+	public ServerCommandManager(PrintStream out) {
+		super(out);
+	}
 
 }

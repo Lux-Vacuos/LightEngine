@@ -20,18 +20,19 @@
 
 package net.luxvacuos.lightengine.universal.commands;
 
+import java.io.PrintStream;
 import java.util.Arrays;
 
 import com.badlogic.gdx.utils.Array;
 
-import net.luxvacuos.igl.Logger;
-
 public abstract class AbstractCommandManager implements ICommandManager {
 
 	private Array<ICommand> commands;
+	private PrintStream out;
 
-	public AbstractCommandManager() {
+	public AbstractCommandManager(PrintStream out) {
 		commands = new Array<>();
+		this.out = out;
 	}
 
 	@Override
@@ -39,11 +40,11 @@ public abstract class AbstractCommandManager implements ICommandManager {
 		for (ICommand iCommand : commands) {
 			if (command.startsWith(iCommand.getCommand())) {
 				Object[] data = command.split(" ");
-				iCommand.execute(Arrays.copyOfRange(data, 1, data.length));
+				iCommand.execute(out, Arrays.copyOfRange(data, 1, data.length));
 				return;
 			}
 		}
-		Logger.log("Command not found: " + command);
+		out.println("Command not found: " + command);
 	}
 
 	@Override

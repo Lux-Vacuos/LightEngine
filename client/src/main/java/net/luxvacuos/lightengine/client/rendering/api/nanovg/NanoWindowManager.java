@@ -295,6 +295,20 @@ public class NanoWindowManager implements IWindowManager {
 			window.notifyWindow(this.window, WindowMessages.COMPOSITOR_ENABLED, null);
 		}
 	}
+	
+	@Override
+	public void closeAllWindows() {
+		TaskManager.addTask(() -> {
+			for (IWindow window : windows) {
+				window.closeWindow();
+			}
+		});
+	}
+	
+	@Override
+	public int getTotalWindows() {
+		return windows.size();
+	}
 
 	@Override
 	public void disableCompositor() {

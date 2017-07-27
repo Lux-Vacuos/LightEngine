@@ -644,9 +644,11 @@ public abstract class NanoWindow implements IWindow {
 
 	@Override
 	public void reloadFBO(Window window) {
-		nvgluDeleteFramebuffer(window.getNVGID(), fbo);
-		fbo = nvgluCreateFramebuffer(window.getNVGID(), (int) (window.getWidth() * window.getPixelRatio()),
-				(int) (window.getHeight() * window.getPixelRatio()), 0);
+		if (fbo != null || compositor) {
+			nvgluDeleteFramebuffer(window.getNVGID(), fbo);
+			fbo = nvgluCreateFramebuffer(window.getNVGID(), (int) (window.getWidth() * window.getPixelRatio()),
+					(int) (window.getHeight() * window.getPixelRatio()), 0);
+		}
 	}
 
 	@Override

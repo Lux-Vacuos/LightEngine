@@ -25,7 +25,10 @@ import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.
 import java.util.HashMap;
 import java.util.Map;
 
+import org.lwjgl.glfw.GLFW;
+
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
+import net.luxvacuos.lightengine.client.input.KeyboardHandler;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.IShell;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.IWindow;
@@ -71,6 +74,8 @@ public class Shell extends ComponentWindow implements IShell {
 		apps = new Container(0, 0, super.w - 100, h);
 		apps.setLayout(new FlowLayout(Direction.RIGHT, 0, 0));
 		super.addComponent(apps);
+		GraphicalSubsystem.getWindowManager().addWindow(new NotificationsArea());
+
 	}
 
 	@Override
@@ -92,6 +97,11 @@ public class Shell extends ComponentWindow implements IShell {
 				y = 0;
 			}
 		}
+		KeyboardHandler kb = window.getKeyboardHandler();
+		if (kb.isShiftPressed() && kb.isKeyPressed(GLFW.GLFW_KEY_F10)) {
+			kb.ignoreKeyUntilRelease(GLFW.GLFW_KEY_F10);
+			GraphicalSubsystem.getWindowManager().addWindow(new Console(100, 600, 600, 400));
+		}
 		super.alwaysUpdateApp(delta, window);
 	}
 
@@ -107,19 +117,16 @@ public class Shell extends ComponentWindow implements IShell {
 		switch (message) {
 		case SHELL_WINDOW_CLOSED:
 			IWindow window = (IWindow) param;
-			if (!(window.hasDecorations() && !window.isHidden()))
+			if (!(window.hasDecorations() && !window.isHidden()) || !buttons.containsKey(window.hashCode()))
 				return;
 			apps.removeComponent(buttons.get(window.hashCode()));
 			buttons.remove(window.hashCode());
 			break;
 		case SHELL_WINDOW_CREATED:
-			 window = (IWindow) param;
+			window = (IWindow) param;
 			if (!(window.hasDecorations() && !window.isHidden()))
 				return;
 			Button btn = new Button(0, 0, 100, h, window.getTitle());
-			// btn.setColor("#00000000");
-			// btn.setHighlightColor("#FFFFFF64");
-			// btn.setTextColor("#FFFFFFFF");
 			btn.setOnButtonPress(() -> {
 				if (!GraphicalSubsystem.getWindowManager().isOnTop(window) && !window.isMinimized()) {
 					GraphicalSubsystem.getWindowManager().bringToFront(window);

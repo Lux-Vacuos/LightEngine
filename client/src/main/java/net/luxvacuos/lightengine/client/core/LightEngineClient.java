@@ -137,6 +137,8 @@ public class LightEngineClient extends AbstractEngine {
 			Timers.stopGPUTimer();
 			Timers.update();
 			window.updateDisplay(fps);
+			if(window.isCloseRequested())
+				StateMachine.stop();
 		}
 	}
 

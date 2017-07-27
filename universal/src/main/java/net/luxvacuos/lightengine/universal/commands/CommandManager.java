@@ -18,15 +18,13 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.commands;
+package net.luxvacuos.lightengine.universal.commands;
 
 import java.io.PrintStream;
 
-import net.luxvacuos.lightengine.universal.commands.AbstractCommandManager;
+public class CommandManager extends AbstractCommandManager {
 
-public class ClientCommandManager extends AbstractCommandManager {
-
-	public ClientCommandManager(PrintStream out) {
+	public CommandManager(PrintStream out) {
 		super(out);
 	}
 

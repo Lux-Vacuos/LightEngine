@@ -20,9 +20,11 @@
 
 package net.luxvacuos.lightengine.universal.commands;
 
+import java.io.PrintStream;
+
 public interface ICommand {
 	
-	public void execute(Object... data);
+	public void execute(PrintStream out, Object... data);
 	
 	public String getCommand();
 

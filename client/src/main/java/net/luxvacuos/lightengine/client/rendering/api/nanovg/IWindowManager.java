@@ -55,5 +55,9 @@ public interface IWindowManager extends IDisposable {
 	public boolean isShellEnabled();
 
 	public void reloadCompositor();
+	
+	public int getTotalWindows();
+	
+	public void closeAllWindows();
 
 }

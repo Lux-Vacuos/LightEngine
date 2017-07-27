@@ -23,10 +23,10 @@ package net.luxvacuos.lightengine.server.core.states;
 import net.luxvacuos.lightengine.server.commands.SayCommand;
 import net.luxvacuos.lightengine.server.commands.ServerCommandManager;
 import net.luxvacuos.lightengine.server.commands.StopCommand;
-import net.luxvacuos.lightengine.server.commands.TimeCommand;
 import net.luxvacuos.lightengine.server.console.Console;
 import net.luxvacuos.lightengine.server.core.ServerWorldSimulation;
 import net.luxvacuos.lightengine.universal.commands.ICommandManager;
+import net.luxvacuos.lightengine.universal.commands.TimeCommand;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 
 public class MPWorldState extends AbstractState {
@@ -44,7 +44,7 @@ public class MPWorldState extends AbstractState {
 
 		worldSimulation = new ServerWorldSimulation();
 
-		commandManager = new ServerCommandManager();
+		commandManager = new ServerCommandManager(System.out);
 		commandManager.registerCommand(new StopCommand());
 		commandManager.registerCommand(new SayCommand());
 		commandManager.registerCommand(new TimeCommand(worldSimulation));

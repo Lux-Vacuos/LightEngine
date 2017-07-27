@@ -20,10 +20,19 @@
 
 package net.luxvacuos.lightengine.client.ui;
 
+import static org.lwjgl.nanovg.NanoVG.nvgBeginPath;
+import static org.lwjgl.nanovg.NanoVG.nvgRect;
+import static org.lwjgl.nanovg.NanoVG.nvgRestore;
+import static org.lwjgl.nanovg.NanoVG.nvgSave;
+import static org.lwjgl.nanovg.NanoVG.nvgStroke;
+import static org.lwjgl.nanovg.NanoVG.nvgStrokeColor;
+import static org.lwjgl.nanovg.NanoVG.nvgStrokeWidth;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 
 public class RootComponent {
 
@@ -38,6 +47,17 @@ public class RootComponent {
 	}
 
 	public void render(Window window) {
+		if (Theme.DEBUG) {
+			long vg = window.getNVGID();
+			nvgSave(vg);
+			nvgBeginPath(vg);
+			nvgRect(vg, root.rootX ,
+					window.getHeight() - root.rootY - root.rootH, root.rootW, root.rootH);
+			nvgStrokeWidth(vg, Theme.DEBUG_STROKE);
+			nvgStrokeColor(vg, Theme.debugC);
+			nvgStroke(vg);
+			nvgRestore(vg);
+		}
 		for (Component component : components) {
 			component.render(window);
 		}

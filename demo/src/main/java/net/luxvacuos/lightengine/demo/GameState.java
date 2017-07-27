@@ -1,8 +1,6 @@
 package net.luxvacuos.lightengine.demo;
 
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -121,7 +119,6 @@ public class GameState extends AbstractState {
 	public void update(float delta) {
 		if (!loaded)
 			return;
-		GraphicalSubsystem.getWindowManager().update(delta);
 		Window window = GraphicalSubsystem.getMainWindow();
 		KeyboardHandler kbh = window.getKeyboardHandler();
 		if (!paused) {
@@ -168,8 +165,5 @@ public class GameState extends AbstractState {
 			return;
 		Renderer.render(engine.getEntities(), ParticleDomain.getParticles(),waterTiles, lightRenderer, camera, worldSimulation,
 				sun, alpha);
-		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		Renderer.clearColors(1, 1, 1, 1);
-		GraphicalSubsystem.getWindowManager().render();
 	}
 }

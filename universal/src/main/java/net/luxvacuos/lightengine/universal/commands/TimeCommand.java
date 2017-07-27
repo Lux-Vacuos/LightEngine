@@ -18,23 +18,24 @@
  * 
  */
 
-package net.luxvacuos.lightengine.server.commands;
+package net.luxvacuos.lightengine.universal.commands;
+
+import java.io.PrintStream;
 
 import net.luxvacuos.igl.Logger;
-import net.luxvacuos.lightengine.server.core.ServerWorldSimulation;
-import net.luxvacuos.lightengine.universal.commands.SimpleCommand;
+import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
 
 public class TimeCommand extends SimpleCommand {
 
-	private ServerWorldSimulation serverWorldSimulation;
+	private IWorldSimulation worldSimulation;
 
-	public TimeCommand(ServerWorldSimulation serverWorldSimulation) {
+	public TimeCommand(IWorldSimulation worldSimulation) {
 		super("/time");
-		this.serverWorldSimulation = serverWorldSimulation;
+		this.worldSimulation = worldSimulation;
 	}
 
 	@Override
-	public void execute(Object... data) {
+	public void execute(PrintStream out, Object... data) {
 		if (data.length == 0) {
 			Logger.log("No Option selected");
 			return;
@@ -42,11 +43,11 @@ public class TimeCommand extends SimpleCommand {
 		String param = (String) data[0];
 		switch (param) {
 		case "set":
-			serverWorldSimulation.setTime(Integer.parseInt((String) data[1]));
+			worldSimulation.setTime(Integer.parseInt((String) data[1]));
 			Logger.log("Time set to: " + data[1]);
 			break;
 		case "time":
-			Logger.log("Time is: " + serverWorldSimulation.getTime());
+			Logger.log("Time is: " + worldSimulation.getTime());
 			break;
 		}
 	}

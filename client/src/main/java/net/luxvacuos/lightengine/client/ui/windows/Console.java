@@ -20,24 +20,30 @@
 
 package net.luxvacuos.lightengine.client.ui.windows;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import static org.lwjgl.nanovg.NanoVG.*;
+import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_TOP;
 
-import net.luxvacuos.lightengine.client.input.Mouse;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+
+import net.luxvacuos.lightengine.client.commands.TestCommand;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
+import net.luxvacuos.lightengine.client.ui.Direction;
+import net.luxvacuos.lightengine.client.ui.EditBox;
+import net.luxvacuos.lightengine.client.ui.FlowLayout;
 import net.luxvacuos.lightengine.client.ui.TextArea;
+import net.luxvacuos.lightengine.universal.commands.CommandManager;
 import net.luxvacuos.lightengine.universal.commands.ICommandManager;
 
 public class Console extends ComponentWindow {
 
 	private ICommandManager manager;
 	private TextArea text;
+	private EditBox command;
 	private String textBuffer = "";
-	private boolean selected;
-	private boolean running = true;
+	private Interceptor inter = new Interceptor();
 
 	public Console(float x, float y, float w, float h) {
 		super(x, y, w, h, "Console");
@@ -46,53 +52,54 @@ public class Console extends ComponentWindow {
 	@Override
 	public void initApp(Window window) {
 		super.setBackgroundColor("#1F1F1F78");
+		super.setLayout(new FlowLayout(Direction.UP, 0, -30));
+		manager = new CommandManager(inter);
+		manager.registerCommand(new TestCommand());
 
 		text = new TextArea(textBuffer, 0, 0, w);
-		text.setWindowAlignment(Alignment.LEFT_TOP);
-		text.setFontSize(25);
+		text.setWindowAlignment(Alignment.LEFT_BOTTOM);
+		text.setAlign( NVG_ALIGN_LEFT | NVG_ALIGN_BOTTOM);
+		text.setResizeH(true);
+		text.setFontSize(20);
+
+		command = new EditBox(0, 0, 0, 30, "");
+		command.setResizeH(true);
+		command.setOnEnterFress(() -> {
+			textBuffer += command.getText() + "\n";
+			manager.command(command.getText());
+			textBuffer += inter.getLastText();
+		});
+
+		super.addComponent(command);
 		super.addComponent(text);
 		super.initApp(window);
-		Thread thread = new Thread(() -> {
-			BufferedReader bufferedreader = new BufferedReader(new InputStreamReader(System.in));
-			String command;
-			try {
-				while (running && (command = bufferedreader.readLine()) != null) {
-					// this.manager.command(command);
-					textBuffer += command + "\n";
-				}
-			} catch (IOException ioe) {
-			}
-		});
-		thread.setDaemon(true);
-		thread.setName("Command Thread");
-		thread.start();
-		textBuffer = "Light Engine Console (WIP) \n > ";
+		textBuffer = "Light Engine Console (WIP) \n";
 	}
 
-	@Override
-	public void disposeApp(Window window) {
-		running = false;
-		super.disposeApp(window);
-	}
-
-	@Override
-	public void updateApp(float delta, Window window) {
-		if (Mouse.isButtonDown(0)) {
-			if (super.insideWindow()) {
-				window.getKeyboardHandler().enableTextInput();
-				window.getKeyboardHandler().clearInputData();
-				selected = true;
-			} else {
-				selected = false;
-			}
-		}
-		super.updateApp(delta, window);
-	}
-	
 	@Override
 	public void alwaysUpdateApp(float delta, Window window) {
 		text.setText(textBuffer);
 		super.alwaysUpdateApp(delta, window);
+	}
+
+	private class Interceptor extends PrintStream {
+
+		private String lastText = "";
+
+		public Interceptor() {
+			super(new ByteArrayOutputStream(), true);
+		}
+
+		@Override
+		public void println(String x) {
+			lastText += x + "\n";
+		}
+
+		public String getLastText() {
+			String tmp = new String(lastText);
+			lastText = "";
+			return tmp;
+		}
 	}
 
 }

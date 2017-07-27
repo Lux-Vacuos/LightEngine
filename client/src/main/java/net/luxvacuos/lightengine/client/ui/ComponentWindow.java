@@ -61,17 +61,25 @@ public class ComponentWindow extends NanoWindow {
 	public void addComponent(Component component) {
 		rootComponent.addComponent(component);
 	}
-	
-	public void addAllComponents(List<Component> components){
+
+	public void addAllComponents(List<Component> components) {
 		rootComponent.addAllComponents(components);
 	}
 
 	public void setLayout(ILayout layout) {
 		rootComponent.setLayout(layout);
 	}
-	
+
 	public void removeComponent(Component component) {
 		rootComponent.removeComponent(component);
+	}
+
+	public float getFinalW() {
+		return rootComponent.getFinalW();
+	}
+
+	public float getFinalH() {
+		return rootComponent.getFinalH();
 	}
 
 }

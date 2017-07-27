@@ -21,12 +21,10 @@
 package net.luxvacuos.lightengine.demo;
 
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 
 import net.luxvacuos.lightengine.client.bootstrap.Bootstrap;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.WM;
 import net.luxvacuos.lightengine.client.ui.windows.BackgroundWindow;
 import net.luxvacuos.lightengine.demo.ui.MainWindow;
 import net.luxvacuos.lightengine.universal.core.GlobalVariables;
@@ -35,11 +33,6 @@ import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
-/**
- * Main Menu State, this is the menu show after the splash screen fade out.
- * 
- * @author danirod
- */
 public class MainMenuState extends AbstractState {
 
 	private BackgroundWindow background;
@@ -75,14 +68,10 @@ public class MainMenuState extends AbstractState {
 
 	@Override
 	public void render(float delta) {
-		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		Renderer.clearColors(1, 1, 1, 1);
-		GraphicalSubsystem.getWindowManager().render();
 	}
 
 	@Override
 	public void update(float delta) {
-		GraphicalSubsystem.getWindowManager().update(delta);
 	}
 
 	public static void main(String[] args) {
