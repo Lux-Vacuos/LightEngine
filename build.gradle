@@ -12,7 +12,7 @@ subprojects {
 	}
 }
 
-project(":client") {
+project(":lightengine-client") {
 
 	project.ext.lwjglVersion = "3.1.2"
 
@@ -63,7 +63,7 @@ project(":client") {
 	}
 }
 
-project(":server") {
+project(":lightengine-server") {
 	dependencies {
 		compile project(':lightengine-universal')
 		compile project(':lightengine-assets')
@@ -71,7 +71,7 @@ project(":server") {
 	}
 }
 
-project(":universal") {
+project(":lightengine-universal") {
 	dependencies {
 		compile 'org.codehaus.groovy:groovy:2.4.7'
 		compile 'org.codehaus.groovy:groovy-jsr223:2.4.7'
@@ -82,7 +82,7 @@ project(":universal") {
 	}
 }
 
-project(":utils") {
+project(":lightengine-utils") {
 	dependencies {
 		compile 'log4j:log4j:1.2.17'
 		compile 'com.google.code.findbugs:jsr305:3.0.1'
@@ -90,7 +90,7 @@ project(":utils") {
 	}
 }
 
-project(":demo") {
+project(":lightengine-demo") {
 	dependencies {
 		compile project(':lightengine-client')
 		testCompile group: 'junit', name: 'junit', version: '4.12'
