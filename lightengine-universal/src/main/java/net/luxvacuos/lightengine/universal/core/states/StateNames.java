@@ -18,13 +18,14 @@
  * 
  */
 
-package net.luxvacuos.lightengine.server.core.states;
+package net.luxvacuos.lightengine.universal.core.states;
 
 public class StateNames {
 
 	private StateNames() {
 	}
 
-	public static final String MP_WORLD = "MP_World";
+	public static final String SPLASH_SCREEN = "Splash_Screen";
+	public static final String CRASH = "Crash";
 
 }

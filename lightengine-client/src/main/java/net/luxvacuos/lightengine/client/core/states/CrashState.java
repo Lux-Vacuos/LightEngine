@@ -28,6 +28,7 @@ import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
 import net.luxvacuos.lightengine.client.ui.windows.CrashWindow;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
+import net.luxvacuos.lightengine.universal.core.states.StateNames;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class CrashState extends AbstractState {

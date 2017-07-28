@@ -21,12 +21,8 @@
 package net.luxvacuos.lightengine.client.core.states;
 
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.Image;
@@ -35,6 +31,7 @@ import net.luxvacuos.lightengine.client.ui.windows.Shell;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
+import net.luxvacuos.lightengine.universal.core.states.StateNames;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 /**
@@ -84,19 +81,11 @@ public class SplashScreenState extends AbstractState {
 		GraphicalSubsystem.getWindowManager().setShell(shell);
 	}
 
-	@Override
 	public void render( float alpha) {
-		Window window = GraphicalSubsystem.getMainWindow();
-		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		Renderer.clearColors(1, 1, 1, 1);
-		window.beingNVGFrame();
-		GraphicalSubsystem.getWindowManager().render();
-		window.endNVGFrame();
 	}
 
 	@Override
 	public void update(float delta) {
-		GraphicalSubsystem.getWindowManager().update(delta);
 		if (TaskManager.isEmpty())
 			StateMachine.setCurrentState("_main");
 	}

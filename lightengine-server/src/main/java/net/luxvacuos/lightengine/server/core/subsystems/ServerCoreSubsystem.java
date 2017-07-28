@@ -22,8 +22,9 @@ package net.luxvacuos.lightengine.server.core.subsystems;
 
 import java.io.File;
 
-import net.luxvacuos.lightengine.server.bootstrap.Bootstrap;
 import net.luxvacuos.lightengine.server.core.ServerGameSettings;
+import net.luxvacuos.lightengine.server.core.states.Splash;
+import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
@@ -32,13 +33,13 @@ public class ServerCoreSubsystem extends CoreSubsystem {
 	@Override
 	public void init() {
 		super.init();
-		REGISTRY.register(new Key("/Light Engine/Settings/World/directory"), Bootstrap.getPrefix() + "/");
 		gameSettings = new ServerGameSettings();
 		gameSettings.read();
 		REGISTRY.load(new File((String) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/file"))));
 		REGISTRY.save();
-		LANG.load("assets/" + CoreSubsystem.REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/assets"))
-				+ "/langs/" + REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Regional/lang")) + ".json");
+		LANG.load(
+				"assets/langs/" + REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Regional/lang")) + ".json");
+		StateMachine.registerState(new Splash());
 	}
 
 }

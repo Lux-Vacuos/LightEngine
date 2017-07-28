@@ -32,6 +32,8 @@ public class ServerGameSettings extends AbstractGameSettings {
 		REGISTRY.register(new Key("/Light Engine/Settings/Core/ups", true), 					Integer.parseInt(getValue("UPS", "20")));
 
 		REGISTRY.register(new Key("/Light Engine/Server/port", true),						 	Integer.parseInt(getValue("port", "44454")));
+		
+		REGISTRY.register(new Key("/Light Engine/Settings/Regional/lang", true), 					"en_US");
 	}
 
 	@Override

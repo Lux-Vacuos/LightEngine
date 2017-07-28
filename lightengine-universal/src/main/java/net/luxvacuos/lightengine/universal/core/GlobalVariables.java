@@ -23,7 +23,7 @@ package net.luxvacuos.lightengine.universal.core;
 public class GlobalVariables {
 
 	/** The Version of the game */
-	public static String version = "Prototype";
+	public static String version = "Development Version";
 
 	/** Flag to enable debug mode */
 	public static boolean debug = false;

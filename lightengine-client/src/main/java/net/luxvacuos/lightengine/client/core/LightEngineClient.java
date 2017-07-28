@@ -30,7 +30,6 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.client.bootstrap.Bootstrap;
 import net.luxvacuos.lightengine.client.core.states.CrashState;
-import net.luxvacuos.lightengine.client.core.states.StateNames;
 import net.luxvacuos.lightengine.client.core.subsystems.ClientCoreSubsystem;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.core.subsystems.SoundSubsystem;
@@ -42,6 +41,7 @@ import net.luxvacuos.lightengine.universal.core.EngineType;
 import net.luxvacuos.lightengine.universal.core.Sync;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
+import net.luxvacuos.lightengine.universal.core.states.StateNames;
 import net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 

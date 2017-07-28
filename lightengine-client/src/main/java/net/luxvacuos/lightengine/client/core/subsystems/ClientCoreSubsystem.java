@@ -22,7 +22,6 @@ package net.luxvacuos.lightengine.client.core.subsystems;
 
 import java.io.File;
 
-import net.luxvacuos.lightengine.client.bootstrap.Bootstrap;
 import net.luxvacuos.lightengine.client.core.ClientGameSettings;
 import net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem;
 import net.luxvacuos.lightengine.universal.util.registry.Key;

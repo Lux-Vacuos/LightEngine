@@ -23,17 +23,7 @@ package net.luxvacuos.lightengine.client.core;
 import net.luxvacuos.igl.vector.Vector3d;
 import net.luxvacuos.lightengine.universal.core.GlobalVariables;
 
-/**
- * Light Engine Global Variables
- * 
- * @author Guerra24 <pablo230699@hotmail.com>
- * @category Kernel
- */
 public class ClientVariables extends GlobalVariables {
-	/**
-	 * Game Settings
-	 */
-	public static String version = "Development Version";
 
 	public static final float NEAR_PLANE = 0.1f;
 	public static final float FAR_PLANE = 1000f;
