@@ -4,9 +4,10 @@ import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.
 
 import net.luxvacuos.igl.vector.Vector3d;
 import net.luxvacuos.lightengine.client.core.ClientVariables;
+import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
-import net.luxvacuos.lightengine.client.input.Mouse;
+import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
 import net.luxvacuos.lightengine.universal.ecs.Components;
 import net.luxvacuos.lightengine.universal.ecs.components.Velocity;
@@ -31,23 +32,24 @@ public class TPSCamera extends CameraEntity {
 
 	@Override
 	public void update(float delta) {
+		MouseHandler mh = GraphicalSubsystem.getMainWindow().getMouseHandler();
 		Velocity vel = Components.VELOCITY.get(this);
 		Vector3d velocity = new Vector3d();
 		int width = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
 		int height = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
-		if (Mouse.getX() > width - boundary) {
+		if (mh.getX() > width - boundary) {
 			velocity.x += speed * delta;
 			velocity.z += speed * delta;
 		}
-		if (Mouse.getX() < 0 + boundary) {
+		if (mh.getX() < 0 + boundary) {
 			velocity.x -= speed * delta;
 			velocity.z -= speed * delta;
 		}
-		if (Mouse.getY() > height - boundary) {
+		if (mh.getY() > height - boundary) {
 			velocity.z -= speed * delta;
 			velocity.x += speed * delta;
 		}
-		if (Mouse.getY() < 0 + boundary) {
+		if (mh.getY() < 0 + boundary) {
 			velocity.z += speed * delta;
 			velocity.x -= speed * delta;
 		}

@@ -33,7 +33,7 @@ import org.lwjgl.nanovg.NVGColor;
 import org.lwjgl.nanovg.NVGLUFramebuffer;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
-import net.luxvacuos.lightengine.client.input.Mouse;
+import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme.BackgroundStyle;
@@ -130,8 +130,8 @@ public abstract class NanoWindow implements IWindow {
 
 		titleBar.setOnDrag((window) -> {
 			if (draggable && !maximized) {
-				this.x += Mouse.getDX();
-				this.y += Mouse.getDY();
+				this.x += window.getMouseHandler().getDX();
+				this.y += window.getMouseHandler().getDY();
 			}
 		});
 		if (decorations) {
@@ -174,40 +174,42 @@ public abstract class NanoWindow implements IWindow {
 			borderSize = Maths.clamp(borderSize, 8);
 			float tileBarHeight = (float) REGISTRY
 					.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
-			if ((Mouse.isButtonDown(0) && canResizeRightBottom(borderSize) && !isResizing()) || resizingRightBottom) {
-				resizingRightBottom = Mouse.isButtonDown(0);
-				w = Maths.clamp(Mouse.getX() - x, minW);
-				h = Maths.clamp(-Mouse.getY() + y, minH);
+			MouseHandler mh = window.getMouseHandler();
+			if ((mh.isButtonPressed(0) && canResizeRightBottom(borderSize, mh) && !isResizing())
+					|| resizingRightBottom) {
+				resizingRightBottom = mh.isButtonPressed(0);
+				w = Maths.clamp(mh.getX() - x, minW);
+				h = Maths.clamp(-mh.getY() + y, minH);
 			}
-			if ((Mouse.isButtonDown(0) && canResizeRight(borderSize) && !isResizing()) || resizingRight) {
-				resizingRight = Mouse.isButtonDown(0);
-				w = Maths.clamp(Mouse.getX() - x, minW);
+			if ((mh.isButtonPressed(0) && canResizeRight(borderSize, mh) && !isResizing()) || resizingRight) {
+				resizingRight = mh.isButtonPressed(0);
+				w = Maths.clamp(mh.getX() - x, minW);
 			}
-			if ((Mouse.isButtonDown(0) && canResizeLeft(borderSize) && !isResizing()) || resizingLeft) {
+			if ((mh.isButtonPressed(0) && canResizeLeft(borderSize, mh) && !isResizing()) || resizingLeft) {
 				if (!resizingLeft)
 					reX = x + w - minW;
-				resizingLeft = Mouse.isButtonDown(0);
-				x = Maths.min(Mouse.getX(), reX);
-				if (Mouse.getX() <= x)
-					w = Maths.clamp(w - Mouse.getDX(), minW);
+				resizingLeft = mh.isButtonPressed(0);
+				x = Maths.min(mh.getX(), reX);
+				if (mh.getX() <= x)
+					w = Maths.clamp(w - mh.getDX(), minW);
 			}
-			if ((Mouse.isButtonDown(0) && canResizeBottom(borderSize) && !isResizing()) || resizingBottom) {
-				resizingBottom = Mouse.isButtonDown(0);
-				h = Maths.clamp(-Mouse.getY() + y, minH);
+			if ((mh.isButtonPressed(0) && canResizeBottom(borderSize, mh) && !isResizing()) || resizingBottom) {
+				resizingBottom = mh.isButtonPressed(0);
+				h = Maths.clamp(-mh.getY() + y, minH);
 			}
-			if ((Mouse.isButtonDown(0) && canResizeTop(borderSize) && !isResizing()) || resizingTop) {
+			if ((mh.isButtonPressed(0) && canResizeTop(borderSize, mh) && !isResizing()) || resizingTop) {
 				if (!resizingTop)
 					reY = y - h + minH;
-				resizingTop = Mouse.isButtonDown(0);
-				// h = Maths.clamp(-Mouse.getY() + y, minH);
+				resizingTop = mh.isButtonPressed(0);
+				// h = Maths.clamp(-mh.getY() + y, minH);
 				if (titleBar.isEnabled()) {
-					y = Maths.clamp(Mouse.getY() - tileBarHeight, reY);
-					if (Mouse.getY() >= y + tileBarHeight)
-						h = Maths.clamp(h + Mouse.getDY(), minH);
+					y = Maths.clamp(mh.getY() - tileBarHeight, reY);
+					if (mh.getY() >= y + tileBarHeight)
+						h = Maths.clamp(h + mh.getDY(), minH);
 				} else {
-					y = Maths.clamp(Mouse.getY(), reY);
-					if (Mouse.getY() >= y)
-						h = Maths.clamp(h + Mouse.getDY(), minH);
+					y = Maths.clamp(mh.getY(), reY);
+					if (mh.getY() >= y)
+						h = Maths.clamp(h + mh.getDY(), minH);
 				}
 			}
 		}
@@ -346,56 +348,56 @@ public abstract class NanoWindow implements IWindow {
 		}
 	}
 
-	private boolean canResizeBottom(float borderSize) {
-		return Mouse.getX() > x && Mouse.getY() < y - h && Mouse.getX() < x + w && Mouse.getY() > y - h - borderSize
-				&& resizable && !maximized && !minimized;
+	private boolean canResizeBottom(float borderSize, MouseHandler mh) {
+		return mh.getX() > x && mh.getY() < y - h && mh.getX() < x + w && mh.getY() > y - h - borderSize && resizable
+				&& !maximized && !minimized;
 	}
 
-	private boolean canResizeTop(float borderSize) {
+	private boolean canResizeTop(float borderSize, MouseHandler mh) {
 		if (titleBar.isEnabled())
-			return Mouse.getX() > x
-					&& Mouse.getY() < y + (float) REGISTRY.getRegistryItem(
+			return mh.getX() > x
+					&& mh.getY() < y + (float) REGISTRY.getRegistryItem(
 							new Key("/Light Engine/Settings/WindowManager/titleBarHeight")) + borderSize
-					&& Mouse.getX() < x + w
-					&& Mouse.getY() > y + (float) REGISTRY
+					&& mh.getX() < x + w
+					&& mh.getY() > y + (float) REGISTRY
 							.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"))
 					&& resizable && !maximized && !minimized;
 		else
-			return Mouse.getX() > x && Mouse.getY() < y + borderSize && Mouse.getX() < x + w && Mouse.getY() > y
-					&& resizable && !maximized && !minimized;
+			return mh.getX() > x && mh.getY() < y + borderSize && mh.getX() < x + w && mh.getY() > y && resizable
+					&& !maximized && !minimized;
 	}
 
-	private boolean canResizeRightBottom(float borderSize) {
-		return Mouse.getX() > x + w && Mouse.getY() < y - h && Mouse.getX() < x + w + borderSize
-				&& Mouse.getY() > y - h - borderSize && resizable && !maximized && !minimized;
+	private boolean canResizeRightBottom(float borderSize, MouseHandler mh) {
+		return mh.getX() > x + w && mh.getY() < y - h && mh.getX() < x + w + borderSize
+				&& mh.getY() > y - h - borderSize && resizable && !maximized && !minimized;
 	}
 
-	private boolean canResizeRight(float borderSize) {
-		return Mouse.getX() > x + w && Mouse.getY() < y && Mouse.getX() < x + w + borderSize && Mouse.getY() > y - h
+	private boolean canResizeRight(float borderSize, MouseHandler mh) {
+		return mh.getX() > x + w && mh.getY() < y && mh.getX() < x + w + borderSize && mh.getY() > y - h && resizable
+				&& !maximized && !minimized;
+	}
+
+	private boolean canResizeLeft(float borderSize, MouseHandler mh) {
+		return mh.getX() > x - borderSize && mh.getY() < y && mh.getX() < x + borderSize && mh.getY() > y - h
 				&& resizable && !maximized && !minimized;
-	}
-
-	private boolean canResizeLeft(float borderSize) {
-		return Mouse.getX() > x - borderSize && Mouse.getY() < y && Mouse.getX() < x + borderSize
-				&& Mouse.getY() > y - h && resizable && !maximized && !minimized;
 	}
 
 	@Override
 	public boolean insideWindow() {
 		float borderSize = (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/borderSize"));
+		MouseHandler mh = GraphicalSubsystem.getMainWindow().getMouseHandler();
 		borderSize = Maths.clamp(borderSize, 8);
 		if (titleBar.isEnabled() && decorations)
-			return Mouse.getX() > x - borderSize && Mouse.getX() < x + w + borderSize
-					&& Mouse.getY() > y - h - borderSize
-					&& Mouse.getY() < y
+			return mh.getX() > x - borderSize && mh.getX() < x + w + borderSize && mh.getY() > y - h - borderSize
+					&& mh.getY() < y
 							+ (float) REGISTRY
 									.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"))
 							+ borderSize;
 		else if (!decorations)
-			return Mouse.getX() > x && Mouse.getX() < x + w && Mouse.getY() > y - h && Mouse.getY() < y;
+			return mh.getX() > x && mh.getX() < x + w && mh.getY() > y - h && mh.getY() < y;
 		else
-			return Mouse.getX() > x - borderSize && Mouse.getX() < x + w + borderSize * 2f
-					&& Mouse.getY() > y - h - borderSize * 2f && Mouse.getY() < y + borderSize;
+			return mh.getX() > x - borderSize && mh.getX() < x + w + borderSize * 2f
+					&& mh.getY() > y - h - borderSize * 2f && mh.getY() < y + borderSize;
 	}
 
 	@Override

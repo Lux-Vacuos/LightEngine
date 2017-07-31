@@ -20,8 +20,6 @@
 
 package net.luxvacuos.lightengine.client.ecs.entities;
 
-import static net.luxvacuos.lightengine.client.input.Mouse.getDX;
-import static net.luxvacuos.lightengine.client.input.Mouse.getDY;
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 
 import org.lwjgl.glfw.GLFW;
@@ -31,6 +29,7 @@ import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
+import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
 import net.luxvacuos.lightengine.client.resources.CastRay;
@@ -74,10 +73,11 @@ public class PlayerCamera extends CameraEntity {
 	public void update(float delta) {
 		Window window = GraphicalSubsystem.getMainWindow();
 		KeyboardHandler kbh = window.getKeyboardHandler();
+		MouseHandler mh = window.getMouseHandler();
 		Rotation rotation = Components.ROTATION.get(this);
 
-		float mouseDX = getDX() * mouseSpeed * delta;
-		float mouseDY = getDY() * mouseSpeed * delta;
+		float mouseDX = mh.getDX() * mouseSpeed * delta;
+		float mouseDY = mh.getDY() * mouseSpeed * delta;
 		if (rotation.getY() + mouseDX >= 360)
 			rotation.setY(rotation.getY() + mouseDX - 360);
 		else if (rotation.getY() + mouseDX < 0)

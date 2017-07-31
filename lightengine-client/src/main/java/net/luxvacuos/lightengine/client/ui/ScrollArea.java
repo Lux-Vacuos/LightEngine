@@ -25,7 +25,7 @@ import static org.lwjgl.nanovg.NanoVG.nvgRestore;
 import static org.lwjgl.nanovg.NanoVG.nvgSave;
 import static org.lwjgl.nanovg.NanoVG.nvgScissor;
 
-import net.luxvacuos.lightengine.client.input.Mouse;
+import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 import net.luxvacuos.lightengine.client.util.Maths;
@@ -69,27 +69,28 @@ public class ScrollArea extends Component {
 	public void update(float delta, Window window) {
 		comp.update(delta, window);
 		super.update(delta, window);
+		MouseHandler mh = window.getMouseHandler();
 		float scrollBarSize = (float) REGISTRY
 				.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/scrollBarSize"));
-		if (Mouse.isButtonDown(0)) {
-			if (Mouse.getX() > rootComponent.rootX + alignedX + w - scrollBarSize
-					&& Mouse.getX() < rootComponent.rootX + alignedX + w
-					&& Mouse.getY() > rootComponent.rootY + alignedY + h - scrollBarSize
-					&& Mouse.getY() < rootComponent.rootY + alignedY + h) {
+		if (mh.isButtonPressed(0)) {
+			if (mh.getX() > rootComponent.rootX + alignedX + w - scrollBarSize
+					&& mh.getX() < rootComponent.rootX + alignedX + w
+					&& mh.getY() > rootComponent.rootY + alignedY + h - scrollBarSize
+					&& mh.getY() < rootComponent.rootY + alignedY + h) {
 				scrollH -= 200 * delta;
 			}
-			if (Mouse.getX() > rootComponent.rootX + alignedX + w - scrollBarSize
-					&& Mouse.getX() < rootComponent.rootX + alignedX + w
-					&& Mouse.getY() > rootComponent.rootY + alignedY
-					&& Mouse.getY() < rootComponent.rootY + alignedY + scrollBarSize) {
+			if (mh.getX() > rootComponent.rootX + alignedX + w - scrollBarSize
+					&& mh.getX() < rootComponent.rootX + alignedX + w
+					&& mh.getY() > rootComponent.rootY + alignedY
+					&& mh.getY() < rootComponent.rootY + alignedY + scrollBarSize) {
 				scrollH += 200 * delta;
 			}
 		}
-		if ((Mouse.isButtonDown(0) && scrollBarV(scrollBarSize)) || moveV) {
-			moveV = Mouse.isButtonDown(0);
-			scrollH -= Mouse.getDY();
+		if ((mh.isButtonPressed(0) && scrollBarV(scrollBarSize, mh)) || moveV) {
+			moveV = mh.isButtonPressed(0);
+			scrollH -= mh.getDY();
 		}
-		scrollH -= Mouse.getDWheel() * 16;
+		scrollH -= mh.getYWheel() * 16;
 		scrollH = Maths.clamp(scrollH, 0, maxH);
 	}
 
@@ -111,13 +112,13 @@ public class ScrollArea extends Component {
 		comp.setLayout(layout);
 	}
 
-	private boolean scrollBarV(float scrollBarSize) {
+	private boolean scrollBarV(float scrollBarSize, MouseHandler mh) {
 		float scrollv = (h / (maxH + h / 2f)) * (h / 2);
-		return Mouse.getX() > rootComponent.rootX + alignedX + w - scrollBarSize
-				&& Mouse.getX() < rootComponent.rootX + alignedX + w - scrollBarSize + scrollBarSize
-				&& Mouse.getY() > rootComponent.rootY + alignedY + scrollBarSize
+		return mh.getX() > rootComponent.rootX + alignedX + w - scrollBarSize
+				&& mh.getX() < rootComponent.rootX + alignedX + w - scrollBarSize + scrollBarSize
+				&& mh.getY() > rootComponent.rootY + alignedY + scrollBarSize
 						+ (h - 8 - scrollv) * (1 - (scrollH / maxH))
-				&& Mouse.getY() < rootComponent.rootY + alignedY + scrollBarSize
+				&& mh.getY() < rootComponent.rootY + alignedY + scrollBarSize
 						+ (h - 8 - scrollv) * (1 - (scrollH / maxH)) + scrollv - scrollBarSize * 2f + 8;
 	}
 

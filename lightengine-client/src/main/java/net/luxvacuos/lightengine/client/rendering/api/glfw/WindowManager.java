@@ -37,12 +37,8 @@ import java.nio.IntBuffer;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWCursorEnterCallback;
-import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
 import org.lwjgl.glfw.GLFWImage;
-import org.lwjgl.glfw.GLFWMouseButtonCallback;
-import org.lwjgl.glfw.GLFWScrollCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowPosCallback;
 import org.lwjgl.glfw.GLFWWindowRefreshCallback;
@@ -58,7 +54,6 @@ import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.core.exception.DecodeTextureException;
 import net.luxvacuos.lightengine.client.core.exception.GLFWException;
-import net.luxvacuos.lightengine.client.input.Mouse;
 import net.luxvacuos.lightengine.client.resources.ResourceLoader;
 
 public final class WindowManager {
@@ -214,9 +209,9 @@ public final class WindowManager {
 		for (Window window : windows) {
 			window.dirty = false;
 			window.resized = false;
+			window.getMouseHandler().update();
 		}
 		glfwPollEvents();
-		Mouse.poll();
 	}
 
 	public static double getTime() {
@@ -227,14 +222,10 @@ public final class WindowManager {
 		return (long) (getTime() * (1000L * 1000L * 1000L));
 	}
 
-	protected static GLFWCursorEnterCallback cursorEnterCallback;
-	protected static GLFWCursorPosCallback cursorPosCallback;
-	protected static GLFWMouseButtonCallback mouseButtonCallback;
 	protected static GLFWWindowSizeCallback windowSizeCallback;
 	protected static GLFWWindowPosCallback windowPosCallback;
 	protected static GLFWWindowRefreshCallback windowRefreshCallback;
 	protected static GLFWFramebufferSizeCallback framebufferSizeCallback;
-	protected static GLFWScrollCallback scrollCallback;
 
 	private static IntBuffer maxVram = BufferUtils.createIntBuffer(1);
 	private static IntBuffer usedVram = BufferUtils.createIntBuffer(1);
@@ -243,34 +234,6 @@ public final class WindowManager {
 	private static boolean detected = false;
 
 	static {
-		cursorEnterCallback = new GLFWCursorEnterCallback() {
-			@Override
-			public void invoke(long windowID, boolean entered) {
-				Mouse.setMouseInsideWindow(entered);
-			}
-		};
-
-		cursorPosCallback = new GLFWCursorPosCallback() {
-			@Override
-			public void invoke(long windowID, double xpos, double ypos) {
-				Mouse.addMoveEvent(xpos, ypos);
-			}
-		};
-
-		mouseButtonCallback = new GLFWMouseButtonCallback() {
-			@Override
-			public void invoke(long windowID, int button, int action, int mods) {
-				Mouse.addButtonEvent(button, action == GLFW.GLFW_PRESS ? true : false);
-			}
-		};
-
-		scrollCallback = new GLFWScrollCallback() {
-			@Override
-			public void invoke(long window, double xoffset, double yoffset) {
-				Mouse.addWheelEvent((int) yoffset);
-			}
-		};
-
 		windowSizeCallback = new GLFWWindowSizeCallback() {
 			@Override
 			public void invoke(long windowID, int width, int height) {

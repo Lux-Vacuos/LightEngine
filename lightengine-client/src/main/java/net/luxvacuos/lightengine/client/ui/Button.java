@@ -22,7 +22,7 @@ package net.luxvacuos.lightengine.client.ui;
 
 import java.nio.ByteBuffer;
 
-import net.luxvacuos.lightengine.client.input.Mouse;
+import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 
@@ -30,9 +30,9 @@ public class Button extends Component {
 
 	protected String text = "missigno", font = "Poppins-Medium", entypo = "Entypo";
 	protected ByteBuffer preicon;
-	protected OnAction onPress;
+	protected OnAction onPress, rightPress;;
 	protected float fontSize = 21;
-	protected boolean pressed = false, enabled = true, inside;
+	protected boolean pressed = false, pressedRight = false, enabled = true, inside;
 
 	public Button(float x, float y, float w, float h, String text) {
 		this.x = x;
@@ -54,27 +54,39 @@ public class Button extends Component {
 	public void update(float delta, Window window) {
 		if (!enabled)
 			return;
-
-		inside = insideButton();
+		MouseHandler mh = window.getMouseHandler();
+		inside = insideButton(mh);
 		if (onPress != null)
-			if (pressed() || pressed) {
-				if (!pressed() && pressed)
+			if (pressed(mh) || pressed) {
+				if (!pressed(mh) && pressed)
 					onPress.onAction();
-				pressed = pressed();
+				pressed = pressed(mh);
+			}
+		if (rightPress != null)
+			if (pressedRight(mh) || pressedRight) {
+				if (!pressedRight(mh) && pressedRight)
+					rightPress.onAction();
+				pressedRight = pressedRight(mh);
 			}
 
 		super.update(delta, window);
 	}
 
-	public boolean insideButton() {
-		return Mouse.getX() >= rootComponent.rootX + alignedX && Mouse.getY() > rootComponent.rootY + alignedY
-				&& Mouse.getX() < rootComponent.rootX + alignedX + w
-				&& Mouse.getY() <= rootComponent.rootY + alignedY + h;
+	public boolean insideButton(MouseHandler mh) {
+		return mh.getX() >= rootComponent.rootX + alignedX && mh.getY() > rootComponent.rootY + alignedY
+				&& mh.getX() < rootComponent.rootX + alignedX + w && mh.getY() <= rootComponent.rootY + alignedY + h;
 	}
 
-	public boolean pressed() {
-		if (insideButton())
-			return Mouse.isButtonDown(0);
+	public boolean pressed(MouseHandler mh) {
+		if (insideButton(mh))
+			return mh.isButtonPressed(0);
+		else
+			return false;
+	}
+
+	public boolean pressedRight(MouseHandler mh) {
+		if (insideButton(mh))
+			return mh.isButtonPressed(1);
 		else
 			return false;
 	}
@@ -85,6 +97,10 @@ public class Button extends Component {
 
 	public void setOnButtonPress(OnAction onPress) {
 		this.onPress = onPress;
+	}
+
+	public void setOnButtonRightPress(OnAction rightPress) {
+		this.rightPress = rightPress;
 	}
 
 	public void setEntypo(String entypo) {

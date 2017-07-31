@@ -38,7 +38,6 @@ import org.lwjgl.glfw.GLFW;
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.core.states.SplashScreenState;
-import net.luxvacuos.lightengine.client.input.Mouse;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Icon;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.PixelBufferHandle;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
@@ -92,7 +91,6 @@ public class GraphicalSubsystem implements ISubsystem {
 		long gameWindowID = WindowManager.createWindow(handle,
 				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/vsync")));
 		window = WindowManager.getWindow(gameWindowID);
-		Mouse.setWindow(window);
 		themeManager = new ThemeManager();
 		themeManager.addTheme(new NanoTheme());
 		ITheme theme = themeManager

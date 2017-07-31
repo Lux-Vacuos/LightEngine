@@ -25,7 +25,6 @@ import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.
 import java.util.List;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
-import net.luxvacuos.lightengine.client.input.Mouse;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 import net.luxvacuos.lightengine.client.util.Maths;
@@ -85,7 +84,7 @@ public class DropDown<E> extends Button {
 
 				@Override
 				public void alwaysUpdateApp(float delta, Window window) {
-					if ((Mouse.isButtonDown(0) || Mouse.isButtonDown(1)) && !insideWindow())
+					if ((window.getMouseHandler().isButtonPressed(0) || window.getMouseHandler().isButtonPressed(1)) && !insideWindow())
 						super.closeWindow();
 					super.alwaysUpdateApp(delta, window);
 				}

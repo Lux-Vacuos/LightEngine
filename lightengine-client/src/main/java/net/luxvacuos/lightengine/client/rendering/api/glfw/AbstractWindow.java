@@ -22,11 +22,7 @@ package net.luxvacuos.lightengine.client.rendering.api.glfw;
 
 import static org.lwjgl.glfw.GLFW.glfwDestroyWindow;
 import static org.lwjgl.glfw.GLFW.glfwHideWindow;
-import static org.lwjgl.glfw.GLFW.glfwSetCursorEnterCallback;
-import static org.lwjgl.glfw.GLFW.glfwSetCursorPosCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetFramebufferSizeCallback;
-import static org.lwjgl.glfw.GLFW.glfwSetMouseButtonCallback;
-import static org.lwjgl.glfw.GLFW.glfwSetScrollCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowPosCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowRefreshCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowSizeCallback;
@@ -42,6 +38,7 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GLCapabilities;
 
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
+import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.resources.AssimpResourceLoader;
 import net.luxvacuos.lightengine.client.resources.ResourceLoader;
 
@@ -49,8 +46,8 @@ public abstract class AbstractWindow implements IWindow {
 
 	protected final long windowID;
 
-	// The Keyboard Handler for this window
 	protected KeyboardHandler kbHandle;
+	protected MouseHandler mHandle;
 
 	protected DisplayUtils displayUtils;
 
@@ -88,14 +85,11 @@ public abstract class AbstractWindow implements IWindow {
 
 	protected void setCallbacks() {
 		this.kbHandle = new KeyboardHandler(this.windowID);
-		glfwSetCursorEnterCallback(windowID, WindowManager.cursorEnterCallback);
-		glfwSetCursorPosCallback(windowID, WindowManager.cursorPosCallback);
-		glfwSetMouseButtonCallback(windowID, WindowManager.mouseButtonCallback);
+		this.mHandle = new MouseHandler(this.windowID, this);
 		glfwSetWindowSizeCallback(windowID, WindowManager.windowSizeCallback);
 		glfwSetWindowPosCallback(windowID, WindowManager.windowPosCallback);
 		glfwSetWindowRefreshCallback(windowID, WindowManager.windowRefreshCallback);
 		glfwSetFramebufferSizeCallback(windowID, WindowManager.framebufferSizeCallback);
-		glfwSetScrollCallback(windowID, WindowManager.scrollCallback);
 	}
 
 	@Override
@@ -205,6 +199,10 @@ public abstract class AbstractWindow implements IWindow {
 
 	public KeyboardHandler getKeyboardHandler() {
 		return this.kbHandle;
+	}
+	
+	public MouseHandler getMouseHandler() {
+		return this.mHandle;
 	}
 
 	public boolean isCloseRequested() {

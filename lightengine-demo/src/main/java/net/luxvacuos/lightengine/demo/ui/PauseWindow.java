@@ -21,7 +21,7 @@
 package net.luxvacuos.lightengine.demo.ui;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
-import net.luxvacuos.lightengine.client.input.Mouse;
+import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.Button;
@@ -63,7 +63,7 @@ public class PauseWindow extends ComponentWindow {
 	@Override
 	public void onClose() {
 		MainState.paused = false;
-		Mouse.setGrabbed(true);
+		MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), true);
 		GraphicalSubsystem.getWindowManager().toggleShell();
 	}
 

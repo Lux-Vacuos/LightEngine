@@ -23,7 +23,7 @@ import net.luxvacuos.lightengine.client.ecs.entities.PlayerCamera;
 import net.luxvacuos.lightengine.client.ecs.entities.RenderEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.Sun;
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
-import net.luxvacuos.lightengine.client.input.Mouse;
+import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.LightRenderer;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.ParticleDomain;
@@ -145,8 +145,7 @@ public class MainState extends AbstractState {
 			for (int x = -128; x <= 128; x++)
 				for (int z = -128; z <= 128; z++)
 					waterTiles.add(new WaterTile(x * WaterTile.TILE_SIZE, 75, z * WaterTile.TILE_SIZE));
-
-			Mouse.setGrabbed(true);
+			MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), true);
 			Renderer.render(engine.getEntities(), ParticleDomain.getParticles(), waterTiles, lightRenderer, camera,
 					worldSimulation, sun, 0);
 			gameWindow = new GameWindow(0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
@@ -189,7 +188,7 @@ public class MainState extends AbstractState {
 
 			if (kbh.isKeyPressed(GLFW.GLFW_KEY_ESCAPE)) {
 				kbh.ignoreKeyUntilRelease(GLFW.GLFW_KEY_ESCAPE);
-				Mouse.setGrabbed(false);
+				MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), false);
 				paused = true;
 				float borderSize = (float) REGISTRY
 						.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/borderSize"));
@@ -211,7 +210,7 @@ public class MainState extends AbstractState {
 		} else {
 			if (kbh.isKeyPressed(GLFW.GLFW_KEY_ESCAPE)) {
 				kbh.ignoreKeyUntilRelease(GLFW.GLFW_KEY_ESCAPE);
-				Mouse.setGrabbed(true);
+				MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), true);
 				paused = false;
 				pauseWindow.closeWindow();
 				GraphicalSubsystem.getWindowManager().toggleShell();

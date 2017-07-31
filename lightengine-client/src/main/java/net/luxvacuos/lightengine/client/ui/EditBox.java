@@ -23,7 +23,7 @@ package net.luxvacuos.lightengine.client.ui;
 import org.lwjgl.glfw.GLFW;
 
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
-import net.luxvacuos.lightengine.client.input.Mouse;
+import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 
@@ -50,8 +50,9 @@ public class EditBox extends Component {
 	@Override
 	public void update(float delta, Window window) {
 		KeyboardHandler kb = window.getKeyboardHandler();
-		if (Mouse.isButtonDown(0)) {
-			if (insideBox()) {
+		MouseHandler mh = window.getMouseHandler();
+		if (mh.isButtonPressed(0)) {
+			if (insideBox(mh)) {
 				kb.enableTextInput();
 				kb.clearInputData();
 				selected = true;
@@ -72,10 +73,9 @@ public class EditBox extends Component {
 		super.update(delta, window);
 	}
 
-	public boolean insideBox() {
-		return Mouse.getX() > rootComponent.rootX + alignedX && Mouse.getY() > rootComponent.rootY + alignedY
-				&& Mouse.getX() < rootComponent.rootX + alignedX + w
-				&& Mouse.getY() < rootComponent.rootY + alignedY + h;
+	public boolean insideBox(MouseHandler mh) {
+		return mh.getX() > rootComponent.rootX + alignedX && mh.getY() > rootComponent.rootY + alignedY
+				&& mh.getX() < rootComponent.rootX + alignedX + w && mh.getY() < rootComponent.rootY + alignedY + h;
 	}
 
 	public void setFontSize(float fontSize) {

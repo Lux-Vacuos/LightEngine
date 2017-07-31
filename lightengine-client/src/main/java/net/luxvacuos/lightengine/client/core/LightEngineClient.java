@@ -22,8 +22,6 @@ package net.luxvacuos.lightengine.client.core;
 
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.Timers;
-
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 
@@ -33,8 +31,9 @@ import net.luxvacuos.lightengine.client.core.states.CrashState;
 import net.luxvacuos.lightengine.client.core.subsystems.ClientCoreSubsystem;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.core.subsystems.SoundSubsystem;
-import net.luxvacuos.lightengine.client.input.Mouse;
+import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.Timers;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.GPUProfiler;
 import net.luxvacuos.lightengine.universal.core.AbstractEngine;
 import net.luxvacuos.lightengine.universal.core.EngineType;
@@ -155,7 +154,7 @@ public class LightEngineClient extends AbstractEngine {
 		if (!StateMachine.isRunning())
 			StateMachine.run();
 		StateMachine.setCurrentState(StateNames.CRASH);
-		Mouse.setGrabbed(false);
+		MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), false);
 		update();
 		dispose();
 		GLFW.glfwTerminate();

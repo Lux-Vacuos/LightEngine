@@ -22,7 +22,6 @@ package net.luxvacuos.lightengine.client.ui;
 
 import java.util.List;
 
-import net.luxvacuos.lightengine.client.input.Mouse;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 
 public class ContextMenu extends ComponentWindow {
@@ -30,11 +29,13 @@ public class ContextMenu extends ComponentWindow {
 	private List<Component> buttons;
 
 	public ContextMenu(float w, float h) {
-		super(Mouse.getX() - 5, Mouse.getY() + 5, w, h, "Panel");
+		super(0, 0, w, h, "Panel");
 	}
 
 	@Override
 	public void initApp(Window window) {
+		super.x = window.getMouseHandler().getX() - 5;
+		super.y = window.getMouseHandler().getY() + 5;
 		super.toggleTitleBar();
 		super.setDecorations(false);
 		super.setBackgroundColor(0f, 0f, 0f, 0f);
@@ -45,7 +46,7 @@ public class ContextMenu extends ComponentWindow {
 
 	@Override
 	public void alwaysUpdateApp(float delta, Window window) {
-		if ((Mouse.isButtonDown(0) || Mouse.isButtonDown(1)) && !insideWindow())
+		if ((window.getMouseHandler().isButtonPressed(0) || window.getMouseHandler().isButtonPressed(1)) && !insideWindow())
 			super.closeWindow();
 		super.alwaysUpdateApp(delta, window);
 	}

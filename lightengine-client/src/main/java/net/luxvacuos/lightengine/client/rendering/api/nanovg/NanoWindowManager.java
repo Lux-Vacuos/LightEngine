@@ -21,9 +21,10 @@
 package net.luxvacuos.lightengine.client.rendering.api.nanovg;
 
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
+import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_LEFT;
+import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_MIDDLE;
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.glDisable;
-import static org.lwjgl.nanovg.NanoVG.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,7 +33,6 @@ import java.util.List;
 import org.lwjgl.glfw.GLFW;
 
 import net.luxvacuos.lightengine.client.core.ClientVariables;
-import net.luxvacuos.lightengine.client.input.Mouse;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.WindowManager;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.IWindow.WindowMessages;
@@ -169,8 +169,9 @@ public class NanoWindowManager implements IWindowManager {
 				tmp.add(window);
 				continue;
 			}
+			
 			if (window.insideWindow() && !window.isBackground() && !window.isHidden() && !window.isMinimized()
-					&& (Mouse.isButtonDown(0) || Mouse.isButtonDown(1)) && !focused.isDragging()
+					&& (this.window.getMouseHandler().isButtonPressed(0) || this.window.getMouseHandler().isButtonPressed(1)) && !focused.isDragging()
 					&& !focused.isResizing()) {
 				toTop = window;
 			}

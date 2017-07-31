@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
-import net.luxvacuos.lightengine.client.input.Mouse;
+import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.Event;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.IWindow;
@@ -63,11 +63,12 @@ public class TitleBar implements ITitleBar {
 	@Override
 	public void update(float delta, Window window) {
 		if (enabled) {
-			if ((Mouse.isButtonDown(0) && canDrag(this.window)) || dragging) {
-				dragging = Mouse.isButtonDown(0);
+			MouseHandler mh = window.getMouseHandler();
+			if ((mh.isButtonPressed(0) && canDrag(this.window, mh)) || dragging) {
+				dragging = mh.isButtonPressed(0);
 				drag.event(window);
 			}
-			if ((Mouse.isButtonDown(1) && canDrag(this.window)) && !context) {
+			if ((mh.isButtonPressed(1) && canDrag(this.window, mh)) && !context) {
 
 				ContextMenu context = new ContextMenu(180, 75);
 				List<Component> buttons = new ArrayList<>();
@@ -110,8 +111,8 @@ public class TitleBar implements ITitleBar {
 				context.setButtons(buttons);
 				GraphicalSubsystem.getWindowManager().addWindow(context);
 			}
-			context = Mouse.isButtonDown(1);
-			if (Mouse.isButtonDown(0) && canDrag(this.window) || pressed) {
+			context = mh.isButtonPressed(1);
+			if (mh.isButtonPressed(0) && canDrag(this.window, mh) || pressed) {
 				if (!pressed) {
 					count = true;
 					if (time != 0) {
@@ -120,7 +121,7 @@ public class TitleBar implements ITitleBar {
 						count = false;
 					}
 				}
-				pressed = Mouse.isButtonDown(0);
+				pressed = mh.isButtonPressed(0);
 			}
 			if (count) {
 				time += 1 * delta;
@@ -171,10 +172,10 @@ public class TitleBar implements ITitleBar {
 		return center;
 	}
 
-	private boolean canDrag(IWindow iWindow) {
-		return Mouse.getX() > iWindow.getX() + left.getFinalW() && Mouse.getY() < iWindow.getY()
+	private boolean canDrag(IWindow iWindow, MouseHandler mh) {
+		return mh.getX() > iWindow.getX() + left.getFinalW() && mh.getY() < iWindow.getY()
 				+ (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"))
-				&& Mouse.getX() < iWindow.getX() + iWindow.getWidth() + right.getFinalW() && Mouse.getY() > iWindow.getY();
+				&& mh.getX() < iWindow.getX() + iWindow.getWidth() + right.getFinalW() && mh.getY() > iWindow.getY();
 	}
 
 	@Override
