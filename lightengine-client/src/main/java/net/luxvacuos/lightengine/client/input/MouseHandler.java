@@ -27,6 +27,7 @@ import net.luxvacuos.lightengine.client.input.callbacks.MouseEnterCallback;
 import net.luxvacuos.lightengine.client.input.callbacks.MousePosCallback;
 import net.luxvacuos.lightengine.client.input.callbacks.MouseScrollCallback;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.AbstractWindow;
+import net.luxvacuos.lightengine.universal.core.TaskManager;
 
 public class MouseHandler {
 
@@ -54,7 +55,7 @@ public class MouseHandler {
 
 		this.window = window;
 	}
-	
+
 	public void update() {
 		this.posCallback.update();
 	}
@@ -106,7 +107,8 @@ public class MouseHandler {
 	}
 
 	public static void setGrabbed(long windowID, boolean grab) {
-		GLFW.glfwSetInputMode(windowID, GLFW.GLFW_CURSOR, grab ? GLFW.GLFW_CURSOR_DISABLED : GLFW.GLFW_CURSOR_NORMAL);
+		TaskManager.addTask(() -> GLFW.glfwSetInputMode(windowID, GLFW.GLFW_CURSOR,
+				grab ? GLFW.GLFW_CURSOR_DISABLED : GLFW.GLFW_CURSOR_NORMAL));
 	}
 
 }
