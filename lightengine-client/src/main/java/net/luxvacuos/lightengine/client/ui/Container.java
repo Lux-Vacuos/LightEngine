@@ -20,7 +20,19 @@
 
 package net.luxvacuos.lightengine.client.ui;
 
+
+
+import static org.lwjgl.nanovg.NanoVG.nvgBeginPath;
+import static org.lwjgl.nanovg.NanoVG.nvgIntersectScissor;
+import static org.lwjgl.nanovg.NanoVG.nvgRect;
+import static org.lwjgl.nanovg.NanoVG.nvgRestore;
+import static org.lwjgl.nanovg.NanoVG.nvgSave;
+import static org.lwjgl.nanovg.NanoVG.nvgStroke;
+import static org.lwjgl.nanovg.NanoVG.nvgStrokeColor;
+import static org.lwjgl.nanovg.NanoVG.nvgStrokeWidth;
+
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 
 public class Container extends Component {
 
@@ -33,28 +45,46 @@ public class Container extends Component {
 		this.h = h;
 		comp = new RootComponent(x, y - h, w, h);
 	}
-
+	
+	@Override
+	public void init(Window window) {
+		comp.init(window);
+	}
+	
 	@Override
 	public void render(Window window) {
-		comp.render(window);
+		long vg = window.getNVGID();
+		nvgSave(window.getNVGID());
+		nvgIntersectScissor(vg, rootComponent.rootX + alignedX,
+				window.getHeight() - rootComponent.rootY - alignedY - h, w, h);
+		comp.render();
+		if (Theme.DEBUG) {
+			nvgBeginPath(vg);
+			nvgRect(vg, rootComponent.rootX + alignedX,
+					window.getHeight() - rootComponent.rootY - alignedY - h, w, h);
+			nvgStrokeWidth(vg, Theme.DEBUG_STROKE);
+			nvgStrokeColor(vg, Theme.debugC);
+			nvgStroke(vg);
+		}
+		nvgRestore(vg);
 	}
 
 	@Override
 	public void update(float delta, Window window) {
-		comp.update(delta, window);
+		comp.update(delta);
 		super.update(delta, window);
 	}
 
 	@Override
 	public void alwaysUpdate(float delta, Window window) {
 		super.alwaysUpdate(delta, window);
-		comp.alwaysUpdate(delta, window, rootComponent.rootX + alignedX, rootComponent.rootY + alignedY + h, w, h);
+		comp.alwaysUpdate(delta, rootComponent.rootX + alignedX, rootComponent.rootY + alignedY + h, w, h);
 	}
 
 	@Override
-	public void dispose() {
+	public void dispose(Window window) {
 		comp.dispose();
-		super.dispose();
+		super.dispose(window);
 	}
 
 	public void setLayout(ILayout layout) {

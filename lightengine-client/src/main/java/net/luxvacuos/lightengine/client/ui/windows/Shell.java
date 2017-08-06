@@ -29,15 +29,15 @@ import org.lwjgl.glfw.GLFW;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.IShell;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.IWindow;
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.ui.Button;
 import net.luxvacuos.lightengine.client.ui.Component;
+import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.Container;
 import net.luxvacuos.lightengine.client.ui.Direction;
 import net.luxvacuos.lightengine.client.ui.FlowLayout;
-import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
@@ -55,10 +55,9 @@ public class Shell extends ComponentWindow implements IShell {
 	}
 
 	@Override
-	public void initApp(Window window) {
+	public void initApp() {
 		buttons = new HashMap<>();
 		super.setDecorations(false);
-		super.initApp(window);
 		super.setBackgroundColor("#1F1F1F78");
 		super.setLayout(new FlowLayout(Direction.RIGHT, 0, 0));
 		super.setAsBackground(true);
@@ -74,12 +73,12 @@ public class Shell extends ComponentWindow implements IShell {
 		apps = new Container(0, 0, super.w - 100, h);
 		apps.setLayout(new FlowLayout(Direction.RIGHT, 0, 0));
 		super.addComponent(apps);
+		super.initApp();
 		GraphicalSubsystem.getWindowManager().addWindow(new NotificationsArea());
-
 	}
 
 	@Override
-	public void alwaysUpdateApp(float delta, Window window) {
+	public void alwaysUpdateApp(float delta) {
 		if (fadeIn) {
 			y += 100f * delta;
 			if (y >= h) {
@@ -102,27 +101,27 @@ public class Shell extends ComponentWindow implements IShell {
 			kb.ignoreKeyUntilRelease(GLFW.GLFW_KEY_F10);
 			GraphicalSubsystem.getWindowManager().addWindow(new Console(100, 600, 600, 400));
 		}
-		super.alwaysUpdateApp(delta, window);
+		super.alwaysUpdateApp(delta);
 	}
 
 	@Override
-	public void disposeApp(Window window) {
-		super.disposeApp(window);
+	public void disposeApp() {
+		super.disposeApp();
 		buttons.clear();
 		CoreSubsystem.REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/shellHeight"), 0f);
 	}
 
 	@Override
-	public void notifyWindow(Window wind, WindowMessages message, Object param) {
+	public void processWindowMessage(int message, Object param) {
 		switch (message) {
-		case SHELL_WINDOW_CLOSED:
+		case WindowMessage.WM_SHELL_WINDOW_CLOSED:
 			IWindow window = (IWindow) param;
 			if (!(window.hasDecorations() && !window.isHidden()) || !buttons.containsKey(window.hashCode()))
 				return;
 			apps.removeComponent(buttons.get(window.hashCode()));
 			buttons.remove(window.hashCode());
 			break;
-		case SHELL_WINDOW_CREATED:
+		case WindowMessage.WM_SHELL_WINDOW_CREATED:
 			window = (IWindow) param;
 			if (!(window.hasDecorations() && !window.isHidden()))
 				return;
@@ -139,18 +138,8 @@ public class Shell extends ComponentWindow implements IShell {
 			apps.addComponent(btn);
 			buttons.put(window.hashCode(), btn);
 			break;
-		default:
-			super.notifyWindow(wind, message, param);
-			break;
 		}
-	}
-
-	@Override
-	public void notifyAdd(IWindow window) {
-	}
-
-	@Override
-	public void notifyClose(IWindow window) {
+		super.processWindowMessage(message, param);
 	}
 
 	@Override

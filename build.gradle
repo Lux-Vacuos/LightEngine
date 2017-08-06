@@ -31,6 +31,7 @@ project(":lightengine-client") {
 		compile "org.lwjgl:lwjgl-stb:${lwjglVersion}"
 		compile "org.lwjgl:lwjgl-vulkan:${lwjglVersion}"
 		compile "org.lwjgl:lwjgl-assimp:${lwjglVersion}"
+		compile "org.lwjgl:lwjgl-yoga:${lwjglVersion}"
 		// LWJGL natives Windows
 		runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-windows"
 		runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-windows"
@@ -40,6 +41,7 @@ project(":lightengine-client") {
 		runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-windows"
 		runtime "org.lwjgl:lwjgl-stb:${lwjglVersion}:natives-windows"
 		runtime "org.lwjgl:lwjgl-assimp:${lwjglVersion}:natives-windows"
+		runtime "org.lwjgl:lwjgl-yoga:${lwjglVersion}:natives-windows"
 		// LWJGL Natives Linux
 		runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-linux"
 		runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-linux"
@@ -49,6 +51,7 @@ project(":lightengine-client") {
 		runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-linux"
 		runtime "org.lwjgl:lwjgl-stb:${lwjglVersion}:natives-linux"
 		runtime "org.lwjgl:lwjgl-assimp:${lwjglVersion}:natives-linux"
+		runtime "org.lwjgl:lwjgl-yoga:${lwjglVersion}:natives-linux"
 		// LWJGL Natives OSX
 		runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-macos"
 		runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-macos"
@@ -58,7 +61,16 @@ project(":lightengine-client") {
 		runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-macos"
 		runtime "org.lwjgl:lwjgl-stb:${lwjglVersion}:natives-macos"
 		runtime "org.lwjgl:lwjgl-assimp:${lwjglVersion}:natives-macos"
+		runtime "org.lwjgl:lwjgl-yoga:${lwjglVersion}:natives-macos"
 
+		testCompile group: 'junit', name: 'junit', version: '4.12'
+	}
+}
+
+project(":lightengine-tools") {
+	dependencies {
+		compile project(':lightengine-client')
+		compile project(':lightengine-server')
 		testCompile group: 'junit', name: 'junit', version: '4.12'
 	}
 }

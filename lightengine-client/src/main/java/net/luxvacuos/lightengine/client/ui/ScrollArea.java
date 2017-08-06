@@ -23,7 +23,7 @@ package net.luxvacuos.lightengine.client.ui;
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 import static org.lwjgl.nanovg.NanoVG.nvgRestore;
 import static org.lwjgl.nanovg.NanoVG.nvgSave;
-import static org.lwjgl.nanovg.NanoVG.nvgScissor;
+import static org.lwjgl.nanovg.NanoVG.*;
 
 import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
@@ -49,6 +49,12 @@ public class ScrollArea extends Component {
 		super.resizeH = true;
 		super.resizeV = true;
 	}
+	
+	@Override
+	public void init(Window window) {
+		comp.init(window);
+		super.init(window);
+	}
 
 	@Override
 	public void render(Window window) {
@@ -56,9 +62,9 @@ public class ScrollArea extends Component {
 				window.getHeight() - rootComponent.rootY - alignedY - h, w, h,
 				Theme.setColor(0.6f, 0.6f, 0.6f, 0f, Theme.colorB), 0, 0, 0, 0);
 		nvgSave(window.getNVGID());
-		nvgScissor(window.getNVGID(), rootComponent.rootX + alignedX,
+		nvgIntersectScissor(window.getNVGID(), rootComponent.rootX + alignedX,
 				window.getHeight() - rootComponent.rootY - alignedY - h, w, h);
-		comp.render(window);
+		comp.render();
 		nvgRestore(window.getNVGID());
 		Theme.renderScrollBarV(window.getNVGID(), rootComponent.rootX + alignedX,
 				window.getHeight() - rootComponent.rootY - alignedY - h, w, h, scrollH / maxH,
@@ -67,7 +73,7 @@ public class ScrollArea extends Component {
 
 	@Override
 	public void update(float delta, Window window) {
-		comp.update(delta, window);
+		comp.update(delta);
 		super.update(delta, window);
 		MouseHandler mh = window.getMouseHandler();
 		float scrollBarSize = (float) REGISTRY
@@ -96,16 +102,16 @@ public class ScrollArea extends Component {
 
 	@Override
 	public void alwaysUpdate(float delta, Window window) {
-		comp.alwaysUpdate(delta, window, rootComponent.rootX + alignedX, rootComponent.rootY - alignedY + h + scrollH,
+		comp.alwaysUpdate(delta, rootComponent.rootX + alignedX, rootComponent.rootY - alignedY + h + scrollH,
 				w, h);
 		maxH = Maths.clamp(-h + -comp.getFinalH(), 0); 
 		super.alwaysUpdate(delta, window);
 	}
 
 	@Override
-	public void dispose() {
+	public void dispose(Window window) {
 		comp.dispose();
-		super.dispose();
+		super.dispose(window);
 	}
 
 	public void setLayout(ILayout layout) {

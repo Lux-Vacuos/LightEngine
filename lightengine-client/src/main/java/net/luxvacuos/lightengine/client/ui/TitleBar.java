@@ -51,12 +51,18 @@ public class TitleBar implements ITitleBar {
 				(float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight")));
 	}
 
+	public void init(Window window) {
+		left.init(window);
+		right.init(window);
+		center.init(window);
+	}
+
 	@Override
-	public void render(Window window) {
+	public void render() {
 		if (enabled) {
-			left.render(window);
-			right.render(window);
-			center.render(window);
+			left.render();
+			right.render();
+			center.render();
 		}
 	}
 
@@ -131,9 +137,9 @@ public class TitleBar implements ITitleBar {
 				}
 			}
 			if (!dragging) {
-				left.update(delta, window);
-				right.update(delta, window);
-				center.update(delta, window);
+				left.update(delta);
+				right.update(delta);
+				center.update(delta);
 			}
 		}
 	}
@@ -143,12 +149,12 @@ public class TitleBar implements ITitleBar {
 		if (enabled) {
 			float titleBarHeight = (float) REGISTRY
 					.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
-			left.alwaysUpdate(delta, window, this.window.getX(), this.window.getY() + titleBarHeight,
-					this.window.getWidth(), titleBarHeight);
-			right.alwaysUpdate(delta, window, this.window.getX(), this.window.getY() + titleBarHeight,
-					this.window.getWidth(), titleBarHeight);
-			center.alwaysUpdate(delta, window, this.window.getX(), this.window.getY() + titleBarHeight,
-					this.window.getWidth(), titleBarHeight);
+			left.alwaysUpdate(delta, this.window.getX(), this.window.getY() + titleBarHeight, this.window.getWidth(),
+					titleBarHeight);
+			right.alwaysUpdate(delta, this.window.getX(), this.window.getY() + titleBarHeight, this.window.getWidth(),
+					titleBarHeight);
+			center.alwaysUpdate(delta, this.window.getX(), this.window.getY() + titleBarHeight, this.window.getWidth(),
+					titleBarHeight);
 		}
 	}
 

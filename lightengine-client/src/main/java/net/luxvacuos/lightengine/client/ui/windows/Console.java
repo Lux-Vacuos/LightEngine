@@ -20,14 +20,13 @@
 
 package net.luxvacuos.lightengine.client.ui.windows;
 
-import static org.lwjgl.nanovg.NanoVG.*;
-import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_TOP;
+import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_BOTTOM;
+import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_LEFT;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
 import net.luxvacuos.lightengine.client.commands.TestCommand;
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.Direction;
@@ -50,15 +49,15 @@ public class Console extends ComponentWindow {
 	}
 
 	@Override
-	public void initApp(Window window) {
-		super.setBackgroundColor("#1F1F1F78");
+	public void initApp() {
 		super.setLayout(new FlowLayout(Direction.UP, 0, -30));
+		super.extendFrame(0, 40, 0, 0);
 		manager = new CommandManager(inter);
 		manager.registerCommand(new TestCommand());
 
 		text = new TextArea(textBuffer, 0, 0, w);
 		text.setWindowAlignment(Alignment.LEFT_BOTTOM);
-		text.setAlign( NVG_ALIGN_LEFT | NVG_ALIGN_BOTTOM);
+		text.setAlign(NVG_ALIGN_LEFT | NVG_ALIGN_BOTTOM);
 		text.setResizeH(true);
 		text.setFontSize(20);
 
@@ -72,14 +71,14 @@ public class Console extends ComponentWindow {
 
 		super.addComponent(command);
 		super.addComponent(text);
-		super.initApp(window);
 		textBuffer = "Light Engine Console (WIP) \n";
+		super.initApp();
 	}
 
 	@Override
-	public void alwaysUpdateApp(float delta, Window window) {
+	public void alwaysUpdateApp(float delta) {
 		text.setText(textBuffer);
-		super.alwaysUpdateApp(delta, window);
+		super.alwaysUpdateApp(delta);
 	}
 
 	private class Interceptor extends PrintStream {

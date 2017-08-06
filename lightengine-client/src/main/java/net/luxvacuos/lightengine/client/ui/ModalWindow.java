@@ -24,7 +24,6 @@ import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_LEFT;
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_TOP;
 
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class ModalWindow extends ComponentWindow {
@@ -36,7 +35,7 @@ public class ModalWindow extends ComponentWindow {
 	public ModalWindow(float w, float h, String text, String title) {
 		super(0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
 				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
-				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")), "");
+				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")), title);
 		this.mwW = w;
 		this.mwH = h;
 		this.text = text;
@@ -44,7 +43,8 @@ public class ModalWindow extends ComponentWindow {
 	}
 
 	@Override
-	public void initApp(Window window) {
+	public void initApp() {
+		super.initApp();
 		super.setDecorations(false);
 		super.setAlwaysOnTop(true);
 		super.toggleTitleBar();
@@ -80,8 +80,6 @@ public class ModalWindow extends ComponentWindow {
 		super.addComponent(title);
 		super.addComponent(accept);
 		super.addComponent(cancel);
-
-		super.initApp(window);
 	}
 
 	public void setOnAccept(OnAction action) {

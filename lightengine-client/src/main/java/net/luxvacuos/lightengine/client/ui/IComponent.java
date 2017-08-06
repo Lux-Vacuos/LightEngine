@@ -21,16 +21,17 @@
 package net.luxvacuos.lightengine.client.ui;
 
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
-import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
-public interface IComponent extends IDisposable {
+public interface IComponent {
 	
-	public void init();
+	public void init(Window window);
 	
 	public void render(Window window);
 	
 	public void update(float delta, Window window);
 	
 	public void alwaysUpdate(float delta, Window window);
+	
+	public void dispose(Window window);
 
 }

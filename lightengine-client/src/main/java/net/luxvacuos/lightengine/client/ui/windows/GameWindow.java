@@ -22,12 +22,11 @@ package net.luxvacuos.lightengine.client.ui.windows;
 
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
+import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.Image;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
-import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 
 public class GameWindow extends ComponentWindow {
 
@@ -38,7 +37,7 @@ public class GameWindow extends ComponentWindow {
 	}
 
 	@Override
-	public void initApp(Window window) {
+	public void initApp() {
 		super.setBackgroundColor(0.0f, 0.0f, 0.0f, 1f);
 		super.setResizable(false);
 		super.setDecorations(false);
@@ -51,8 +50,7 @@ public class GameWindow extends ComponentWindow {
 		game.setResizeV(true);
 
 		super.addComponent(game);
-
-		super.initApp(window);
+		super.initApp();
 	}
 
 	@Override

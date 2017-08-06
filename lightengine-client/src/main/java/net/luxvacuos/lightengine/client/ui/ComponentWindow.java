@@ -22,7 +22,6 @@ package net.luxvacuos.lightengine.client.ui;
 
 import java.util.List;
 
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.NanoWindow;
 
 public class ComponentWindow extends NanoWindow {
@@ -35,26 +34,27 @@ public class ComponentWindow extends NanoWindow {
 	}
 
 	@Override
-	public void initApp(Window window) {
+	public void initApp() {
+		rootComponent.init(super.window);
 	}
 
 	@Override
-	public void renderApp(Window window) {
-		rootComponent.render(window);
+	public void renderApp() {
+		rootComponent.render();
 	}
 
 	@Override
-	public void updateApp(float delta, Window window) {
-		rootComponent.update(delta, window);
+	public void updateApp(float delta ) {
+		rootComponent.update(delta);
 	}
 
 	@Override
-	public void alwaysUpdateApp(float delta, Window window) {
-		rootComponent.alwaysUpdate(delta, window, x, y, w, h);
+	public void alwaysUpdateApp(float delta) {
+		rootComponent.alwaysUpdate(delta, x, y, w, h);
 	}
 
 	@Override
-	public void disposeApp(Window window) {
+	public void disposeApp() {
 		rootComponent.dispose();
 	}
 

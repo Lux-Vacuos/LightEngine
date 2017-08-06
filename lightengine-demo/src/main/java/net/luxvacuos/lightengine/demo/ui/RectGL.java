@@ -6,7 +6,6 @@ import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_MIDDLE;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.Box;
 import net.luxvacuos.lightengine.client.ui.Button;
@@ -27,7 +26,8 @@ public class RectGL extends ComponentWindow {
 	}
 
 	@Override
-	public void initApp(Window window) {
+	public void initApp() {
+		super.initApp();
 		super.setResizable(false);
 		super.setBackgroundColor("#4A6563FF");
 		super.toggleTitleBar();
@@ -102,12 +102,11 @@ public class RectGL extends ComponentWindow {
 
 		super.addComponent(top);
 		super.addComponent(balls);
-		super.initApp(window);
 	}
 
 	@Override
-	public void updateApp(float delta, Window window) {
-		super.updateApp(delta, window);
+	public void updateApp(float delta) {
+		super.updateApp(delta);
 		if (selectedBalls.size() >= 4) {
 			int type = selectedBalls.get(0).getType();
 			if (selectedBalls.get(1).getType() == type && selectedBalls.get(2).getType() == type

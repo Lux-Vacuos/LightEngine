@@ -43,13 +43,13 @@ public class DropDown<E> extends Button {
 	}
 
 	@Override
-	public void init() {
+	public void init(Window window) {
 		super.setOnButtonPress(() -> {
 			TaskManager.addTask(() -> GraphicalSubsystem.getWindowManager().addWindow(new ComponentWindow(
 					rootComponent.rootX + alignedX, rootComponent.rootY - alignedY, w, 300, "test") {
 
 				@Override
-				public void initApp(Window window) {
+				public void initApp() {
 					super.toggleTitleBar();
 					super.setDecorations(false);
 					super.setBackgroundColor(0, 0, 0, 0);
@@ -79,19 +79,20 @@ public class DropDown<E> extends Button {
 					h = Maths.min(hh, 200);
 					super.addComponent(area);
 
-					super.initApp(window);
+					super.initApp();
 				}
 
 				@Override
-				public void alwaysUpdateApp(float delta, Window window) {
-					if ((window.getMouseHandler().isButtonPressed(0) || window.getMouseHandler().isButtonPressed(1)) && !insideWindow())
+				public void alwaysUpdateApp(float delta) {
+					if ((window.getMouseHandler().isButtonPressed(0) || window.getMouseHandler().isButtonPressed(1))
+							&& !insideWindow())
 						super.closeWindow();
-					super.alwaysUpdateApp(delta, window);
+					super.alwaysUpdateApp(delta);
 				}
 			}));
 
 		});
-		super.init();
+		super.init(window);
 	}
 
 	@Override

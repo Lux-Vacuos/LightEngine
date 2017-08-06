@@ -22,8 +22,6 @@ package net.luxvacuos.lightengine.client.ui;
 
 import java.util.List;
 
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
-
 public class ContextMenu extends ComponentWindow {
 
 	private List<Component> buttons;
@@ -33,7 +31,7 @@ public class ContextMenu extends ComponentWindow {
 	}
 
 	@Override
-	public void initApp(Window window) {
+	public void initApp() {
 		super.x = window.getMouseHandler().getX() - 5;
 		super.y = window.getMouseHandler().getY() + 5;
 		super.toggleTitleBar();
@@ -41,22 +39,26 @@ public class ContextMenu extends ComponentWindow {
 		super.setBackgroundColor(0f, 0f, 0f, 0f);
 		super.setLayout(new FlowLayout(Direction.DOWN, 0, 0));
 		super.addAllComponents(buttons);
-		super.initApp(window);
+		super.initApp();
 	}
 
 	@Override
-	public void alwaysUpdateApp(float delta, Window window) {
-		if ((window.getMouseHandler().isButtonPressed(0) || window.getMouseHandler().isButtonPressed(1)) && !insideWindow())
+	public void alwaysUpdateApp(float delta) {
+		if ((window.getMouseHandler().isButtonPressed(0) || window.getMouseHandler().isButtonPressed(1))
+				&& !insideWindow())
 			super.closeWindow();
-		super.alwaysUpdateApp(delta, window);
+		super.alwaysUpdateApp(delta);
 	}
-	
+
 	@Override
-	public void disposeApp(Window window) {
-		super.disposeApp(window);
+	public void disposeApp() {
+		super.disposeApp();
 		buttons.clear();
+		for (Component component : buttons) {
+			component.dispose(window);
+		}
 	}
-	
+
 	public void setButtons(List<Component> buttons) {
 		this.buttons = buttons;
 	}

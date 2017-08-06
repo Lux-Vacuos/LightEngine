@@ -18,34 +18,26 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.ui;
+package net.luxvacuos.lightengine.client.rendering.api.nanovg;
 
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.Event;
-import net.luxvacuos.lightengine.universal.resources.IDisposable;
+public class WindowMessage {
 
-public interface ITitleBar extends IDisposable {
+	protected int message;
+	protected Object param;
 
-	public void init(Window window);
+	public WindowMessage(int message, Object param) {
+		this.message = message;
+		this.param = param;
+	}
 
-	public void render();
-
-	public void update(float delta, Window window);
-
-	public void alwaysUpdate(float delta, Window window);
-
-	public RootComponent getLeft();
-
-	public RootComponent getRight();
-
-	public RootComponent getCenter();
-
-	public void setOnDrag(Event event);
-
-	public boolean isEnabled();
-
-	public boolean isDragging();
-
-	public void setEnabled(boolean enabled);
+	public static final int WM_CLOSE = 0;
+	public static final int WM_MAXIMIZE = 1;
+	public static final int WM_MINIMIZE = 2;
+	public static final int WM_RESTORE = 3;
+	public static final int WM_COMPOSITOR_DISABLED = 20;
+	public static final int WM_COMPOSITOR_ENABLED = 21;
+	public static final int WM_SHELL_WINDOW_CREATED = 80;
+	public static final int WM_SHELL_WINDOW_CLOSED = 81;
+	public static final int WM_SHELL_WINDOW_FOCUS = 82;
 
 }

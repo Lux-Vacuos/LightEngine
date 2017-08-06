@@ -25,14 +25,16 @@ import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.
 import static org.lwjgl.nanovg.NanoVG.nvgBeginPath;
 import static org.lwjgl.nanovg.NanoVG.nvgLineTo;
 import static org.lwjgl.nanovg.NanoVG.nvgMoveTo;
-import static org.lwjgl.nanovg.NanoVG.*;
+import static org.lwjgl.nanovg.NanoVG.nvgRestore;
+import static org.lwjgl.nanovg.NanoVG.nvgSave;
+import static org.lwjgl.nanovg.NanoVG.nvgStroke;
 import static org.lwjgl.nanovg.NanoVG.nvgStrokeColor;
+import static org.lwjgl.nanovg.NanoVG.nvgStrokeWidth;
 
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
+import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.RenderArea;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
-import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 
 public class BackgroundWindow extends ComponentWindow {
 
@@ -43,7 +45,7 @@ public class BackgroundWindow extends ComponentWindow {
 	}
 
 	@Override
-	public void initApp(Window window) {
+	public void initApp() {
 		super.setAsBackground(true);
 		super.setDecorations(false);
 		super.setBlurBehind(false);
@@ -87,8 +89,7 @@ public class BackgroundWindow extends ComponentWindow {
 			time5 += 112f * delta;
 		});
 		super.addComponent(area);
-
-		super.initApp(window);
+		super.initApp();
 	}
 	
 	@Override

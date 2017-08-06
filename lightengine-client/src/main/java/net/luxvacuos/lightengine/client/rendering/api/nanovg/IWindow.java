@@ -29,34 +29,30 @@ import net.luxvacuos.lightengine.client.ui.ITitleBar;
 public interface IWindow {
 
 	public enum WindowClose {
-		DISPOSE, DO_NOTHING, HIDE
+		DISPOSE, DO_NOTHING
 	};
-
-	public enum WindowMessages {
-		COMPOSITOR_ENABLED, COMPOSITOR_DISABLED, SHELL_WINDOW_CREATED, SHELL_WINDOW_CLOSED
-	}
 
 	public void init(Window window);
 
-	public void initApp(Window window);
+	public void initApp();
 
-	public void renderApp(Window window);
+	public void renderApp();
 
-	public void updateApp(float delta, Window window);
+	public void updateApp(float delta);
 
-	public void alwaysUpdateApp(float delta, Window window);
+	public void alwaysUpdateApp(float delta);
 
-	public void disposeApp(Window window);
+	public void disposeApp();
 
-	public void onClose();
+	public void render(IWindowManager nanoWindowManager);
 
-	public void render(Window window, IWindowManager nanoWindowManager);
+	public void update(float delta, IWindowManager nanoWindowManager);
 
-	public void update(float delta, Window window, IWindowManager nanoWindowManager);
+	public void alwaysUpdate(float delta, IWindowManager nanoWindowManager);
 
-	public void alwaysUpdate(float delta, Window window, IWindowManager nanoWindowManager);
-
-	public void dispose(Window window);
+	public void dispose();
+	
+	public void closeWindow();
 
 	public boolean insideWindow();
 
@@ -134,14 +130,14 @@ public interface IWindow {
 
 	public boolean hasBlurBehind();
 
-	public void closeWindow();
-
 	public boolean isAlwaysOnTop();
 
 	public void reloadFBO(Window window);
 
 	public void onMainResize();
 
-	public void notifyWindow(Window window, WindowMessages message, Object param);
+	public void notifyWindow(int message, Object param);
+
+	public void processWindowMessage(int message, Object param);
 
 }

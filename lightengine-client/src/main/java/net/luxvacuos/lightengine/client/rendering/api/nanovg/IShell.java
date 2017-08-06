@@ -22,10 +22,6 @@ package net.luxvacuos.lightengine.client.rendering.api.nanovg;
 
 public interface IShell extends IWindow {
 
-	public void notifyAdd(IWindow window);
-
-	public void notifyClose(IWindow window);
-
 	public void toggleShell();
 
 	public boolean isEnabled();

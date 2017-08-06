@@ -23,12 +23,12 @@ package net.luxvacuos.lightengine.demo.ui;
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.LANG;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.Button;
-import net.luxvacuos.lightengine.client.ui.ModalWindow;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
+import net.luxvacuos.lightengine.client.ui.ModalWindow;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 
@@ -39,7 +39,7 @@ public class MainWindow extends ComponentWindow {
 	}
 
 	@Override
-	public void initApp(Window window) {
+	public void initApp() {
 		super.setBackgroundColor(0.4f, 0.4f, 0.4f, 1f);
 
 		Button playButton = new Button(0, 120, 200, 40, LANG.getRegistryItem("lightengine.mainwindow.btnplay"));
@@ -71,7 +71,7 @@ public class MainWindow extends ComponentWindow {
 		});
 
 		exitButton.setOnButtonPress(() -> {
-			onClose();
+			super.closeWindow();
 		});
 
 		super.addComponent(playButton);
@@ -79,28 +79,40 @@ public class MainWindow extends ComponentWindow {
 		super.addComponent(exitButton);
 
 		super.setWindowClose(WindowClose.DO_NOTHING);
-		super.initApp(window);
+		super.initApp();
 	}
 
 	@Override
-	public void onClose() {
-		ModalWindow window = new ModalWindow(340, 200, "", "Exit Demo");
-		GraphicalSubsystem.getWindowManager().addWindow(window);
-		TaskManager.addTask(() -> {
-			window.setOnAccept(() -> {
-				new Thread(() -> {
-					while (GraphicalSubsystem.getWindowManager().getTotalWindows() > 0)
-						try {
-							Thread.sleep(400);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					TaskManager.addTask(() -> StateMachine.stop());
-				}).start();
-				super.setWindowClose(WindowClose.DISPOSE);
-				GraphicalSubsystem.getWindowManager().closeAllWindows();
-			});
-		});
+	public void processWindowMessage(int message, Object param) {
+		switch (message) {
+		case WindowMessage.WM_CLOSE:
+			WindowClose wc = (WindowClose) param;
+			switch (wc) {
+			case DISPOSE:
+				break;
+			case DO_NOTHING:
+				ModalWindow window = new ModalWindow(340, 200, "", "Exit Demo");
+				GraphicalSubsystem.getWindowManager().addWindow(window);
+				TaskManager.addTask(() -> {
+					window.setOnAccept(() -> {
+						new Thread(() -> {
+							while (GraphicalSubsystem.getWindowManager().getTotalWindows() > 0)
+								try {
+									Thread.sleep(400);
+								} catch (InterruptedException e) {
+									e.printStackTrace();
+								}
+							TaskManager.addTask(() -> StateMachine.stop());
+						}).start();
+						super.setWindowClose(WindowClose.DISPOSE);
+						GraphicalSubsystem.getWindowManager().closeAllWindows();
+					});
+				});
+				break;
+			}
+			break;
+		}
+		super.processWindowMessage(message, param);
 	}
 
 }

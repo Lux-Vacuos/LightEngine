@@ -22,7 +22,7 @@ package net.luxvacuos.lightengine.demo.ui;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.input.MouseHandler;
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.Button;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
@@ -35,7 +35,7 @@ public class PauseWindow extends ComponentWindow {
 	}
 
 	@Override
-	public void initApp(Window window) {
+	public void initApp() {
 		super.setBackgroundColor("#1F1F1F78");
 		super.setAsBackground(true);
 
@@ -56,15 +56,17 @@ public class PauseWindow extends ComponentWindow {
 
 		super.addComponent(backButton);
 		super.addComponent(optionsButton);
-
-		super.initApp(window);
+		super.initApp();
 	}
 
 	@Override
-	public void onClose() {
-		MainState.paused = false;
-		MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), true);
-		GraphicalSubsystem.getWindowManager().toggleShell();
+	public void processWindowMessage(int message, Object param) {
+		if (message == WindowMessage.WM_CLOSE) {
+			MainState.paused = false;
+			MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), true);
+			GraphicalSubsystem.getWindowManager().toggleShell();
+		}
+		super.processWindowMessage(message, param);
 	}
 
 }

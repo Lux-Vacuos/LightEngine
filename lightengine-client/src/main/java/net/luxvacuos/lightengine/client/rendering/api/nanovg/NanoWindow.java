@@ -21,13 +21,18 @@
 package net.luxvacuos.lightengine.client.rendering.api.nanovg;
 
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
-import static org.lwjgl.nanovg.NanoVG.*;
+import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_CENTER;
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_MIDDLE;
+import static org.lwjgl.nanovg.NanoVG.nvgRestore;
+import static org.lwjgl.nanovg.NanoVG.nvgSave;
 import static org.lwjgl.nanovg.NanoVG.nvgScissor;
 import static org.lwjgl.nanovg.NanoVGGL3.nvgluBindFramebuffer;
 import static org.lwjgl.nanovg.NanoVGGL3.nvgluCreateFramebuffer;
 import static org.lwjgl.nanovg.NanoVGGL3.nvgluDeleteFramebuffer;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
+
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.lwjgl.nanovg.NVGColor;
 import org.lwjgl.nanovg.NVGLUFramebuffer;
@@ -71,7 +76,10 @@ public abstract class NanoWindow implements IWindow {
 	private float reY, reX;
 	private float oldMinY;
 
+	private Queue<WindowMessage> messageQueue = new ConcurrentLinkedQueue<>();
+
 	private boolean compositor = true;
+	protected Window window;
 
 	public NanoWindow(float x, float y, float w, float h, String title) {
 		this.x = x;
@@ -85,17 +93,18 @@ public abstract class NanoWindow implements IWindow {
 
 	@Override
 	public void init(Window wind) {
+		this.window = wind;
+		titleBar.init(window);
+		initApp();
 		compositor = (boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/compositor"));
 		if (compositor)
 			fbo = nvgluCreateFramebuffer(wind.getNVGID(), (int) (wind.getWidth() * wind.getPixelRatio()),
 					(int) (wind.getHeight() * wind.getPixelRatio()), 0);
 		titleBar.getLeft().setLayout(new FlowLayout(Direction.RIGHT, 1, 0));
 		titleBar.getRight().setLayout(new FlowLayout(Direction.LEFT, 1, 0));
-		initApp(wind);
 		TitleBarButton closeBtn = new TitleBarButton(0, 0, 28, 28);
 		closeBtn.setOnButtonPress(() -> {
-			onClose();
-			closeWindow();
+			notifyWindow(WindowMessage.WM_CLOSE, windowClose);
 		});
 		closeBtn.setWindowAlignment(Alignment.RIGHT_TOP);
 		closeBtn.setAlignment(Alignment.LEFT_BOTTOM);
@@ -141,7 +150,7 @@ public abstract class NanoWindow implements IWindow {
 	}
 
 	@Override
-	public void render(Window window, IWindowManager nanoWindowManager) {
+	public void render(IWindowManager nanoWindowManager) {
 		if (!hidden && !minimized) {
 			if (compositor) {
 				nvgluBindFramebuffer(window.getNVGID(), fbo);
@@ -153,9 +162,9 @@ public abstract class NanoWindow implements IWindow {
 			Theme.renderWindow(window.getNVGID(), x, window.getHeight() - y, w, h, backgroundStyle, backgroundColor,
 					decorations, titleBar.isEnabled(), maximized, ft, fb, fr, fl);
 			if (decorations)
-				titleBar.render(window);
+				titleBar.render();
 			nvgScissor(window.getNVGID(), x, window.getHeight() - y, w, h);
-			renderApp(window);
+			renderApp();
 			nvgRestore(window.getNVGID());
 			if (compositor) {
 				window.endNVGFrame();
@@ -165,7 +174,7 @@ public abstract class NanoWindow implements IWindow {
 	}
 
 	@Override
-	public void update(float delta, Window window, IWindowManager nanoWindowManager) {
+	public void update(float delta, IWindowManager nanoWindowManager) {
 		if (decorations && !hidden && !minimized && !fadeIn && !fadeOut && !maxFadeIn && !maxFadeOut) {
 			if (!isResizing() && !minimized)
 				titleBar.update(delta, window);
@@ -214,11 +223,11 @@ public abstract class NanoWindow implements IWindow {
 			}
 		}
 		if (!isResizing() && !minimized && !titleBar.isDragging() && !fadeIn && !fadeOut && !maxFadeIn && !maxFadeOut)
-			updateApp(delta, window);
+			updateApp(delta);
 	}
 
 	@Override
-	public void alwaysUpdate(float delta, Window window, IWindowManager nanoWindowManager) {
+	public void alwaysUpdate(float delta, IWindowManager nanoWindowManager) {
 		if (fadeOut) {
 			y -= MIN_ANIM_SPEED * delta;
 			if (y < -(float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"))) {
@@ -313,37 +322,83 @@ public abstract class NanoWindow implements IWindow {
 			}
 		}
 		titleBar.alwaysUpdate(delta, window);
-		alwaysUpdateApp(delta, window);
+		while (!messageQueue.isEmpty()) {
+			WindowMessage ms = messageQueue.poll();
+			processWindowMessage(ms.message, ms.param);
+		}
+		alwaysUpdateApp(delta);
 	}
 
 	@Override
-	public void dispose(Window window) {
+	public void dispose() {
 		if (compositor)
 			nvgluDeleteFramebuffer(window.getNVGID(), fbo);
-		disposeApp(window);
+		disposeApp();
 	}
 
 	@Override
-	public void onClose() {
+	public void notifyWindow(int message, Object param) {
+		messageQueue.add(new WindowMessage(message, param));
 	}
 
 	@Override
-	public void notifyWindow(Window window, WindowMessages message, Object param) {
+	public void processWindowMessage(int message, Object param) {
 		switch (message) {
-		case COMPOSITOR_DISABLED:
+		case WindowMessage.WM_CLOSE:
+			WindowClose wc = (WindowClose) param;
+			switch (wc) {
+			case DISPOSE:
+				if (decorations) {
+					fadeOut = true;
+					toggleExit = true;
+				} else {
+					exit = true;
+				}
+				break;
+			case DO_NOTHING:
+				break;
+			}
+			break;
+		case WindowMessage.WM_MAXIMIZE:
+			if (resizable && !maximized) {
+				maxFadeIn = true;
+				maxFadeOut = false;
+				oldX = this.x;
+				oldY = this.y;
+				oldW = this.w;
+				oldH = this.h;
+			}
+			break;
+		case WindowMessage.WM_RESTORE:
+			if (resizable && maximized && !minimized) {
+				maxFadeIn = false;
+				maxFadeOut = true;
+			}
+			if (minimized) {
+				fadeIn = true;
+				fadeOut = false;
+			}
+			break;
+		case WindowMessage.WM_MINIMIZE:
+			if (!minimized) {
+				fadeOut = true;
+				if (!fadeIn)
+					oldMinY = y;
+				fadeIn = false;
+			}
+			break;
+		case WindowMessage.WM_COMPOSITOR_DISABLED:
 			compositor = false;
 			TaskManager.addTask(() -> {
 				nvgluDeleteFramebuffer(window.getNVGID(), fbo);
 				fbo = null;
 			});
 			break;
-		case COMPOSITOR_ENABLED:
+		case WindowMessage.WM_COMPOSITOR_ENABLED:
 			compositor = true;
 			TaskManager.addTask(() -> fbo = nvgluCreateFramebuffer(window.getNVGID(),
 					(int) (window.getWidth() * window.getPixelRatio()),
 					(int) (window.getHeight() * window.getPixelRatio()), 0));
-			break;
-		default:
 			break;
 		}
 	}
@@ -483,19 +538,10 @@ public abstract class NanoWindow implements IWindow {
 
 	@Override
 	public void toggleMaximize() {
-		if (resizable) {
-			if (!maximized) {
-				maxFadeIn = true;
-				maxFadeOut = false;
-				oldX = this.x;
-				oldY = this.y;
-				oldW = this.w;
-				oldH = this.h;
-			} else {
-				maxFadeIn = false;
-				maxFadeOut = true;
-			}
-		}
+		if (maximized)
+			this.notifyWindow(WindowMessage.WM_RESTORE, null);
+		else
+			this.notifyWindow(WindowMessage.WM_MAXIMIZE, null);
 	}
 
 	@Override
@@ -504,6 +550,11 @@ public abstract class NanoWindow implements IWindow {
 		this.fb = b;
 		this.fr = r;
 		this.fl = l;
+	}
+
+	@Override
+	public void closeWindow() {
+		notifyWindow(WindowMessage.WM_CLOSE, windowClose);
 	}
 
 	@Override
@@ -543,15 +594,10 @@ public abstract class NanoWindow implements IWindow {
 
 	@Override
 	public void toggleMinimize() {
-		if (!minimized) {
-			fadeOut = true;
-			if (!fadeIn)
-				oldMinY = y;
-			fadeIn = false;
-		} else {
-			fadeIn = true;
-			fadeOut = false;
-		}
+		if (minimized)
+			this.notifyWindow(WindowMessage.WM_RESTORE, null);
+		else
+			this.notifyWindow(WindowMessage.WM_MINIMIZE, null);
 	}
 
 	@Override
@@ -623,25 +669,6 @@ public abstract class NanoWindow implements IWindow {
 	@Override
 	public ITitleBar getTitleBar() {
 		return titleBar;
-	}
-
-	@Override
-	public void closeWindow() {
-		switch (windowClose) {
-		case DISPOSE:
-			if (decorations) {
-				fadeOut = true;
-				toggleExit = true;
-			} else {
-				exit = true;
-			}
-			break;
-		case DO_NOTHING:
-			break;
-		case HIDE:
-			hidden = true;
-			break;
-		}
 	}
 
 	@Override

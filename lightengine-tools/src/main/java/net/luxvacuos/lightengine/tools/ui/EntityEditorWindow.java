@@ -18,41 +18,25 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.ui;
+package net.luxvacuos.lightengine.tools.ui;
 
-import java.util.ArrayList;
-import java.util.List;
+import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.LANG;
 
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
+import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 
-public class PaneComponent {
-	
-	private List<Component> components = new ArrayList<>();
-	protected float alignedX, alignedY, x, y, w, h;
+public class EntityEditorWindow extends ComponentWindow {
 
-	public PaneComponent(float x, float y, float w, float h) {
-		this.x = x;
-		this.y = y;
-		this.w = w;
-		this.h = h;
+	public EntityEditorWindow(float x, float y, float w, float h) {
+		super(x, y, w, h, LANG.getRegistryItem("lightengine.tools.entityeditor.name"));
 	}
 	
-	public void init() {
-		for (Component component : components) {
-			component.init();
-		}
-	}
-
-	public void render(Window window) {
-		for (Component component : components) {
-			component.render(window);
-		}
-	}
-	
-	public void update(float delta, Window window) {
-		for (Component component : components) {
-			component.update(delta, window);
-		}
+	@Override
+	public void initApp(Window window) {
+		super.setBackgroundColor(0.4f, 0.4f, 0.4f, 1f);
+		
+		super.setWindowClose(WindowClose.DO_NOTHING);
+		super.initApp(window);
 	}
 
 }

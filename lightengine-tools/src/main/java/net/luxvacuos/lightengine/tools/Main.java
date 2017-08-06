@@ -18,34 +18,20 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.ui;
+package net.luxvacuos.lightengine.tools;
 
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.Event;
-import net.luxvacuos.lightengine.universal.resources.IDisposable;
+import net.luxvacuos.lightengine.client.bootstrap.Bootstrap;
+import net.luxvacuos.lightengine.tools.states.ToolsState;
+import net.luxvacuos.lightengine.universal.core.GlobalVariables;
+import net.luxvacuos.lightengine.universal.core.TaskManager;
+import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 
-public interface ITitleBar extends IDisposable {
-
-	public void init(Window window);
-
-	public void render();
-
-	public void update(float delta, Window window);
-
-	public void alwaysUpdate(float delta, Window window);
-
-	public RootComponent getLeft();
-
-	public RootComponent getRight();
-
-	public RootComponent getCenter();
-
-	public void setOnDrag(Event event);
-
-	public boolean isEnabled();
-
-	public boolean isDragging();
-
-	public void setEnabled(boolean enabled);
+public class Main {
+	
+	public static void main(String[] args) {
+		GlobalVariables.PROJECT = "Light Engine Tools";
+		TaskManager.addTask(() -> StateMachine.registerState(new ToolsState()));
+		new Bootstrap(args);
+	}
 
 }

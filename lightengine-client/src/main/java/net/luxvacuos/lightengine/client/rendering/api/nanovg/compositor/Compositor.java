@@ -41,8 +41,8 @@ public class Compositor {
 	public Compositor(Window window, int width, int height) {
 		effects = new ArrayList<>();
 		fbos = new NVGLUFramebuffer[2];
-		fbos[0] = nvgluCreateFramebuffer(window.getNVGID(), width, height, 0);
-		fbos[1] = nvgluCreateFramebuffer(window.getNVGID(), width, height, 0);
+		fbos[0] = nvgluCreateFramebuffer(window.getNVGID(), width, height, -1);
+		fbos[1] = nvgluCreateFramebuffer(window.getNVGID(), width, height, -1);
 		float[] positions = { -1, 1, -1, -1, 1, 1, 1, -1 };
 		quad = window.getResourceLoader().loadToVAO(positions, 2);
 	}

@@ -23,7 +23,6 @@ package net.luxvacuos.lightengine.client.ui.windows;
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_CENTER;
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_MIDDLE;
 
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.Box;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
@@ -40,7 +39,7 @@ public class CrashWindow extends ComponentWindow {
 	}
 
 	@Override
-	public void initApp(Window window) {
+	public void initApp() {
 		super.setDecorations(false);
 		super.setAlwaysOnTop(true);
 		super.toggleTitleBar();
@@ -81,8 +80,7 @@ public class CrashWindow extends ComponentWindow {
 		super.addComponent(text);
 		super.addComponent(error);
 		super.addComponent(errorMessage);
-
-		super.initApp(window);
+		super.initApp();
 	}
 
 	public String stackTraceToString(Throwable e) {

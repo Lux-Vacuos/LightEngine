@@ -22,7 +22,6 @@ package net.luxvacuos.lightengine.client.ui;
 
 import static org.lwjgl.nanovg.NanoVG.nvgDeleteImage;
 
-import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 
@@ -55,12 +54,12 @@ public class Image extends Component {
 	}
 
 	@Override
-	public void dispose() {
-		super.dispose();
+	public void dispose(Window window) {
+		super.dispose(window);
 		if (deleteOnClose)
-			nvgDeleteImage(GraphicalSubsystem.getMainWindow().getNVGID(), image);
+			nvgDeleteImage(window.getNVGID(), image);
 	}
-	
+
 	public void setImage(int image) {
 		this.image = image;
 	}

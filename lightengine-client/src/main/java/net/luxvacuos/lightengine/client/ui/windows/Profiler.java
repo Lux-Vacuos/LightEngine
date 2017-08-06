@@ -20,7 +20,6 @@
 
 package net.luxvacuos.lightengine.client.ui.windows;
 
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.GPUProfiler;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.GPUTaskProfile;
 import net.luxvacuos.lightengine.client.ui.Alignment;
@@ -40,21 +39,21 @@ public class Profiler extends ComponentWindow {
 	}
 
 	@Override
-	public void initApp(Window window) {
+	public void initApp() {
 		super.setBackgroundColor(0.4f, 0.4f, 0.4f, 1f);
-		
+
 		ScrollArea area = new ScrollArea(0, 0, w, h, 0, 0);
 		area.setLayout(new FlowLayout(Direction.DOWN, 0, 0));
 		text = new TextArea("", 0, 0, w);
 		text.setWindowAlignment(Alignment.LEFT_TOP);
 		area.addComponent(text);
-		
+
 		super.addComponent(area);
-		super.initApp(window);
+		super.initApp();
 	}
 
 	@Override
-	public void alwaysUpdateApp(float delta, Window window) {
+	public void alwaysUpdateApp(float delta) {
 		GPUTaskProfile tp;
 		timer += delta;
 		while ((tp = GPUProfiler.getFrameResults()) != null) {
@@ -64,7 +63,7 @@ public class Profiler extends ComponentWindow {
 			}
 			GPUProfiler.recycle(tp);
 		}
-		super.alwaysUpdateApp(delta, window);
+		super.alwaysUpdateApp(delta);
 	}
 
 }

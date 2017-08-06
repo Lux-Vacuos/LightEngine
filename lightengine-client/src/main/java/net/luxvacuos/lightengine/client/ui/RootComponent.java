@@ -21,7 +21,7 @@
 package net.luxvacuos.lightengine.client.ui;
 
 import static org.lwjgl.nanovg.NanoVG.nvgBeginPath;
-import static org.lwjgl.nanovg.NanoVG.nvgRect;
+import static org.lwjgl.nanovg.NanoVG.*;
 import static org.lwjgl.nanovg.NanoVG.nvgRestore;
 import static org.lwjgl.nanovg.NanoVG.nvgSave;
 import static org.lwjgl.nanovg.NanoVG.nvgStroke;
@@ -40,36 +40,44 @@ public class RootComponent {
 
 	protected Root root;
 	protected ILayout layout;
+	private Window window;
 
 	public RootComponent(float x, float y, float w, float h) {
 		layout = new EmptyLayout();
 		root = new Root(x, y - h, w, h);
 	}
 
-	public void render(Window window) {
+	public void init(Window window) {
+		this.window = window;
+		for (Component component : components) {
+			component.init(window);
+		}
+	}
+
+	public void render() {
+		long vg = window.getNVGID();
+		nvgSave(vg);
+		nvgIntersectScissor(vg, root.rootX, window.getHeight() - root.rootY - root.rootH, root.rootW, root.rootH);
 		if (Theme.DEBUG) {
-			long vg = window.getNVGID();
-			nvgSave(vg);
 			nvgBeginPath(vg);
-			nvgRect(vg, root.rootX ,
-					window.getHeight() - root.rootY - root.rootH, root.rootW, root.rootH);
+			nvgRect(vg, root.rootX, window.getHeight() - root.rootY - root.rootH, root.rootW, root.rootH);
 			nvgStrokeWidth(vg, Theme.DEBUG_STROKE);
-			nvgStrokeColor(vg, Theme.debugC);
+			nvgStrokeColor(vg, Theme.debugE);
 			nvgStroke(vg);
-			nvgRestore(vg);
 		}
 		for (Component component : components) {
 			component.render(window);
 		}
+		nvgRestore(vg);
 	}
 
-	public void update(float delta, Window window) {
+	public void update(float delta) {
 		for (Component component : components) {
 			component.update(delta, window);
 		}
 	}
 
-	public void alwaysUpdate(float delta, Window window, float x, float y, float w, float h) {
+	public void alwaysUpdate(float delta, float x, float y, float w, float h) {
 		root.rootX = x;
 		root.rootY = y - h;
 		root.rootW = w;
@@ -83,27 +91,29 @@ public class RootComponent {
 
 	public void dispose() {
 		for (Component component : components) {
-			component.dispose();
+			component.dispose(window);
 		}
 		components.clear();
 	}
 
 	public void addComponent(Component component) {
 		component.rootComponent = root;
-		component.init();
+		if (window != null)
+			component.init(window);
 		components.add(component);
 	}
 
 	public void addAllComponents(List<Component> components) {
 		for (Component component : components) {
 			component.rootComponent = root;
-			component.init();
+			if (window != null)
+				component.init(window);
 			this.components.add(component);
 		}
 	}
 
 	public void removeComponent(Component component) {
-		component.dispose();
+		component.dispose(window);
 		components.remove(component);
 	}
 

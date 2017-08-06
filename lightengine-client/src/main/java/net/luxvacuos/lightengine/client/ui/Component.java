@@ -30,7 +30,7 @@ public abstract class Component implements IComponent {
 	protected boolean resizeH = false, resizeV = false;;
 
 	@Override
-	public void init() {
+	public void init(Window window) {
 	}
 
 	@Override
@@ -127,7 +127,7 @@ public abstract class Component implements IComponent {
 	}
 
 	@Override
-	public void dispose() {
+	public void dispose(Window window) {
 	}
 
 	public void setAlignment(Alignment alignment) {

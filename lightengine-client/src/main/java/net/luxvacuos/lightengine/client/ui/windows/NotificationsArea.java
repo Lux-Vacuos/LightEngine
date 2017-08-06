@@ -21,15 +21,14 @@
 package net.luxvacuos.lightengine.client.ui.windows;
 
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
-import static org.lwjgl.nanovg.NanoVG.*;
+import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_LEFT;
+import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_TOP;
 
 import org.lwjgl.glfw.GLFW;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.ui.Alignment;
-import net.luxvacuos.lightengine.client.ui.Box;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.Container;
 import net.luxvacuos.lightengine.client.ui.Direction;
@@ -48,14 +47,13 @@ public class NotificationsArea extends ComponentWindow {
 	}
 
 	@Override
-	public void initApp(Window window) {
+	public void initApp() {
 		super.setDecorations(false);
 		super.setBackgroundColor("#00000000");
 		super.setLayout(new FlowLayout(Direction.DOWN, 5, 0));
 		super.setAsBackground(true);
 		super.setBlurBehind(false);
-
-		super.initApp(window);
+		super.initApp();
 	}
 
 	private void remove(Container cont) {
@@ -78,7 +76,7 @@ public class NotificationsArea extends ComponentWindow {
 					private boolean fadeOut;
 
 					@Override
-					public void initApp(Window window) {
+					public void initApp() {
 						super.setDecorations(false);
 						super.setBackgroundColor("#1F1F1F78");
 						super.setLayout(new FlowLayout(Direction.DOWN, 5, 0));
@@ -88,17 +86,17 @@ public class NotificationsArea extends ComponentWindow {
 						title.setFontSize(32);
 						title.setWindowAlignment(Alignment.LEFT_TOP);
 						super.addComponent(title);
-						super.initApp(window);
+						super.initApp();
 					}
 
 					@Override
-					public void disposeApp(Window window) {
+					public void disposeApp() {
 						remove(notification);
-						super.disposeApp(window);
+						super.disposeApp();
 					}
 
 					@Override
-					public void alwaysUpdateApp(float delta, Window window) {
+					public void alwaysUpdateApp(float delta) {
 						if (fadeIn) {
 							x -= 500 * delta;
 							float xt = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")) - 295;
@@ -114,19 +112,19 @@ public class NotificationsArea extends ComponentWindow {
 						time += delta;
 						if (time > 5)
 							fadeOut = true;
-						super.alwaysUpdateApp(delta, window);
+						super.alwaysUpdateApp(delta);
 					}
 				});
 	}
 
 	@Override
-	public void alwaysUpdateApp(float delta, Window window) {
+	public void alwaysUpdateApp(float delta) {
 		KeyboardHandler kb = window.getKeyboardHandler();
 		if (kb.isKeyPressed(GLFW.GLFW_KEY_N)) {
 			addNotification();
 			kb.ignoreKeyUntilRelease(GLFW.GLFW_KEY_N);
 		}
-		super.alwaysUpdateApp(delta, window);
+		super.alwaysUpdateApp(delta);
 	}
 
 	@Override
