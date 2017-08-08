@@ -181,6 +181,7 @@ public class NanoWindowManager implements IWindowManager {
 		tmp.clear();
 		if (toTop != null) {
 			bringToFront(toTop);
+			shell.notifyWindow(WindowMessage.WM_SHELL_WINDOW_FOCUS, toTop);
 		}
 		tmp.addAll(windows);
 		Collections.reverse(tmp);
@@ -242,9 +243,7 @@ public class NanoWindowManager implements IWindowManager {
 
 	@Override
 	public void removeWindow(IWindow window) {
-		TaskManager.addTask(() -> {
-			window.notifyWindow(WindowMessage.WM_CLOSE, null);
-		});
+		window.notifyWindow(WindowMessage.WM_CLOSE, null);
 	}
 
 	@Override
@@ -259,8 +258,7 @@ public class NanoWindowManager implements IWindowManager {
 
 	@Override
 	public boolean isOnTop(IWindow window) {
-		IWindow top = windows.get(windows.size() - 1);
-		return top == window;
+		return windows.get(windows.size() - 1) == window;
 	}
 
 	@Override
@@ -357,8 +355,8 @@ public class NanoWindowManager implements IWindowManager {
 		}
 		for (IWindow window : windows) {
 			if (compositorEnabled)
-				window.reloadFBO(this.window);
-			window.onMainResize();
+				window.notifyWindow(WindowMessage.WM_COMPOSITOR_RELOAD, null);
+			window.notifyWindow(WindowMessage.WM_RESIZE, null);
 		}
 	}
 

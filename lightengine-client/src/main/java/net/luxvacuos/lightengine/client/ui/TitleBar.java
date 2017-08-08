@@ -129,6 +129,13 @@ public class TitleBar implements ITitleBar {
 				}
 				pressed = mh.isButtonPressed(0);
 			}
+			if (mh.isButtonPressed(0) && canDrag(this.window, mh)) {
+				if (this.window.isMaximized()) {
+					if (mh.getDX() < -2 || mh.getDX() > 2 || mh.getDY() < -2 || mh.getDY() > 2) {
+						this.window.toggleMaximize();
+					}
+				}
+			}
 			if (count) {
 				time += 1 * delta;
 				if (time > 0.5f) {

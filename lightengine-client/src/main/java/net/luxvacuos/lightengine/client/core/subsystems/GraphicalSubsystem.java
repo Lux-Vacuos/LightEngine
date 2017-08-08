@@ -140,11 +140,11 @@ public class GraphicalSubsystem implements ISubsystem {
 
 	@Override
 	public void update(float delta) {
+		GraphicalSubsystem.getWindowManager().update(delta);
 	}
 
 	@Override
 	public void render(float delta) {
-		GraphicalSubsystem.getWindowManager().update(delta);
 		if (window.wasResized()) {
 			REGISTRY.register(new Key("/Light Engine/Display/width"), window.getWidth());
 			REGISTRY.register(new Key("/Light Engine/Display/height"), window.getHeight());

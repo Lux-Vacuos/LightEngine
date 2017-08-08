@@ -31,6 +31,7 @@ import static org.lwjgl.nanovg.NanoVG.nvgStroke;
 import static org.lwjgl.nanovg.NanoVG.nvgStrokeColor;
 import static org.lwjgl.nanovg.NanoVG.nvgStrokeWidth;
 
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.RenderArea;
@@ -91,12 +92,14 @@ public class BackgroundWindow extends ComponentWindow {
 		super.addComponent(area);
 		super.initApp();
 	}
-	
-	@Override
-	public void onMainResize() {
-		y = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
-		w = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
-		h = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
-	}
 
+	@Override
+	public void processWindowMessage(int message, Object param) {
+		if (message == WindowMessage.WM_RESIZE) {
+			y = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
+			w = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
+			h = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
+		}
+		super.processWindowMessage(message, param);
+	}
 }

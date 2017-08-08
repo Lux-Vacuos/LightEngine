@@ -28,6 +28,7 @@ import org.lwjgl.glfw.GLFW;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.Container;
@@ -121,19 +122,26 @@ public class NotificationsArea extends ComponentWindow {
 	public void alwaysUpdateApp(float delta) {
 		KeyboardHandler kb = window.getKeyboardHandler();
 		if (kb.isKeyPressed(GLFW.GLFW_KEY_N)) {
-			addNotification();
 			kb.ignoreKeyUntilRelease(GLFW.GLFW_KEY_N);
 		}
 		super.alwaysUpdateApp(delta);
 	}
 
 	@Override
-	public void onMainResize() {
-		x = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")) - 200;
-		y = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
-		h = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"))
-				- (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/shellHeight"));
-		w = 200;
+	public void processWindowMessage(int message, Object param) {
+		switch (message) {
+		case WindowMessage.WM_SHELL_NOTIFICATION_ADD:
+			addNotification();
+			break;
+		case WindowMessage.WM_RESIZE:
+			x = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")) - 200;
+			y = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
+			h = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"))
+					- (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/shellHeight"));
+			w = 200;
+			break;
+		}
+		super.processWindowMessage(message, param);
 	}
 
 }

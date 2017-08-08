@@ -76,6 +76,8 @@ public class Timers {
 
 	private static final int GRAPH_HISTORY_COUNT = 200;
 	private static final int GPU_QUERY_COUNT = 5;
+	
+	private static final boolean ENABLED = true;
 
 	public static void initDebugDisplay() {
 		vg = GraphicalSubsystem.getMainWindow().getNVGID();
@@ -95,6 +97,8 @@ public class Timers {
 	}
 
 	public static void renderDebugDisplay(float x, float y, float w, float h) {
+		if(!ENABLED)
+			return;
 		renderGraph(vg, x, y, w, h, fps);
 		renderGraph(vg, x + w + 5, y, w, h, cpuGraph);
 		if (gpuTimer.supported)
@@ -107,27 +111,37 @@ public class Timers {
 	}
 
 	public static void startCPUTimer() {
+		if(!ENABLED)
+			return;
 		t = glfwGetTime();
 		dt = t - prevt;
 		prevt = t;
 	}
 
 	public static void stopCPUTimer() {
+		if(!ENABLED)
+			return;
 		double cpuTime = glfwGetTime() - t;
 		updateGraph(cpuGraph, (float) cpuTime);
 	}
 
 	public static void startGPUTimer() {
+		if(!ENABLED)
+			return;
 		startGPUTimer(gpuTimer);
 	}
 
 	public static void stopGPUTimer() {
+		if(!ENABLED)
+			return;
 		int n = stopGPUTimer(gpuTimer, gpuTimes, 3);
 		for (int i = 0; i < n; i++)
 			updateGraph(gpuGraph, gpuTimes.get(i));
 	}
 
 	public static void update() {
+		if(!ENABLED)
+			return;
 		updateDebugDisplay();
 	}
 

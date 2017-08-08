@@ -240,13 +240,6 @@ public final class WindowManager {
 				Window window = getWindow(windowID);
 				if (window == null)
 					return;
-
-				IntBuffer w = BufferUtils.createIntBuffer(1);
-				IntBuffer h = BufferUtils.createIntBuffer(1);
-				GLFW.glfwGetFramebufferSize(windowID, w, h);
-				window.framebufferWidth = w.get(0);
-				window.framebufferHeight = h.get(0);
-
 				window.width = width;
 				window.height = height;
 				window.pixelRatio = (float) window.framebufferWidth / (float) window.width;

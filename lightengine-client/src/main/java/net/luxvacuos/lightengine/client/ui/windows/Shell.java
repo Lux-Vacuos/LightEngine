@@ -138,6 +138,14 @@ public class Shell extends ComponentWindow implements IShell {
 			apps.addComponent(btn);
 			buttons.put(window.hashCode(), btn);
 			break;
+		case WindowMessage.WM_SHELL_WINDOW_FOCUS:
+			window = (IWindow) param;
+			if (!(window.hasDecorations() && !window.isHidden()) || !buttons.containsKey(window.hashCode()))
+				return;
+			break;
+		case WindowMessage.WM_RESIZE:
+			w = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
+			break;
 		}
 		super.processWindowMessage(message, param);
 	}
@@ -154,11 +162,6 @@ public class Shell extends ComponentWindow implements IShell {
 			fadeIn = false;
 			fadeOut = true;
 		}
-	}
-
-	@Override
-	public void onMainResize() {
-		w = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
 	}
 
 	@Override

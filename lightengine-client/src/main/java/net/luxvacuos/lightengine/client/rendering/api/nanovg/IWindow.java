@@ -132,10 +132,6 @@ public interface IWindow {
 
 	public boolean isAlwaysOnTop();
 
-	public void reloadFBO(Window window);
-
-	public void onMainResize();
-
 	public void notifyWindow(int message, Object param);
 
 	public void processWindowMessage(int message, Object param);

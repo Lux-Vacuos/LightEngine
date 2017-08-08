@@ -400,6 +400,16 @@ public abstract class NanoWindow implements IWindow {
 					(int) (window.getWidth() * window.getPixelRatio()),
 					(int) (window.getHeight() * window.getPixelRatio()), 0));
 			break;
+		case WindowMessage.WM_COMPOSITOR_RELOAD:
+			if (compositor) {
+				TaskManager.addTask(() -> {
+					if (fbo != null)
+						nvgluDeleteFramebuffer(window.getNVGID(), fbo);
+					fbo = nvgluCreateFramebuffer(window.getNVGID(), (int) (window.getWidth() * window.getPixelRatio()),
+							(int) (window.getHeight() * window.getPixelRatio()), 0);
+				});
+			}
+			break;
 		}
 	}
 
@@ -669,19 +679,6 @@ public abstract class NanoWindow implements IWindow {
 	@Override
 	public ITitleBar getTitleBar() {
 		return titleBar;
-	}
-
-	@Override
-	public void reloadFBO(Window window) {
-		if (fbo != null || compositor) {
-			nvgluDeleteFramebuffer(window.getNVGID(), fbo);
-			fbo = nvgluCreateFramebuffer(window.getNVGID(), (int) (window.getWidth() * window.getPixelRatio()),
-					(int) (window.getHeight() * window.getPixelRatio()), 0);
-		}
-	}
-
-	@Override
-	public void onMainResize() {
 	}
 
 }
