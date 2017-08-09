@@ -66,7 +66,7 @@ void main(void){
     vec4 window = texture(window,textureCoords);
      if(blurBehind == 1)
         if(gl_FragCoord.x >= frame.x && gl_FragCoord.y >= frame.y - frame.w && gl_FragCoord.x < frame.x + frame.z && gl_FragCoord.y < frame.y) {
-        	source.rgb *= 1.0 - vec3(noise(gl_FragCoord.xy * 2)) * 0.10;
+        	source.rgb *= 1.0 - vec3(noise((gl_FragCoord.xy + frame.xy * 0.10))) * 0.10;
         }
     out_Color.rgb = mix(source.rgb, window.rgb, window.a);
     out_Color.a = 1;

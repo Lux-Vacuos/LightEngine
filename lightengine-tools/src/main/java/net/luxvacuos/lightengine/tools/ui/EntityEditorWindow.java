@@ -22,7 +22,6 @@ package net.luxvacuos.lightengine.tools.ui;
 
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.LANG;
 
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 
 public class EntityEditorWindow extends ComponentWindow {
@@ -32,11 +31,11 @@ public class EntityEditorWindow extends ComponentWindow {
 	}
 	
 	@Override
-	public void initApp(Window window) {
+	public void initApp() {
 		super.setBackgroundColor(0.4f, 0.4f, 0.4f, 1f);
 		
 		super.setWindowClose(WindowClose.DO_NOTHING);
-		super.initApp(window);
+		super.initApp();
 	}
 
 }

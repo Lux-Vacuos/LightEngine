@@ -26,7 +26,7 @@ import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.
 import java.util.Arrays;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme.ButtonStyle;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
 import net.luxvacuos.lightengine.client.ui.Alignment;
@@ -57,7 +57,7 @@ public class OptionsWindow extends ComponentWindow {
 	}
 
 	@Override
-	public void initApp(Window window) {
+	public void initApp() {
 		super.setBackgroundColor(0.4f, 0.4f, 0.4f, 1f);
 
 		backButton = new TitleBarButton(0, 0, 28, 28);
@@ -68,25 +68,26 @@ public class OptionsWindow extends ComponentWindow {
 
 		super.getTitleBar().getLeft().addComponent(backButton);
 
-		mainMenu(window);
-
-		super.initApp(window);
+		mainMenu();
+		super.initApp();
 	}
 
-	private void mainMenu(Window window) {
+	private void mainMenu() {
 		Button graphics = new Button(40, -40, 200, 40, LANG.getRegistryItem("lightengine.optionswindow.btngraphics"));
 		graphics.setWindowAlignment(Alignment.LEFT_TOP);
 		graphics.setAlignment(Alignment.RIGHT_BOTTOM);
 
 		graphics.setOnButtonPress(() -> {
 			TaskManager.addTask(() -> {
-				super.disposeApp(window);
+				super.disposeApp();
 				graphicOptions();
+				super.initApp();
 				backButton.setOnButtonPress(() -> {
 					TaskManager.addTask(() -> {
-						super.disposeApp(window);
+						super.disposeApp();
 						backButton.setEnabled(false);
-						mainMenu(window);
+						mainMenu();
+						super.initApp();
 					});
 				});
 			});
@@ -98,13 +99,15 @@ public class OptionsWindow extends ComponentWindow {
 
 		wm.setOnButtonPress(() -> {
 			TaskManager.addTask(() -> {
-				super.disposeApp(window);
+				super.disposeApp();
 				wmOptions();
+				super.initApp();
 				backButton.setOnButtonPress(() -> {
 					TaskManager.addTask(() -> {
-						super.disposeApp(window);
+						super.disposeApp();
 						backButton.setEnabled(false);
-						mainMenu(window);
+						mainMenu();
+						super.initApp();
 					});
 				});
 			});
@@ -437,8 +440,10 @@ public class OptionsWindow extends ComponentWindow {
 	}
 
 	@Override
-	public void onClose() {
-		CoreSubsystem.REGISTRY.save();
+	public void processWindowMessage(int message, Object param) {
+		if (message == WindowMessage.WM_CLOSE)
+			CoreSubsystem.REGISTRY.save();
+		super.processWindowMessage(message, param);
 	}
 
 }

@@ -34,6 +34,6 @@ void main(void){
 	vec2 pixelSize = 1.0 / resolution;
 	
 	for(int i = -9; i <= 9; i++){
-		blurTexCoords[i+9] = textureCoords + vec2(pixelSize.x * i, 0.0);
+		blurTexCoords[i+9] =  textureCoords + vec2(pixelSize.x * i, 0.0);
 	}
 }

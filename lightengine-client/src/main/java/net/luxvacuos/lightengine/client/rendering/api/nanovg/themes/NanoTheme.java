@@ -109,8 +109,11 @@ public class NanoTheme implements ITheme {
 
 		if (decorations) {
 			if (maximized) {
+				// Window
 				nvgBeginPath(vg);
-				nvgRect(vg, x, y - titleBarHeight, w, titleBarHeight);
+				nvgRect(vg, x + fl, y + ft, w - fr - fl, h - fb - ft);
+				nvgPathWinding(vg, NVG_HOLE);
+				nvgRect(vg, x, y - titleBarHeight, w, h + titleBarHeight);
 				nvgFillColor(vg, Theme.rgba(31, 31, 31, 120, colorA));
 				nvgFill(vg);
 				if (Theme.DEBUG) {
@@ -155,7 +158,9 @@ public class NanoTheme implements ITheme {
 		}
 
 		// Background
-		switch (backgroundStyle) {
+		switch (backgroundStyle)
+
+		{
 		case SOLID:
 			nvgBeginPath(vg);
 			nvgRect(vg, x + fl, y + ft, w - fr - fl, h - fb - ft);
@@ -208,6 +213,7 @@ public class NanoTheme implements ITheme {
 			nvgStrokeColor(vg, Theme.debugA);
 			nvgStroke(vg);
 		}
+
 		nvgRestore(vg);
 	}
 

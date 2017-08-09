@@ -30,7 +30,7 @@ import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 
 public class TextArea extends Component {
 
-	private String text, font = "Poppins-Regular";
+	private String text, font = "Poppins-Medium";
 	private int align = NVG_ALIGN_LEFT | NVG_ALIGN_TOP;
 	private float fontSize = 25;
 	private NVGColor color = Theme.rgba(255, 255, 255, 255, NVGColor.create());

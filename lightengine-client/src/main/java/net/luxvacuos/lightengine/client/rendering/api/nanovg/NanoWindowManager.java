@@ -117,7 +117,7 @@ public class NanoWindowManager implements IWindowManager {
 						"Used VRam: " + WindowManager.getUsedVRAM() + "KB " + " UPS: " + CoreSubsystem.ups,
 						"Roboto-Bold", NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 95, 20,
 						Theme.rgba(220, 220, 220, 255, Theme.colorA));
-				Theme.renderText(window.getNVGID(), "Used RAM: " + Runtime.getRuntime().totalMemory() / 1028 + "KB ",
+				Theme.renderText(window.getNVGID(), "Used RAM: " + Runtime.getRuntime().totalMemory() / 1024 + "MB",
 						"Roboto-Bold", NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 110, 20,
 						Theme.rgba(220, 220, 220, 255, Theme.colorA));
 

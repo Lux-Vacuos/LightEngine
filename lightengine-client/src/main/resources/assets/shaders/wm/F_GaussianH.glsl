@@ -27,28 +27,38 @@ out vec4 out_Color;
 
 uniform sampler2D image;
 uniform sampler2D window;
+uniform vec2 resolution;
+uniform vec4 frame;
 
 void main(void){
     vec4 result = vec4(0.0);
     vec4 mask = texture(image, textureCoords);
     if(mask.a == 0) {
-        result.rgb += texture(image, blurTexCoords[0]).rgb * 0.024418;
-        result.rgb += texture(image, blurTexCoords[1]).rgb * 0.032928;
-        result.rgb += texture(image, blurTexCoords[2]).rgb * 0.042669;
-        result.rgb += texture(image, blurTexCoords[3]).rgb * 0.05313;
-        result.rgb += texture(image, blurTexCoords[4]).rgb * 0.06357;
-        result.rgb += texture(image, blurTexCoords[5]).rgb * 0.073088;
-        result.rgb += texture(image, blurTexCoords[6]).rgb * 0.080748;
-        result.rgb += texture(image, blurTexCoords[7]).rgb * 0.085724;
-        result.rgb += texture(image, blurTexCoords[8]).rgb * 0.08745;
-        result.rgb += texture(image, blurTexCoords[9]).rgb * 0.085724;
-        result.rgb += texture(image, blurTexCoords[10]).rgb * 0.080748;
-        result.rgb += texture(image, blurTexCoords[11]).rgb * 0.073088;
-        result.rgb += texture(image, blurTexCoords[12]).rgb * 0.06357;
-        result.rgb += texture(image, blurTexCoords[13]).rgb * 0.05313;
-        result.rgb += texture(image, blurTexCoords[14]).rgb * 0.042669;
-        result.rgb += texture(image, blurTexCoords[15]).rgb * 0.032928;
-        result.rgb += texture(image, blurTexCoords[16]).rgb * 0.024418;
+        vec2 blurTex[17] = blurTexCoords;
+        vec2 LR = vec2(frame.x, frame.x + frame.z) / resolution / 2;
+        vec2 TB = vec2(frame.y - frame.w, frame.y) / resolution / 2;
+        float aspect = resolution.x / resolution.y;
+        for (int i = 0; i < 17; i++) {
+            if(blurTex[i].x >= LR.y / aspect)
+                blurTex[i].x = LR.y / aspect;
+        }
+        result.rgb += texture(image, blurTex[0]).rgb * 0.024418;
+        result.rgb += texture(image, blurTex[1]).rgb * 0.032928;
+        result.rgb += texture(image, blurTex[2]).rgb * 0.042669;
+        result.rgb += texture(image, blurTex[3]).rgb * 0.05313;
+        result.rgb += texture(image, blurTex[4]).rgb * 0.06357;
+        result.rgb += texture(image, blurTex[5]).rgb * 0.073088;
+        result.rgb += texture(image, blurTex[6]).rgb * 0.080748;
+        result.rgb += texture(image, blurTex[7]).rgb * 0.085724;
+        result.rgb += texture(image, blurTex[8]).rgb * 0.08745;
+        result.rgb += texture(image, blurTex[9]).rgb * 0.085724;
+        result.rgb += texture(image, blurTex[10]).rgb * 0.080748;
+        result.rgb += texture(image, blurTex[11]).rgb * 0.073088;
+        result.rgb += texture(image, blurTex[12]).rgb * 0.06357;
+        result.rgb += texture(image, blurTex[13]).rgb * 0.05313;
+        result.rgb += texture(image, blurTex[14]).rgb * 0.042669;
+        result.rgb += texture(image, blurTex[15]).rgb * 0.032928;
+        result.rgb += texture(image, blurTex[16]).rgb * 0.024418;
         out_Color.rgb = result.rgb;
         out_Color.a = 0;
     } else {
