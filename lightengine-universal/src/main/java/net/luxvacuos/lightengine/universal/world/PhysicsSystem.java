@@ -39,12 +39,12 @@ import net.luxvacuos.lightengine.universal.ecs.components.Velocity;
 import net.luxvacuos.lightengine.universal.ecs.entities.LEEntity;
 
 public class PhysicsSystem extends EntitySystem {
-	private ImmutableArray<Entity> entities;
+	protected ImmutableArray<Entity> entities;
 
-	private List<BoundingBox> boxes = new ArrayList<>();
-	private Vector3 normalTMP = new Vector3();
-	private double depthTMP;
-	private int faceTMP;
+	protected List<BoundingBox> boxes = new ArrayList<>();
+	protected Vector3 normalTMP = new Vector3();
+	protected double depthTMP;
+	protected int faceTMP;
 
 	@Override
 	public void addedToEngine(Engine engine) {

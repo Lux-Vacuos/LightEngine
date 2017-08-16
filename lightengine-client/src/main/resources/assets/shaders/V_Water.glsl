@@ -34,7 +34,7 @@ uniform float time;
 
 #define PI 3.14159265359
 
-const float A = 0.4;	// amplitude
+const float A = 0.2;	// amplitude
 const float L = 8;	// wavelength
 const float w = 2*PI/L;
 const float Q = 1;

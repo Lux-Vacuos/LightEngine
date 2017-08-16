@@ -151,7 +151,7 @@ public class GraphicalSubsystem implements ISubsystem {
 			Renderer.reloadDeferred();
 			windowManager.reloadCompositor();
 		}
-		CachedAssets.update();
+		CachedAssets.update(delta);
 		WindowManager.update();
 		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT);
 		Renderer.clearColors(0, 0, 0, 1);

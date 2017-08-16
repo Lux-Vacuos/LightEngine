@@ -56,8 +56,7 @@ public class MainWindow extends ComponentWindow {
 		exitButton.setWindowAlignment(Alignment.CENTER);
 
 		entityEditorButton.setOnButtonPress(() -> {
-			super.setWindowClose(WindowClose.DISPOSE);
-			super.closeWindow();
+			super.toggleMinimize();
 			StateMachine.setCurrentState(StateNames.ENTITY_EDITOR);
 		});
 

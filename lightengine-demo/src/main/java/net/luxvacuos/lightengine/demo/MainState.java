@@ -74,29 +74,33 @@ public class MainState extends AbstractState {
 
 	@Override
 	public void start() {
+		worldSimulation = new ClientWorldSimulation(10000);
+		engine = new Engine();
+		physicsSystem = new ClientPhysicsSystem();
+		physicsSystem.addBox(new BoundingBox(new Vector3(-50, -1, -50), new Vector3(50, 0, 50)));
+		engine.addSystem(physicsSystem);
+		waterTiles = new ArrayList<>();
+		for (int x = -128; x <= 128; x++)
+			for (int z = -128; z <= 128; z++)
+				waterTiles.add(new WaterTile(x * WaterTile.TILE_SIZE, -0.5f, z * WaterTile.TILE_SIZE));
+		sun = new Sun();
+
+		Renderer.setOnResize(() -> {
+			ClientComponents.PROJECTION_MATRIX.get(camera)
+					.setProjectionMatrix(Renderer.createProjectionMatrix(
+							(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
+							(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
+							(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/fov")),
+							ClientVariables.NEAR_PLANE, ClientVariables.FAR_PLANE));
+		});
+		MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), true);
 		TaskManager.addTask(() -> {
 			Window window = GraphicalSubsystem.getMainWindow();
 
 			camera = new PlayerCamera("player", UUID.randomUUID().toString());
 			camera.setPosition(new Vector3d(0, 2, 0));
-			sun = new Sun();
-
-			Renderer.setOnResize(() -> {
-				ClientComponents.PROJECTION_MATRIX.get(camera)
-						.setProjectionMatrix(Renderer.createProjectionMatrix(
-								(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
-								(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
-								(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/fov")),
-								ClientVariables.NEAR_PLANE, ClientVariables.FAR_PLANE));
-			});
 
 			AssimpResourceLoader aLoader = window.getAssimpResourceLoader();
-
-			worldSimulation = new ClientWorldSimulation(10000);
-			engine = new Engine();
-			physicsSystem = new ClientPhysicsSystem();
-			physicsSystem.addBox(new BoundingBox(new Vector3(-50, -1, -50), new Vector3(50, 0, 50)));
-			engine.addSystem(physicsSystem);
 
 			// Renderer.getLightRenderer().addLight(new Light(new Vector3f(-8, 5,
 			// -8), new Vector3f(1, 1, 1)));
@@ -123,7 +127,7 @@ public class MainState extends AbstractState {
 			mat2 = new RenderEntity("", aLoader.loadModel("levels/test_state/models/sphere.blend"));
 			mat2.getComponent(Position.class).set(3, 1, 0);
 
-			plane = new RenderEntity("", aLoader.loadModel("levels/test_state/models/city.blend"));
+			plane = new RenderEntity("", aLoader.loadModel("levels/test_state/models/plane.blend"));
 
 			character = new RenderEntity("", aLoader.loadModel("levels/test_state/models/tigre_sumatra.blend"));
 			character.getComponent(Position.class).set(0, 0.67335f, 5);
@@ -141,11 +145,6 @@ public class MainState extends AbstractState {
 			physicsSystem.getEngine().addEntity(mat2);
 			physicsSystem.getEngine().addEntity(character);
 
-			waterTiles = new ArrayList<>();
-			for (int x = -128; x <= 128; x++)
-				for (int z = -128; z <= 128; z++)
-					waterTiles.add(new WaterTile(x * WaterTile.TILE_SIZE, 75, z * WaterTile.TILE_SIZE));
-			MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), true);
 			Renderer.render(engine.getEntities(), ParticleDomain.getParticles(), waterTiles, lightRenderer, camera,
 					worldSimulation, sun, 0);
 			gameWindow = new GameWindow(0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
@@ -179,7 +178,7 @@ public class MainState extends AbstractState {
 			lightRenderer.update(delta);
 			engine.update(delta);
 			sun.update(camera.getPosition(), worldSimulation.update(delta), delta);
-			// particleSystem.generateParticles(particlesPoint, delta);
+			particleSystem.generateParticles(particlesPoint, delta);
 			ParticleDomain.update(delta, camera);
 			// light0.getPosition().set(Math.sin(worldSimulation.getGlobalTime() / 8f) * 3f
 			// + 4.5f, 8.2f, 8f);
@@ -203,17 +202,13 @@ public class MainState extends AbstractState {
 			}
 		} else if (exitWorld) {
 			gameWindow.closeWindow();
-			pauseWindow.closeWindow();
 			exitWorld = false;
 			paused = false;
 			StateMachine.setCurrentState("_main");
 		} else {
 			if (kbh.isKeyPressed(GLFW.GLFW_KEY_ESCAPE)) {
 				kbh.ignoreKeyUntilRelease(GLFW.GLFW_KEY_ESCAPE);
-				MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), true);
-				paused = false;
 				pauseWindow.closeWindow();
-				GraphicalSubsystem.getWindowManager().toggleShell();
 			}
 		}
 

@@ -174,20 +174,20 @@ public class NanoTheme implements ITheme {
 			// Drop shadow
 			if (titleBar) {
 				if (titleBarBorder) {
-					nvgBoxGradient(vg, x - borderSize, y + 10 - titleBarHeight - borderSize, w + borderSize * 2f,
-							h + titleBarHeight + borderSize * 2f, 0, 20, Theme.rgba(0, 0, 0, 80, colorA),
+					nvgBoxGradient(vg, x - borderSize, y + 5 - titleBarHeight - borderSize, w + borderSize * 2f,
+							h + titleBarHeight + borderSize * 2f, 0, 20, Theme.rgba(0, 0, 0, 100, colorA),
 							Theme.rgba(0, 0, 0, 0, colorB), shadowPaint);
 					nvgBeginPath(vg);
-					nvgRect(vg, x - 10 - borderSize, y - 10 - titleBarHeight - borderSize, w + 20 + borderSize * 2f,
+					nvgRect(vg, x - 20 - borderSize, y - 10 - titleBarHeight - borderSize, w + 40 + borderSize * 2f,
 							h + 30 + titleBarHeight + borderSize * 2f);
 					nvgRect(vg, x - borderSize, y - titleBarHeight - borderSize, w + borderSize * 2f,
 							h + titleBarHeight + borderSize * 2f);
 				} else {
-					nvgBoxGradient(vg, x - borderSize, y + 10 - titleBarHeight, w + borderSize * 2f,
-							h + titleBarHeight + borderSize, 0, 20, Theme.rgba(0, 0, 0, 80, colorA),
+					nvgBoxGradient(vg, x - borderSize, y + 5 - titleBarHeight, w + borderSize * 2f,
+							h + titleBarHeight + borderSize, 0, 20, Theme.rgba(0, 0, 0, 100, colorA),
 							Theme.rgba(0, 0, 0, 0, colorB), shadowPaint);
 					nvgBeginPath(vg);
-					nvgRect(vg, x - 10 - borderSize, y - 10 - titleBarHeight, w + 20 + borderSize * 2f,
+					nvgRect(vg, x - 20 - borderSize, y - 10 - titleBarHeight, w + 40 + borderSize * 2f,
 							h + 30 + titleBarHeight + borderSize);
 					nvgRect(vg, x - borderSize, y - titleBarHeight, w + borderSize * 2f,
 							h + titleBarHeight + borderSize);

@@ -32,6 +32,8 @@ public class CachedAssets {
 
 	private static final Map<String, CachedTexture> TEXTURES = new HashMap<>();
 
+	private static float timer;
+
 	public static CachedTexture loadTexture(String path) {
 		return loadTexture(path, false);
 	}
@@ -70,17 +72,21 @@ public class CachedAssets {
 		}
 	}
 
-	public static void update() {
-		List<CachedTexture> toRemove = new ArrayList<>();
-		for (CachedTexture tex : TEXTURES.values()) {
-			if (!tex.immortal)
-				if (tex.totalCached <= 0)
-					toRemove.add(tex);
-		}
-		for (CachedTexture cachedTexture : toRemove) {
-			Logger.log("Removing Texture from cache: " + cachedTexture.path);
-			TEXTURES.remove(cachedTexture.path);
-			cachedTexture.trueDispose();
+	public static void update(float delta) {
+		timer += delta;
+		if (timer >= 30) {
+			List<CachedTexture> toRemove = new ArrayList<>();
+			for (CachedTexture tex : TEXTURES.values()) {
+				if (!tex.immortal)
+					if (tex.totalCached <= 0)
+						toRemove.add(tex);
+			}
+			for (CachedTexture cachedTexture : toRemove) {
+				Logger.log("Removing Texture from cache: " + cachedTexture.path);
+				TEXTURES.remove(cachedTexture.path);
+				cachedTexture.trueDispose();
+			}
+			timer = 0;
 		}
 	}
 

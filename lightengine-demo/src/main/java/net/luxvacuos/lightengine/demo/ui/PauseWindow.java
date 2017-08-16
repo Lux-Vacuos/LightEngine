@@ -43,7 +43,7 @@ public class PauseWindow extends ComponentWindow {
 		backButton.setAlignment(Alignment.CENTER);
 		backButton.setWindowAlignment(Alignment.BOTTOM);
 		backButton.setOnButtonPress(() -> {
-			super.closeWindow();
+			super.notifyWindow(WindowMessage.WM_CLOSE, WindowClose.DO_NOTHING);
 			MainState.exitWorld = true;
 		});
 
@@ -61,12 +61,14 @@ public class PauseWindow extends ComponentWindow {
 
 	@Override
 	public void processWindowMessage(int message, Object param) {
-		if (message == WindowMessage.WM_CLOSE) {
+		if (message == WindowMessage.WM_CLOSE && ((WindowClose) param) == WindowClose.DISPOSE) {
 			MainState.paused = false;
 			MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), true);
 			GraphicalSubsystem.getWindowManager().toggleShell();
+			super.processWindowMessage(message, param);
+		} else if (message == WindowMessage.WM_CLOSE && ((WindowClose) param) == WindowClose.DO_NOTHING) {
+			super.processWindowMessage(message, WindowClose.DISPOSE);
 		}
-		super.processWindowMessage(message, param);
 	}
 
 }

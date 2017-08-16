@@ -38,6 +38,8 @@ uniform float time;
 const float near = 0.1;
 const float far = 1000.0;
 
+#define GAMMA 2.2
+
 float fresnelSchlickRoughness(float cosTheta, float F0, float roughness) {
     return F0 + (max(1.0 - roughness, F0) - F0) * pow(1.0 - cosTheta, 5.0);
 }
@@ -82,6 +84,9 @@ void main(void) {
 	float F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, 0);
 
 	vec3 reflectionColor = texture(reflection, R + (distortion.x, 0, distortion.y)).rgb;
+	
+    reflectionColor = vec3(1.0) - exp(-reflectionColor * 1.0);
+    reflectionColor = pow(reflectionColor, vec3(1.0 / GAMMA));
 
 	vec3 refractionColor = texture(refraction, refractV.xy - refractV.z * N.xz * 0.5 + distortion).rgb;
 	refractionColor = mix(refractionColor, refractionColor * vec3(0.0392156862745098, 0.3647058823529412, 0.6509803921568627), smoothstep(0, 20, waterDepthDistort));
