@@ -50,6 +50,7 @@ import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.ITheme;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.NanoTheme;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.ThemeManager;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.GLUtil;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.ParticleDomain;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CachedAssets;
@@ -91,6 +92,7 @@ public class GraphicalSubsystem implements ISubsystem {
 		long gameWindowID = WindowManager.createWindow(handle,
 				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/vsync")));
 		window = WindowManager.getWindow(gameWindowID);
+		GLUtil.init();
 		themeManager = new ThemeManager();
 		themeManager.addTheme(new NanoTheme());
 		ITheme theme = themeManager

@@ -96,8 +96,8 @@ public class Renderer {
 			shadowResolution = (int) REGISTRY
 					.getRegistryItem(new Key("/Light Engine/Settings/Graphics/shadowsResolution"));
 
-			if (shadowResolution > GLUtil.getTextureMaxSize())
-				shadowResolution = GLUtil.getTextureMaxSize();
+			if (shadowResolution > GLUtil.GL_MAX_TEXTURE_SIZE)
+				shadowResolution = GLUtil.GL_MAX_TEXTURE_SIZE;
 
 			TaskManager.addTask(() -> frustum = new Frustum());
 			TaskManager.addTask(() -> shadowFBO = new ShadowFBO(shadowResolution, shadowResolution));
@@ -239,25 +239,25 @@ public class Renderer {
 		if (enabled) {
 			enabled = false;
 			if (environmentRenderer != null)
-				environmentRenderer.cleanUp();
+				TaskManager.addTask(() -> environmentRenderer.cleanUp());
 			if (shadowFBO != null)
-				shadowFBO.dispose();
+				TaskManager.addTask(() -> shadowFBO.dispose());
 			if (entityRenderer != null)
-				entityRenderer.cleanUp();
+				TaskManager.addTask(() -> entityRenderer.cleanUp());
 			if (entityShadowRenderer != null)
-				entityShadowRenderer.cleanUp();
+				TaskManager.addTask(() -> entityShadowRenderer.cleanUp());
 			if (deferredPipeline != null)
-				deferredPipeline.dispose();
+				TaskManager.addTask(() -> deferredPipeline.dispose());
 			if (postProcessPipeline != null)
-				postProcessPipeline.dispose();
+				TaskManager.addTask(() -> postProcessPipeline.dispose());
 			if (particleRenderer != null)
-				particleRenderer.cleanUp();
+				TaskManager.addTask(() -> particleRenderer.cleanUp());
 			if (irradianceCapture != null)
-				irradianceCapture.dispose();
+				TaskManager.addTask(() -> irradianceCapture.dispose());
 			if (preFilteredEnvironment != null)
-				preFilteredEnvironment.dispose();
+				TaskManager.addTask(() -> preFilteredEnvironment.dispose());
 			if (waterRenderer != null)
-				waterRenderer.dispose();
+				TaskManager.addTask(() -> waterRenderer.dispose());
 		}
 	}
 
@@ -296,8 +296,8 @@ public class Renderer {
 		shadowFBO.dispose();
 		shadowResolution = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/shadowsResolution"));
 
-		if (shadowResolution > GLUtil.getTextureMaxSize())
-			shadowResolution = GLUtil.getTextureMaxSize();
+		if (shadowResolution > GLUtil.GL_MAX_TEXTURE_SIZE)
+			shadowResolution = GLUtil.GL_MAX_TEXTURE_SIZE;
 		shadowFBO = new ShadowFBO(shadowResolution, shadowResolution);
 	}
 

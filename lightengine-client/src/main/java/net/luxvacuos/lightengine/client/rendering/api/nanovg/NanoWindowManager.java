@@ -66,10 +66,10 @@ public class NanoWindowManager implements IWindowManager {
 		width = (int) (win.getWidth() * win.getPixelRatio());
 		height = (int) (win.getHeight() * win.getPixelRatio());
 
-		if (width > GLUtil.getTextureMaxSize())
-			width = GLUtil.getTextureMaxSize();
-		if (height > GLUtil.getTextureMaxSize())
-			height = GLUtil.getTextureMaxSize();
+		if (width > GLUtil.GL_MAX_TEXTURE_SIZE)
+			width = GLUtil.GL_MAX_TEXTURE_SIZE;
+		if (height > GLUtil.GL_MAX_TEXTURE_SIZE)
+			height = GLUtil.GL_MAX_TEXTURE_SIZE;
 		compositor = new Compositor(win, width, height);
 		compositor.addEffect(new MaskBlur(width, height));
 		compositor.addEffect(new GaussianV(width / 2, height / 2));
@@ -338,7 +338,7 @@ public class NanoWindowManager implements IWindowManager {
 			return shell.isEnabled();
 		return false;
 	}
-	
+
 	@Override
 	public IShell getShell() {
 		return shell;
@@ -350,10 +350,10 @@ public class NanoWindowManager implements IWindowManager {
 		height = (int) (window.getHeight() * window.getPixelRatio());
 		if (compositorEnabled) {
 			compositor.dispose(window);
-			if (width > GLUtil.getTextureMaxSize())
-				width = GLUtil.getTextureMaxSize();
-			if (height > GLUtil.getTextureMaxSize())
-				height = GLUtil.getTextureMaxSize();
+			if (width > GLUtil.GL_MAX_TEXTURE_SIZE)
+				width = GLUtil.GL_MAX_TEXTURE_SIZE;
+			if (height > GLUtil.GL_MAX_TEXTURE_SIZE)
+				height = GLUtil.GL_MAX_TEXTURE_SIZE;
 			compositor = new Compositor(window, width, height);
 			compositor.addEffect(new MaskBlur(width, height));
 			compositor.addEffect(new GaussianV(width / 2, height / 2));

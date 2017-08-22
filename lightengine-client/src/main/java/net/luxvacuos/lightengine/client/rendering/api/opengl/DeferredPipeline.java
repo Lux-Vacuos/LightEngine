@@ -73,10 +73,10 @@ public abstract class DeferredPipeline implements IDeferredPipeline {
 		width = (int) (window.getWidth() * window.getPixelRatio());
 		height = (int) (window.getHeight() * window.getPixelRatio());
 
-		if (width > GLUtil.getTextureMaxSize())
-			width = GLUtil.getTextureMaxSize();
-		if (height > GLUtil.getTextureMaxSize())
-			height = GLUtil.getTextureMaxSize();
+		if (width > GLUtil.GL_MAX_TEXTURE_SIZE)
+			width = GLUtil.GL_MAX_TEXTURE_SIZE;
+		if (height > GLUtil.GL_MAX_TEXTURE_SIZE)
+			height = GLUtil.GL_MAX_TEXTURE_SIZE;
 		float[] positions = { -1, 1, -1, -1, 1, 1, 1, -1 };
 		quad = window.getResourceLoader().loadToVAO(positions, 2);
 

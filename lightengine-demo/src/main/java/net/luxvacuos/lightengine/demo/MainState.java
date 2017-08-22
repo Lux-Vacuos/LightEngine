@@ -74,7 +74,7 @@ public class MainState extends AbstractState {
 
 	@Override
 	public void start() {
-		TaskManager.addTask(() -> Renderer.init(GraphicalSubsystem.getMainWindow()));
+		Renderer.init(GraphicalSubsystem.getMainWindow());
 		worldSimulation = new ClientWorldSimulation(10000);
 		engine = new Engine();
 		physicsSystem = new ClientPhysicsSystem();
@@ -161,7 +161,7 @@ public class MainState extends AbstractState {
 	public void end() {
 		loaded = false;
 		physicsSystem.getEngine().removeAllEntities();
-		TaskManager.addTask(() -> Renderer.cleanUp());
+		Renderer.cleanUp();
 		TaskManager.addTask(() -> {
 			waterTiles.clear();
 			fire.dispose();

@@ -23,12 +23,14 @@ package net.luxvacuos.lightengine.client.rendering.api.opengl;
 import org.lwjgl.opengl.GL11;
 
 public class GLUtil {
+	
+	public static int GL_MAX_TEXTURE_SIZE;
 
 	private GLUtil() {
 	}
-
-	public static int getTextureMaxSize() {
-		return GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE);
+	
+	public static void init() {
+		GL_MAX_TEXTURE_SIZE = GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE);
 	}
 
 	public static String getString(int name) {
