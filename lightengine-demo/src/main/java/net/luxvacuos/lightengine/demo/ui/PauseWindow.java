@@ -30,7 +30,7 @@ import net.luxvacuos.lightengine.demo.MainState;
 
 public class PauseWindow extends ComponentWindow {
 
-	public PauseWindow(float x, float y, float w, float h) {
+	public PauseWindow(int x, int y, int w, int h) {
 		super(x, y, w, h, "Pause");
 	}
 

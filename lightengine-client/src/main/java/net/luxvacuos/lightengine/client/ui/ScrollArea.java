@@ -76,7 +76,7 @@ public class ScrollArea extends Component {
 		comp.update(delta);
 		super.update(delta, window);
 		MouseHandler mh = window.getMouseHandler();
-		float scrollBarSize = (float) REGISTRY
+		int scrollBarSize = (int) REGISTRY
 				.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/scrollBarSize"));
 		if (mh.isButtonPressed(0)) {
 			if (mh.getX() > rootComponent.rootX + alignedX + w - scrollBarSize

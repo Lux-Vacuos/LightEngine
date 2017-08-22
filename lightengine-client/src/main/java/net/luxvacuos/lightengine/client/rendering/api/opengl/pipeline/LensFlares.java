@@ -27,11 +27,11 @@ import static org.lwjgl.opengl.GL13.GL_TEXTURE7;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE8;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
 
-import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.DeferredPass;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.FBO;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.IDeferredPipeline;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.ShadowFBO;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CachedAssets;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CubeMapTexture;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Texture;
 
@@ -41,8 +41,7 @@ public class LensFlares extends DeferredPass {
 
 	public LensFlares(String name, int width, int height) {
 		super(name, width, height);
-		lensColor = GraphicalSubsystem.getMainWindow().getResourceLoader()
-				.loadTextureMisc("textures/lens/lens_color.png");
+		lensColor = CachedAssets.loadTextureMisc("textures/lens/lens_color.png");
 	}
 
 	@Override

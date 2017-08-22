@@ -21,7 +21,7 @@ public class RectGL extends ComponentWindow {
 	private int points;
 	private Text pointsText;
 
-	public RectGL(float x, float y, float w, float h) {
+	public RectGL(int x, int y, int w, int h) {
 		super(x, y, w, h, "Rectball");
 	}
 

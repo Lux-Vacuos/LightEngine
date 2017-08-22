@@ -28,7 +28,7 @@ public class ComponentWindow extends NanoWindow {
 
 	protected RootComponent rootComponent;
 
-	public ComponentWindow(float x, float y, float w, float h, String title) {
+	public ComponentWindow(int x, int y, int w, int h, String title) {
 		super(x, y, w, h, title);
 		rootComponent = new RootComponent(x, y, w, h);
 	}

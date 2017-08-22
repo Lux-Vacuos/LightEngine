@@ -74,6 +74,7 @@ public class MainState extends AbstractState {
 
 	@Override
 	public void start() {
+		TaskManager.addTask(() -> Renderer.init(GraphicalSubsystem.getMainWindow()));
 		worldSimulation = new ClientWorldSimulation(10000);
 		engine = new Engine();
 		physicsSystem = new ClientPhysicsSystem();
@@ -160,6 +161,7 @@ public class MainState extends AbstractState {
 	public void end() {
 		loaded = false;
 		physicsSystem.getEngine().removeAllEntities();
+		TaskManager.addTask(() -> Renderer.cleanUp());
 		TaskManager.addTask(() -> {
 			waterTiles.clear();
 			fire.dispose();
@@ -189,14 +191,15 @@ public class MainState extends AbstractState {
 				kbh.ignoreKeyUntilRelease(GLFW.GLFW_KEY_ESCAPE);
 				MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), false);
 				paused = true;
-				float borderSize = (float) REGISTRY
+				int borderSize = (int) REGISTRY
 						.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/borderSize"));
-				float titleBarHeight = (float) REGISTRY
+				int titleBarHeight = (int) REGISTRY
 						.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
 				int height = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
 				pauseWindow = new PauseWindow(borderSize + 10, height - titleBarHeight - 10,
-						(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")) - borderSize * 2f - 20,
-						height - titleBarHeight - borderSize - 50);
+						(int) ((int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")) - borderSize * 2f
+								- 20),
+						(int) (height - titleBarHeight - borderSize - 50));
 				GraphicalSubsystem.getWindowManager().addWindow(pauseWindow);
 				GraphicalSubsystem.getWindowManager().toggleShell();
 			}

@@ -108,8 +108,8 @@ public class Maths {
 	 * @param camera
 	 *            Camera
 	 * @param viewMatrix
-	 *            View Matrixd Pass an already created matrix or null for
-	 *            creating a new one
+	 *            View Matrixd Pass an already created matrix or null for creating a
+	 *            new one
 	 * @return The composed matrix
 	 */
 	public static Matrix4d createViewMatrixPos(Vector3d pos, Matrix4d viewMatrix) {
@@ -127,8 +127,8 @@ public class Maths {
 	 * @param camera
 	 *            Camera
 	 * @param viewMatrix
-	 *            View Matrixd Pass an already created matrix or null for
-	 *            creating a new one
+	 *            View Matrixd Pass an already created matrix or null for creating a
+	 *            new one
 	 * @return The composed matrix
 	 */
 	public static Matrix4d createViewMatrixRot(double pitch, double yaw, double roll, Matrix4d viewMatrix) {
@@ -186,16 +186,24 @@ public class Maths {
 
 	}
 
-	public static float clamp(double d, double min, double max) {
-		return (float) Math.max(min, Math.min(max, d));
+	public static float clamp(float d, float min, float max) {
+		return Math.max(min, Math.min(max, d));
 	}
-	
-	public static float clamp(double d, double min) {
-		return (float) Math.max(min, d);
+
+	public static float clamp(float d, float min) {
+		return Math.max(min, d);
 	}
-	
-	public static float min(double d, double min) {
-		return (float) Math.min(d, min);
+
+	public static int clampInt(int d, int min) {
+		return Math.max(min, d);
+	}
+
+
+	public static float min(float d, float min) {
+		return Math.min(d, min);
+	}
+	public static int minInt(int d, int min) {
+		return Math.min(d, min);
 	}
 
 	public static int randInt(int min, int max) {

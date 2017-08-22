@@ -27,6 +27,7 @@ import java.util.List;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme.BackgroundStyle;
 import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
@@ -46,22 +47,22 @@ public class DropDown<E> extends Button {
 	public void init(Window window) {
 		super.setOnButtonPress(() -> {
 			TaskManager.addTask(() -> GraphicalSubsystem.getWindowManager().addWindow(new ComponentWindow(
-					rootComponent.rootX + alignedX, rootComponent.rootY - alignedY, w, 300, "test") {
+					(int) (rootComponent.rootX + alignedX),(int) (rootComponent.rootY - alignedY), (int) w, 300, "test") {
 
 				@Override
 				public void initApp() {
 					super.toggleTitleBar();
 					super.setDecorations(false);
-					super.setBackgroundColor(0, 0, 0, 0);
+					super.setBackgroundStyle(BackgroundStyle.TRANSPARENT);
 
 					ScrollArea area = new ScrollArea(0, 0, w, h, 0, 0);
 					area.setLayout(new FlowLayout(Direction.DOWN, 0, 0));
 					area.setResizeH(true);
 					area.setResizeV(true);
-					float hh = 0;
+					int hh = 0;
 					for (E e : objects) {
 						ContextMenuButton btn = new ContextMenuButton(0, 0,
-								w - (float) REGISTRY
+								w - (int) REGISTRY
 										.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/scrollBarSize")),
 								30, e.toString());
 						btn.setWindowAlignment(Alignment.LEFT_TOP);
@@ -76,7 +77,7 @@ public class DropDown<E> extends Button {
 						area.addComponent(btn);
 						hh += 30;
 					}
-					h = Maths.min(hh, 200);
+					h = Maths.minInt(hh, 200);
 					super.addComponent(area);
 
 					super.initApp();

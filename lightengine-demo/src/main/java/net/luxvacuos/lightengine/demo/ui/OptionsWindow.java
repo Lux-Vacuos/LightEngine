@@ -37,6 +37,7 @@ import net.luxvacuos.lightengine.client.ui.Direction;
 import net.luxvacuos.lightengine.client.ui.DropDown;
 import net.luxvacuos.lightengine.client.ui.EditBox;
 import net.luxvacuos.lightengine.client.ui.FlowLayout;
+import net.luxvacuos.lightengine.client.ui.Notification;
 import net.luxvacuos.lightengine.client.ui.ScrollArea;
 import net.luxvacuos.lightengine.client.ui.Slider;
 import net.luxvacuos.lightengine.client.ui.Text;
@@ -322,15 +323,15 @@ public class OptionsWindow extends ComponentWindow {
 	}
 
 	private void wmOptions() {
-		float border = (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/borderSize"));
+		int border = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/borderSize"));
 		Text wmBorderText = new Text(LANG.getRegistryItem("lightengine.optionswindow.wm.border") + ": " + border, 20,
 				0);
 		wmBorderText.setWindowAlignment(Alignment.LEFT);
-		float scroll = (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/scrollBarSize"));
+		int scroll = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/scrollBarSize"));
 		Text wmScrollText = new Text(LANG.getRegistryItem("lightengine.optionswindow.wm.scrollsize") + ": " + scroll,
 				20, 0);
 		wmScrollText.setWindowAlignment(Alignment.LEFT);
-		float title = (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
+		int title = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
 		Text wmTitleText = new Text(LANG.getRegistryItem("lightengine.optionswindow.wm.titlebarsize") + ": " + title,
 				20, 0);
 		wmTitleText.setWindowAlignment(Alignment.LEFT);
@@ -357,17 +358,17 @@ public class OptionsWindow extends ComponentWindow {
 		wmTitle.setWindowAlignment(Alignment.RIGHT);
 
 		wmBorder.setOnPress(() -> {
-			float val = wmBorder.getPosition() * 40f;
+			int val = (int) (wmBorder.getPosition() * 40f);
 			REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/borderSize"), val);
 			wmBorderText.setText(LANG.getRegistryItem("lightengine.optionswindow.wm.border") + ": " + val);
 		});
 		wmScroll.setOnPress(() -> {
-			float val = wmScroll.getPosition() * 40f;
+			int val = (int) (wmScroll.getPosition() * 40f);
 			REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/scrollBarSize"), val);
 			wmScrollText.setText(LANG.getRegistryItem("lightengine.optionswindow.wm.scrollsize") + ": " + val);
 		});
 		wmTitle.setOnPress(() -> {
-			float val = wmTitle.getPosition() * 40f;
+			int val = (int) (wmTitle.getPosition() * 40f);
 			REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"), val);
 			wmTitleText.setText(LANG.getRegistryItem("lightengine.optionswindow.wm.titlebarsize") + ": " + val);
 		});
@@ -380,7 +381,6 @@ public class OptionsWindow extends ComponentWindow {
 		titleBorderButton.setOnButtonPress(() -> REGISTRY.register(
 				new Key("/Light Engine/Settings/WindowManager/titleBarBorder"), titleBorderButton.getStatus()));
 		compositorButton.setOnButtonPress(() -> {
-			REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/compositor"), compositorButton.getStatus());
 			if (compositorButton.getStatus())
 				GraphicalSubsystem.getWindowManager().enableCompositor();
 			else
@@ -441,8 +441,11 @@ public class OptionsWindow extends ComponentWindow {
 
 	@Override
 	public void processWindowMessage(int message, Object param) {
-		if (message == WindowMessage.WM_CLOSE)
+		if (message == WindowMessage.WM_CLOSE) {
 			CoreSubsystem.REGISTRY.save();
+			GraphicalSubsystem.getWindowManager().getShell().getNotificationsWindow()
+					.notifyWindow(WindowMessage.WM_SHELL_NOTIFICATION_ADD, new Notification("Settings Saved", "Settings has been saved correctly."));
+		}
 		super.processWindowMessage(message, param);
 	}
 

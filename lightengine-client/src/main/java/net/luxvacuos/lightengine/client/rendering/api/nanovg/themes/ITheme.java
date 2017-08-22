@@ -29,9 +29,9 @@ import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme.Button
 
 public interface ITheme {
 
-	public void renderWindow(long vg, float x, float y, float w, float h, BackgroundStyle backgroundStyle,
-			NVGColor backgroundColor, boolean decorations, boolean titleBar, boolean maximized, float ft, float fb,
-			float fr, float fl);
+	public void renderWindow(long vg, int x, int y, int w, int h, BackgroundStyle backgroundStyle,
+			NVGColor backgroundColor, boolean decorations, boolean titleBar, boolean maximized, int ft, int fb, int fr,
+			int fl);
 
 	public float renderTitleBarText(long vg, String text, String font, int align, float x, float y, float fontSize);
 

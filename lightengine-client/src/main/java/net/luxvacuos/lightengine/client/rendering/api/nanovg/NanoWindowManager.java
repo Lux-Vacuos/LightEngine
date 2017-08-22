@@ -290,10 +290,23 @@ public class NanoWindowManager implements IWindowManager {
 			compositor.addEffect(new GaussianH(width / 2, height / 2));
 			compositor.addEffect(new Final(width, height));
 			compositorEnabled = true;
+			REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/compositor"), compositorEnabled);
 		});
 		for (IWindow window : windows) {
 			window.notifyWindow(WindowMessage.WM_COMPOSITOR_ENABLED, null);
 		}
+	}
+
+	@Override
+	public void disableCompositor() {
+		if (!compositorEnabled)
+			return;
+		TaskManager.addTask(() -> compositor.dispose(window));
+		for (IWindow window : windows) {
+			window.notifyWindow(WindowMessage.WM_COMPOSITOR_DISABLED, null);
+		}
+		compositorEnabled = false;
+		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/compositor"), compositorEnabled);
 	}
 
 	@Override
@@ -306,17 +319,6 @@ public class NanoWindowManager implements IWindowManager {
 	@Override
 	public int getTotalWindows() {
 		return windows.size();
-	}
-
-	@Override
-	public void disableCompositor() {
-		if (!compositorEnabled)
-			return;
-		TaskManager.addTask(() -> compositor.dispose(window));
-		for (IWindow window : windows) {
-			window.notifyWindow(WindowMessage.WM_COMPOSITOR_DISABLED, null);
-		}
-		compositorEnabled = false;
 	}
 
 	@Override
@@ -335,6 +337,11 @@ public class NanoWindowManager implements IWindowManager {
 		if (shell != null)
 			return shell.isEnabled();
 		return false;
+	}
+	
+	@Override
+	public IShell getShell() {
+		return shell;
 	}
 
 	@Override

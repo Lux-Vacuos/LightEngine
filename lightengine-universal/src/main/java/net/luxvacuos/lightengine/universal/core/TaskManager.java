@@ -25,7 +25,7 @@ import java.util.Queue;
 
 public class TaskManager {
 
-	private static Queue<Runnable> tasks = new LinkedList<>();
+	private static Queue<Runnable> tasks = new LinkedList<>(), tasksAsync = new LinkedList<>();
 
 	public static void update() {
 		if (!tasks.isEmpty()) {
@@ -33,12 +33,26 @@ public class TaskManager {
 		}
 	}
 
+	public static void updateAsync() {
+		if (!tasksAsync.isEmpty()) {
+			tasksAsync.poll().run();
+		}
+	}
+
 	public static void addTask(Runnable task) {
 		tasks.add(task);
 	}
 
+	public static void addTaskAsync(Runnable task) {
+		tasksAsync.add(task);
+	}
+
 	public static boolean isEmpty() {
 		return tasks.isEmpty();
+	}
+
+	public static boolean isEmptyAsync() {
+		return tasksAsync.isEmpty();
 	}
 
 }

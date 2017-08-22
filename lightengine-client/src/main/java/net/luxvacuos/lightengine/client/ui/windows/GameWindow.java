@@ -33,7 +33,7 @@ public class GameWindow extends ComponentWindow {
 
 	private Image game;
 
-	public GameWindow(float x, float y, float w, float h) {
+	public GameWindow(int x, int y, int w, int h) {
 		super(x, y, w, h, "game");
 	}
 

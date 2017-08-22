@@ -60,8 +60,8 @@ public abstract class CompositorEffect implements IDisposable {
 
 	public void render(NVGLUFramebuffer[] fbos, RawModel quad, Window wnd, IWindow window) {
 		GPUProfiler.start(name);
-		float borderSize = (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/borderSize"));
-		float titleBarHeight = (float) REGISTRY
+		int borderSize = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/borderSize"));
+		int titleBarHeight = (int) REGISTRY
 				.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
 		boolean titleBarBorder = (boolean) REGISTRY
 				.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarBorder"));

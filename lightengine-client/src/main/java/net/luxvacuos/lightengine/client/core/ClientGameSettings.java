@@ -63,9 +63,9 @@ public final class ClientGameSettings extends AbstractGameSettings {
 		REGISTRY.register(new Key("/Light Engine/Settings/Graphics/pipeline", true), 				"MultiPass");
 		
 		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/invertButtons", true), 	false);
-		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/borderSize", true), 		4f);
-		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/titleBarHeight", true), 	29f);
-		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/scrollBarSize", true), 	16f);
+		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/borderSize", true), 		4);
+		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/titleBarHeight", true), 	29);
+		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/scrollBarSize", true), 	16);
 		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/titleBarBorder", true), 	true);
 		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/theme", true), 			"Nano");
 		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/compositor", true), 			true);

@@ -34,7 +34,7 @@ import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 
 public class MainWindow extends ComponentWindow {
 
-	public MainWindow(float x, float y, float w, float h) {
+	public MainWindow(int x, int y, int w, int h) {
 		super(x, y, w, h, LANG.getRegistryItem("lightengine.tools.mainwindow.name"));
 	}
 

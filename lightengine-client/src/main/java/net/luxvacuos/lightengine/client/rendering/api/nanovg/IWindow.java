@@ -51,7 +51,7 @@ public interface IWindow {
 	public void alwaysUpdate(float delta, IWindowManager nanoWindowManager);
 
 	public void dispose();
-	
+
 	public void closeWindow();
 
 	public boolean insideWindow();
@@ -84,7 +84,7 @@ public interface IWindow {
 
 	public void setMinHeight(int height);
 
-	public void extendFrame(float t, float b, float r, float l);
+	public void extendFrame(int t, int b, int r, int l);
 
 	public void toggleMinimize();
 
@@ -94,13 +94,13 @@ public interface IWindow {
 
 	public BackgroundStyle getBackgroundStyle();
 
-	public float getWidth();
+	public int getWidth();
 
-	public float getHeight();
+	public int getHeight();
 
-	public float getX();
+	public int getX();
 
-	public float getY();
+	public int getY();
 
 	public String getTitle();
 

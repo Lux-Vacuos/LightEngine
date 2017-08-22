@@ -44,11 +44,11 @@ public class TitleBar implements ITitleBar {
 	public TitleBar(IWindow window) {
 		this.window = window;
 		left = new RootComponent(this.window.getX(), this.window.getY(), this.window.getWidth(),
-				(float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight")));
+				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight")));
 		right = new RootComponent(this.window.getX(), this.window.getY(), this.window.getWidth(),
-				(float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight")));
+				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight")));
 		center = new RootComponent(this.window.getX(), this.window.getY(), this.window.getWidth(),
-				(float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight")));
+				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight")));
 	}
 
 	public void init(Window window) {
@@ -154,7 +154,7 @@ public class TitleBar implements ITitleBar {
 	@Override
 	public void alwaysUpdate(float delta, Window window) {
 		if (enabled) {
-			float titleBarHeight = (float) REGISTRY
+			int titleBarHeight = (int) REGISTRY
 					.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
 			left.alwaysUpdate(delta, this.window.getX(), this.window.getY() + titleBarHeight, this.window.getWidth(),
 					titleBarHeight);
@@ -187,7 +187,7 @@ public class TitleBar implements ITitleBar {
 
 	private boolean canDrag(IWindow iWindow, MouseHandler mh) {
 		return mh.getX() > iWindow.getX() + left.getFinalW() && mh.getY() < iWindow.getY()
-				+ (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"))
+				+ (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"))
 				&& mh.getX() < iWindow.getX() + iWindow.getWidth() + right.getFinalW() && mh.getY() > iWindow.getY();
 	}
 

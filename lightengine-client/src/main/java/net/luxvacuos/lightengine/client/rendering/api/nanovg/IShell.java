@@ -26,4 +26,6 @@ public interface IShell extends IWindow {
 
 	public boolean isEnabled();
 	
+	public IWindow getNotificationsWindow();
+	
 }

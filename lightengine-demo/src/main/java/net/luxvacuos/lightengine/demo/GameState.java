@@ -131,14 +131,14 @@ public class GameState extends AbstractState {
 			if (kbh.isKeyPressed(GLFW.GLFW_KEY_ESCAPE)) {
 				kbh.ignoreKeyUntilRelease(GLFW.GLFW_KEY_ESCAPE);
 				paused = true;
-				float borderSize = (float) REGISTRY
+				int borderSize = (int) REGISTRY
 						.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/borderSize"));
-				float titleBarHeight = (float) REGISTRY
+				int titleBarHeight = (int) REGISTRY
 						.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
 				int height = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
 				pauseWindow = new PauseWindow(borderSize + 10, height - titleBarHeight - 10,
-						(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")) - borderSize * 2f - 20,
-						height - titleBarHeight - borderSize - 50);
+						(int) ((int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")) - borderSize * 2f - 20),
+						(int)(height - titleBarHeight - borderSize - 50));
 				GraphicalSubsystem.getWindowManager().addWindow(pauseWindow);
 				GraphicalSubsystem.getWindowManager().toggleShell();
 			}

@@ -111,12 +111,11 @@ public class GraphicalSubsystem implements ISubsystem {
 		poppinsBold = loader.loadNVGFont("Poppins-Bold", "Poppins-Bold");
 		poppinsSemiBold = loader.loadNVGFont("Poppins-SemiBold", "Poppins-SemiBold");
 		entypo = loader.loadNVGFont("Entypo", "Entypo", 40);
-		TaskManager.addTask(() -> ShaderIncludes.processIncludeFile("common.isl"));
-		TaskManager.addTask(() -> ShaderIncludes.processIncludeFile("lighting.isl"));
-		TaskManager.addTask(() -> ShaderIncludes.processIncludeFile("materials.isl"));
+		TaskManager.addTaskAsync(() -> ShaderIncludes.processIncludeFile("common.isl"));
+		TaskManager.addTaskAsync(() -> ShaderIncludes.processIncludeFile("lighting.isl"));
+		TaskManager.addTaskAsync(() -> ShaderIncludes.processIncludeFile("materials.isl"));
 		TaskManager.addTask(() -> DefaultData.init(loader));
 		TaskManager.addTask(() -> ParticleDomain.init());
-		TaskManager.addTask(() -> Renderer.init(window));
 		StateMachine.registerState(new SplashScreenState());
 		REGISTRY.register(new Key("/Light Engine/System/lwjgl"), Version.getVersion());
 		REGISTRY.register(new Key("/Light Engine/System/glfw"), GLFW.glfwGetVersionString());
@@ -128,10 +127,6 @@ public class GraphicalSubsystem implements ISubsystem {
 				aiGetVersionMajor() + "." + aiGetVersionMinor() + "." + aiGetVersionRevision());
 		REGISTRY.register(new Key("/Light Engine/System/vk"), "Not Available");
 		window.setVisible(true);
-		for (int x = 0; x < 16; x++) {
-			window.updateDisplay((int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/fps")));
-			WindowManager.update();
-		}
 	}
 
 	@Override

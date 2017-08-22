@@ -20,20 +20,23 @@
 
 package net.luxvacuos.lightengine.client.ui.windows;
 
+import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_CENTER;
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_MIDDLE;
 
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.Box;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.Text;
 import net.luxvacuos.lightengine.client.ui.TextArea;
+import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class CrashWindow extends ComponentWindow {
 
 	private Throwable t;
 
-	public CrashWindow(float x, float y, float w, float h, Throwable t) {
+	public CrashWindow(int x, int y, int w, int h, Throwable t) {
 		super(x, y, w, h, "BSOD");
 		this.t = t;
 	}
@@ -81,6 +84,16 @@ public class CrashWindow extends ComponentWindow {
 		super.addComponent(error);
 		super.addComponent(errorMessage);
 		super.initApp();
+	}
+
+	@Override
+	public void processWindowMessage(int message, Object param) {
+		if (message == WindowMessage.WM_RESIZE) {
+			y = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
+			w = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
+			h = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
+		}
+		super.processWindowMessage(message, param);
 	}
 
 	public String stackTraceToString(Throwable e) {

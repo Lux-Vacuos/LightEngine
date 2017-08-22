@@ -32,24 +32,24 @@ import net.luxvacuos.lightengine.client.input.KeyboardHandler;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.IShell;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.IWindow;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.WindowMessage;
-import net.luxvacuos.lightengine.client.ui.Button;
-import net.luxvacuos.lightengine.client.ui.Component;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.Container;
 import net.luxvacuos.lightengine.client.ui.Direction;
 import net.luxvacuos.lightengine.client.ui.FlowLayout;
+import net.luxvacuos.lightengine.client.ui.WindowButton;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class Shell extends ComponentWindow implements IShell {
 
-	private Map<Integer, Component> buttons;
+	private Map<Integer, WindowButton> buttons;
 	private Container apps;
 	private boolean enabled = true;
 	private boolean fadeIn, fadeOut;
+	private IWindow notificationsWindow;
 
-	public Shell(float x, float y, float w, float h) {
+	public Shell(int x, int y, int w, int h) {
 		super(x, y, w, h, "Shell");
 		CoreSubsystem.REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/shellHeight"), y);
 	}
@@ -62,7 +62,7 @@ public class Shell extends ComponentWindow implements IShell {
 		super.setLayout(new FlowLayout(Direction.RIGHT, 0, 0));
 		super.setAsBackground(true);
 		Container left = new Container(0, 0, 82, h);
-		Button btn = new Button(0, 0, 80, h, "Start");
+		WindowButton btn = new WindowButton(0, 0, 80, h, "Start");
 		// btn.setColor("#00000000");
 		// btn.setHighlightColor("#FFFFFF64");
 		// btn.setTextColor("#FFFFFFFF");
@@ -74,7 +74,8 @@ public class Shell extends ComponentWindow implements IShell {
 		apps.setLayout(new FlowLayout(Direction.RIGHT, 0, 0));
 		super.addComponent(apps);
 		super.initApp();
-		GraphicalSubsystem.getWindowManager().addWindow(new NotificationsArea());
+		notificationsWindow = new NotificationsArea();
+		GraphicalSubsystem.getWindowManager().addWindow(notificationsWindow);
 	}
 
 	@Override
@@ -125,7 +126,7 @@ public class Shell extends ComponentWindow implements IShell {
 			window = (IWindow) param;
 			if (!(window.hasDecorations() && !window.isHidden()))
 				return;
-			Button btn = new Button(0, 0, 100, h, window.getTitle());
+			WindowButton btn = new WindowButton(0, 0, 100, h, window.getTitle());
 			btn.setOnButtonPress(() -> {
 				if (!GraphicalSubsystem.getWindowManager().isOnTop(window) && !window.isMinimized()) {
 					GraphicalSubsystem.getWindowManager().bringToFront(window);
@@ -142,6 +143,10 @@ public class Shell extends ComponentWindow implements IShell {
 			window = (IWindow) param;
 			if (!(window.hasDecorations() && !window.isHidden()) || !buttons.containsKey(window.hashCode()))
 				return;
+			for (WindowButton btn1 : buttons.values()) {
+				btn1.setActive(false);
+			}
+			buttons.get(window.hashCode()).setActive(true);
 			break;
 		case WindowMessage.WM_RESIZE:
 			w = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
@@ -167,6 +172,11 @@ public class Shell extends ComponentWindow implements IShell {
 	@Override
 	public boolean isEnabled() {
 		return enabled;
+	}
+
+	@Override
+	public IWindow getNotificationsWindow() {
+		return notificationsWindow;
 	}
 
 }

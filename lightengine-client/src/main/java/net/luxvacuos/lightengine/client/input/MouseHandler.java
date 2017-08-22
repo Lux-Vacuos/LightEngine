@@ -77,6 +77,20 @@ public class MouseHandler {
 		else
 			return -1;
 	}
+	
+	public int getXI() {
+		if (this.isInside())
+			return (int) this.posCallback.getX();
+		else
+			return -1;
+	}
+	
+	public int getYI() {
+		if (this.isInside())
+			return (int) (window.getHeight() - this.posCallback.getY());
+		else
+			return -1;
+	}
 
 	public float getDX() {
 		return (float) this.posCallback.getDX();

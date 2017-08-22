@@ -44,7 +44,7 @@ public class Console extends ComponentWindow {
 	private String textBuffer = "";
 	private Interceptor inter = new Interceptor();
 
-	public Console(float x, float y, float w, float h) {
+	public Console(int x, int y, int w, int h) {
 		super(x, y, w, h, "Console");
 	}
 

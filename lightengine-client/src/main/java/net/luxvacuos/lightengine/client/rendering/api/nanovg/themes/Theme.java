@@ -52,15 +52,15 @@ public class Theme {
 	public static final NVGColor colorA = NVGColor.create();
 	public static final NVGColor colorB = NVGColor.create();
 	public static final NVGColor colorC = NVGColor.create();
-	
+
 	public static final boolean DEBUG = false;
 	public static final float DEBUG_STROKE = 2;
-	
+
 	public static final NVGColor debugA = setColor(1, 0, 0, 1);
 	public static final NVGColor debugB = setColor(0, 1, 0, 1);
 	public static final NVGColor debugC = setColor(0, 0, 1, 1);
 	public static final NVGColor debugE = setColor(1, 1, 1, 1);
-	
+
 	public enum ButtonStyle {
 		CLOSE, MAXIMIZE, MINIMIZE, NONE, LEFT_ARROW, RIGHT_ARROW
 	};
@@ -109,9 +109,9 @@ public class Theme {
 		return setColor(hex, NVGColor.create());
 	}
 
-	public static void renderWindow(long vg, float x, float y, float w, float h, BackgroundStyle backgroundStyle,
-			NVGColor backgroundColor, boolean decorations, boolean titleBar, boolean maximized, float ft, float fb,
-			float fr, float fl) {
+	public static void renderWindow(long vg, int x, int y, int w, int h, BackgroundStyle backgroundStyle,
+			NVGColor backgroundColor, boolean decorations, boolean titleBar, boolean maximized, int ft, int fb, int fr,
+			int fl) {
 		theme.renderWindow(vg, x, y, w, h, backgroundStyle, backgroundColor, decorations, titleBar, maximized, ft, fb,
 				fr, fl);
 

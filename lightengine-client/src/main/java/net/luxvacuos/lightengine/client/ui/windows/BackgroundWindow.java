@@ -41,7 +41,7 @@ public class BackgroundWindow extends ComponentWindow {
 
 	private float time1, time2, time3, time4, time5;
 
-	public BackgroundWindow(float x, float y, float w, float h) {
+	public BackgroundWindow(int x, int y, int w, int h) {
 		super(x, y, w, h, "background");
 	}
 

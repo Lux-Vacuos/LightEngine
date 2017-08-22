@@ -18,24 +18,30 @@
  * 
  */
 
-package net.luxvacuos.lightengine.tools.ui;
+package net.luxvacuos.lightengine.client.ui;
 
-import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.LANG;
+import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 
-import net.luxvacuos.lightengine.client.ui.ComponentWindow;
+public class WindowButton extends Button {
 
-public class EntityEditorWindow extends ComponentWindow {
+	private boolean active;
 
-	public EntityEditorWindow(int x, int y, int w, int h) {
-		super(x, y, w, h, LANG.getRegistryItem("lightengine.tools.entityeditor.name"));
+	public WindowButton(float x, float y, float w, float h, String text) {
+		super(x, y, w, h, text);
 	}
-	
+
 	@Override
-	public void initApp() {
-		super.setBackgroundColor(0.4f, 0.4f, 0.4f, 1f);
-		
-		super.setWindowClose(WindowClose.DO_NOTHING);
-		super.initApp();
+	public void render(Window window) {
+		super.render(window);
+		if (active)
+			Theme.renderBox(window.getNVGID(), rootComponent.rootX + alignedX,
+					window.getHeight() - rootComponent.rootY - alignedY - h, w, h,
+					Theme.setColor(1, 1, 1, 1, Theme.colorA), 0, 0, 0, 0);
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
 	}
 
 }

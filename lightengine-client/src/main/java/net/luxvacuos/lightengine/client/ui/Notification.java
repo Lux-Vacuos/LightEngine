@@ -18,24 +18,23 @@
  * 
  */
 
-package net.luxvacuos.lightengine.tools.ui;
+package net.luxvacuos.lightengine.client.ui;
 
-import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.LANG;
+public class Notification {
 
-import net.luxvacuos.lightengine.client.ui.ComponentWindow;
+	private String title, message;
 
-public class EntityEditorWindow extends ComponentWindow {
-
-	public EntityEditorWindow(int x, int y, int w, int h) {
-		super(x, y, w, h, LANG.getRegistryItem("lightengine.tools.entityeditor.name"));
+	public Notification(String title, String message) {
+		this.title = title;
+		this.message = message;
 	}
-	
-	@Override
-	public void initApp() {
-		super.setBackgroundColor(0.4f, 0.4f, 0.4f, 1f);
-		
-		super.setWindowClose(WindowClose.DO_NOTHING);
-		super.initApp();
+
+	public String getMessage() {
+		return message;
+	}
+
+	public String getTitle() {
+		return title;
 	}
 
 }

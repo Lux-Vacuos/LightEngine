@@ -34,7 +34,9 @@ import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.Container;
 import net.luxvacuos.lightengine.client.ui.Direction;
 import net.luxvacuos.lightengine.client.ui.FlowLayout;
+import net.luxvacuos.lightengine.client.ui.Notification;
 import net.luxvacuos.lightengine.client.ui.Text;
+import net.luxvacuos.lightengine.client.ui.TextArea;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class NotificationsArea extends ComponentWindow {
@@ -43,7 +45,7 @@ public class NotificationsArea extends ComponentWindow {
 		super((int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")) - 200,
 				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")), 200,
 				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"))
-						- (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/shellHeight")),
+						- (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/shellHeight")),
 				"");
 	}
 
@@ -61,7 +63,7 @@ public class NotificationsArea extends ComponentWindow {
 		super.removeComponent(cont);
 	}
 
-	public void addNotification() {
+	private void addNotification(Notification not) {
 		Container notification = new Container(0, 0, 0, 150);
 		notification.setResizeH(true);
 		notification.setWindowAlignment(Alignment.LEFT_TOP);
@@ -70,7 +72,7 @@ public class NotificationsArea extends ComponentWindow {
 		super.addComponent(notification);
 
 		GraphicalSubsystem.getWindowManager()
-				.addWindow(new ComponentWindow(x + 300, y + super.getFinalH(), 300, 150, "") {
+				.addWindow(new ComponentWindow((int) x + 300, (int) (y + super.getFinalH()), 300, 150, "") {
 
 					private float time;
 					private boolean fadeIn = true;
@@ -80,13 +82,17 @@ public class NotificationsArea extends ComponentWindow {
 					public void initApp() {
 						super.setDecorations(false);
 						super.setBackgroundColor("#1F1F1F78");
-						super.setLayout(new FlowLayout(Direction.DOWN, 5, 0));
 						super.setAlwaysOnTop(true);
-						Text title = new Text("Notification Test", 5, 0);
+						Text title = new Text(not.getTitle(), 5, 0);
 						title.setAlign(NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
 						title.setFontSize(32);
 						title.setWindowAlignment(Alignment.LEFT_TOP);
 						super.addComponent(title);
+						TextArea message = new TextArea(not.getMessage(), 5, -30, 300);
+						message.setAlign(NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
+						message.setWindowAlignment(Alignment.LEFT_TOP);
+						message.setFontSize(22);
+						super.addComponent(message);
 						super.initApp();
 					}
 
@@ -131,13 +137,13 @@ public class NotificationsArea extends ComponentWindow {
 	public void processWindowMessage(int message, Object param) {
 		switch (message) {
 		case WindowMessage.WM_SHELL_NOTIFICATION_ADD:
-			addNotification();
+			addNotification((Notification) param);
 			break;
 		case WindowMessage.WM_RESIZE:
 			x = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")) - 200;
 			y = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
 			h = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"))
-					- (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/shellHeight"));
+					- (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/shellHeight"));
 			w = 200;
 			break;
 		}

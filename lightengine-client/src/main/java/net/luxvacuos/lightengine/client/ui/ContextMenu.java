@@ -26,14 +26,14 @@ public class ContextMenu extends ComponentWindow {
 
 	private List<Component> buttons;
 
-	public ContextMenu(float w, float h) {
+	public ContextMenu(int w, int h) {
 		super(0, 0, w, h, "Panel");
 	}
 
 	@Override
 	public void initApp() {
-		super.x = window.getMouseHandler().getX() - 5;
-		super.y = window.getMouseHandler().getY() + 5;
+		super.x = (int) (window.getMouseHandler().getX() - 5);
+		super.y = (int) (window.getMouseHandler().getY() + 5);
 		super.toggleTitleBar();
 		super.setDecorations(false);
 		super.setBackgroundColor(0f, 0f, 0f, 0f);

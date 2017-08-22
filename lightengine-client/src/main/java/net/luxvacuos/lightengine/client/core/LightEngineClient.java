@@ -102,6 +102,7 @@ public class LightEngineClient extends AbstractEngine {
 			Sync sync = new Sync();
 			while (StateMachine.isRunning()) {
 				Timers.startCPUTimer();
+				TaskManager.updateAsync();
 				if (sync.timeCount > 1f) {
 					CoreSubsystem.ups = CoreSubsystem.upsCount;
 					CoreSubsystem.upsCount = 0;
@@ -136,7 +137,7 @@ public class LightEngineClient extends AbstractEngine {
 			Timers.stopGPUTimer();
 			Timers.update();
 			window.updateDisplay(fps);
-			if(window.isCloseRequested())
+			if (window.isCloseRequested())
 				StateMachine.stop();
 		}
 	}
@@ -150,9 +151,13 @@ public class LightEngineClient extends AbstractEngine {
 	@Override
 	public void handleError(Throwable e) {
 		CrashState.t = e;
+		StateMachine.dispose();
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e1) {
+		}
 		StateMachine.registerState(new CrashState());
-		if (!StateMachine.isRunning())
-			StateMachine.run();
+		StateMachine.run();
 		StateMachine.setCurrentState(StateNames.CRASH);
 		MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), false);
 		update();

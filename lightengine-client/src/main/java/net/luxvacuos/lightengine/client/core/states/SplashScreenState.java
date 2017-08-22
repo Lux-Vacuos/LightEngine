@@ -26,7 +26,6 @@ import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.Image;
-import net.luxvacuos.lightengine.client.ui.Spinner;
 import net.luxvacuos.lightengine.client.ui.windows.Shell;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
@@ -63,11 +62,7 @@ public class SplashScreenState extends AbstractState {
 		lv.setAlignment(Alignment.CENTER);
 		lv.setWindowAlignment(Alignment.CENTER);
 
-		Spinner spinner = new Spinner(0, -220, 20);
-		spinner.setWindowAlignment(Alignment.CENTER);
-
 		component.addComponent(lv);
-		component.addComponent(spinner);
 
 		GraphicalSubsystem.getWindowManager().addWindow(component);
 	}

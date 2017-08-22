@@ -93,12 +93,12 @@ public class NanoTheme implements ITheme {
 			contextButtonHighlight = Theme.setColor("#C8C8C8C8");
 
 	@Override
-	public void renderWindow(long vg, float x, float y, float w, float h, BackgroundStyle backgroundStyle,
-			NVGColor backgroundColor, boolean decorations, boolean titleBar, boolean maximized, float ft, float fb,
-			float fr, float fl) {
+	public void renderWindow(long vg, int x, int y, int w, int h, BackgroundStyle backgroundStyle,
+			NVGColor backgroundColor, boolean decorations, boolean titleBar, boolean maximized, int ft, int fb,
+			int fr, int fl) {
 		NVGPaint shadowPaint = paintA;
-		float borderSize = (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/borderSize"));
-		float titleBarHeight = (float) REGISTRY
+		int borderSize = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/borderSize"));
+		int titleBarHeight = (int) REGISTRY
 				.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
 		boolean titleBarBorder = (boolean) REGISTRY
 				.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarBorder"));
@@ -712,7 +712,7 @@ public class NanoTheme implements ITheme {
 
 	@Override
 	public void renderScrollBarV(long vg, float x, float y, float w, float h, float pos, float sizeV) {
-		float scrollBarSize = (float) REGISTRY
+		int scrollBarSize = (int) REGISTRY
 				.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/scrollBarSize"));
 
 		nvgSave(vg);

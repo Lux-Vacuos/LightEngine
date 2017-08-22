@@ -43,6 +43,7 @@ import java.util.List;
 
 import net.luxvacuos.igl.vector.Vector3d;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CachedAssets;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CubeMapTexture;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Texture;
@@ -61,8 +62,8 @@ public class WaterRenderer implements IDisposable {
 	public WaterRenderer(ResourceLoader loader) {
 		shader = new WaterShader();
 		setUpVAO(loader);
-		dudv = loader.loadTextureMisc("textures/waterDUDV.png");
-		foamMask = loader.loadTextureMisc("textures/foamMask.png");
+		dudv = CachedAssets.loadTextureMisc("textures/waterDUDV.png");
+		foamMask = CachedAssets.loadTextureMisc("textures/foamMask.png");
 	}
 
 	public void render(List<WaterTile> water, CameraEntity camera, CubeMapTexture reflection, int refraction, int depth,
