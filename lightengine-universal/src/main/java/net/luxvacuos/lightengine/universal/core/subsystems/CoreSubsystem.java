@@ -44,14 +44,18 @@ public class CoreSubsystem implements ISubsystem {
 		try {
 			Manifest manifest = new Manifest(getClass().getClassLoader().getResourceAsStream("META-INF/MANIFEST.MF"));
 			Attributes attr = manifest.getMainAttributes();
-			String t = attr.getValue("Specification-Version");
-			if (t != null)
-				GlobalVariables.version = t;
+			String ver = attr.getValue("LV-Version");
+			if (ver != null)
+				GlobalVariables.version = ver;
+			String verU = attr.getValue("LV-Version-Universal");
+			if (verU != null)
+				GlobalVariables.versionUniversal = verU;
 		} catch (IOException E) {
 			E.printStackTrace();
 		}
 		REGISTRY = new SystemRegistry();
-		REGISTRY.register(new Key("/Light Engine/Settings/file"), AbstractBootstrap.getPrefix() + "/config/registry.json");
+		REGISTRY.register(new Key("/Light Engine/Settings/file"),
+				AbstractBootstrap.getPrefix() + "/config/registry.json");
 		REGISTRY.register(new Key("/Light Engine/System/os"),
 				System.getProperty("os.name") + " " + System.getProperty("os.arch").toUpperCase());
 		LANG = new LanguageRegistry();
@@ -64,7 +68,7 @@ public class CoreSubsystem implements ISubsystem {
 	@Override
 	public void update(float delta) {
 	}
-	
+
 	@Override
 	public void render(float delta) {
 	}

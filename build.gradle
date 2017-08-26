@@ -5,6 +5,8 @@ subprojects {
 
 	sourceCompatibility = 1.8
 	
+	project.ext.globalVersion = "0.0.10"
+	
 	repositories {
 		mavenCentral()
 		maven { url "https://oss.sonatype.org/content/repositories/releases/" }

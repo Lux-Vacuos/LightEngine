@@ -8,15 +8,12 @@ sourceSets.main.resources.srcDirs = ["src/main/resources"]
 sourceSets.test.java.srcDirs = ["${projectDir}/src/test/java/"]
 
 jar {
-	version = "0.0.4-" + versioning.info.full
+	version = project.ext.globalVersion + "-" + versioning.info.branchId + "-" + 'git rev-list --count HEAD'.execute().text.trim()
 	manifest {
-        attributes (
-			"Specification-Title": "Lux Vacuos IGL",
-			"Specification-Version": version,
-			"Specification-Vendor": "Lux Vacuos",
+		attributes (
 			"Implementation-Title": "net.luxvacuos.igl",
-			"Implementation-Version": versioning.info.full,
+			"Implementation-Version": version,
 			"Implementation-Vendor": "Lux Vacuos"
-			)
-    }
+				)
+	}
 }

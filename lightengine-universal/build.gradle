@@ -13,16 +13,14 @@ sourceSets {
 }
 
 jar {
-	version = "0.0.10-" + versioning.info.full
+	version = project.ext.globalVersion + "-" + versioning.info.branchId + "-" + 'git rev-list --count HEAD'.execute().text.trim()
 	manifest {
 		attributes (
-				"Specification-Title": "Light Engine-Universal",
-				"Specification-Version": version,
-				"Specification-Vendor": "Lux Vacuos",
-				"Implementation-Title": "net.luxvacuos.lightengine.universal",
-				"Implementation-Version": versioning.info.full,
-				"Implementation-Vendor": "Lux Vacuos"
-				)
+			"Implementation-Title": "net.luxvacuos.lightengine.universal",
+			"Implementation-Version": version,
+			"Implementation-Vendor": "Lux Vacuos",
+			"LV-Version-Universal": version
+			)
 	}
 }
 
