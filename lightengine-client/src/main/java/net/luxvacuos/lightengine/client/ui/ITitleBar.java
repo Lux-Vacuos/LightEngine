@@ -28,7 +28,7 @@ public interface ITitleBar extends IDisposable {
 
 	public void init(Window window);
 
-	public void render();
+	public void render(Window window);
 
 	public void update(float delta, Window window);
 

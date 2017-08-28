@@ -21,6 +21,7 @@
 	"lightengine.optionswindow.wm.titlebarsize":"Title Bar size",
 	"lightengine.optionswindow.wm.titlebarborder":"Title Bar border",
 	"lightengine.optionswindow.wm.compositor":"Compositor",
+	"lightengine.optionswindow.wm.theme":"Theme",
 	"lightengine.optionswindow.graphics.shadowres":"Shadow Resolution",
 	"lightengine.optionswindow.graphics.shadowdis":"Shadow Distance"
 }

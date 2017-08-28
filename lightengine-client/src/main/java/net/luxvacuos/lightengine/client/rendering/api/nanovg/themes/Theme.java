@@ -32,7 +32,7 @@ public class Theme {
 
 	private static ITheme theme;
 
-	public static void setTheme(ITheme theme) {
+	static void setTheme(ITheme theme) {
 		Theme.theme = theme;
 	}
 

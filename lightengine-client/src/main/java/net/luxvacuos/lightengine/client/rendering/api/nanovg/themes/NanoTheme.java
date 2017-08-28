@@ -94,15 +94,14 @@ public class NanoTheme implements ITheme {
 
 	@Override
 	public void renderWindow(long vg, int x, int y, int w, int h, BackgroundStyle backgroundStyle,
-			NVGColor backgroundColor, boolean decorations, boolean titleBar, boolean maximized, int ft, int fb,
-			int fr, int fl) {
+			NVGColor backgroundColor, boolean decorations, boolean titleBar, boolean maximized, int ft, int fb, int fr,
+			int fl) {
 		NVGPaint shadowPaint = paintA;
 		int borderSize = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/borderSize"));
 		int titleBarHeight = (int) REGISTRY
 				.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
 		boolean titleBarBorder = (boolean) REGISTRY
 				.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarBorder"));
-
 		nvgSave(vg);
 		if (Theme.DEBUG)
 			nvgStrokeWidth(vg, Theme.DEBUG_STROKE);
@@ -222,7 +221,7 @@ public class NanoTheme implements ITheme {
 		nvgSave(vg);
 		nvgFontSize(vg, fontSize);
 		nvgFontFace(vg, font);
-		nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
+		nvgTextAlign(vg, align);
 
 		nvgFontBlur(vg, 4);
 		nvgFillColor(vg, Theme.rgba(0, 0, 0, 255, colorA));

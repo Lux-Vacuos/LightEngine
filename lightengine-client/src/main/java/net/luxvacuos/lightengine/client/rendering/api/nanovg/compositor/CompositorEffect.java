@@ -35,7 +35,6 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 
 import org.lwjgl.nanovg.NVGLUFramebuffer;
 
-import net.luxvacuos.igl.vector.Vector2f;
 import net.luxvacuos.igl.vector.Vector4f;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.IWindow;
@@ -52,10 +51,10 @@ public abstract class CompositorEffect implements IDisposable {
 
 	public CompositorEffect(int width, int height, String name) {
 		this.name = name;
-		shader = new WindowManagerShader(name);
+		/*shader = new WindowManagerShader(name);
 		shader.start();
 		shader.loadResolution(new Vector2f(width, height));
-		shader.stop();
+		shader.stop();*/
 	}
 
 	public void render(NVGLUFramebuffer[] fbos, RawModel quad, Window wnd, IWindow window) {
@@ -106,7 +105,7 @@ public abstract class CompositorEffect implements IDisposable {
 
 	@Override
 	public void dispose() {
-		shader.dispose();
+		//shader.dispose();
 	}
 
 }

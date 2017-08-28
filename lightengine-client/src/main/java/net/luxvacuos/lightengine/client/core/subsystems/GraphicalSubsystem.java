@@ -26,7 +26,7 @@ import static org.lwjgl.assimp.Assimp.aiGetVersionMinor;
 import static org.lwjgl.assimp.Assimp.aiGetVersionRevision;
 import static org.lwjgl.glfw.GLFW.glfwInit;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_RENDERER;
+import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11.GL_VENDOR;
 import static org.lwjgl.opengl.GL11.GL_VERSION;
 import static org.lwjgl.opengl.GL11.glGetString;
@@ -46,12 +46,9 @@ import net.luxvacuos.lightengine.client.rendering.api.glfw.WindowManager;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.IWindowManager;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.NanoWindowManager;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.Timers;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.ITheme;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.NanoTheme;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.ThemeManager;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.GLUtil;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.ParticleDomain;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CachedAssets;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.DefaultData;
@@ -67,7 +64,6 @@ import net.luxvacuos.lightengine.universal.util.registry.Key;
 public class GraphicalSubsystem implements ISubsystem {
 
 	private static IWindowManager windowManager;
-	private static ThemeManager themeManager;
 	private static Window window;
 
 	private Font robotoRegular, robotoBold, poppinsRegular, poppinsLight, poppinsMedium, poppinsBold, poppinsSemiBold,
@@ -93,13 +89,8 @@ public class GraphicalSubsystem implements ISubsystem {
 				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/vsync")));
 		window = WindowManager.getWindow(gameWindowID);
 		GLUtil.init();
-		themeManager = new ThemeManager();
-		themeManager.addTheme(new NanoTheme());
-		ITheme theme = themeManager
-				.getTheme((String) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/theme")));
-		if (theme == null)
-			theme = themeManager.getTheme("Nano");
-		Theme.setTheme(theme);
+		ThemeManager.addTheme(new NanoTheme());
+		ThemeManager.setTheme((String) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/theme")));
 
 		setWindowManager(new NanoWindowManager(window));
 
@@ -117,7 +108,6 @@ public class GraphicalSubsystem implements ISubsystem {
 		TaskManager.addTaskAsync(() -> ShaderIncludes.processIncludeFile("lighting.isl"));
 		TaskManager.addTaskAsync(() -> ShaderIncludes.processIncludeFile("materials.isl"));
 		TaskManager.addTask(() -> DefaultData.init(loader));
-		TaskManager.addTask(() -> ParticleDomain.init());
 		StateMachine.registerState(new SplashScreenState());
 		REGISTRY.register(new Key("/Light Engine/System/lwjgl"), Version.getVersion());
 		REGISTRY.register(new Key("/Light Engine/System/glfw"), GLFW.glfwGetVersionString());
@@ -150,9 +140,9 @@ public class GraphicalSubsystem implements ISubsystem {
 		}
 		CachedAssets.update(delta);
 		WindowManager.update();
-		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT);
-		Renderer.clearColors(0, 0, 0, 1);
-		GraphicalSubsystem.getWindowManager().render();
+		Renderer.clearColors(0.5f, 0.5f, 0.5f, 1);
+		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		GraphicalSubsystem.getWindowManager().render(delta);
 	}
 
 	@Override

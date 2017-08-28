@@ -23,11 +23,13 @@ package net.luxvacuos.lightengine.demo.ui;
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.LANG;
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme.ButtonStyle;
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.ThemeManager;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.Button;
@@ -339,6 +341,8 @@ public class OptionsWindow extends ComponentWindow {
 		titleBorderText.setWindowAlignment(Alignment.LEFT);
 		Text compositorText = new Text(LANG.getRegistryItem("lightengine.optionswindow.wm.compositor"), 20, 0);
 		compositorText.setWindowAlignment(Alignment.LEFT);
+		Text themeText = new Text(LANG.getRegistryItem("lightengine.optionswindow.wm.theme"), 20, 0);
+		themeText.setWindowAlignment(Alignment.LEFT);
 
 		Slider wmBorder = new Slider(-56, 0, 200, 20, border / 40f);
 		wmBorder.setPrecision(40f);
@@ -349,6 +353,13 @@ public class OptionsWindow extends ComponentWindow {
 		Slider wmTitle = new Slider(-56, 0, 200, 20, title / 40f);
 		wmTitle.setPrecision(40f);
 		wmTitle.useCustomPrecision(true);
+		ToggleButton titleBorderButton = new ToggleButton(-50, 0, 80, 30,
+				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarBorder")));
+		ToggleButton compositorButton = new ToggleButton(-50, 0, 80, 30,
+				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/compositor")));
+		DropDown<String> themeDropdown = new DropDown<String>(-50, 0, 180, 30,
+				(String) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/theme")),
+				new ArrayList<>(ThemeManager.getThemes().keySet()));
 
 		wmBorder.setAlignment(Alignment.RIGHT);
 		wmBorder.setWindowAlignment(Alignment.RIGHT);
@@ -356,6 +367,12 @@ public class OptionsWindow extends ComponentWindow {
 		wmScroll.setWindowAlignment(Alignment.RIGHT);
 		wmTitle.setAlignment(Alignment.RIGHT);
 		wmTitle.setWindowAlignment(Alignment.RIGHT);
+		titleBorderButton.setWindowAlignment(Alignment.RIGHT);
+		titleBorderButton.setAlignment(Alignment.RIGHT);
+		compositorButton.setWindowAlignment(Alignment.RIGHT);
+		compositorButton.setAlignment(Alignment.RIGHT);
+		themeDropdown.setWindowAlignment(Alignment.RIGHT);
+		themeDropdown.setAlignment(Alignment.RIGHT);
 
 		wmBorder.setOnPress(() -> {
 			int val = (int) (wmBorder.getPosition() * 40f);
@@ -372,12 +389,6 @@ public class OptionsWindow extends ComponentWindow {
 			REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"), val);
 			wmTitleText.setText(LANG.getRegistryItem("lightengine.optionswindow.wm.titlebarsize") + ": " + val);
 		});
-
-		ToggleButton titleBorderButton = new ToggleButton(-50, 0, 80, 30,
-				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarBorder")));
-		ToggleButton compositorButton = new ToggleButton(-50, 0, 80, 30,
-				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/compositor")));
-
 		titleBorderButton.setOnButtonPress(() -> REGISTRY.register(
 				new Key("/Light Engine/Settings/WindowManager/titleBarBorder"), titleBorderButton.getStatus()));
 		compositorButton.setOnButtonPress(() -> {
@@ -386,11 +397,10 @@ public class OptionsWindow extends ComponentWindow {
 			else
 				GraphicalSubsystem.getWindowManager().disableCompositor();
 		});
-
-		titleBorderButton.setWindowAlignment(Alignment.RIGHT);
-		titleBorderButton.setAlignment(Alignment.RIGHT);
-		compositorButton.setWindowAlignment(Alignment.RIGHT);
-		compositorButton.setAlignment(Alignment.RIGHT);
+		themeDropdown.setOnButtonPress(() -> {
+			REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/theme"), themeDropdown.getValue());
+			ThemeManager.setTheme(themeDropdown.getValue());
+		});
 
 		ScrollArea area = new ScrollArea(0, 0, w, h, 0, 0);
 		area.setLayout(new FlowLayout(Direction.DOWN, 10, 10));
@@ -410,6 +420,9 @@ public class OptionsWindow extends ComponentWindow {
 		Container compositor = new Container(0, 0, w, 30);
 		compositor.setWindowAlignment(Alignment.LEFT_TOP);
 		compositor.setAlignment(Alignment.RIGHT_BOTTOM);
+		Container theme = new Container(0, 0, w, 30);
+		theme.setWindowAlignment(Alignment.LEFT_TOP);
+		theme.setAlignment(Alignment.RIGHT_BOTTOM);
 
 		borderC.addComponent(wmBorderText);
 		borderC.addComponent(wmBorder);
@@ -421,18 +434,22 @@ public class OptionsWindow extends ComponentWindow {
 		titleBorder.addComponent(titleBorderText);
 		compositor.addComponent(compositorButton);
 		compositor.addComponent(compositorText);
+		theme.addComponent(themeDropdown);
+		theme.addComponent(themeText);
 
 		borderC.setResizeH(true);
 		scrollC.setResizeH(true);
 		titleC.setResizeH(true);
 		titleBorder.setResizeH(true);
 		compositor.setResizeH(true);
+		theme.setResizeH(true);
 
 		area.addComponent(borderC);
 		area.addComponent(scrollC);
 		area.addComponent(titleC);
 		area.addComponent(titleBorder);
 		area.addComponent(compositor);
+		area.addComponent(theme);
 
 		super.addComponent(area);
 
@@ -443,8 +460,9 @@ public class OptionsWindow extends ComponentWindow {
 	public void processWindowMessage(int message, Object param) {
 		if (message == WindowMessage.WM_CLOSE) {
 			CoreSubsystem.REGISTRY.save();
-			GraphicalSubsystem.getWindowManager().getShell().getNotificationsWindow()
-					.notifyWindow(WindowMessage.WM_SHELL_NOTIFICATION_ADD, new Notification("Settings Saved", "Settings has been saved correctly."));
+			GraphicalSubsystem.getWindowManager().getShell().getNotificationsWindow().notifyWindow(
+					WindowMessage.WM_SHELL_NOTIFICATION_ADD,
+					new Notification("Settings Saved", "Settings has been saved correctly."));
 		}
 		super.processWindowMessage(message, param);
 	}

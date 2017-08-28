@@ -34,10 +34,6 @@ public class WindowButton extends Button {
 	@Override
 	public void render(Window window) {
 		super.render(window);
-		if (active)
-			Theme.renderBox(window.getNVGID(), rootComponent.rootX + alignedX,
-					window.getHeight() - rootComponent.rootY - alignedY - h, w, h,
-					Theme.setColor(1, 1, 1, 1, Theme.colorA), 0, 0, 0, 0);
 	}
 
 	public void setActive(boolean active) {

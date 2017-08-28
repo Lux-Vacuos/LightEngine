@@ -23,6 +23,8 @@ package net.luxvacuos.lightengine.client.rendering.api.nanovg;
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_CENTER;
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_MIDDLE;
+import static org.lwjgl.nanovg.NanoVG.nvgBeginFrame;
+import static org.lwjgl.nanovg.NanoVG.nvgEndFrame;
 import static org.lwjgl.nanovg.NanoVG.nvgRestore;
 import static org.lwjgl.nanovg.NanoVG.nvgSave;
 import static org.lwjgl.nanovg.NanoVG.nvgScissor;
@@ -30,6 +32,7 @@ import static org.lwjgl.nanovg.NanoVGGL3.nvgluBindFramebuffer;
 import static org.lwjgl.nanovg.NanoVGGL3.nvgluCreateFramebuffer;
 import static org.lwjgl.nanovg.NanoVGGL3.nvgluDeleteFramebuffer;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.glViewport;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -57,34 +60,29 @@ import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public abstract class NanoWindow implements IWindow {
 
-	private static final float MAX_ANIM_SPEED = 4000;
-	private static final float MIN_ANIM_SPEED = 4000;
-
-	private boolean draggable = true, decorations = true, resizable = true, maximized, hidden, exit, toggleExit,
-			alwaysOnTop, background, blurBehind = true, minimized, closeButton = true, fadeOut, fadeIn, maxFadeIn,
-			maxFadeOut;
+	private boolean draggable = true, decorations = true, resizable = true, maximized, hidden, exit, alwaysOnTop,
+			background, blurBehind = true, minimized, closeButton = true;
 	private boolean resizingRight, resizingRightBottom, resizingBottom, resizingTop, resizingLeft;
 	private int ft, fb, fr, fl;
 	private BackgroundStyle backgroundStyle = BackgroundStyle.SOLID;
 	private NVGColor backgroundColor = Theme.rgba(0, 0, 0, 255);
 	protected int x, y, w, h, minW = 300, minH = 300;
+	protected int lfx, lfy, fx, fy, fh, fw;
 	private int oldX, oldY, oldW, oldH;
 	private WindowClose windowClose = WindowClose.DISPOSE;
 	private ITitleBar titleBar;
 	private NVGLUFramebuffer fbo;
 	private String title;
 	private int reY, reX;
-	private int oldMinY;
 
 	private Queue<WindowMessage> messageQueue = new ConcurrentLinkedQueue<>();
 
-	private boolean compositor = true;
+	protected boolean compositor = true;
 	protected Window window;
 
 	public NanoWindow(int x, int y, int w, int h, String title) {
 		this.x = x;
 		this.y = y;
-		oldMinY = y;
 		this.w = w;
 		this.h = h;
 		this.title = title;
@@ -97,9 +95,10 @@ public abstract class NanoWindow implements IWindow {
 		titleBar.init(window);
 		initApp();
 		compositor = (boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/compositor"));
-		if (compositor)
-			fbo = nvgluCreateFramebuffer(wind.getNVGID(), (int) (wind.getWidth() * wind.getPixelRatio()),
-					(int) (wind.getHeight() * wind.getPixelRatio()), 0);
+		if (compositor) {
+			updateRenderSize();
+			fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
+		}
 		titleBar.getLeft().setLayout(new FlowLayout(Direction.RIGHT, 1, 0));
 		titleBar.getRight().setLayout(new FlowLayout(Direction.LEFT, 1, 0));
 		TitleBarButton closeBtn = new TitleBarButton(0, 0, 28, 28);
@@ -143,10 +142,6 @@ public abstract class NanoWindow implements IWindow {
 				this.y += window.getMouseHandler().getDY();
 			}
 		});
-		if (decorations) {
-			fadeIn = true;
-			y = -(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
-		}
 	}
 
 	@Override
@@ -154,28 +149,37 @@ public abstract class NanoWindow implements IWindow {
 		if (!hidden && !minimized) {
 			if (compositor) {
 				nvgluBindFramebuffer(window.getNVGID(), fbo);
+				glViewport(0, 0, fw, fh);
+				Renderer.clearColors(0, 0, 0, 1);
 				Renderer.clearBuffer(GL_COLOR_BUFFER_BIT);
-				Renderer.clearColors(0, 0, 0, 0);
-				window.beingNVGFrame();
-			}
-			nvgSave(window.getNVGID());
-			Theme.renderWindow(window.getNVGID(), x, window.getHeight() - y, w, h, backgroundStyle, backgroundColor,
-					decorations, titleBar.isEnabled(), maximized, ft, fb, fr, fl);
-			if (decorations)
-				titleBar.render();
-			nvgScissor(window.getNVGID(), x, window.getHeight() - y, w, h);
-			renderApp();
-			nvgRestore(window.getNVGID());
-			if (compositor) {
-				window.endNVGFrame();
+				nvgBeginFrame(window.getNVGID(), fw, fh, 1);
+				nvgSave(window.getNVGID());
+				Theme.renderWindow(window.getNVGID(), lfx, lfy, w, h, backgroundStyle, backgroundColor, decorations,
+						titleBar.isEnabled(), maximized, ft, fb, fr, fl);
+				if (decorations)
+					titleBar.render(window);
+				nvgScissor(window.getNVGID(), lfx, lfy, w, h);
+				renderApp();
+				nvgRestore(window.getNVGID());
+				nvgEndFrame(window.getNVGID());
 				nvgluBindFramebuffer(window.getNVGID(), null);
+				window.resetViewport();
+			} else {
+				nvgSave(window.getNVGID());
+				Theme.renderWindow(window.getNVGID(), x, window.getHeight() - y, w, h, backgroundStyle, backgroundColor,
+						decorations, titleBar.isEnabled(), maximized, ft, fb, fr, fl);
+				if (decorations)
+					titleBar.render(window);
+				nvgScissor(window.getNVGID(), x, window.getHeight() - y, w, h);
+				renderApp();
+				nvgRestore(window.getNVGID());
 			}
 		}
 	}
 
 	@Override
 	public void update(float delta, IWindowManager nanoWindowManager) {
-		if (decorations && !hidden && !minimized && !fadeIn && !fadeOut && !maxFadeIn && !maxFadeOut) {
+		if (decorations && !hidden && !minimized) {
 			if (!isResizing() && !minimized)
 				titleBar.update(delta, window);
 			int borderSize = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/borderSize"));
@@ -221,105 +225,13 @@ public abstract class NanoWindow implements IWindow {
 				}
 			}
 		}
-		if (!isResizing() && !minimized && !titleBar.isDragging() && !fadeIn && !fadeOut && !maxFadeIn && !maxFadeOut)
+		if (!isResizing() && !minimized && !titleBar.isDragging())
 			updateApp(delta);
 	}
 
 	@Override
 	public void alwaysUpdate(float delta, IWindowManager nanoWindowManager) {
-		if (fadeOut) {
-			y -= MIN_ANIM_SPEED * delta;
-			if (y < -(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"))) {
-				fadeOut = false;
-				minimized = true;
-				if (toggleExit)
-					exit = true;
-			}
-		}
-		if (fadeIn) {
-			minimized = false;
-			y += MIN_ANIM_SPEED * delta;
-			if (y >= oldMinY) {
-				y = oldMinY;
-				fadeIn = false;
-				if (maximized) {
-					int height = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
-					this.x = 0;
-					this.y = height - (int) REGISTRY
-							.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
-					this.w = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
-					this.h = height
-							- (int) REGISTRY
-									.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"))
-							- (int) REGISTRY
-									.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/shellHeight"));
-				}
-			}
-		}
-		if (maxFadeIn) {
-			int height = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
-			int width = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
-			int titlebarHeight = (int) REGISTRY
-					.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
-			int shellHeight = (int) REGISTRY
-					.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/shellHeight"));
-			boolean ready = true;
-			x -= MAX_ANIM_SPEED * delta;
-			if (x <= 0)
-				x = 0;
-			else
-				ready = false;
-
-			y += MAX_ANIM_SPEED * delta;
-			if (y >= height - titlebarHeight)
-				y = height - titlebarHeight;
-			else
-				ready = false;
-
-			w += MAX_ANIM_SPEED * delta;
-			if (w >= width)
-				w = width;
-			else
-				ready = false;
-			h += MAX_ANIM_SPEED * delta;
-			if (h >= height - titlebarHeight - shellHeight)
-				h = height - titlebarHeight - shellHeight;
-			else
-				ready = false;
-			if (ready) {
-				maxFadeIn = false;
-				maximized = true;
-			}
-		}
-		if (maxFadeOut) {
-			maximized = false;
-			boolean ready = true;
-			x += MAX_ANIM_SPEED * delta;
-			if (x >= oldX)
-				x = oldX;
-			else
-				ready = false;
-
-			y -= MAX_ANIM_SPEED * delta;
-			if (y <= oldY)
-				y = oldY;
-			else
-				ready = false;
-
-			w -= MAX_ANIM_SPEED * delta;
-			if (w <= oldW)
-				w = oldW;
-			else
-				ready = false;
-			h -= MAX_ANIM_SPEED * delta;
-			if (h <= oldH)
-				h = oldH;
-			else
-				ready = false;
-			if (ready) {
-				maxFadeOut = false;
-			}
-		}
+		updateRenderSize();
 		titleBar.alwaysUpdate(delta, window);
 		while (!messageQueue.isEmpty()) {
 			WindowMessage ms = messageQueue.poll();
@@ -347,12 +259,7 @@ public abstract class NanoWindow implements IWindow {
 			WindowClose wc = (WindowClose) param;
 			switch (wc) {
 			case DISPOSE:
-				if (decorations) {
-					fadeOut = true;
-					toggleExit = true;
-				} else {
-					exit = true;
-				}
+				exit = true;
 				break;
 			case DO_NOTHING:
 				break;
@@ -360,30 +267,46 @@ public abstract class NanoWindow implements IWindow {
 			break;
 		case WindowMessage.WM_MAXIMIZE:
 			if (resizable && !maximized) {
-				maxFadeIn = true;
-				maxFadeOut = false;
+				maximized = true;
+				int height = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
 				oldX = this.x;
 				oldY = this.y;
 				oldW = this.w;
 				oldH = this.h;
+				this.x = 0;
+				this.y = height - (int) REGISTRY
+						.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
+				this.w = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
+				this.h = height
+						- (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"))
+						- (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/shellHeight"));
+				updateRenderSize();
+				TaskManager.addTask(() -> {
+					nvgluDeleteFramebuffer(window.getNVGID(), fbo);
+					fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
+				});
 			}
 			break;
 		case WindowMessage.WM_RESTORE:
 			if (resizable && maximized && !minimized) {
-				maxFadeIn = false;
-				maxFadeOut = true;
+				maximized = false;
+				this.x = oldX;
+				this.y = oldY;
+				this.w = oldW;
+				this.h = oldH;
+				updateRenderSize();
+				TaskManager.addTask(() -> {
+					nvgluDeleteFramebuffer(window.getNVGID(), fbo);
+					fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
+				});
 			}
 			if (minimized) {
-				fadeIn = true;
-				fadeOut = false;
+				minimized = false;
 			}
 			break;
 		case WindowMessage.WM_MINIMIZE:
 			if (!minimized) {
-				fadeOut = true;
-				if (!fadeIn)
-					oldMinY = y;
-				fadeIn = false;
+				minimized = true;
 			}
 			break;
 		case WindowMessage.WM_COMPOSITOR_DISABLED:
@@ -395,17 +318,13 @@ public abstract class NanoWindow implements IWindow {
 			break;
 		case WindowMessage.WM_COMPOSITOR_ENABLED:
 			compositor = true;
-			TaskManager.addTask(() -> fbo = nvgluCreateFramebuffer(window.getNVGID(),
-					(int) (window.getWidth() * window.getPixelRatio()),
-					(int) (window.getHeight() * window.getPixelRatio()), 0));
+			TaskManager.addTask(() -> fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0));
 			break;
 		case WindowMessage.WM_COMPOSITOR_RELOAD:
 			if (compositor) {
 				TaskManager.addTask(() -> {
-					if (fbo != null)
-						nvgluDeleteFramebuffer(window.getNVGID(), fbo);
-					fbo = nvgluCreateFramebuffer(window.getNVGID(), (int) (window.getWidth() * window.getPixelRatio()),
-							(int) (window.getHeight() * window.getPixelRatio()), 0);
+					nvgluDeleteFramebuffer(window.getNVGID(), fbo);
+					fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
 				});
 			}
 			break;
@@ -591,6 +510,72 @@ public abstract class NanoWindow implements IWindow {
 		return y;
 	}
 
+	public void updateRenderSize() {
+		int borderSize = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/borderSize"));
+		int titleBarHeight = (int) REGISTRY
+				.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
+		boolean titleBarBorder = (boolean) REGISTRY
+				.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarBorder"));
+		if (titleBar.isEnabled() && decorations && !maximized)
+			if (titleBarBorder) {
+				lfx = borderSize;
+				lfy = titleBarHeight + borderSize;
+				fx = x - borderSize;
+				fy = y + titleBarHeight + borderSize;
+				fw = (int) (w + borderSize * 2f);
+				fh = (int) (h + titleBarHeight + borderSize * 2f);
+			} else {
+				lfx = borderSize;
+				lfy = titleBarHeight;
+				fx = x - borderSize;
+				fy = y + titleBarHeight;
+				fw = (int) (w + borderSize * 2f);
+				fh = h + titleBarHeight + borderSize;
+			}
+		else if (!decorations) {
+			lfx = 0;
+			lfy = 0;
+			fx = x;
+			fy = y;
+			fw = w;
+			fh = h;
+		} else if (maximized) {
+			lfx = 0;
+			lfy = titleBarHeight;
+			fx = x;
+			fy = y + titleBarHeight;
+			fw = w;
+			fh = h + titleBarHeight;
+		} else {
+			lfx = borderSize;
+			lfy = borderSize;
+			fx = x + borderSize;
+			fy = y + borderSize;
+			fw = (int) (w + borderSize * 2f);
+			fh = (int) (h + borderSize * 2f);
+		}
+	}
+
+	@Override
+	public int getFX() {
+		return fx;
+	}
+
+	@Override
+	public int getFY() {
+		return fy;
+	}
+
+	@Override
+	public int getFH() {
+		return fh;
+	}
+
+	@Override
+	public int getFW() {
+		return fw;
+	}
+
 	@Override
 	public String getTitle() {
 		return title;
@@ -673,6 +658,11 @@ public abstract class NanoWindow implements IWindow {
 	@Override
 	public boolean isMaximized() {
 		return maximized;
+	}
+
+	@Override
+	public boolean isCompositor() {
+		return compositor;
 	}
 
 	@Override

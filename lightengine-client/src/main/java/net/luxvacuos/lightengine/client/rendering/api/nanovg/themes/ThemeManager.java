@@ -20,28 +20,28 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.nanovg.themes;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ThemeManager {
 
-	private Map<String, ITheme> themes;
+	private static Map<String, ITheme> themes = new HashMap<>();
 
-	public ThemeManager() {
-		themes = new HashMap<>();
+	private ThemeManager() {
 	}
 
-	public void addTheme(ITheme theme) {
+	public static void addTheme(ITheme theme) {
 		themes.put(theme.getName(), theme);
 	}
 
-	public ITheme getTheme(String name) {
-		return themes.get(name);
+	public static void setTheme(String name) {
+		ITheme theme = themes.get(name);
+		if (theme != null)
+			Theme.setTheme(theme);
 	}
-	
-	public Collection<ITheme> getThemes(){
-		return themes.values();
+
+	public static Map<String, ITheme> getThemes() {
+		return themes;
 	}
 
 }

@@ -71,6 +71,24 @@ public class RootComponent {
 		nvgRestore(vg);
 	}
 
+	public void render(float x, float y, float w, float h) {
+		long vg = window.getNVGID();
+		nvgSave(vg);
+		nvgTranslate(vg, -x, -y);
+		nvgIntersectScissor(vg, root.rootX, window.getHeight() - root.rootY - root.rootH, root.rootW, root.rootH);
+		if (Theme.DEBUG) {
+			nvgBeginPath(vg);
+			nvgRect(vg, root.rootX, window.getHeight() - root.rootY - root.rootH, root.rootW, root.rootH);
+			nvgStrokeWidth(vg, Theme.DEBUG_STROKE);
+			nvgStrokeColor(vg, Theme.debugE);
+			nvgStroke(vg);
+		}
+		for (Component component : components) {
+			component.render(window);
+		}
+		nvgRestore(vg);
+	}
+
 	public void update(float delta) {
 		for (Component component : components) {
 			component.update(delta, window);

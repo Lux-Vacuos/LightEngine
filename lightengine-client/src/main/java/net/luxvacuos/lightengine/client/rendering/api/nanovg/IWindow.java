@@ -101,6 +101,14 @@ public interface IWindow {
 	public int getX();
 
 	public int getY();
+	
+	public int getFX();
+	
+	public int getFY();
+
+	public int getFH();
+	
+	public int getFW();
 
 	public String getTitle();
 
@@ -123,6 +131,8 @@ public interface IWindow {
 	public boolean isHidden();
 
 	public boolean isMaximized();
+	
+	public boolean isCompositor();
 
 	public ITitleBar getTitleBar();
 

@@ -24,7 +24,7 @@ import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
 public interface IWindowManager extends IDisposable {
 
-	public void render();
+	public void render(float delta);
 
 	public void update(float delta);
 

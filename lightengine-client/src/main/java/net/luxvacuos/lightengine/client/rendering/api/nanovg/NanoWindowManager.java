@@ -24,7 +24,11 @@ import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_LEFT;
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_MIDDLE;
 import static org.lwjgl.opengl.GL11.GL_BLEND;
-import static org.lwjgl.opengl.GL11.glDisable;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
+import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11.glBlendFunc;
+import static org.lwjgl.opengl.GL11.glEnable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,11 +79,11 @@ public class NanoWindowManager implements IWindowManager {
 		compositor.addEffect(new GaussianV(width / 2, height / 2));
 		compositor.addEffect(new GaussianH(width / 2, height / 2));
 		compositor.addEffect(new Final(width, height));
-		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/shellHeight"), 0f);
+		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/shellHeight"), 0);
 	}
 
 	@Override
-	public void render() {
+	public void render(float delta) {
 		if (compositorEnabled) {
 			GPUProfiler.start("UI");
 			GPUProfiler.start("Render Windows");
@@ -93,20 +97,22 @@ public class NanoWindowManager implements IWindowManager {
 			}
 			GPUProfiler.end();
 			GPUProfiler.start("Compositing");
-			glDisable(GL_BLEND);
-			for (IWindow window : windows) {
+			glEnable(GL_DEPTH_TEST);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			Collections.reverse(windows);
+			for(int z = 0; z < windows.size(); z++) {
+				IWindow window = windows.get(z);
 				if (window.getFBO() != null) {
 					GPUProfiler.start(window.getTitle());
 					if (!window.isHidden() && !window.isMinimized())
-						compositor.render(window, this.window);
+						compositor.render(window, this.window, z, delta);
 					GPUProfiler.end();
 				}
 			}
 			GPUProfiler.end();
 			GPUProfiler.start("Render Final Image");
 			window.beingNVGFrame();
-			Theme.renderImage(this.window.getNVGID(), 0, 0, window.getWidth(), window.getHeight(),
-					compositor.getFbos()[0].image(), 1f);
 			if (ClientVariables.debug) {
 
 				Timers.renderDebugDisplay(5, 24, 200, 55);
@@ -144,7 +150,7 @@ public class NanoWindowManager implements IWindowManager {
 						"Used VRam: " + WindowManager.getUsedVRAM() + "KB " + " UPS: " + CoreSubsystem.ups,
 						"Roboto-Bold", NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 95, 20,
 						Theme.rgba(220, 220, 220, 255, Theme.colorA));
-				Theme.renderText(window.getNVGID(), "Used RAM: " + Runtime.getRuntime().totalMemory() / 1028 + "KB ",
+				Theme.renderText(window.getNVGID(), "Used RAM: " + Runtime.getRuntime().totalMemory() / 1024 + "MB ",
 						"Roboto-Bold", NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 110, 20,
 						Theme.rgba(220, 220, 220, 255, Theme.colorA));
 

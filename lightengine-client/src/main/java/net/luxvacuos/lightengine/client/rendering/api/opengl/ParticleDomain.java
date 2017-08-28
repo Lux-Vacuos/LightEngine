@@ -34,11 +34,7 @@ import net.luxvacuos.lightengine.client.world.particles.Particle;
 
 public class ParticleDomain {
 
-	private static Map<ParticleTexture, List<Particle>> particles;
-
-	public static void init() {
-		particles = new HashMap<ParticleTexture, List<Particle>>();
-	}
+	private static Map<ParticleTexture, List<Particle>> particles = new HashMap<ParticleTexture, List<Particle>>();
 
 	public static void update(float delta, CameraEntity camera) {
 		Iterator<Entry<ParticleTexture, List<Particle>>> mapIterator = particles.entrySet().iterator();

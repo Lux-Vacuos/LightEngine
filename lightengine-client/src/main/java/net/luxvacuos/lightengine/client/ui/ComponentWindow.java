@@ -30,7 +30,10 @@ public class ComponentWindow extends NanoWindow {
 
 	public ComponentWindow(int x, int y, int w, int h, String title) {
 		super(x, y, w, h, title);
-		rootComponent = new RootComponent(x, y, w, h);
+		if (super.compositor)
+			rootComponent = new RootComponent(0, 0, w, h);
+		else
+			rootComponent = new RootComponent(x, y, w, h);
 	}
 
 	@Override
@@ -40,11 +43,14 @@ public class ComponentWindow extends NanoWindow {
 
 	@Override
 	public void renderApp() {
-		rootComponent.render();
+		if (super.compositor)
+			rootComponent.render(fx, super.window.getHeight() - fy, w, h);
+		else
+			rootComponent.render();
 	}
 
 	@Override
-	public void updateApp(float delta ) {
+	public void updateApp(float delta) {
 		rootComponent.update(delta);
 	}
 

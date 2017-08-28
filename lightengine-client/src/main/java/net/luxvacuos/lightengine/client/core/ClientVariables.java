@@ -65,5 +65,7 @@ public class ClientVariables extends GlobalVariables {
 	public static final String VERTEX_WATER = "V_Water.glsl";
 	public static final String FRAGMENT_WATER = "F_Water.glsl";
 	public static final String GEOMETRY_WATER = "G_Water.glsl";
+	public static final String FRAGMENT_WINDOW3D = "F_3DWindow.glsl";
+	public static final String VERTEX_WINDOW3D= "V_3DWindow.glsl";
 
 }

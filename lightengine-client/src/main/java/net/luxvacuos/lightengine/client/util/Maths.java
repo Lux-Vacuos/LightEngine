@@ -85,6 +85,18 @@ public class Maths {
 		Matrix4d.scale(new Vector3d(scale, scale, scale), matrix, matrix);
 		return matrix;
 	}
+	
+	public static Matrix4d createTransformationMatrix(Vector3d translation, double rx, double ry, double rz,
+			double scaleX, double scaleY, double scaleZ) {
+		Matrix4d matrix = new Matrix4d();
+		matrix.setIdentity();
+		Matrix4d.translate(translation, matrix, matrix);
+		Matrix4d.rotate(Math.toRadians(rx), new Vector3d(1, 0, 0), matrix, matrix);
+		Matrix4d.rotate(Math.toRadians(ry), new Vector3d(0, 1, 0), matrix, matrix);
+		Matrix4d.rotate(Math.toRadians(rz), new Vector3d(0, 0, 1), matrix, matrix);
+		Matrix4d.scale(new Vector3d(scaleX, scaleY, scaleZ), matrix, matrix);
+		return matrix;
+	}
 
 	/**
 	 * Create a View Matrixd applying position and rotation

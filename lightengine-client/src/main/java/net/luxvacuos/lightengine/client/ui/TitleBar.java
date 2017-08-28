@@ -58,11 +58,20 @@ public class TitleBar implements ITitleBar {
 	}
 
 	@Override
-	public void render() {
+	public void render(Window window) {
 		if (enabled) {
-			left.render();
-			right.render();
-			center.render();
+			if (this.window.isCompositor()) {
+				left.render(this.window.getFX(), window.getHeight() - this.window.getFY(), this.window.getWidth(),
+						this.window.getHeight());
+				right.render(this.window.getFX(), window.getHeight() - this.window.getFY(), this.window.getWidth(),
+						this.window.getHeight());
+				center.render(this.window.getFX(), window.getHeight() - this.window.getFY(), this.window.getWidth(),
+						this.window.getHeight());
+			} else {
+				left.render();
+				right.render();
+				center.render();
+			}
 		}
 	}
 
@@ -186,8 +195,9 @@ public class TitleBar implements ITitleBar {
 	}
 
 	private boolean canDrag(IWindow iWindow, MouseHandler mh) {
-		return mh.getX() > iWindow.getX() + left.getFinalW() && mh.getY() < iWindow.getY()
-				+ (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"))
+		return mh.getX() > iWindow.getX() + left.getFinalW()
+				&& mh.getY() < iWindow.getY()
+						+ (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"))
 				&& mh.getX() < iWindow.getX() + iWindow.getWidth() + right.getFinalW() && mh.getY() > iWindow.getY();
 	}
 

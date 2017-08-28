@@ -39,14 +39,13 @@ public class CameraEntity extends PlayerEntity {
 
 	protected CastRay castRay;
 
-	protected CameraEntity(String name) {
+	public CameraEntity(String name) {
 		super(name);
 		this.add(new ViewMatrix(new Matrix4d()));
 		this.add(new ProjectionMatrix(new Matrix4d()));
-		Components.AABB.get(this).setEnabled(false);
 	}
 
-	protected CameraEntity(String name, String uuid) {
+	public CameraEntity(String name, String uuid) {
 		super(name, uuid);
 		this.add(new ViewMatrix(new Matrix4d()));
 		this.add(new ProjectionMatrix(new Matrix4d()));

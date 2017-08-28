@@ -103,6 +103,13 @@ public class NotificationsArea extends ComponentWindow {
 					}
 
 					@Override
+					public void updateApp(float delta) {
+						if (super.insideWindow() && window.getMouseHandler().isButtonPressed(0))
+							time = 6;
+						super.updateApp(delta);
+					}
+
+					@Override
 					public void alwaysUpdateApp(float delta) {
 						if (fadeIn) {
 							x -= 500 * delta;
