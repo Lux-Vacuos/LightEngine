@@ -38,7 +38,7 @@ public class ServerCoreSubsystem extends CoreSubsystem {
 		super.init();
 		try {
 			Manifest manifest = new Manifest(
-					getClass().getClassLoader().getResourceAsStream("lightengine-server-version.MF"));
+					getClass().getClassLoader().getResourceAsStream("lightengine-server-version.mf"));
 			Attributes attr = manifest.getMainAttributes();
 			String version = attr.getValue("LV-Version");
 			String branch = attr.getValue("LV-Branch");
@@ -48,7 +48,7 @@ public class ServerCoreSubsystem extends CoreSubsystem {
 			if (branch != null)
 				GlobalVariables.branch = branch;
 			if (build != null)
-				GlobalVariables.build = Integer.getInteger(build);
+				GlobalVariables.build = Integer.parseInt(build);
 		} catch (Exception e) {
 		}
 		REGISTRY.register(new Key("/Light Engine/version"),

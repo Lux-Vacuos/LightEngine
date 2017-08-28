@@ -42,7 +42,7 @@ public class CoreSubsystem implements ISubsystem {
 	public void init() {
 		try {
 			Manifest manifest = new Manifest(
-					getClass().getClassLoader().getResourceAsStream("lightengine-universal-version.MF"));
+					getClass().getClassLoader().getResourceAsStream("lightengine-universal-version.mf"));
 			Attributes attr = manifest.getMainAttributes();
 			String versionUniversal = attr.getValue("LV-Version");
 			String branchUniversal = attr.getValue("LV-Branch");
@@ -52,7 +52,7 @@ public class CoreSubsystem implements ISubsystem {
 			if (branchUniversal != null)
 				GlobalVariables.branchUniversal = branchUniversal;
 			if (buildUniversal != null)
-				GlobalVariables.buildUniversal = Integer.getInteger(buildUniversal);
+				GlobalVariables.buildUniversal = Integer.parseInt(buildUniversal);
 		} catch (Exception e) {
 		}
 		REGISTRY = new SystemRegistry();
