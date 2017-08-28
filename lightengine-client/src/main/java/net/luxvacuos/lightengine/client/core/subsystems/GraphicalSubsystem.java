@@ -127,7 +127,6 @@ public class GraphicalSubsystem implements ISubsystem {
 
 	@Override
 	public void update(float delta) {
-		GraphicalSubsystem.getWindowManager().update(delta);
 	}
 
 	@Override
@@ -140,8 +139,9 @@ public class GraphicalSubsystem implements ISubsystem {
 		}
 		CachedAssets.update(delta);
 		WindowManager.update();
-		Renderer.clearColors(0.5f, 0.5f, 0.5f, 1);
+		Renderer.clearColors(0.2f, 0.2f, 0.2f, 1);
 		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		GraphicalSubsystem.getWindowManager().update(delta);
 		GraphicalSubsystem.getWindowManager().render(delta);
 	}
 

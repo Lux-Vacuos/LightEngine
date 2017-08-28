@@ -32,5 +32,5 @@ void main() {
     vec4 worldPosition = transformationMatrix * vec4(position, 0.0, 1.0);
 	vec4 positionRelativeToCam = viewMatrix * worldPosition;
 	gl_Position = projectionMatrix * positionRelativeToCam;
-    textureCoords = vec2(position.x, position.y+1.0);
+    textureCoords = vec2(position.x + 0.5, position.y + 0.5);
 }

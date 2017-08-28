@@ -150,7 +150,7 @@ public abstract class NanoWindow implements IWindow {
 			if (compositor) {
 				nvgluBindFramebuffer(window.getNVGID(), fbo);
 				glViewport(0, 0, fw, fh);
-				Renderer.clearColors(0, 0, 0, 1);
+				Renderer.clearColors(0, 0, 0, 0);
 				Renderer.clearBuffer(GL_COLOR_BUFFER_BIT);
 				nvgBeginFrame(window.getNVGID(), fw, fh, 1);
 				nvgSave(window.getNVGID());

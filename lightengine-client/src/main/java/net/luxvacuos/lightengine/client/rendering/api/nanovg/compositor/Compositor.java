@@ -52,19 +52,21 @@ public class Compositor {
 
 	public Compositor(Window window, int width, int height) {
 		effects = new ArrayList<>();
-		float[] positions = { -0f,0f, -0f, -1f, 1f, 0f, 1f, -1f };
+		float[] positions = { -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, -0.5f };
 		if (quad == null)
 			quad = window.getResourceLoader().loadToVAO(positions, 2);
 		shader = new Window3DShader();
 		camera = new CameraEntity("");
-		camera.setProjectionMatrix(Renderer.createProjectionMatrix(width, height, 90, 0.1f, 1000f));
+		camera.setProjectionMatrix(Renderer.createProjectionMatrix(width, height, 60, 0.1f, 1000f));
 	}
 
 	public void render(IWindow window, Window wnd, int z, float delta) {
 		float aspect = (float) wnd.getWidth() / (float) wnd.getHeight();
 		float x = 0, y = 0;
-		x = (float) window.getFX() / (float) wnd.getWidth();
-		y = (float) window.getFY() / (float) wnd.getHeight();
+		float divX = (float) window.getFW() / 2f;
+		float divY = (float) window.getFH() / 2f;
+		x = (float) (window.getFX() + divX) / (float) wnd.getWidth();
+		y = (float) (window.getFY() - divY) / (float) wnd.getHeight();
 		x *= aspect;
 		x *= 2f;
 		y -= 0.5f;
@@ -74,11 +76,13 @@ public class Compositor {
 		scaleX *= aspect;
 		scaleX *= 2;
 		scaleY *= 2;
+		camera.setPosition(new Vector3d(-3f, 1.5f, 0));
+		camera.setRotation(new Vector3d(30, 45, 0));
 		camera.afterUpdate(0);
 		shader.start();
 		shader.loadProjectionMatrix(camera.getProjectionMatrix());
-		shader.loadTransformationMatrix(
-				Maths.createTransformationMatrix(new Vector3d(x - aspect, y, -1), 0, 0, 0, scaleX, scaleY, 1));
+		shader.loadTransformationMatrix(Maths.createTransformationMatrix(new Vector3d(x - aspect, y, -1 - z * 0.5f),
+				0, 0, 0, scaleX, scaleY, 1));
 		shader.loadViewMatrix(camera);
 		glBindVertexArray(quad.getVaoID());
 		glEnableVertexAttribArray(0);
