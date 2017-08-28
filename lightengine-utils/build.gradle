@@ -19,6 +19,6 @@ jar {
 			"LV-Version": project.ext.globalVersion
 			)
 	}
-	manifest.writeTo("$buildDir/" + project.name + "-version.mf")
-	from "$buildDir/" + project.name + "-version.mf"
+	manifest.writeTo("$buildDir/" + project.name + "-version.MF")
+	from "$buildDir/" + project.name + "-version.MF"
 }
