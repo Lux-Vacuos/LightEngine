@@ -67,7 +67,9 @@ public class LightEngineClient extends AbstractEngine {
 
 		super.initSubsystems();
 
-		Logger.log("Light Engine Client Version: " + ClientVariables.version);
+		Logger.log("Light Engine Client Version: " + REGISTRY.getRegistryItem(new Key("/Light Engine/version")));
+		Logger.log("Light Engine Universal Version: "
+				+ REGISTRY.getRegistryItem(new Key("/Light Engine/universalVersion")));
 		Logger.log("Running on: " + Bootstrap.getPlatform());
 		Logger.log("LWJGL Version: " + REGISTRY.getRegistryItem(new Key("/Light Engine/System/lwjgl")));
 		Logger.log("GLFW Version: " + REGISTRY.getRegistryItem(new Key("/Light Engine/System/glfw")));

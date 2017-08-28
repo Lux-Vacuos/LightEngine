@@ -21,9 +21,12 @@
 package net.luxvacuos.lightengine.server.core.subsystems;
 
 import java.io.File;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
 import net.luxvacuos.lightengine.server.core.ServerGameSettings;
 import net.luxvacuos.lightengine.server.core.states.Splash;
+import net.luxvacuos.lightengine.universal.core.GlobalVariables;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
@@ -33,6 +36,23 @@ public class ServerCoreSubsystem extends CoreSubsystem {
 	@Override
 	public void init() {
 		super.init();
+		try {
+			Manifest manifest = new Manifest(
+					getClass().getClassLoader().getResourceAsStream("lightengine-server-version.MF"));
+			Attributes attr = manifest.getMainAttributes();
+			String version = attr.getValue("LV-Version");
+			String branch = attr.getValue("LV-Branch");
+			String build = attr.getValue("LV-Build");
+			if (version != null)
+				GlobalVariables.version = version;
+			if (branch != null)
+				GlobalVariables.branch = branch;
+			if (build != null)
+				GlobalVariables.build = Integer.getInteger(build);
+		} catch (Exception e) {
+		}
+		REGISTRY.register(new Key("/Light Engine/version"),
+				GlobalVariables.version + "-" + GlobalVariables.branch + "-" + GlobalVariables.build);
 		gameSettings = new ServerGameSettings();
 		gameSettings.read();
 		REGISTRY.load(new File((String) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/file"))));

@@ -27,7 +27,6 @@ import net.luxvacuos.lightengine.server.bootstrap.Bootstrap;
 import net.luxvacuos.lightengine.server.core.subsystems.ServerCoreSubsystem;
 import net.luxvacuos.lightengine.universal.core.AbstractEngine;
 import net.luxvacuos.lightengine.universal.core.EngineType;
-import net.luxvacuos.lightengine.universal.core.GlobalVariables;
 import net.luxvacuos.lightengine.universal.core.Sync;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
@@ -55,7 +54,9 @@ public class LightEngineServer extends AbstractEngine {
 
 		super.initSubsystems();
 
-		Logger.log("Light Engine Server Version: " + GlobalVariables.version);
+		Logger.log("Light Engine Client Version: " + REGISTRY.getRegistryItem(new Key("/Light Engine/version")));
+		Logger.log("Light Engine Universal Version: "
+				+ REGISTRY.getRegistryItem(new Key("/Light Engine/universalVersion")));
 		Logger.log("Running on: " + Bootstrap.getPlatform());
 
 		sync = new Sync();

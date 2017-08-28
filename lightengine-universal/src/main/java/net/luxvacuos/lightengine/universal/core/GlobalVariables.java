@@ -23,19 +23,32 @@ package net.luxvacuos.lightengine.universal.core;
 public class GlobalVariables {
 
 	/** Client/Server Version */
-	public static String version = "Development Version";
-	
-	/** Universal System version */ 
-	public static String versionUniversal = "Development Version";
+	public static String version = "devver";
+
+	/** Client/Server Branch */
+	public static String branch = "devbranch";
+
+	/** Client/Server Build */
+	public static int build = 0;
+
+	/** Universal Version */
+	public static String versionUniversal = "devver";
+
+	/** * Universal Branch */
+	public static String branchUniversal = "devbranch";
+
+	/** * Universal Build */
+	public static int buildUniversal = 0;
 
 	/** Flag to enable debug mode */
 	public static boolean debug = false;
-	
+
 	/** Enable Test Mode */
 	public static boolean TEST_MODE = false;
-	
+
 	public static String PROJECT;
-	
-	protected GlobalVariables() { }
+
+	protected GlobalVariables() {
+	}
 
 }

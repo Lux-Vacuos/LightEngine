@@ -21,8 +21,11 @@
 package net.luxvacuos.lightengine.client.core.subsystems;
 
 import java.io.File;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
 import net.luxvacuos.lightengine.client.core.ClientGameSettings;
+import net.luxvacuos.lightengine.universal.core.GlobalVariables;
 import net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
@@ -30,7 +33,24 @@ public class ClientCoreSubsystem extends CoreSubsystem {
 
 	@Override
 	public void init() {
-		super.init();		
+		super.init();
+		try {
+			Manifest manifest = new Manifest(
+					getClass().getClassLoader().getResourceAsStream("lightengine-client-version.MF"));
+			Attributes attr = manifest.getMainAttributes();
+			String version = attr.getValue("LV-Version");
+			String branch = attr.getValue("LV-Branch");
+			String build = attr.getValue("LV-Build");
+			if (version != null)
+				GlobalVariables.version = version;
+			if (branch != null)
+				GlobalVariables.branch = branch;
+			if (build != null)
+				GlobalVariables.build = Integer.getInteger(build);
+		} catch (Exception e) {
+		}
+		REGISTRY.register(new Key("/Light Engine/version"),
+				GlobalVariables.version + "-" + GlobalVariables.branch + "-" + GlobalVariables.build);
 		gameSettings = new ClientGameSettings();
 		gameSettings.read();
 		REGISTRY.load(new File((String) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/file"))));

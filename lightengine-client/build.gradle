@@ -27,9 +27,13 @@ jar {
 			"Implementation-Title": "net.luxvacuos.lightengine.client",
 			"Implementation-Version": version,
 			"Implementation-Vendor": "Lux Vacuos",
-			"LV-Version": version
+			"LV-Build": 'git rev-list --count HEAD'.execute().text.trim(),
+			"LV-Branch": versioning.info.branchId,
+			"LV-Version": project.ext.globalVersion
 			)
 	}
+	manifest.writeTo("$buildDir/" + project.name + "-version.mf")
+	from "$buildDir/" + project.name + "-version.mf"
 }
 
 

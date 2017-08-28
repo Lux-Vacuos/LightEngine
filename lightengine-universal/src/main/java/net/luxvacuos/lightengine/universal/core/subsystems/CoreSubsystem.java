@@ -20,7 +20,6 @@
 
 package net.luxvacuos.lightengine.universal.core.subsystems;
 
-import java.io.IOException;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
@@ -42,22 +41,27 @@ public class CoreSubsystem implements ISubsystem {
 	@Override
 	public void init() {
 		try {
-			Manifest manifest = new Manifest(getClass().getClassLoader().getResourceAsStream("META-INF/MANIFEST.MF"));
+			Manifest manifest = new Manifest(
+					getClass().getClassLoader().getResourceAsStream("lightengine-universal-version.MF"));
 			Attributes attr = manifest.getMainAttributes();
-			String ver = attr.getValue("LV-Version");
-			if (ver != null)
-				GlobalVariables.version = ver;
-			String verU = attr.getValue("LV-Version-Universal");
-			if (verU != null)
-				GlobalVariables.versionUniversal = verU;
-		} catch (IOException E) {
-			E.printStackTrace();
+			String versionUniversal = attr.getValue("LV-Version");
+			String branchUniversal = attr.getValue("LV-Branch");
+			String buildUniversal = attr.getValue("LV-Build");
+			if (versionUniversal != null)
+				GlobalVariables.versionUniversal = versionUniversal;
+			if (branchUniversal != null)
+				GlobalVariables.branchUniversal = branchUniversal;
+			if (buildUniversal != null)
+				GlobalVariables.buildUniversal = Integer.getInteger(buildUniversal);
+		} catch (Exception e) {
 		}
 		REGISTRY = new SystemRegistry();
 		REGISTRY.register(new Key("/Light Engine/Settings/file"),
 				AbstractBootstrap.getPrefix() + "/config/registry.json");
 		REGISTRY.register(new Key("/Light Engine/System/os"),
 				System.getProperty("os.name") + " " + System.getProperty("os.arch").toUpperCase());
+		REGISTRY.register(new Key("/Light Engine/universalVersion"), GlobalVariables.versionUniversal + "-"
+				+ GlobalVariables.branchUniversal + "-" + GlobalVariables.buildUniversal);
 		LANG = new LanguageRegistry();
 	}
 
