@@ -27,7 +27,7 @@ out vec4 out_Color;
 uniform sampler2D image;
 uniform sampler2D window;
 uniform int blurBehind;
-uniform vec4 frame;
+uniform vec2 windowPosition;
 
 float hash(float n) { return fract(sin(n) * 1e4); }
 float hash(vec2 p) { return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x)))); }
@@ -65,9 +65,8 @@ void main(void){
     vec4 source = texture(image,textureCoords);
     vec4 window = texture(window,textureCoords);
      if(blurBehind == 1)
-        if(gl_FragCoord.x >= frame.x && gl_FragCoord.y >= frame.y - frame.w && gl_FragCoord.x < frame.x + frame.z && gl_FragCoord.y < frame.y) {
-        	source.rgb *= 1.0 - vec3(noise((gl_FragCoord.xy + frame.xy * 0.10))) * 0.10;
-        }
+	 	if(window.a > 0)
+        	source.rgb *= 1.0 - vec3(noise((gl_FragCoord.xy + windowPosition.xy * 0.10))) * 0.10;
     out_Color.rgb = mix(source.rgb, window.rgb, window.a);
     out_Color.a = 1;
 }

@@ -61,7 +61,7 @@ import net.luxvacuos.lightengine.universal.util.registry.Key;
 public abstract class NanoWindow implements IWindow {
 
 	private boolean draggable = true, decorations = true, resizable = true, maximized, hidden, exit, alwaysOnTop,
-			background, blurBehind = true, minimized, closeButton = true;
+			background, blurBehind = true, minimized, closeButton = true, afterResize, exiting;
 	private boolean resizingRight, resizingRightBottom, resizingBottom, resizingTop, resizingLeft;
 	private int ft, fb, fr, fl;
 	private BackgroundStyle backgroundStyle = BackgroundStyle.SOLID;
@@ -74,6 +74,7 @@ public abstract class NanoWindow implements IWindow {
 	private NVGLUFramebuffer fbo;
 	private String title;
 	private int reY, reX;
+	private AnimationState animationState = AnimationState.NONE;
 
 	private Queue<WindowMessage> messageQueue = new ConcurrentLinkedQueue<>();
 
@@ -142,6 +143,8 @@ public abstract class NanoWindow implements IWindow {
 				this.y += window.getMouseHandler().getDY();
 			}
 		});
+		if (decorations && compositor)
+			animationState = AnimationState.OPEN;
 	}
 
 	@Override
@@ -225,6 +228,11 @@ public abstract class NanoWindow implements IWindow {
 				}
 			}
 		}
+		if (isResizing() || afterResize) {
+			if (!isResizing() && afterResize)
+				notifyWindow(WindowMessage.WM_COMPOSITOR_RELOAD, null);
+			afterResize = isResizing();
+		}
 		if (!isResizing() && !minimized && !titleBar.isDragging())
 			updateApp(delta);
 	}
@@ -233,6 +241,13 @@ public abstract class NanoWindow implements IWindow {
 	public void alwaysUpdate(float delta, IWindowManager nanoWindowManager) {
 		updateRenderSize();
 		titleBar.alwaysUpdate(delta, window);
+		if (compositor) {
+			if (animationState.equals(AnimationState.AFTER_CLOSE) && exiting)
+				exit = true;
+			if (animationState.equals(AnimationState.AFTER_MINIMIZE) && !minimized)
+				minimized = true;
+		}
+
 		while (!messageQueue.isEmpty()) {
 			WindowMessage ms = messageQueue.poll();
 			processWindowMessage(ms.message, ms.param);
@@ -259,7 +274,11 @@ public abstract class NanoWindow implements IWindow {
 			WindowClose wc = (WindowClose) param;
 			switch (wc) {
 			case DISPOSE:
-				exit = true;
+				if (decorations && compositor) {
+					animationState = AnimationState.CLOSE;
+					exiting = true;
+				} else
+					exit = true;
 				break;
 			case DO_NOTHING:
 				break;
@@ -281,10 +300,11 @@ public abstract class NanoWindow implements IWindow {
 						- (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"))
 						- (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/shellHeight"));
 				updateRenderSize();
-				TaskManager.addTask(() -> {
-					nvgluDeleteFramebuffer(window.getNVGID(), fbo);
-					fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
-				});
+				if (compositor)
+					TaskManager.addTask(() -> {
+						nvgluDeleteFramebuffer(window.getNVGID(), fbo);
+						fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
+					});
 			}
 			break;
 		case WindowMessage.WM_RESTORE:
@@ -295,18 +315,25 @@ public abstract class NanoWindow implements IWindow {
 				this.w = oldW;
 				this.h = oldH;
 				updateRenderSize();
-				TaskManager.addTask(() -> {
-					nvgluDeleteFramebuffer(window.getNVGID(), fbo);
-					fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
-				});
+				if (compositor)
+					TaskManager.addTask(() -> {
+						nvgluDeleteFramebuffer(window.getNVGID(), fbo);
+						fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
+					});
 			}
 			if (minimized) {
+				if(compositor) {
+					animationState = AnimationState.RESTORE_MINIMIZE;
+				}
 				minimized = false;
 			}
 			break;
 		case WindowMessage.WM_MINIMIZE:
 			if (!minimized) {
-				minimized = true;
+				if (compositor) {
+					animationState = AnimationState.MINIMIZE;
+				} else
+					minimized = true;
 			}
 			break;
 		case WindowMessage.WM_COMPOSITOR_DISABLED:
@@ -481,6 +508,11 @@ public abstract class NanoWindow implements IWindow {
 	}
 
 	@Override
+	public void setAnimationState(AnimationState animationState) {
+		this.animationState = animationState;
+	}
+
+	@Override
 	public void closeWindow() {
 		notifyWindow(WindowMessage.WM_CLOSE, windowClose);
 	}
@@ -584,6 +616,11 @@ public abstract class NanoWindow implements IWindow {
 	@Override
 	public NVGLUFramebuffer getFBO() {
 		return fbo;
+	}
+
+	@Override
+	public AnimationState getAnimationState() {
+		return animationState;
 	}
 
 	@Override

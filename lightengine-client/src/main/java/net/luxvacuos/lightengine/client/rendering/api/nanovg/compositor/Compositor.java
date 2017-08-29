@@ -20,9 +20,15 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.nanovg.compositor;
 
+import static org.lwjgl.nanovg.NanoVGGL3.nvgluBindFramebuffer;
+import static org.lwjgl.nanovg.NanoVGGL3.nvgluCreateFramebuffer;
+import static org.lwjgl.nanovg.NanoVGGL3.nvgluDeleteFramebuffer;
+import static org.lwjgl.opengl.GL11.GL_BLEND;
+import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLE_STRIP;
 import static org.lwjgl.opengl.GL11.glBindTexture;
+import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glDrawArrays;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
@@ -31,70 +37,256 @@ import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.lwjgl.nanovg.NVGLUFramebuffer;
+
+import com.badlogic.gdx.math.Interpolation;
 
 import net.luxvacuos.igl.vector.Vector3d;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.AnimationState;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.IWindow;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.shaders.Window3DShader;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.GPUProfiler;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.client.util.Maths;
 
 public class Compositor {
 
-	private static RawModel quad;
-	private List<CompositorEffect> effects;
+	private static RawModel quad, quadFull;
 	private CameraEntity camera;
+	private NVGLUFramebuffer fbos[];
+	private NVGLUFramebuffer currentWindow;
 
 	private Window3DShader shader;
+	private Window window;
+	private List<CompositorEffect> effects = new ArrayList<>();
+	private Map<IWindow, AnimationData> animationData = new HashMap<>();
+	private int width, height;
 
 	public Compositor(Window window, int width, int height) {
-		effects = new ArrayList<>();
+		this.window = window;
+		this.width = width;
+		this.height = height;
+		fbos = new NVGLUFramebuffer[2];
+		fbos[0] = nvgluCreateFramebuffer(window.getNVGID(), width, height, 0);
+		fbos[1] = nvgluCreateFramebuffer(window.getNVGID(), width, height, 0);
+		currentWindow = nvgluCreateFramebuffer(window.getNVGID(), width, height, 0);
 		float[] positions = { -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, -0.5f };
 		if (quad == null)
 			quad = window.getResourceLoader().loadToVAO(positions, 2);
+		float[] positionsFull = { -1, 1, -1, -1, 1, 1, 1, -1 };
+		if (quadFull == null)
+			quadFull = window.getResourceLoader().loadToVAO(positionsFull, 2);
 		shader = new Window3DShader();
 		camera = new CameraEntity("");
-		camera.setProjectionMatrix(Renderer.createProjectionMatrix(width, height, 60, 0.1f, 1000f));
+		camera.setProjectionMatrix(Renderer.createProjectionMatrix(width, height, 90, 0.1f, 1000f));
+		effects.add(new MaskBlur(width, height));
+		effects.add(new GaussianV(width / 2, height / 2));
+		effects.add(new GaussianH(width / 2, height / 2));
+		effects.add(new Final(width, height));
 	}
 
-	public void render(IWindow window, Window wnd, int z, float delta) {
-		float aspect = (float) wnd.getWidth() / (float) wnd.getHeight();
+	public void render(List<IWindow> windows, float delta) {
+		camera.setProjectionMatrix(Renderer.createProjectionMatrix(width, height, 45, 0.1f, 1000f));
+		camera.afterUpdate(delta);
+		GPUProfiler.start("Compositing");
+		glDisable(GL_BLEND);
+		nvgluBindFramebuffer(this.window.getNVGID(), fbos[0]);
+		Renderer.clearColors(0f, 0f, 0f, 0);
+		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT);
+		nvgluBindFramebuffer(this.window.getNVGID(), null);
+		for (int z = 0; z < windows.size(); z++) {
+			IWindow window = windows.get(z);
+			if (window.getFBO() != null) {
+				GPUProfiler.start(window.getTitle());
+				if (!window.isHidden() && !window.isMinimized()) {
+					render(window, windows.size() - z, delta);
+					for (CompositorEffect compositorEffect : effects) {
+						NVGLUFramebuffer tmp = fbos[0];
+						fbos[0] = fbos[1];
+						fbos[1] = tmp;
+						compositorEffect.render(fbos, quadFull, this.window, window, currentWindow.texture());
+					}
+				}
+				GPUProfiler.end();
+			}
+		}
+		GPUProfiler.end();
+	}
+
+	private void render(IWindow window, int z, float delta) {
+		float offsetX = 0, offsetY = 0, offsetScaleX = 1, offsetScaleY = 1, offsetRotX = 0, offsetRotY = 0,
+				offsetRotZ = 0;
+		switch (window.getAnimationState()) {
+		case CLOSE:
+			AnimationData data = animationData.get(window);
+			if (data != null) {
+				data.y -= delta * 4f;
+				if (data.y <= -2) {
+					data.y = -2;
+					window.setAnimationState(AnimationState.AFTER_CLOSE);
+					animationData.remove(window);
+				}
+				data.scaleX = Interpolation.linear.apply(1, 0.25f, 1 - (1 + data.y / 2f));
+				data.scaleY = Interpolation.linear.apply(1, 0.25f, 1 - (1 + data.y / 2f));
+				data.rotX = Interpolation.sine.apply(0, -90, 1 - (1 + data.y / 2f));
+				offsetY = data.y;
+				offsetScaleX = data.scaleX;
+				offsetScaleY = data.scaleY;
+				offsetRotX = data.rotX;
+			} else {
+				data = new AnimationData();
+				data.y = 0;
+				data.scaleX = 1;
+				data.scaleY = 1;
+				data.rotX = 0;
+				offsetY = data.y;
+				offsetScaleX = data.scaleX;
+				offsetScaleY = data.scaleY;
+				offsetRotX = data.rotX;
+				animationData.put(window, data);
+			}
+			break;
+		case NONE:
+			break;
+		case OPEN:
+			data = animationData.get(window);
+			if (data != null) {
+				data.y -= delta * 4f;
+				if (data.y <= 0) {
+					data.y = 0;
+					window.setAnimationState(AnimationState.NONE);
+					animationData.remove(window);
+				}
+				data.scaleX = Interpolation.linear.apply(0.25f, 1, 1 - data.y / 2f);
+				data.scaleY = Interpolation.linear.apply(0.25f, 1, 1 - data.y / 2f);
+				data.rotX = Interpolation.sine.apply(90, 0, 1 - data.y / 2f);
+				offsetY = data.y;
+				offsetScaleX = data.scaleX;
+				offsetScaleY = data.scaleY;
+				offsetRotX = data.rotX;
+			} else {
+				data = new AnimationData();
+				data.y = 2;
+				data.scaleX = 0.25f;
+				data.scaleY = 0.25f;
+				data.rotX = 90;
+				offsetY = data.y;
+				offsetScaleX = data.scaleX;
+				offsetScaleY = data.scaleY;
+				offsetRotX = data.rotX;
+				animationData.put(window, data);
+			}
+			break;
+		case AFTER_CLOSE:
+			offsetY = -100;
+			offsetX = -100;
+			break;
+		case MINIMIZE:
+			data = animationData.get(window);
+			if (data != null) {
+				data.y -= delta * 4f;
+				if (data.y <= -1) {
+					data.y = -1;
+					data.x += delta * 2f;
+					if (data.x >= 1) {
+						window.setAnimationState(AnimationState.AFTER_MINIMIZE);
+						animationData.remove(window);
+					}
+				}
+				data.scaleX = Interpolation.sineIn.apply(1, 0.9f, 1 - (1 + data.y));
+				data.scaleY = Interpolation.sineIn.apply(1, 0.9f, 1 - (1 + data.y));
+				offsetX = Interpolation.exp5In.apply(0, -4, data.x);
+				offsetScaleX = data.scaleX;
+				offsetScaleY = data.scaleY;
+			} else {
+				data = new AnimationData();
+				data.y = 0;
+				data.scaleX = 1;
+				data.scaleY = 1;
+				offsetScaleX = data.scaleX;
+				offsetScaleY = data.scaleY;
+				animationData.put(window, data);
+			}
+			break;
+		case AFTER_MINIMIZE:
+			break;
+		case RESTORE_MINIMIZE:
+			data = animationData.get(window);
+			if (data != null) {
+				data.x += delta * 2f;
+				if (data.x >= 1) {
+					data.x = 1;
+					data.y += delta * 4f;
+					if (data.y >= 1) {
+						window.setAnimationState(AnimationState.NONE);
+						animationData.remove(window);
+					}
+				}
+				data.scaleX = Interpolation.sineOut.apply(0.9f, 1f, data.y);
+				data.scaleY = Interpolation.sineOut.apply(0.9f, 1f, data.y);
+				offsetX = Interpolation.exp5Out.apply(-4, 0, data.x);
+				offsetScaleX = data.scaleX;
+				offsetScaleY = data.scaleY;
+			} else {
+				data = new AnimationData();
+				data.y = 0;
+				data.x = 0;
+				data.scaleX = 1;
+				data.scaleY = 1;
+				offsetX = -4;
+				offsetScaleX = data.scaleX;
+				offsetScaleY = data.scaleY;
+				animationData.put(window, data);
+			}
+			break;
+		}
+		float aspect = (float) this.window.getWidth() / (float) this.window.getHeight();
 		float x = 0, y = 0;
 		float divX = (float) window.getFW() / 2f;
 		float divY = (float) window.getFH() / 2f;
-		x = (float) (window.getFX() + divX) / (float) wnd.getWidth();
-		y = (float) (window.getFY() - divY) / (float) wnd.getHeight();
+		x = (float) (window.getFX() + divX) / (float) this.window.getWidth();
+		y = (float) (window.getFY() - divY) / (float) this.window.getHeight();
 		x *= aspect;
 		x *= 2f;
 		y -= 0.5f;
 		y *= 2;
-		float scaleY = (float) window.getFH() / (float) wnd.getHeight();
-		float scaleX = (float) window.getFW() / (float) wnd.getWidth();
+		float scaleY = (float) window.getFH() / (float) this.window.getHeight();
+		float scaleX = (float) window.getFW() / (float) this.window.getWidth();
 		scaleX *= aspect;
 		scaleX *= 2;
+		scaleX *= offsetScaleX;
 		scaleY *= 2;
-		camera.setPosition(new Vector3d(-3f, 1.5f, 0));
-		camera.setRotation(new Vector3d(30, 45, 0));
-		camera.afterUpdate(0);
+		scaleY *= offsetScaleY;
+		nvgluBindFramebuffer(this.window.getNVGID(), currentWindow);
+		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT);
 		shader.start();
 		shader.loadProjectionMatrix(camera.getProjectionMatrix());
-		shader.loadTransformationMatrix(Maths.createTransformationMatrix(new Vector3d(x - aspect, y, -1 - z * 0.5f),
-				0, 0, 0, scaleX, scaleY, 1));
 		shader.loadViewMatrix(camera);
 		glBindVertexArray(quad.getVaoID());
 		glEnableVertexAttribArray(0);
+		shader.loadTransformationMatrix(
+				Maths.createTransformationMatrix(new Vector3d(x - aspect + offsetX, y + offsetY, -2.414), offsetRotX,
+						offsetRotY, offsetRotZ, scaleX, scaleY, 1));
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, window.getFBO().texture());
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, quad.getVertexCount());
 		glDisableVertexAttribArray(0);
 		glBindVertexArray(0);
 		shader.stop();
+		nvgluBindFramebuffer(this.window.getNVGID(), null);
 	}
 
-	public void dispose(Window window) {
+	public void dispose() {
+		nvgluDeleteFramebuffer(window.getNVGID(), fbos[0]);
+		nvgluDeleteFramebuffer(window.getNVGID(), fbos[1]);
+		nvgluDeleteFramebuffer(window.getNVGID(), currentWindow);
 		for (CompositorEffect compositorEffect : effects) {
 			compositorEffect.dispose();
 		}
@@ -102,8 +294,8 @@ public class Compositor {
 		shader.dispose();
 	}
 
-	public void addEffect(CompositorEffect effect) {
-		effects.add(effect);
+	public NVGLUFramebuffer[] getFbos() {
+		return fbos;
 	}
 
 }

@@ -35,10 +35,6 @@ import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.WindowManager;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.IWindow.WindowClose;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.compositor.Compositor;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.compositor.Final;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.compositor.GaussianH;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.compositor.GaussianV;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.compositor.MaskBlur;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.GLUtil;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.GPUProfiler;
@@ -69,10 +65,6 @@ public class NanoWindowManager implements IWindowManager {
 		if (height > GLUtil.GL_MAX_TEXTURE_SIZE)
 			height = GLUtil.GL_MAX_TEXTURE_SIZE;
 		compositor = new Compositor(win, width, height);
-		compositor.addEffect(new MaskBlur(width, height));
-		compositor.addEffect(new GaussianV(width / 2, height / 2));
-		compositor.addEffect(new GaussianH(width / 2, height / 2));
-		compositor.addEffect(new Final(width, height));
 		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/shellHeight"), 0);
 	}
 
@@ -90,19 +82,11 @@ public class NanoWindowManager implements IWindowManager {
 				}
 			}
 			GPUProfiler.end();
-			GPUProfiler.start("Compositing");
-			for(int z = 0; z < windows.size(); z++) {
-				IWindow window = windows.get(z);
-				if (window.getFBO() != null) {
-					GPUProfiler.start(window.getTitle());
-					if (!window.isHidden() && !window.isMinimized())
-						compositor.render(window, this.window, windows.size() - z, delta);
-					GPUProfiler.end();
-				}
-			}
-			GPUProfiler.end();
+			compositor.render(windows, delta);
 			GPUProfiler.start("Render Debug Info");
 			window.beingNVGFrame();
+			Theme.renderImage(this.window.getNVGID(), 0, 0, window.getWidth(), window.getHeight(),
+					compositor.getFbos()[0].image(), 1f);
 			if (ClientVariables.debug) {
 				Timers.renderDebugDisplay(5, 24, 200, 55);
 				Theme.renderText(window.getNVGID(), "Light Engine " + " (" + ClientVariables.version + ")",
@@ -200,7 +184,7 @@ public class NanoWindowManager implements IWindowManager {
 	@Override
 	public void dispose() {
 		if (compositorEnabled) {
-			compositor.dispose(window);
+			compositor.dispose();
 		}
 		for (IWindow window : windows) {
 			window.dispose();
@@ -280,34 +264,31 @@ public class NanoWindowManager implements IWindowManager {
 			return;
 		TaskManager.addTask(() -> {
 			compositor = new Compositor(window, width, height);
-			compositor.addEffect(new MaskBlur(width, height));
-			compositor.addEffect(new GaussianV(width / 2, height / 2));
-			compositor.addEffect(new GaussianH(width / 2, height / 2));
-			compositor.addEffect(new Final(width, height));
 			compositorEnabled = true;
 			REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/compositor"), compositorEnabled);
 		});
-		for (IWindow window : windows) {
-			window.notifyWindow(WindowMessage.WM_COMPOSITOR_ENABLED, null);
-		}
+		notifyAllWindows(WindowMessage.WM_COMPOSITOR_ENABLED, null);
 	}
 
 	@Override
 	public void disableCompositor() {
 		if (!compositorEnabled)
 			return;
-		TaskManager.addTask(() -> compositor.dispose(window));
-		for (IWindow window : windows) {
-			window.notifyWindow(WindowMessage.WM_COMPOSITOR_DISABLED, null);
-		}
+		TaskManager.addTask(() -> compositor.dispose());
+		notifyAllWindows(WindowMessage.WM_COMPOSITOR_DISABLED, null);
 		compositorEnabled = false;
 		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/compositor"), compositorEnabled);
 	}
 
 	@Override
 	public void closeAllWindows() {
+		notifyAllWindows(WindowMessage.WM_CLOSE, WindowClose.DISPOSE);
+	}
+
+	@Override
+	public void notifyAllWindows(int message, Object param) {
 		for (IWindow window : windows) {
-			window.notifyWindow(WindowMessage.WM_CLOSE, WindowClose.DISPOSE);
+			window.notifyWindow(message, param);
 		}
 	}
 
@@ -344,22 +325,16 @@ public class NanoWindowManager implements IWindowManager {
 		width = (int) (window.getWidth() * window.getPixelRatio());
 		height = (int) (window.getHeight() * window.getPixelRatio());
 		if (compositorEnabled) {
-			compositor.dispose(window);
+			compositor.dispose();
 			if (width > GLUtil.GL_MAX_TEXTURE_SIZE)
 				width = GLUtil.GL_MAX_TEXTURE_SIZE;
 			if (height > GLUtil.GL_MAX_TEXTURE_SIZE)
 				height = GLUtil.GL_MAX_TEXTURE_SIZE;
 			compositor = new Compositor(window, width, height);
-			compositor.addEffect(new MaskBlur(width, height));
-			compositor.addEffect(new GaussianV(width / 2, height / 2));
-			compositor.addEffect(new GaussianH(width / 2, height / 2));
-			compositor.addEffect(new Final(width, height));
 		}
-		for (IWindow window : windows) {
-			if (compositorEnabled)
-				window.notifyWindow(WindowMessage.WM_COMPOSITOR_RELOAD, null);
-			window.notifyWindow(WindowMessage.WM_RESIZE, null);
-		}
+		notifyAllWindows(WindowMessage.WM_RESIZE, null);
+		if (compositorEnabled)
+			notifyAllWindows(WindowMessage.WM_COMPOSITOR_RELOAD, null);
 	}
 
 }

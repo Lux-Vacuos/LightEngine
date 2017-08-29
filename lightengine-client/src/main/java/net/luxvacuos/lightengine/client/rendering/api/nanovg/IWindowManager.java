@@ -53,13 +53,15 @@ public interface IWindowManager extends IDisposable {
 	public void toggleShell();
 
 	public boolean isShellEnabled();
-	
+
 	public IShell getShell();
 
 	public void reloadCompositor();
-	
+
 	public int getTotalWindows();
-	
+
 	public void closeAllWindows();
+
+	public void notifyAllWindows(int message, Object param);
 
 }

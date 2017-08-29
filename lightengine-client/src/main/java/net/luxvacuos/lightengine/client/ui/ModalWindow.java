@@ -24,6 +24,7 @@ import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_LEFT;
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_TOP;
 
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class ModalWindow extends ComponentWindow {
@@ -88,6 +89,16 @@ public class ModalWindow extends ComponentWindow {
 
 	public void setOnCancel(OnAction action) {
 		cancel.setOnButtonPress(action);
+	}
+	
+	@Override
+	public void processWindowMessage(int message, Object param) {
+		if (message == WindowMessage.WM_RESIZE) {
+			y = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
+			w = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
+			h = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
+		}
+		super.processWindowMessage(message, param);
 	}
 
 }

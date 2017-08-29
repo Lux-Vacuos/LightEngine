@@ -86,6 +86,8 @@ public interface IWindow {
 
 	public void extendFrame(int t, int b, int r, int l);
 
+	public void setAnimationState(AnimationState animationState);
+
 	public void toggleMinimize();
 
 	public void toggleTitleBar();
@@ -101,18 +103,20 @@ public interface IWindow {
 	public int getX();
 
 	public int getY();
-	
+
 	public int getFX();
-	
+
 	public int getFY();
 
 	public int getFH();
-	
+
 	public int getFW();
 
 	public String getTitle();
 
 	public NVGLUFramebuffer getFBO();
+
+	public AnimationState getAnimationState();
 
 	public boolean hasDecorations();
 
@@ -131,7 +135,7 @@ public interface IWindow {
 	public boolean isHidden();
 
 	public boolean isMaximized();
-	
+
 	public boolean isCompositor();
 
 	public ITitleBar getTitleBar();

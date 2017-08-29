@@ -20,7 +20,6 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.nanovg.compositor;
 
-import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 import static org.lwjgl.nanovg.NanoVGGL3.nvgluBindFramebuffer;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLE_STRIP;
@@ -35,14 +34,13 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 
 import org.lwjgl.nanovg.NVGLUFramebuffer;
 
-import net.luxvacuos.igl.vector.Vector4f;
+import net.luxvacuos.igl.vector.Vector2f;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.IWindow;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.shaders.WindowManagerShader;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.GPUProfiler;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
-import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public abstract class CompositorEffect implements IDisposable {
 
@@ -51,50 +49,24 @@ public abstract class CompositorEffect implements IDisposable {
 
 	public CompositorEffect(int width, int height, String name) {
 		this.name = name;
-		/*shader = new WindowManagerShader(name);
+		shader = new WindowManagerShader(name);
 		shader.start();
 		shader.loadResolution(new Vector2f(width, height));
-		shader.stop();*/
+		shader.stop();
 	}
 
-	public void render(NVGLUFramebuffer[] fbos, RawModel quad, Window wnd, IWindow window) {
+	public void render(NVGLUFramebuffer[] fbos, RawModel quad, Window wnd, IWindow window, int currentWindow) {
 		GPUProfiler.start(name);
-		int borderSize = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/borderSize"));
-		int titleBarHeight = (int) REGISTRY
-				.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
-		boolean titleBarBorder = (boolean) REGISTRY
-				.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarBorder"));
-		float pixelRatio = wnd.getPixelRatio();
 		nvgluBindFramebuffer(wnd.getNVGID(), fbos[0]);
 		shader.start();
-		if (window.getTitleBar().isEnabled() && window.hasDecorations() && !window.isMaximized())
-			if (titleBarBorder)
-				shader.loadFrame(new Vector4f((window.getX() - borderSize) * pixelRatio,
-						(window.getY() + titleBarHeight + borderSize) * pixelRatio,
-						(window.getWidth() + borderSize * 2f) * pixelRatio,
-						(window.getHeight() + titleBarHeight + borderSize * 2f) * pixelRatio));
-			else
-				shader.loadFrame(new Vector4f((window.getX() - borderSize) * pixelRatio,
-						(window.getY() + titleBarHeight) * pixelRatio,
-						(window.getWidth() + borderSize * 2f) * pixelRatio,
-						(window.getHeight() + titleBarHeight + borderSize) * pixelRatio));
-		else if (!window.hasDecorations())
-			shader.loadFrame(new Vector4f(window.getX() * pixelRatio, window.getY() * pixelRatio,
-					window.getWidth() * pixelRatio, window.getHeight() * pixelRatio));
-		else if (window.isMaximized())
-			shader.loadFrame(new Vector4f(window.getX() * pixelRatio, (window.getY() + titleBarHeight) * pixelRatio,
-					window.getWidth() * pixelRatio, (window.getHeight() + titleBarHeight) * pixelRatio));
-		else
-			shader.loadFrame(new Vector4f((window.getX() - borderSize) * pixelRatio,
-					(window.getY() + borderSize) * pixelRatio, (window.getWidth() + borderSize * 2f) * pixelRatio,
-					(window.getHeight() + borderSize * 2f) * pixelRatio));
 		shader.loadBlurBehind(window.hasBlurBehind());
+		shader.loadWindowPosition(new Vector2f(window.getX(), window.getY()));
 		glBindVertexArray(quad.getVaoID());
 		glEnableVertexAttribArray(0);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, fbos[1].texture());
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, window.getFBO().texture());
+		glBindTexture(GL_TEXTURE_2D, currentWindow);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, quad.getVertexCount());
 		glDisableVertexAttribArray(0);
 		glBindVertexArray(0);
@@ -105,7 +77,7 @@ public abstract class CompositorEffect implements IDisposable {
 
 	@Override
 	public void dispose() {
-		//shader.dispose();
+		shader.dispose();
 	}
 
 }

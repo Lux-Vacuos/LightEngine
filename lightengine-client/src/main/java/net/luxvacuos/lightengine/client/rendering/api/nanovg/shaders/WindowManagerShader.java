@@ -21,25 +21,23 @@
 package net.luxvacuos.lightengine.client.rendering.api.nanovg.shaders;
 
 import net.luxvacuos.igl.vector.Vector2f;
-import net.luxvacuos.igl.vector.Vector4f;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.ShaderProgram;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.Attribute;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.UniformBoolean;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.UniformSampler;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.UniformVec2;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.UniformVec4;
 
 public class WindowManagerShader extends ShaderProgram {
 
 	private UniformSampler image = new UniformSampler("image");
 	private UniformSampler window = new UniformSampler("window");
 	private UniformVec2 resolution = new UniformVec2("resolution");
-	private UniformVec4 frame = new UniformVec4("frame");
+	private UniformVec2 windowPosition = new UniformVec2("windowPosition");
 	private UniformBoolean blurBehind = new UniformBoolean("blurBehind");
 
 	public WindowManagerShader(String type) {
 		super("wm/V_" + type + ".glsl", "wm/F_" + type + ".glsl", new Attribute(0, "position"));
-		super.storeAllUniformLocations(image, window, resolution, frame, blurBehind);
+		super.storeAllUniformLocations(image, window, resolution, blurBehind, windowPosition);
 		connectTextureUnits();
 	}
 
@@ -50,16 +48,16 @@ public class WindowManagerShader extends ShaderProgram {
 		super.stop();
 	}
 
-	public void loadFrame(Vector4f frame) {
-		this.frame.loadVec4(frame);
-	}
-
 	public void loadResolution(Vector2f res) {
 		resolution.loadVec2(res);
 	}
 
 	public void loadBlurBehind(boolean blur) {
 		blurBehind.loadBoolean(blur);
+	}
+
+	public void loadWindowPosition(Vector2f pos) {
+		windowPosition.loadVec2(pos);
 	}
 
 }

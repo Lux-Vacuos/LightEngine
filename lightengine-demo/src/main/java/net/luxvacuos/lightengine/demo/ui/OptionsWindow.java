@@ -378,16 +378,19 @@ public class OptionsWindow extends ComponentWindow {
 			int val = (int) (wmBorder.getPosition() * 40f);
 			REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/borderSize"), val);
 			wmBorderText.setText(LANG.getRegistryItem("lightengine.optionswindow.wm.border") + ": " + val);
+			GraphicalSubsystem.getWindowManager().notifyAllWindows(WindowMessage.WM_COMPOSITOR_RELOAD, null);
 		});
 		wmScroll.setOnPress(() -> {
 			int val = (int) (wmScroll.getPosition() * 40f);
 			REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/scrollBarSize"), val);
 			wmScrollText.setText(LANG.getRegistryItem("lightengine.optionswindow.wm.scrollsize") + ": " + val);
+			GraphicalSubsystem.getWindowManager().notifyAllWindows(WindowMessage.WM_COMPOSITOR_RELOAD, null);
 		});
 		wmTitle.setOnPress(() -> {
 			int val = (int) (wmTitle.getPosition() * 40f);
 			REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"), val);
 			wmTitleText.setText(LANG.getRegistryItem("lightengine.optionswindow.wm.titlebarsize") + ": " + val);
+			GraphicalSubsystem.getWindowManager().notifyAllWindows(WindowMessage.WM_COMPOSITOR_RELOAD, null);
 		});
 		titleBorderButton.setOnButtonPress(() -> REGISTRY.register(
 				new Key("/Light Engine/Settings/WindowManager/titleBarBorder"), titleBorderButton.getStatus()));

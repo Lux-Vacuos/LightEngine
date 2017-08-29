@@ -18,12 +18,8 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.api.nanovg.compositor;
+package net.luxvacuos.lightengine.client.rendering.api.nanovg;
 
-public class GaussianV extends CompositorEffect {
-
-	public GaussianV(int width, int height) {
-		super(width, height, "GaussianV");
-	}
-
+public enum AnimationState {
+	OPEN, CLOSE, AFTER_CLOSE, MINIMIZE, AFTER_MINIMIZE, RESTORE_MINIMIZE, NONE
 }
