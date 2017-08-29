@@ -83,7 +83,7 @@ public class NanoWindowManager implements IWindowManager {
 			}
 			GPUProfiler.end();
 			compositor.render(windows, delta);
-			GPUProfiler.start("Render Debug Info");
+			GPUProfiler.start("Render To Screen");
 			window.beingNVGFrame();
 			Theme.renderImage(this.window.getNVGID(), 0, 0, window.getWidth(), window.getHeight(),
 					compositor.getFbos()[0].image(), 1f);
@@ -150,6 +150,7 @@ public class NanoWindowManager implements IWindowManager {
 			}
 
 			if (window.insideWindow() && !window.isBackground() && !window.isHidden() && !window.isMinimized()
+					&& !window.isAnimating()
 					&& (this.window.getMouseHandler().isButtonPressed(0)
 							|| this.window.getMouseHandler().isButtonPressed(1))
 					&& !focused.isDragging() && !focused.isResizing()) {
@@ -165,8 +166,8 @@ public class NanoWindowManager implements IWindowManager {
 		tmp.addAll(windows);
 		Collections.reverse(tmp);
 		for (IWindow window : tmp) {
-			if (window.insideWindow() && !window.isHidden() && !window.isMinimized() && !focused.isDragging()
-					&& !focused.isResizing()) {
+			if (window.insideWindow() && !window.isHidden() && !window.isMinimized() && !window.isAnimating()
+					&& !focused.isDragging() && !focused.isResizing()) {
 				focused = window;
 				break;
 			}

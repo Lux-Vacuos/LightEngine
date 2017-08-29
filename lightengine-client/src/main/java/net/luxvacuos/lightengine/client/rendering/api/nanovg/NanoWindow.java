@@ -233,7 +233,7 @@ public abstract class NanoWindow implements IWindow {
 				notifyWindow(WindowMessage.WM_COMPOSITOR_RELOAD, null);
 			afterResize = isResizing();
 		}
-		if (!isResizing() && !minimized && !titleBar.isDragging())
+		if (!isResizing() && !minimized && !titleBar.isDragging() && !isAnimating())
 			updateApp(delta);
 	}
 
@@ -700,6 +700,11 @@ public abstract class NanoWindow implements IWindow {
 	@Override
 	public boolean isCompositor() {
 		return compositor;
+	}
+	
+	@Override
+	public boolean isAnimating() {
+		return !animationState.equals(AnimationState.NONE);
 	}
 
 	@Override

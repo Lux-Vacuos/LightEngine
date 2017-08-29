@@ -67,12 +67,9 @@ public class Compositor {
 	private Window window;
 	private List<CompositorEffect> effects = new ArrayList<>();
 	private Map<IWindow, AnimationData> animationData = new HashMap<>();
-	private int width, height;
 
 	public Compositor(Window window, int width, int height) {
 		this.window = window;
-		this.width = width;
-		this.height = height;
 		fbos = new NVGLUFramebuffer[2];
 		fbos[0] = nvgluCreateFramebuffer(window.getNVGID(), width, height, 0);
 		fbos[1] = nvgluCreateFramebuffer(window.getNVGID(), width, height, 0);
@@ -85,7 +82,16 @@ public class Compositor {
 			quadFull = window.getResourceLoader().loadToVAO(positionsFull, 2);
 		shader = new Window3DShader();
 		camera = new CameraEntity("");
-		camera.setProjectionMatrix(Renderer.createProjectionMatrix(width, height, 90, 0.1f, 1000f));
+		// Orthographic mode
+		/*
+		 * float aspectY = (float) this.window.getWidth() / (float)
+		 * this.window.getHeight(); float aspectX = (float) this.window.getHeight() /
+		 * (float) this.window.getWidth(); camera.setProjectionMatrix(
+		 * Maths.orthographic(-aspectY, aspectY, -aspectY * aspectX, aspectY * aspectX,
+		 * 0.1f, 100, true));
+		 */
+		camera.setProjectionMatrix(
+				Renderer.createProjectionMatrix(this.window.getWidth(), this.window.getHeight(), 45, 0.1f, 1000f));
 		effects.add(new MaskBlur(width, height));
 		effects.add(new GaussianV(width / 2, height / 2));
 		effects.add(new GaussianH(width / 2, height / 2));
@@ -93,7 +99,8 @@ public class Compositor {
 	}
 
 	public void render(List<IWindow> windows, float delta) {
-		camera.setProjectionMatrix(Renderer.createProjectionMatrix(width, height, 45, 0.1f, 1000f));
+		camera.setProjectionMatrix(
+				Renderer.createProjectionMatrix(this.window.getWidth(), this.window.getHeight(), 45, 0.1f, 1000f));
 		camera.afterUpdate(delta);
 		GPUProfiler.start("Compositing");
 		glDisable(GL_BLEND);
@@ -133,9 +140,9 @@ public class Compositor {
 					window.setAnimationState(AnimationState.AFTER_CLOSE);
 					animationData.remove(window);
 				}
-				data.scaleX = Interpolation.linear.apply(1, 0.25f, 1 - (1 + data.y / 2f));
-				data.scaleY = Interpolation.linear.apply(1, 0.25f, 1 - (1 + data.y / 2f));
-				data.rotX = Interpolation.sine.apply(0, -90, 1 - (1 + data.y / 2f));
+				data.scaleX = Interpolation.exp5Out.apply(1, 0.25f, 1 - (1 + data.y / 2f));
+				data.scaleY = Interpolation.exp5Out.apply(1, 0.25f, 1 - (1 + data.y / 2f));
+				data.rotX = Interpolation.sineOut.apply(0, -90, 1 - (1 + data.y / 2f));
 				offsetY = data.y;
 				offsetScaleX = data.scaleX;
 				offsetScaleY = data.scaleY;
@@ -164,9 +171,9 @@ public class Compositor {
 					window.setAnimationState(AnimationState.NONE);
 					animationData.remove(window);
 				}
-				data.scaleX = Interpolation.linear.apply(0.25f, 1, 1 - data.y / 2f);
-				data.scaleY = Interpolation.linear.apply(0.25f, 1, 1 - data.y / 2f);
-				data.rotX = Interpolation.sine.apply(90, 0, 1 - data.y / 2f);
+				data.scaleX = Interpolation.exp5In.apply(0.25f, 1, 1 - data.y / 2f);
+				data.scaleY = Interpolation.exp5In.apply(0.25f, 1, 1 - data.y / 2f);
+				data.rotX = Interpolation.sineIn.apply(90, 0, 1 - data.y / 2f);
 				offsetY = data.y;
 				offsetScaleX = data.scaleX;
 				offsetScaleY = data.scaleY;
@@ -191,10 +198,10 @@ public class Compositor {
 		case MINIMIZE:
 			data = animationData.get(window);
 			if (data != null) {
-				data.y -= delta * 4f;
+				data.y -= delta * 5f;
 				if (data.y <= -1) {
 					data.y = -1;
-					data.x += delta * 2f;
+					data.x += delta * 3f;
 					if (data.x >= 1) {
 						window.setAnimationState(AnimationState.AFTER_MINIMIZE);
 						animationData.remove(window);
@@ -220,10 +227,10 @@ public class Compositor {
 		case RESTORE_MINIMIZE:
 			data = animationData.get(window);
 			if (data != null) {
-				data.x += delta * 2f;
+				data.x += delta * 3f;
 				if (data.x >= 1) {
 					data.x = 1;
-					data.y += delta * 4f;
+					data.y += delta * 5f;
 					if (data.y >= 1) {
 						window.setAnimationState(AnimationState.NONE);
 						animationData.remove(window);

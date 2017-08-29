@@ -64,7 +64,7 @@ public class ScrollArea extends Component {
 		nvgSave(window.getNVGID());
 		nvgIntersectScissor(window.getNVGID(), rootComponent.rootX + alignedX,
 				window.getHeight() - rootComponent.rootY - alignedY - h, w, h);
-		comp.render();
+		comp.renderManual();
 		nvgRestore(window.getNVGID());
 		Theme.renderScrollBarV(window.getNVGID(), rootComponent.rootX + alignedX,
 				window.getHeight() - rootComponent.rootY - alignedY - h, w, h, scrollH / maxH,

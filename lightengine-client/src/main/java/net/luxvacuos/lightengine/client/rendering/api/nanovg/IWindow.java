@@ -137,6 +137,8 @@ public interface IWindow {
 	public boolean isMaximized();
 
 	public boolean isCompositor();
+	
+	public boolean isAnimating();
 
 	public ITitleBar getTitleBar();
 

@@ -88,6 +88,22 @@ public class RootComponent {
 		}
 		nvgRestore(vg);
 	}
+	
+	public void renderManual() {
+		long vg = window.getNVGID();
+		nvgSave(vg);
+		if (Theme.DEBUG) {
+			nvgBeginPath(vg);
+			nvgRect(vg, root.rootX, window.getHeight() - root.rootY - root.rootH, root.rootW, root.rootH);
+			nvgStrokeWidth(vg, Theme.DEBUG_STROKE);
+			nvgStrokeColor(vg, Theme.debugE);
+			nvgStroke(vg);
+		}
+		for (Component component : components) {
+			component.render(window);
+		}
+		nvgRestore(vg);
+	}
 
 	public void update(float delta) {
 		for (Component component : components) {
