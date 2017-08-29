@@ -118,8 +118,10 @@ public class Renderer {
 	}
 
 	public static void render(ImmutableArray<Entity> entities, Map<ParticleTexture, List<Particle>> particles,
-			List<WaterTile> waterTiles, LightRenderer lightRenderer, CameraEntity camera,
-			IWorldSimulation worldSimulation, Sun sun, float alpha) {
+			List<WaterTile> waterTiles, LightRenderer lightRenderer, CameraEntity cameraT,
+			IWorldSimulation worldSimulation, Sun sunT, float alpha) {
+		CameraEntity camera = cameraT;
+		Sun sun = sunT;
 		resetState();
 		GPUProfiler.start("Main Renderer");
 		GPUProfiler.start("EnvMap");

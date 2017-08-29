@@ -26,6 +26,8 @@ import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_LEFT;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
+import net.luxvacuos.lightengine.client.commands.StateCommand;
+import net.luxvacuos.lightengine.client.commands.StopCommand;
 import net.luxvacuos.lightengine.client.commands.TestCommand;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
@@ -54,6 +56,8 @@ public class Console extends ComponentWindow {
 		super.extendFrame(0, 40, 0, 0);
 		manager = new CommandManager(inter);
 		manager.registerCommand(new TestCommand());
+		manager.registerCommand(new StopCommand());
+		manager.registerCommand(new StateCommand());
 
 		text = new TextArea(textBuffer, 0, 0, w);
 		text.setWindowAlignment(Alignment.LEFT_BOTTOM);
