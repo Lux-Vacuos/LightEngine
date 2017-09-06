@@ -37,6 +37,7 @@ public class DropDown<E> extends Button {
 	private E value;
 	private List<E> objects;
 	private OnAction action;
+	private boolean setSelected;
 
 	public DropDown(float x, float y, float w, float h, E val, List<E> objects) {
 		super(x, y, w, h, val.toString());
@@ -46,51 +47,55 @@ public class DropDown<E> extends Button {
 	@Override
 	public void init(Window window) {
 		super.setOnButtonPress(() -> {
-			TaskManager.addTask(() -> GraphicalSubsystem.getWindowManager().addWindow(new ComponentWindow(
-					(int) (rootComponent.rootX + alignedX),(int) (rootComponent.rootY - alignedY), (int) w, 300, "test") {
+			TaskManager.addTask(() -> GraphicalSubsystem.getWindowManager()
+					.addWindow(new ComponentWindow((int) (rootComponent.rootX + alignedX),
+							(int) (rootComponent.rootY - alignedY), (int) w, 300, "test") {
 
-				@Override
-				public void initApp() {
-					super.toggleTitleBar();
-					super.setDecorations(false);
-					super.setBackgroundStyle(BackgroundStyle.TRANSPARENT);
+						@Override
+						public void initApp() {
+							super.toggleTitleBar();
+							super.setDecorations(false);
+							super.setBackgroundStyle(BackgroundStyle.TRANSPARENT);
 
-					ScrollArea area = new ScrollArea(0, 0, w, h, 0, 0);
-					area.setLayout(new FlowLayout(Direction.DOWN, 0, 0));
-					area.setResizeH(true);
-					area.setResizeV(true);
-					int hh = 0;
-					for (E e : objects) {
-						ContextMenuButton btn = new ContextMenuButton(0, 0,
-								w - (int) REGISTRY
-										.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/scrollBarSize")),
-								30, e.toString());
-						btn.setWindowAlignment(Alignment.LEFT_TOP);
-						btn.setAlignment(Alignment.RIGHT_BOTTOM);
-						btn.setOnButtonPress(() -> {
-							value = e;
-							text = e.toString();
-							super.closeWindow();
-							if (action != null)
-								action.onAction();
-						});
-						area.addComponent(btn);
-						hh += 30;
-					}
-					h = Maths.minInt(hh, 200);
-					super.addComponent(area);
+							ScrollArea area = new ScrollArea(0, 0, w, h, 0, 0);
+							area.setLayout(new FlowLayout(Direction.DOWN, 0, 0));
+							area.setResizeH(true);
+							area.setResizeV(true);
+							int hh = 0;
+							for (E e : objects) {
+								ContextMenuButton btn = new ContextMenuButton(0, 0,
+										w - (int) REGISTRY.getRegistryItem(
+												new Key("/Light Engine/Settings/WindowManager/scrollBarSize")),
+										30, e.toString());
+								btn.setWindowAlignment(Alignment.LEFT_TOP);
+								btn.setAlignment(Alignment.RIGHT_BOTTOM);
+								btn.setOnButtonPress(() -> {
+									value = e;
+									text = e.toString();
+									super.closeWindow();
+									setSelected = false;
+									if (action != null)
+										action.onAction();
+								});
+								area.addComponent(btn);
+								hh += 30;
+							}
+							h = Maths.minInt(hh, 200);
+							super.addComponent(area);
+							super.initApp();
+							setSelected = true;
+						}
 
-					super.initApp();
-				}
-
-				@Override
-				public void alwaysUpdateApp(float delta) {
-					if ((window.getMouseHandler().isButtonPressed(0) || window.getMouseHandler().isButtonPressed(1))
-							&& !insideWindow())
-						super.closeWindow();
-					super.alwaysUpdateApp(delta);
-				}
-			}));
+						@Override
+						public void alwaysUpdateApp(float delta) {
+							if ((window.getMouseHandler().isButtonPressed(0)
+									|| window.getMouseHandler().isButtonPressed(1)) && !insideWindow()) {
+								super.closeWindow();
+								setSelected = false;
+							}
+							super.alwaysUpdateApp(delta);
+						}
+					}));
 
 		});
 		super.init(window);
@@ -100,8 +105,10 @@ public class DropDown<E> extends Button {
 	public void render(Window window) {
 		if (!enabled)
 			return;
-		Theme.renderDropDownButton(window.getNVGID(), rootComponent.rootX + alignedX,
-				window.getHeight() - rootComponent.rootY - alignedY - h, w, h, fontSize, font, entypo, text, inside);
+		if(setSelected)
+			componentState = ComponentState.SELECTED;
+		Theme.renderDropDownButton(window.getNVGID(), componentState, rootComponent.rootX + alignedX,
+				window.getHeight() - rootComponent.rootY - alignedY - h, w, h, fontSize, font, entypo, text, false);
 	}
 
 	@Override

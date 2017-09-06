@@ -42,7 +42,7 @@ public class ToggleButton extends Button {
 	public void render(Window window) {
 		if (!enabled)
 			return;
-		Theme.renderToggleButton(window.getNVGID(), text, font, rootComponent.rootX + alignedX,
+		Theme.renderToggleButton(window.getNVGID(), componentState, text, font, rootComponent.rootX + alignedX,
 				window.getHeight() - rootComponent.rootY - alignedY - h, w, h, fontSize, status);
 	}
 

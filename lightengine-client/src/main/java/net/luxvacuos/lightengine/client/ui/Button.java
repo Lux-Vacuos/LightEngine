@@ -20,8 +20,6 @@
 
 package net.luxvacuos.lightengine.client.ui;
 
-import java.nio.ByteBuffer;
-
 import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
@@ -29,10 +27,10 @@ import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 public class Button extends Component {
 
 	protected String text = "missigno", font = "Poppins-Medium", entypo = "Entypo";
-	protected ByteBuffer preicon;
-	protected OnAction onPress, rightPress;;
+	protected String preicon;
+	protected OnAction onPress, rightPress;
 	protected float fontSize = 21;
-	protected boolean pressed = false, pressedRight = false, enabled = true, inside;
+	protected boolean pressed = false, pressedRight = false, enabled = true;
 
 	public Button(float x, float y, float w, float h, String text) {
 		this.x = x;
@@ -46,16 +44,22 @@ public class Button extends Component {
 	public void render(Window window) {
 		if (!enabled)
 			return;
-		Theme.renderButton(window.getNVGID(), preicon, text, font, entypo, rootComponent.rootX + alignedX,
-				window.getHeight() - rootComponent.rootY - alignedY - h, w, h, inside, fontSize);
+		Theme.renderButton(window.getNVGID(), componentState, preicon, text, font, entypo,
+				rootComponent.rootX + alignedX, window.getHeight() - rootComponent.rootY - alignedY - h, w, h, false,
+				fontSize);
 	}
 
 	@Override
 	public void update(float delta, Window window) {
+		super.update(delta, window);
 		if (!enabled)
 			return;
 		MouseHandler mh = window.getMouseHandler();
-		inside = insideButton(mh);
+		if (insideButton(mh)) {
+			componentState = ComponentState.HOVER;
+			if (pressed)
+				componentState = ComponentState.PRESSED;
+		}
 		if (onPress != null)
 			if (pressed(mh) || pressed) {
 				if (!pressed(mh) && pressed)
@@ -69,7 +73,6 @@ public class Button extends Component {
 				pressedRight = pressedRight(mh);
 			}
 
-		super.update(delta, window);
 	}
 
 	public boolean insideButton(MouseHandler mh) {
@@ -111,7 +114,7 @@ public class Button extends Component {
 		this.font = font;
 	}
 
-	public void setPreicon(ByteBuffer preicon) {
+	public void setPreicon(String preicon) {
 		this.preicon = preicon;
 	}
 

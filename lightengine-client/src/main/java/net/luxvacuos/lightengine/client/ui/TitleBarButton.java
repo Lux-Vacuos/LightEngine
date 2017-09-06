@@ -36,8 +36,8 @@ public class TitleBarButton extends Button {
 	public void render(Window window) {
 		if (!enabled)
 			return;
-		Theme.renderTitleBarButton(window.getNVGID(), rootComponent.rootX + alignedX,
-				window.getHeight() - rootComponent.rootY - alignedY - h, w, h, style, inside);
+		Theme.renderTitleBarButton(window.getNVGID(), componentState, rootComponent.rootX + alignedX,
+				window.getHeight() - rootComponent.rootY - alignedY - h, w, h, style, false);
 	}
 
 	public void setStyle(ButtonStyle style) {

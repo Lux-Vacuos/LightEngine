@@ -56,14 +56,13 @@ public class Slider extends Component {
 
 	@Override
 	public void render(Window window) {
-		Theme.renderSlider(window.getNVGID(), pos, rootComponent.rootX + alignedX,
+		Theme.renderSlider(window.getNVGID(), componentState, pos, rootComponent.rootX + alignedX,
 				window.getHeight() - rootComponent.rootY - alignedY - h, w, h);
 	}
 
 	public boolean insideSlider(MouseHandler mh) {
 		return mh.getX() > rootComponent.rootX + alignedX - 6 && mh.getY() > rootComponent.rootY + alignedY
-				&& mh.getX() < rootComponent.rootX + alignedX + w + 6
-				&& mh.getY() < rootComponent.rootY + alignedY + h;
+				&& mh.getX() < rootComponent.rootX + alignedX + w + 6 && mh.getY() < rootComponent.rootY + alignedY + h;
 	}
 
 	public void setOnPress(OnAction onPress) {

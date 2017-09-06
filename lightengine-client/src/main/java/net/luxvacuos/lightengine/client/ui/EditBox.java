@@ -43,14 +43,17 @@ public class EditBox extends Component {
 
 	@Override
 	public void render(Window window) {
-		Theme.renderEditBox(window.getNVGID(), text, font, rootComponent.rootX + alignedX,
+		Theme.renderEditBox(window.getNVGID(), componentState, text, font, rootComponent.rootX + alignedX,
 				window.getHeight() - rootComponent.rootY - alignedY - h, w, h, fontSize, selected);
 	}
 
 	@Override
 	public void update(float delta, Window window) {
+		super.update(delta, window);
 		KeyboardHandler kb = window.getKeyboardHandler();
 		MouseHandler mh = window.getMouseHandler();
+		if (insideBox(mh))
+			componentState = ComponentState.HOVER;
 		if (mh.isButtonPressed(0)) {
 			if (insideBox(mh)) {
 				kb.enableTextInput();
@@ -62,15 +65,16 @@ public class EditBox extends Component {
 				selected = false;
 			}
 		}
-		if (selected)
+		if (selected) {
 			text = kb.handleInput(text);
+			componentState = ComponentState.SELECTED;
+		}
 		if (kb.isKeyPressed(GLFW.GLFW_KEY_ENTER)) {
 			kb.ignoreKeyUntilRelease(GLFW.GLFW_KEY_ENTER);
 			if (onEnterFress != null)
 				onEnterFress.onAction();
 			text = "";
 		}
-		super.update(delta, window);
 	}
 
 	public boolean insideBox(MouseHandler mh) {

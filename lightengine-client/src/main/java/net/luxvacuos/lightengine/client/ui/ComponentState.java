@@ -20,21 +20,7 @@
 
 package net.luxvacuos.lightengine.client.ui;
 
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
-
-public class ContextMenuButton extends Button {
-
-	public ContextMenuButton(float x, float y, float w, float h, String text) {
-		super(x, y, w, h, text);
-	}
-
-	@Override
-	public void render(Window window) {
-		if (!enabled)
-			return;
-		Theme.renderContexMenuButton(window.getNVGID(), componentState, text, font, rootComponent.rootX + alignedX,
-				window.getHeight() - rootComponent.rootY - alignedY - h, w, h, fontSize, false);
-	}
+public enum ComponentState {
+	NONE, HOVER, PRESSED, SELECTED
 
 }

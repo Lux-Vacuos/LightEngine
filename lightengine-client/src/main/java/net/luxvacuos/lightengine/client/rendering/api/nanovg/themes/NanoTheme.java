@@ -75,6 +75,7 @@ import org.lwjgl.nanovg.NVGTextRow;
 
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme.BackgroundStyle;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme.ButtonStyle;
+import net.luxvacuos.lightengine.client.ui.ComponentState;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class NanoTheme implements ITheme {
@@ -82,15 +83,16 @@ public class NanoTheme implements ITheme {
 	private final FloatBuffer lineh = BufferUtils.createFloatBuffer(1);
 	private final NVGTextRow.Buffer rows = NVGTextRow.create(3);
 
-	protected NVGColor buttonColor = Theme.rgba(255, 255, 255, 255), buttonHighlight = Theme.rgba(190, 190, 190, 255),
-			buttonTextColor = Theme.rgba(60, 60, 60, 255);
+	protected NVGColor buttonColor = Theme.rgba(255, 255, 255, 255), buttonHighlight = Theme.rgba(210, 210, 210, 255),
+			buttonPress = Theme.rgba(170, 170, 170, 255), buttonTextColor = Theme.rgba(0, 0, 0, 255);
 	protected NVGColor toggleButtonColor = Theme.setColor(1f, 1f, 1f, 1f),
 			toggleButtonHighlight = Theme.setColor(0.5f, 1f, 0.5f, 1f);
 	protected NVGColor titleBarButtonColor = Theme.setColor("#646464C8"),
-			titleBarButtonHighlight = Theme.setColor("#FFFFFFC8"),
-			titleBarButtonCloseHighlight = Theme.setColor("#FF0000C8");
+			titleBarButtonHighlight = Theme.setColor("#BEBEBEC8"), titleBarButtonPress = Theme.setColor("#FFFFFFC8"),
+			titleBarButtonCloseHighlight = Theme.setColor("#BE0000C8"),
+			titleBarButtonClosePress = Theme.setColor("#FF0000C8");
 	protected NVGColor contextButtonColor = Theme.setColor("#646464C8"),
-			contextButtonHighlight = Theme.setColor("#C8C8C8C8");
+			contextButtonHighlight = Theme.setColor("#BEBEBEC8"), contextButtonPress = Theme.setColor("#A0A0A0C8");
 
 	@Override
 	public void renderWindow(long vg, int x, int y, int w, int h, BackgroundStyle backgroundStyle,
@@ -245,19 +247,31 @@ public class NanoTheme implements ITheme {
 	}
 
 	@Override
-	public void renderTitleBarButton(long vg, float x, float y, float w, float h, ButtonStyle style,
-			boolean highlight) {
+	public void renderTitleBarButton(long vg, ComponentState componentState, float x, float y, float w, float h,
+			ButtonStyle style, boolean highlight) {
 		nvgSave(vg);
 		nvgIntersectScissor(vg, x, y, w, h);
 		nvgBeginPath(vg);
 		nvgRect(vg, x, y, w, h);
-		if (highlight)
+		switch (componentState) {
+		case HOVER:
 			if (style.equals(ButtonStyle.CLOSE))
 				nvgFillColor(vg, titleBarButtonCloseHighlight);
 			else
 				nvgFillColor(vg, titleBarButtonHighlight);
-		else
+			break;
+		case NONE:
 			nvgFillColor(vg, titleBarButtonColor);
+			break;
+		case PRESSED:
+			if (style.equals(ButtonStyle.CLOSE))
+				nvgFillColor(vg, titleBarButtonClosePress);
+			else
+				nvgFillColor(vg, titleBarButtonPress);
+			break;
+		case SELECTED:
+			break;
+		}
 		nvgFill(vg);
 
 		if (Theme.DEBUG) {
@@ -381,24 +395,30 @@ public class NanoTheme implements ITheme {
 	}
 
 	@Override
-	public void renderEditBoxBase(long vg, float x, float y, float w, float h, boolean selected) {
+	public void renderEditBoxBase(long vg, ComponentState componentState, float x, float y, float w, float h,
+			boolean selected) {
 		nvgSave(vg);
 		nvgIntersectScissor(vg, x, y, w, h);
 		nvgBeginPath(vg);
 		nvgRect(vg, x + 1, y + 1, w - 2, h - 2);
-		if (selected)
-			nvgFillColor(vg, Theme.rgba(255, 255, 255, 255, colorA));
-		else
-			nvgFillColor(vg, Theme.rgba(180, 180, 180, 255, colorA));
+		switch(componentState) {
+		case HOVER:
+			nvgFillColor(vg, buttonHighlight);
+			break;
+		case NONE:
+			nvgFillColor(vg, buttonColor);
+			break;
+		case PRESSED:
+			break;
+		case SELECTED:
+			nvgFillColor(vg, buttonPress);
+			break;
+		}
 		nvgFill(vg);
 
 		nvgBeginPath(vg);
 		nvgRect(vg, x + 0.5f, y + 0.5f, w - 1, h - 1);
-		if (selected)
-			nvgStrokeColor(vg, Theme.rgba(50, 50, 50, 255, colorA));
-		else
-			nvgStrokeColor(vg, Theme.rgba(70, 70, 70, 255, colorA));
-		nvgStrokeWidth(vg, 1);
+		nvgStrokeColor(vg, Theme.rgba(0, 0, 0, 100, colorA));
 		nvgStroke(vg);
 		if (Theme.DEBUG) {
 			nvgBeginPath(vg);
@@ -411,10 +431,10 @@ public class NanoTheme implements ITheme {
 	}
 
 	@Override
-	public void renderEditBox(long vg, String text, String font, float x, float y, float w, float h, float fontSize,
-			boolean selected) {
+	public void renderEditBox(long vg, ComponentState componentState, String text, String font, float x, float y,
+			float w, float h, float fontSize, boolean selected) {
 		float[] bounds = new float[4];
-		renderEditBoxBase(vg, x, y, w, h, selected);
+		renderEditBoxBase(vg, componentState, x, y, w, h, selected);
 		nvgSave(vg);
 		nvgFontSize(vg, fontSize);
 		nvgFontFace(vg, font);
@@ -442,17 +462,26 @@ public class NanoTheme implements ITheme {
 	}
 
 	@Override
-	public void renderButton(long vg, ByteBuffer preicon, String text, String font, String entypo, float x, float y,
-			float w, float h, boolean highlight, float fontSize) {
+	public void renderButton(long vg, ComponentState componentState, String preicon, String text, String font,
+			String entypo, float x, float y, float w, float h, boolean highlight, float fontSize) {
 		float tw, iw = 0;
 		nvgSave(vg);
 		nvgIntersectScissor(vg, x, y, w, h);
 		nvgBeginPath(vg);
 		nvgRect(vg, x + 1, y + 1, w - 2, h - 2);
-		if (highlight)
+		switch (componentState) {
+		case HOVER:
 			nvgFillColor(vg, buttonHighlight);
-		else
+			break;
+		case NONE:
 			nvgFillColor(vg, buttonColor);
+			break;
+		case PRESSED:
+			nvgFillColor(vg, buttonPress);
+			break;
+		case SELECTED:
+			break;
+		}
 		nvgFill(vg);
 
 		nvgBeginPath(vg);
@@ -520,16 +549,25 @@ public class NanoTheme implements ITheme {
 	}
 
 	@Override
-	public void renderContexMenuButton(long vg, String text, String font, float x, float y, float w, float h,
-			float fontSize, boolean highlight) {
+	public void renderContexMenuButton(long vg, ComponentState componentState, String text, String font, float x,
+			float y, float w, float h, float fontSize, boolean highlight) {
 		nvgSave(vg);
 		nvgIntersectScissor(vg, x, y, w, h);
 		nvgBeginPath(vg);
 		nvgRect(vg, x, y, w, h);
-		if (highlight)
+		switch (componentState) {
+		case HOVER:
 			nvgFillColor(vg, contextButtonHighlight);
-		else
+			break;
+		case NONE:
 			nvgFillColor(vg, contextButtonColor);
+			break;
+		case PRESSED:
+			nvgFillColor(vg, contextButtonPress);
+			break;
+		case SELECTED:
+			break;
+		}
 		nvgFill(vg);
 
 		nvgFontSize(vg, fontSize);
@@ -555,8 +593,8 @@ public class NanoTheme implements ITheme {
 	}
 
 	@Override
-	public void renderToggleButton(long vg, String text, String font, float x, float y, float w, float h,
-			float fontSize, boolean status) {
+	public void renderToggleButton(long vg, ComponentState componentState, String text, String font, float x, float y,
+			float w, float h, float fontSize, boolean status) {
 		nvgSave(vg);
 		nvgIntersectScissor(vg, x, y, w, h);
 		nvgBeginPath(vg);
@@ -678,7 +716,7 @@ public class NanoTheme implements ITheme {
 	}
 
 	@Override
-	public void renderSlider(long vg, float pos, float x, float y, float w, float h) {
+	public void renderSlider(long vg, ComponentState componentState, float pos, float x, float y, float w, float h) {
 
 		nvgSave(vg);
 		// Slot
@@ -710,7 +748,8 @@ public class NanoTheme implements ITheme {
 	}
 
 	@Override
-	public void renderScrollBarV(long vg, float x, float y, float w, float h, float pos, float sizeV) {
+	public void renderScrollBarV(long vg, ComponentState componentState, float x, float y, float w, float h, float pos,
+			float sizeV) {
 		int scrollBarSize = (int) REGISTRY
 				.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/scrollBarSize"));
 
@@ -787,16 +826,26 @@ public class NanoTheme implements ITheme {
 	}
 
 	@Override
-	public void renderDropDownButton(long vg, float x, float y, float w, float h, float fontSize, String font,
-			String entypo, String text, boolean inside) {
+	public void renderDropDownButton(long vg, ComponentState componentState, float x, float y, float w, float h,
+			float fontSize, String font, String entypo, String text, boolean inside) {
 		nvgSave(vg);
 		nvgIntersectScissor(vg, x, y, w, h);
 		nvgBeginPath(vg);
 		nvgRect(vg, x + 1, y + 1, w - 2, h - 2);
-		if (inside)
+		switch (componentState) {
+		case HOVER:
 			nvgFillColor(vg, buttonHighlight);
-		else
+			break;
+		case NONE:
 			nvgFillColor(vg, buttonColor);
+			break;
+		case PRESSED:
+			nvgFillColor(vg, buttonPress);
+			break;
+		case SELECTED:
+			nvgFillColor(vg, buttonPress);
+			break;
+		}
 		nvgFill(vg);
 
 		nvgBeginPath(vg);

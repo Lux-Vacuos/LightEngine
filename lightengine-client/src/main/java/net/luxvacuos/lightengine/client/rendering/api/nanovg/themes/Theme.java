@@ -21,12 +21,11 @@
 package net.luxvacuos.lightengine.client.rendering.api.nanovg.themes;
 
 import static org.lwjgl.nanovg.NanoVGGL3.nvglCreateImageFromHandle;
-import static org.lwjgl.system.MemoryUtil.memUTF8;
-
-import java.nio.ByteBuffer;
 
 import org.lwjgl.nanovg.NVGColor;
 import org.lwjgl.nanovg.NVGPaint;
+
+import net.luxvacuos.lightengine.client.ui.ComponentState;
 
 public class Theme {
 
@@ -36,15 +35,15 @@ public class Theme {
 		Theme.theme = theme;
 	}
 
-	public static final ByteBuffer ICON_SEARCH = cpToUTF8(0x1F50D);
-	public static final ByteBuffer ICON_CIRCLED_CROSS = cpToUTF8(0x2716);
-	public static final ByteBuffer ICON_CHEVRON_RIGHT = cpToUTF8(0xE75E);
-	public static final ByteBuffer ICON_CHECK = cpToUTF8(0x2713);
-	public static final ByteBuffer ICON_LOGIN = cpToUTF8(0xE740);
-	public static final ByteBuffer ICON_TRASH = cpToUTF8(0xE729);
-	public static final ByteBuffer ICON_INFORMATION_SOURCE = cpToUTF8(0x2139);
-	public static final ByteBuffer ICON_GEAR = cpToUTF8(0x2699);
-	public static final ByteBuffer ICON_BLACK_RIGHT_POINTING_TRIANGLE = cpToUTF8(0x25B6);
+	public static final String ICON_SEARCH = cpToUTF8(0x1F50D);
+	public static final String ICON_CIRCLED_CROSS = cpToUTF8(0x2716);
+	public static final String ICON_CHEVRON_RIGHT = cpToUTF8(0xE75E);
+	public static final String ICON_CHECK = cpToUTF8(0x2713);
+	public static final String ICON_LOGIN = cpToUTF8(0xE740);
+	public static final String ICON_TRASH = cpToUTF8(0xE729);
+	public static final String ICON_INFORMATION_SOURCE = cpToUTF8(0x2139);
+	public static final String ICON_GEAR = cpToUTF8(0x2699);
+	public static final String ICON_BLACK_RIGHT_POINTING_TRIANGLE = cpToUTF8(0x25B6);
 
 	public static final NVGPaint paintA = NVGPaint.create();
 	public static final NVGPaint paintB = NVGPaint.create();
@@ -69,8 +68,8 @@ public class Theme {
 		SOLID, TRANSPARENT
 	};
 
-	public static ByteBuffer cpToUTF8(int cp) {
-		return memUTF8(new String(Character.toChars(cp)), true);
+	public static String cpToUTF8(int cp) {
+		return new String(Character.toChars(cp));
 	}
 
 	public static int generateImageFromTexture(long vg, int texID, int w, int h, int flags) {
@@ -123,9 +122,9 @@ public class Theme {
 
 	}
 
-	public static void renderTitleBarButton(long vg, float x, float y, float w, float h, ButtonStyle style,
-			boolean highlight) {
-		theme.renderTitleBarButton(vg, x, y, w, h, style, highlight);
+	public static void renderTitleBarButton(long vg, ComponentState componentState, float x, float y, float w, float h,
+			ButtonStyle style, boolean highlight) {
+		theme.renderTitleBarButton(vg, componentState, x, y, w, h, style, highlight);
 
 	}
 
@@ -143,28 +142,29 @@ public class Theme {
 		theme.renderImage(vg, x, y, image, alpha);
 	}
 
-	public static void renderEditBoxBase(long vg, float x, float y, float w, float h, boolean selected) {
-		theme.renderEditBoxBase(vg, x, y, w, h, selected);
+	public static void renderEditBoxBase(long vg, ComponentState componentState, float x, float y, float w, float h,
+			boolean selected) {
+		theme.renderEditBoxBase(vg, componentState, x, y, w, h, selected);
 	}
 
-	public static void renderEditBox(long vg, String text, String font, float x, float y, float w, float h,
-			float fontSize, boolean selected) {
-		theme.renderEditBox(vg, text, font, x, y, w, h, fontSize, selected);
+	public static void renderEditBox(long vg, ComponentState componentState, String text, String font, float x, float y,
+			float w, float h, float fontSize, boolean selected) {
+		theme.renderEditBox(vg, componentState, text, font, x, y, w, h, fontSize, selected);
 	}
 
-	public static void renderButton(long vg, ByteBuffer preicon, String text, String font, String entypo, float x,
-			float y, float w, float h, boolean highlight, float fontSize) {
-		theme.renderButton(vg, preicon, text, font, entypo, x, y, w, h, highlight, fontSize);
+	public static void renderButton(long vg, ComponentState componentState, String preicon, String text, String font,
+			String entypo, float x, float y, float w, float h, boolean highlight, float fontSize) {
+		theme.renderButton(vg, componentState, preicon, text, font, entypo, x, y, w, h, highlight, fontSize);
 	}
 
-	public static void renderContexMenuButton(long vg, String text, String font, float x, float y, float w, float h,
-			float fontSize, boolean highlight) {
-		theme.renderContexMenuButton(vg, text, font, x, y, w, h, fontSize, highlight);
+	public static void renderContexMenuButton(long vg, ComponentState componentState, String text, String font, float x,
+			float y, float w, float h, float fontSize, boolean highlight) {
+		theme.renderContexMenuButton(vg, componentState, text, font, x, y, w, h, fontSize, highlight);
 	}
 
-	public static void renderToggleButton(long vg, String text, String font, float x, float y, float w, float h,
-			float fontSize, boolean status) {
-		theme.renderToggleButton(vg, text, font, x, y, w, h, fontSize, status);
+	public static void renderToggleButton(long vg, ComponentState componentState, String text, String font, float x,
+			float y, float w, float h, float fontSize, boolean status) {
+		theme.renderToggleButton(vg, componentState, text, font, x, y, w, h, fontSize, status);
 	}
 
 	public static void renderSpinner(long vg, float cx, float cy, float r, float t) {
@@ -181,17 +181,19 @@ public class Theme {
 		theme.renderBox(vg, x, y, w, h, color, rt, lt, rb, lb);
 	}
 
-	public static void renderSlider(long vg, float pos, float x, float y, float w, float h) {
-		theme.renderSlider(vg, pos, x, y, w, h);
+	public static void renderSlider(long vg, ComponentState componentState, float pos, float x, float y, float w,
+			float h) {
+		theme.renderSlider(vg, componentState, pos, x, y, w, h);
 	}
 
-	public static void renderScrollBarV(long vg, float x, float y, float w, float h, float pos, float sizeV) {
-		theme.renderScrollBarV(vg, x, y, w, h, pos, sizeV);
+	public static void renderScrollBarV(long vg, ComponentState componentState, float x, float y, float w, float h,
+			float pos, float sizeV) {
+		theme.renderScrollBarV(vg, componentState, x, y, w, h, pos, sizeV);
 	}
 
-	public static void renderDropDownButton(long vg, float x, float y, float w, float h, float fontSize, String font,
-			String entypo, String text, boolean inside) {
-		theme.renderDropDownButton(vg, x, y, w, h, fontSize, font, entypo, text, inside);
+	public static void renderDropDownButton(long vg, ComponentState componentState, float x, float y, float w, float h,
+			float fontSize, String font, String entypo, String text, boolean inside) {
+		theme.renderDropDownButton(vg, componentState, x, y, w, h, fontSize, font, entypo, text, inside);
 	}
 
 }

@@ -20,12 +20,11 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.nanovg.themes;
 
-import java.nio.ByteBuffer;
-
 import org.lwjgl.nanovg.NVGColor;
 
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme.BackgroundStyle;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme.ButtonStyle;
+import net.luxvacuos.lightengine.client.ui.ComponentState;
 
 public interface ITheme {
 
@@ -35,7 +34,8 @@ public interface ITheme {
 
 	public float renderTitleBarText(long vg, String text, String font, int align, float x, float y, float fontSize);
 
-	public void renderTitleBarButton(long vg, float x, float y, float w, float h, ButtonStyle style, boolean highlight);
+	public void renderTitleBarButton(long vg, ComponentState componentState, float x, float y, float w, float h,
+			ButtonStyle style, boolean highlight);
 
 	public float renderText(long vg, String text, String font, int align, float x, float y, float fontSize,
 			NVGColor color);
@@ -44,19 +44,20 @@ public interface ITheme {
 
 	public void renderImage(long vg, float x, float y, int image, float alpha);
 
-	public void renderEditBoxBase(long vg, float x, float y, float w, float h, boolean selected);
-
-	public void renderEditBox(long vg, String text, String font, float x, float y, float w, float h, float fontSize,
+	public void renderEditBoxBase(long vg, ComponentState componentState, float x, float y, float w, float h,
 			boolean selected);
 
-	public void renderButton(long vg, ByteBuffer preicon, String text, String font, String entypo, float x, float y,
-			float w, float h, boolean highlight, float fontSize);
+	public void renderEditBox(long vg, ComponentState componentState, String text, String font, float x, float y,
+			float w, float h, float fontSize, boolean selected);
 
-	public void renderContexMenuButton(long vg, String text, String font, float x, float y, float w, float h,
-			float fontSize, boolean highlight);
+	public void renderButton(long vg, ComponentState componentState, String preicon, String text, String font,
+			String entypo, float x, float y, float w, float h, boolean highlight, float fontSize);
 
-	public void renderToggleButton(long vg, String text, String font, float x, float y, float w, float h,
-			float fontSize, boolean status);
+	public void renderContexMenuButton(long vg, ComponentState componentState, String text, String font, float x,
+			float y, float w, float h, float fontSize, boolean highlight);
+
+	public void renderToggleButton(long vg, ComponentState componentState, String text, String font, float x, float y,
+			float w, float h, float fontSize, boolean status);
 
 	public void renderSpinner(long vg, float cx, float cy, float r, float t);
 
@@ -66,12 +67,13 @@ public interface ITheme {
 	public void renderBox(long vg, float x, float y, float w, float h, NVGColor color, float rt, float lt, float rb,
 			float lb);
 
-	public void renderSlider(long vg, float pos, float x, float y, float w, float h);
+	public void renderSlider(long vg, ComponentState componentState, float pos, float x, float y, float w, float h);
 
-	public void renderScrollBarV(long vg, float x, float y, float w, float h, float pos, float sizeV);
+	public void renderScrollBarV(long vg, ComponentState componentState, float x, float y, float w, float h, float pos,
+			float sizeV);
 
-	public void renderDropDownButton(long vg, float x, float y, float w, float h, float fontSize, String font,
-			String entypo, String text, boolean inside);
+	public void renderDropDownButton(long vg, ComponentState componentState, float x, float y, float w, float h,
+			float fontSize, String font, String entypo, String text, boolean inside);
 
 	public String getName();
 }

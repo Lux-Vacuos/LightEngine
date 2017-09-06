@@ -27,7 +27,8 @@ public abstract class Component implements IComponent {
 	protected Root rootComponent;
 	protected Alignment alignment = Alignment.RIGHT_TOP, windowAlignment = Alignment.LEFT_BOTTOM;
 	protected float alignedX, alignedY, x, y, w, h;
-	protected boolean resizeH = false, resizeV = false;;
+	protected boolean resizeH = false, resizeV = false;
+	protected ComponentState componentState = ComponentState.NONE;
 
 	@Override
 	public void init(Window window) {
@@ -35,6 +36,7 @@ public abstract class Component implements IComponent {
 
 	@Override
 	public void update(float delta, Window window) {
+		componentState = ComponentState.NONE;
 	}
 
 	@Override

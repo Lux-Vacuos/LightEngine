@@ -392,8 +392,11 @@ public class OptionsWindow extends ComponentWindow {
 			wmTitleText.setText(LANG.getRegistryItem("lightengine.optionswindow.wm.titlebarsize") + ": " + val);
 			GraphicalSubsystem.getWindowManager().notifyAllWindows(WindowMessage.WM_COMPOSITOR_RELOAD, null);
 		});
-		titleBorderButton.setOnButtonPress(() -> REGISTRY.register(
-				new Key("/Light Engine/Settings/WindowManager/titleBarBorder"), titleBorderButton.getStatus()));
+		titleBorderButton.setOnButtonPress(() -> {
+			REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/titleBarBorder"),
+					titleBorderButton.getStatus());
+			GraphicalSubsystem.getWindowManager().notifyAllWindows(WindowMessage.WM_COMPOSITOR_RELOAD, null);
+		});
 		compositorButton.setOnButtonPress(() -> {
 			if (compositorButton.getStatus())
 				GraphicalSubsystem.getWindowManager().enableCompositor();
