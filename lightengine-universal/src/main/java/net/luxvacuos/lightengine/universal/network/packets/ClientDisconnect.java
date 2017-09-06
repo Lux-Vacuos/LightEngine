@@ -35,7 +35,7 @@ public class ClientDisconnect implements Serializable {
 		this.name = name;
 	}
 
-	public UUID getUuid() {
+	public UUID getUUID() {
 		return uuid;
 	}
 

@@ -22,7 +22,6 @@ package net.luxvacuos.lightengine.universal.commands;
 
 import java.io.PrintStream;
 
-import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
 
 public class TimeCommand extends SimpleCommand {
@@ -37,17 +36,17 @@ public class TimeCommand extends SimpleCommand {
 	@Override
 	public void execute(PrintStream out, Object... data) {
 		if (data.length == 0) {
-			Logger.log("No Option selected");
+			out.println("No Option selected");
 			return;
 		}
 		String param = (String) data[0];
 		switch (param) {
 		case "set":
 			worldSimulation.setTime(Integer.parseInt((String) data[1]));
-			Logger.log("Time set to: " + data[1]);
+			out.println("Time set to: " + data[1]);
 			break;
 		case "time":
-			Logger.log("Time is: " + worldSimulation.getTime());
+			out.println("Time is: " + worldSimulation.getTime());
 			break;
 		}
 	}

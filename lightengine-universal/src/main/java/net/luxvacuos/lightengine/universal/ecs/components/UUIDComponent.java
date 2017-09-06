@@ -48,5 +48,9 @@ public class UUIDComponent implements LEComponent {
 	public TagCompound save() {
 		return new CompoundBuilder().start("UUIDComponent").addString("UUID", this.uuid.toString()).build();
 	}
+	
+	public UUID getUUID() {
+		return uuid;
+	}
 
 }

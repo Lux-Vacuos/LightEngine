@@ -18,37 +18,31 @@
  * 
  */
 
-package net.luxvacuos.lightengine.universal.network.packets;
+package net.luxvacuos.lightengine.universal.commands;
 
-import java.io.Serializable;
+import java.io.PrintStream;
 
-public class SetBlock implements Serializable {
+import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 
-	private static final long serialVersionUID = 5816401172772848175L;
-	private int x, y, z;
-	private int block;
+public class StateCommand extends SimpleCommand {
 
-	public SetBlock(int x, int y, int z, int block) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.block = block;
+	public StateCommand() {
+		super("/state");
 	}
 
-	public int getX() {
-		return x;
-	}
-
-	public int getY() {
-		return y;
-	}
-
-	public int getZ() {
-		return z;
-	}
-
-	public int getBlock() {
-		return block;
+	@Override
+	public void execute(PrintStream out, Object... data) {
+		if (data.length == 0) {
+			out.println("Current state: " + StateMachine.getCurrentState().getName());
+			return;
+		}
+		String param = (String) data[0];
+		switch (param) {
+		case "set":
+			out.println("Set state: " + data[1]);
+			StateMachine.setCurrentState((String) data[1]);
+			break;
+		}
 	}
 
 }

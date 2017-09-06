@@ -12,6 +12,9 @@ import com.badlogic.ashley.core.Engine;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.util.ReferenceCountUtil;
 import net.luxvacuos.igl.vector.Vector3d;
 import net.luxvacuos.igl.vector.Vector3f;
 import net.luxvacuos.lightengine.client.core.ClientVariables;
@@ -24,6 +27,7 @@ import net.luxvacuos.lightengine.client.ecs.entities.RenderEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.Sun;
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
 import net.luxvacuos.lightengine.client.input.MouseHandler;
+import net.luxvacuos.lightengine.client.network.Client;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.LightRenderer;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.ParticleDomain;
@@ -41,8 +45,12 @@ import net.luxvacuos.lightengine.demo.ui.PauseWindow;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
+import net.luxvacuos.lightengine.universal.ecs.Components;
 import net.luxvacuos.lightengine.universal.ecs.components.Position;
 import net.luxvacuos.lightengine.universal.ecs.components.Scale;
+import net.luxvacuos.lightengine.universal.network.packets.ClientConnect;
+import net.luxvacuos.lightengine.universal.network.packets.ClientDisconnect;
+import net.luxvacuos.lightengine.universal.network.packets.Time;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 import net.luxvacuos.lightengine.universal.world.PhysicsSystem;
 
@@ -65,6 +73,8 @@ public class MainState extends AbstractState {
 	private CachedTexture fire;
 
 	private List<WaterTile> waterTiles;
+	
+	private Client client;
 
 	public static boolean paused = false, exitWorld = false, loaded = false;
 
@@ -81,10 +91,33 @@ public class MainState extends AbstractState {
 		physicsSystem.addBox(new BoundingBox(new Vector3(-50, -1, -50), new Vector3(50, 0, 50)));
 		engine.addSystem(physicsSystem);
 		waterTiles = new ArrayList<>();
-		for (int x = -128; x <= 128; x++)
-			for (int z = -128; z <= 128; z++)
-				waterTiles.add(new WaterTile(x * WaterTile.TILE_SIZE, -0.5f, z * WaterTile.TILE_SIZE));
+		//for (int x = -128; x <= 128; x++)
+		//	for (int z = -128; z <= 128; z++)
+		//		waterTiles.add(new WaterTile(x * WaterTile.TILE_SIZE, -0.5f, z * WaterTile.TILE_SIZE));
 		sun = new Sun();
+		
+		client = new Client();
+		client.run(new ChannelInboundHandlerAdapter() {
+			@Override
+			public void channelRead(ChannelHandlerContext ctx, Object obj) throws Exception {
+				try {
+					if (obj instanceof Time) {
+						handleTime((Time) obj);
+					}
+				} finally {
+					ReferenceCountUtil.release(obj);
+				}
+				super.channelRead(ctx, obj);
+			}
+			private void handleTime(Time time) {
+				worldSimulation.setTime(time.getTime());
+			}
+		});
+		
+		camera = new PlayerCamera("player", UUID.randomUUID().toString());
+		camera.setPosition(new Vector3d(0, 2, 0));
+		
+		client.sendPacket(new ClientConnect(Components.UUID.get(camera).getUUID(), Components.NAME.get(camera).getName()));
 
 		Renderer.setOnResize(() -> {
 			ClientComponents.PROJECTION_MATRIX.get(camera)
@@ -97,9 +130,6 @@ public class MainState extends AbstractState {
 		MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), true);
 		TaskManager.addTask(() -> {
 			Window window = GraphicalSubsystem.getMainWindow();
-
-			camera = new PlayerCamera("player", UUID.randomUUID().toString());
-			camera.setPosition(new Vector3d(0, 2, 0));
 
 			AssimpResourceLoader aLoader = window.getAssimpResourceLoader();
 
@@ -167,6 +197,8 @@ public class MainState extends AbstractState {
 			fire.dispose();
 			lightRenderer.dispose();
 		});
+		client.sendPacket(new ClientDisconnect(Components.UUID.get(camera).getUUID(), Components.NAME.get(camera).getName()));
+		client.end();
 		super.end();
 	}
 

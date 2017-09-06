@@ -54,7 +54,7 @@ public class LightEngineServer extends AbstractEngine {
 
 		super.initSubsystems();
 
-		Logger.log("Light Engine Client Version: " + REGISTRY.getRegistryItem(new Key("/Light Engine/version")));
+		Logger.log("Light Engine Server Version: " + REGISTRY.getRegistryItem(new Key("/Light Engine/version")));
 		Logger.log("Light Engine Universal Version: "
 				+ REGISTRY.getRegistryItem(new Key("/Light Engine/universalVersion")));
 		Logger.log("Running on: " + Bootstrap.getPlatform());

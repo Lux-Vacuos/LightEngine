@@ -26,7 +26,6 @@ import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_LEFT;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
-import net.luxvacuos.lightengine.client.commands.StateCommand;
 import net.luxvacuos.lightengine.client.commands.StopCommand;
 import net.luxvacuos.lightengine.client.commands.TestCommand;
 import net.luxvacuos.lightengine.client.ui.Alignment;
@@ -37,6 +36,7 @@ import net.luxvacuos.lightengine.client.ui.FlowLayout;
 import net.luxvacuos.lightengine.client.ui.TextArea;
 import net.luxvacuos.lightengine.universal.commands.CommandManager;
 import net.luxvacuos.lightengine.universal.commands.ICommandManager;
+import net.luxvacuos.lightengine.universal.commands.StateCommand;
 
 public class Console extends ComponentWindow {
 

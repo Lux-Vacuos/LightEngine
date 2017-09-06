@@ -22,8 +22,10 @@ package net.luxvacuos.lightengine.server.commands;
 
 import java.io.PrintStream;
 
+import net.luxvacuos.lightengine.server.network.ServerHandler;
 import net.luxvacuos.lightengine.universal.commands.SimpleCommand;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
+import net.luxvacuos.lightengine.universal.network.packets.Disconnect;
 
 public class StopCommand extends SimpleCommand {
 
@@ -33,8 +35,9 @@ public class StopCommand extends SimpleCommand {
 
 	@Override
 	public void execute(PrintStream out, Object... data) {
-		// ServerHandler.channels.writeAndFlush("Stopping Server, Goodbye!");
-		// ServerHandler.channels.writeAndFlush(new Disconnect("Stop command"));
+		ServerHandler.channels.writeAndFlush("Stopping Server, Goodbye!");
+		ServerHandler.channels.writeAndFlush(new Disconnect("Stop command"));
+		out.println("Stopping");
 		StateMachine.stop();
 	}
 
