@@ -25,7 +25,6 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
-import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -34,23 +33,23 @@ import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.universal.network.AbstractNettyNetworkHandler;
+import net.luxvacuos.lightengine.universal.network.LastChannelHandler;
 
 public class Server extends AbstractNettyNetworkHandler {
 
-	private EventLoopGroup bossGroup;
 	private int port;
 
 	public Server(int port) {
 		this.port = port;
 	}
 
+	@Override
 	public void run(ChannelInboundHandlerAdapter... channels) {
 		Logger.log("Starting Netty Server");
-		bossGroup = new NioEventLoopGroup();
 		workGroup = new NioEventLoopGroup();
 		try {
 			ServerBootstrap b = new ServerBootstrap();
-			b.group(bossGroup, workGroup).channel(NioServerSocketChannel.class)
+			b.group(workGroup).channel(NioServerSocketChannel.class)
 					.childHandler(new ChannelInitializer<SocketChannel>() {
 						@Override
 						public void initChannel(SocketChannel channel) throws Exception {
@@ -59,9 +58,10 @@ public class Server extends AbstractNettyNetworkHandler {
 									ClassResolvers.softCachingResolver(ClassLoader.getSystemClassLoader())));
 							pipeline.addLast("encoder", new ObjectEncoder());
 							pipeline.addLast("handler", new ServerHandler());
-							for(ChannelInboundHandlerAdapter channel_ : channels) {
+							for (ChannelInboundHandlerAdapter channel_ : channels) {
 								pipeline.addLast(channel_);
 							}
+							pipeline.addLast(new LastChannelHandler());
 						}
 					}).option(ChannelOption.SO_BACKLOG, 128).childOption(ChannelOption.SO_KEEPALIVE, true);
 			future = b.bind(port).sync();
@@ -70,14 +70,4 @@ public class Server extends AbstractNettyNetworkHandler {
 		}
 	}
 
-	public void end() {
-		workGroup.shutdownGracefully();
-		bossGroup.shutdownGracefully();
-		try {
-			future.channel().closeFuture().sync();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-	
 }

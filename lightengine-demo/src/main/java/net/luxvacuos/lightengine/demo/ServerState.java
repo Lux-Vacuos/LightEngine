@@ -11,8 +11,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.util.ReferenceCountUtil;
 import net.luxvacuos.lightengine.server.bootstrap.Bootstrap;
 import net.luxvacuos.lightengine.server.commands.SayCommand;
 import net.luxvacuos.lightengine.server.commands.ServerCommandManager;
@@ -30,9 +28,11 @@ import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.ecs.Components;
 import net.luxvacuos.lightengine.universal.ecs.entities.PlayerEntity;
+import net.luxvacuos.lightengine.universal.network.SharedChannelHandler;
 import net.luxvacuos.lightengine.universal.network.packets.ClientConnect;
 import net.luxvacuos.lightengine.universal.network.packets.ClientDisconnect;
 import net.luxvacuos.lightengine.universal.network.packets.Time;
+import net.luxvacuos.lightengine.universal.network.packets.UpdateBasicEntity;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 import net.luxvacuos.lightengine.universal.world.PhysicsSystem;
 
@@ -43,9 +43,8 @@ public class ServerState extends AbstractState {
 	private Server server;
 	private PhysicsSystem physicsSystem;
 	private Engine engine;
-	
-	private Map<UUID, PlayerEntity> players = new HashMap<>();
 
+	private Map<UUID, PlayerEntity> players = new HashMap<>();
 
 	public ServerState() {
 		super("_main");
@@ -65,39 +64,46 @@ public class ServerState extends AbstractState {
 		console = new Console();
 		console.setCommandManager(commandManager);
 		console.start();
-		
+
 		engine = new Engine();
 		physicsSystem = new PhysicsSystem();
 		physicsSystem.addBox(new BoundingBox(new Vector3(-50, -1, -50), new Vector3(50, 0, 50)));
 		engine.addSystem(physicsSystem);
-		
+
 		server = new Server((int) REGISTRY.getRegistryItem(new Key("/Light Engine/Server/port")));
-		server.run(new ChannelInboundHandlerAdapter() {
+		server.run(new SharedChannelHandler() {
 			@Override
-			public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-				try {
-				if (msg instanceof ClientConnect) {
-					handleConnect((ClientConnect) msg);
-				} else if (msg instanceof ClientDisconnect) {
-					handleDisconnect((ClientDisconnect) msg);
+			public void channelRead(ChannelHandlerContext ctx, Object obj) throws Exception {
+				if (obj instanceof ClientConnect) {
+					handleConnect((ClientConnect) obj, ctx);
+				} else if (obj instanceof ClientDisconnect) {
+					handleDisconnect((ClientDisconnect) obj);
+				} else if (obj instanceof UpdateBasicEntity) {
+					handleUpdateBasicEntity((UpdateBasicEntity) obj);
 				}
-				} finally {
-					ReferenceCountUtil.release(msg);
-				}
-				super.channelRead(ctx, msg);
+				super.channelRead(ctx, obj);
 			}
 
-			private void handleConnect(ClientConnect msg) {
-				PlayerEntity p = new PlayerEntity(msg.getName(), msg.getUUID().toString());
+			private void handleConnect(ClientConnect con, ChannelHandlerContext ctx) {
+				for(PlayerEntity pl : players.values()) {
+					ctx.channel().writeAndFlush(new ClientConnect(Components.UUID.get(pl).getUUID(), Components.NAME.get(pl).getName()));
+				}
+				PlayerEntity p = new PlayerEntity(con.getName(), con.getUUID().toString());
 				Components.POSITION.get(p).set(0, 2, 0);
 				engine.addEntity(p);
-				players.put(msg.getUUID(), p);
-				ServerHandler.channels.writeAndFlush(msg);
+				players.put(con.getUUID(), p);
+				ServerHandler.channels.writeAndFlush(con);
 			}
 
-			private void handleDisconnect(ClientDisconnect msg) {
-				engine.removeEntity(players.remove(msg.getUUID()));
-				ServerHandler.channels.writeAndFlush(msg);
+			private void handleDisconnect(ClientDisconnect con) {
+				engine.removeEntity(players.remove(con.getUUID()));
+				ServerHandler.channels.writeAndFlush(con);
+			}
+
+			private void handleUpdateBasicEntity(UpdateBasicEntity ube) {
+				PlayerEntity e = players.get(ube.getUUID());
+				Components.POSITION.get(e).set(ube.getPosition());
+				ServerHandler.channels.writeAndFlush(ube);
 			}
 		});
 	}
@@ -109,12 +115,12 @@ public class ServerState extends AbstractState {
 	}
 
 	@Override
-	public void update( float delta) {
+	public void update(float delta) {
 		worldSimulation.update(delta);
 		engine.update(delta);
 		ServerHandler.channels.writeAndFlush(new Time(worldSimulation.getTime()));
 	}
-	
+
 	public static void main(String[] args) {
 		GlobalVariables.PROJECT = "LightEngineDemo";
 		TaskManager.addTask(() -> StateMachine.registerState(new ServerState()));

@@ -42,7 +42,6 @@ import com.badlogic.ashley.utils.ImmutableArray;
 import net.luxvacuos.igl.vector.Matrix4d;
 import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
-import net.luxvacuos.lightengine.client.ecs.entities.RenderEntity;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Material;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Mesh;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Model;
@@ -53,6 +52,7 @@ import net.luxvacuos.lightengine.universal.ecs.Components;
 import net.luxvacuos.lightengine.universal.ecs.components.Position;
 import net.luxvacuos.lightengine.universal.ecs.components.Rotation;
 import net.luxvacuos.lightengine.universal.ecs.components.Scale;
+import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
 
 /**
  * Entity Rendering
@@ -65,7 +65,7 @@ public class EntityRenderer {
 	 * Entity Shader
 	 */
 	private EntityShader shader;
-	private Map<Model, List<RenderEntity>> entities = new HashMap<Model, List<RenderEntity>>();
+	private Map<Model, List<BasicEntity>> entities = new HashMap<Model, List<BasicEntity>>();
 
 	public EntityRenderer(ResourceLoader loader) {
 		shader = new EntityShader();
@@ -77,9 +77,9 @@ public class EntityRenderer {
 
 	public void renderEntity(ImmutableArray<Entity> immutableArray, CameraEntity camera) {
 		for (Entity entity : immutableArray) {
-			if (entity instanceof RenderEntity) {
-				processEntity((RenderEntity) entity);
-			}
+			if (ClientComponents.RENDERABLE.has(entity))
+				if (ClientComponents.RENDERABLE.get(entity).isLoaded())
+					processEntity((BasicEntity) entity);
 		}
 		renderEntity(camera);
 	}
@@ -93,22 +93,22 @@ public class EntityRenderer {
 		entities.clear();
 	}
 
-	private void processEntity(RenderEntity entity) {
+	private void processEntity(BasicEntity entity) {
 		Model entityModel = ClientComponents.RENDERABLE.get(entity).getModel();
-		List<RenderEntity> batch = entities.get(entityModel);
-		if (batch != null) {
+		List<BasicEntity> batch = entities.get(entityModel);
+		if (batch != null)
 			batch.add(entity);
-		} else {
-			List<RenderEntity> newBatch = new ArrayList<RenderEntity>();
+		else {
+			List<BasicEntity> newBatch = new ArrayList<BasicEntity>();
 			newBatch.add(entity);
 			entities.put(entityModel, newBatch);
 		}
 	}
 
-	private void renderEntity(Map<Model, List<RenderEntity>> blockEntities) {
+	private void renderEntity(Map<Model, List<BasicEntity>> blockEntities) {
 		for (Model model : blockEntities.keySet()) {
-			List<RenderEntity> batch = blockEntities.get(model);
-			for (RenderEntity entity : batch) {
+			List<BasicEntity> batch = blockEntities.get(model);
+			for (BasicEntity entity : batch) {
 				prepareInstance(entity);
 				for (Mesh mesh : model.getMeshes()) {
 					Material mat = model.getMaterials().get(mesh.getAiMesh().mMaterialIndex());
@@ -138,7 +138,7 @@ public class EntityRenderer {
 		mesh.getMesh().unbind(0, 1, 2, 3);
 	}
 
-	private void prepareInstance(RenderEntity entity) {
+	private void prepareInstance(BasicEntity entity) {
 		Position pos = Components.POSITION.get(entity);
 		Rotation rot = Components.ROTATION.get(entity);
 		Scale scale = Components.SCALE.get(entity);

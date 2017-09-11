@@ -47,7 +47,7 @@ public class PlayerCamera extends CameraEntity {
 	private int mouseSpeed = 8;
 	private final int maxLookUp = 90;
 	private final int maxLookDown = -90;
-	private boolean flyMode = true;
+	private boolean flyMode = false;
 	private Vector2d center;
 
 	public PlayerCamera(String name, String uuid) {

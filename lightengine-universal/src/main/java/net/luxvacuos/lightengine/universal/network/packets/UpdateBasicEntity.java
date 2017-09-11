@@ -23,23 +23,42 @@ package net.luxvacuos.lightengine.universal.network.packets;
 import java.io.Serializable;
 import java.util.UUID;
 
-public class ClientDisconnect implements Serializable {
+import net.luxvacuos.igl.vector.Vector3d;
 
-	private static final long serialVersionUID = -412901296311160346L;
+public class UpdateBasicEntity implements Serializable {
+
+	private static final long serialVersionUID = 7936939795436298971L;
+
 	private UUID uuid;
-	private String name;
+	private Vector3d position, rotation, velocity;
+	private float scale;
 
-	public ClientDisconnect(UUID uuid, String name) {
+	public UpdateBasicEntity(UUID uuid, Vector3d position, Vector3d rotation, Vector3d velocity, float scale) {
 		this.uuid = uuid;
-		this.name = name;
+		this.position = position;
+		this.rotation = rotation;
+		this.velocity = velocity;
+		this.scale = scale;
 	}
 
 	public UUID getUUID() {
 		return uuid;
 	}
 
-	public String getName() {
-		return name;
+	public Vector3d getPosition() {
+		return position;
+	}
+
+	public Vector3d getRotation() {
+		return rotation;
+	}
+
+	public Vector3d getVelocity() {
+		return velocity;
+	}
+
+	public float getScale() {
+		return scale;
 	}
 
 }

@@ -48,6 +48,7 @@ public class PhysicsSystem extends EntitySystem {
 
 	@Override
 	public void addedToEngine(Engine engine) {
+		super.addedToEngine(engine);
 		entities = engine.getEntitiesFor(Family.all(Position.class, Velocity.class, AABB.class).get());
 	}
 

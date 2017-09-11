@@ -49,4 +49,5 @@ public class Components {
 	public static final ComponentMapper<Name> NAME = ComponentMapper.getFor(Name.class);
 	
 	public static final ComponentMapper<UUIDComponent> UUID = ComponentMapper.getFor(UUIDComponent.class);
+	
 }

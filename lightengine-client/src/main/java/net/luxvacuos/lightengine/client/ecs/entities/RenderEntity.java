@@ -11,4 +11,19 @@ public class RenderEntity extends BasicEntity {
 		add(new Renderable(model));
 	}
 
+	public RenderEntity(String name, String uuid, Model model) {
+		super(name, uuid);
+		add(new Renderable(model));
+	}
+
+	public RenderEntity(String name, String path) {
+		super(name);
+		add(new Renderable(path));
+	}
+
+	public RenderEntity(String name, String uuid, String path) {
+		super(name, uuid);
+		add(new Renderable(path));
+	}
+
 }

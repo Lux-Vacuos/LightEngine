@@ -3,7 +3,10 @@ package net.luxvacuos.lightengine.demo;
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 
 import org.lwjgl.glfw.GLFW;
@@ -14,7 +17,6 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.util.ReferenceCountUtil;
 import net.luxvacuos.igl.vector.Vector3d;
 import net.luxvacuos.igl.vector.Vector3f;
 import net.luxvacuos.lightengine.client.core.ClientVariables;
@@ -24,6 +26,7 @@ import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.PlayerCamera;
 import net.luxvacuos.lightengine.client.ecs.entities.RenderEntity;
+import net.luxvacuos.lightengine.client.ecs.entities.RenderPlayerEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.Sun;
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
 import net.luxvacuos.lightengine.client.input.MouseHandler;
@@ -37,7 +40,6 @@ import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CachedTextu
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Light;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.ParticleTexture;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.WaterTile;
-import net.luxvacuos.lightengine.client.resources.AssimpResourceLoader;
 import net.luxvacuos.lightengine.client.ui.windows.GameWindow;
 import net.luxvacuos.lightengine.client.world.ClientPhysicsSystem;
 import net.luxvacuos.lightengine.client.world.particles.ParticleSystem;
@@ -46,11 +48,11 @@ import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.ecs.Components;
-import net.luxvacuos.lightengine.universal.ecs.components.Position;
-import net.luxvacuos.lightengine.universal.ecs.components.Scale;
+import net.luxvacuos.lightengine.universal.ecs.entities.PlayerEntity;
 import net.luxvacuos.lightengine.universal.network.packets.ClientConnect;
 import net.luxvacuos.lightengine.universal.network.packets.ClientDisconnect;
 import net.luxvacuos.lightengine.universal.network.packets.Time;
+import net.luxvacuos.lightengine.universal.network.packets.UpdateBasicEntity;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 import net.luxvacuos.lightengine.universal.world.PhysicsSystem;
 
@@ -73,8 +75,9 @@ public class MainState extends AbstractState {
 	private CachedTexture fire;
 
 	private List<WaterTile> waterTiles;
-	
+
 	private Client client;
+	private Map<UUID, PlayerEntity> players = new HashMap<>();
 
 	public static boolean paused = false, exitWorld = false, loaded = false;
 
@@ -85,39 +88,63 @@ public class MainState extends AbstractState {
 	@Override
 	public void start() {
 		Renderer.init(GraphicalSubsystem.getMainWindow());
+		MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), true);
+
 		worldSimulation = new ClientWorldSimulation(10000);
 		engine = new Engine();
 		physicsSystem = new ClientPhysicsSystem();
 		physicsSystem.addBox(new BoundingBox(new Vector3(-50, -1, -50), new Vector3(50, 0, 50)));
 		engine.addSystem(physicsSystem);
 		waterTiles = new ArrayList<>();
-		//for (int x = -128; x <= 128; x++)
-		//	for (int z = -128; z <= 128; z++)
-		//		waterTiles.add(new WaterTile(x * WaterTile.TILE_SIZE, -0.5f, z * WaterTile.TILE_SIZE));
+		// for (int x = -128; x <= 128; x++)
+		// for (int z = -128; z <= 128; z++)
+		// waterTiles.add(new WaterTile(x * WaterTile.TILE_SIZE, -0.5f, z *
+		// WaterTile.TILE_SIZE));
 		sun = new Sun();
-		
+
 		client = new Client();
 		client.run(new ChannelInboundHandlerAdapter() {
 			@Override
 			public void channelRead(ChannelHandlerContext ctx, Object obj) throws Exception {
-				try {
-					if (obj instanceof Time) {
-						handleTime((Time) obj);
-					}
-				} finally {
-					ReferenceCountUtil.release(obj);
+				if (obj instanceof Time) {
+					handleTime((Time) obj);
+				} else if (obj instanceof ClientConnect) {
+					handleConnect((ClientConnect) obj);
+				} else if (obj instanceof ClientDisconnect) {
+					handleDisconnect((ClientDisconnect) obj);
+				} else if (obj instanceof UpdateBasicEntity) {
+					handleUpdateBasicEntity((UpdateBasicEntity) obj);
 				}
 				super.channelRead(ctx, obj);
 			}
+
 			private void handleTime(Time time) {
 				worldSimulation.setTime(time.getTime());
 			}
+
+			private void handleConnect(ClientConnect con) {
+				PlayerEntity p = new RenderPlayerEntity(con.getName(), con.getUUID().toString());
+				Components.POSITION.get(p).set(0, 2, 0);
+				engine.addEntity(p);
+				players.put(con.getUUID(), p);
+			}
+
+			private void handleDisconnect(ClientDisconnect con) {
+				engine.removeEntity(players.remove(con.getUUID()));
+			}
+			
+			private void handleUpdateBasicEntity(UpdateBasicEntity ube) {
+				PlayerEntity e = players.get(ube.getUUID());
+				Components.POSITION.get(e).set(ube.getPosition());
+			}
 		});
-		
-		camera = new PlayerCamera("player", UUID.randomUUID().toString());
+
+		camera = new PlayerCamera("player" + new Random().nextInt(1000), UUID.randomUUID().toString());
 		camera.setPosition(new Vector3d(0, 2, 0));
-		
-		client.sendPacket(new ClientConnect(Components.UUID.get(camera).getUUID(), Components.NAME.get(camera).getName()));
+		engine.addEntity(camera);
+
+		client.sendPacket(
+				new ClientConnect(Components.UUID.get(camera).getUUID(), Components.NAME.get(camera).getName()));
 
 		Renderer.setOnResize(() -> {
 			ClientComponents.PROJECTION_MATRIX.get(camera)
@@ -127,55 +154,8 @@ public class MainState extends AbstractState {
 							(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/fov")),
 							ClientVariables.NEAR_PLANE, ClientVariables.FAR_PLANE));
 		});
-		MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), true);
+
 		TaskManager.addTask(() -> {
-			Window window = GraphicalSubsystem.getMainWindow();
-
-			AssimpResourceLoader aLoader = window.getAssimpResourceLoader();
-
-			// Renderer.getLightRenderer().addLight(new Light(new Vector3f(-8, 5,
-			// -8), new Vector3f(1, 1, 1)));
-			// Renderer.getLightRenderer().addLight(new Light(new Vector3f(-8, 5,
-			// 8), new Vector3f(1, 1, 1)));
-			// Renderer.getLightRenderer().addLight(new Light(new Vector3f(8, 5,
-			// -8), new Vector3f(1, 1, 1)));
-			// Renderer.getLightRenderer().addLight(new Light(new Vector3f(8, 5, 8),
-			// new Vector3f(1, 1, 1)));
-			// Renderer.getLightRenderer().addLight(new Light(new Vector3f(0, 5, 0),
-			// new Vector3f(1, 1, 1)));
-
-			lightRenderer = new LightRenderer();
-
-			light0 = new Light(new Vector3d(4.5f, 4.2f, 8f), new Vector3f(50, 50, 50), new Vector3d(245, -45, 0), 50,
-					40);
-			// light0.setShadow(true);
-			// Renderer.getLightRenderer().addLight(light0);
-			light1 = new Light(new Vector3d(-4.5f, 4.2f, 8f), new Vector3f(50, 50, 50), new Vector3d(245, 45, 0), 50,
-					40);
-			// light1.setShadow(true);
-			// Renderer.getLightRenderer().addLight(light1);
-
-			mat2 = new RenderEntity("", aLoader.loadModel("levels/test_state/models/sphere.blend"));
-			mat2.getComponent(Position.class).set(3, 1, 0);
-
-			plane = new RenderEntity("", aLoader.loadModel("levels/test_state/models/plane.blend"));
-
-			character = new RenderEntity("", aLoader.loadModel("levels/test_state/models/tigre_sumatra.blend"));
-			character.getComponent(Position.class).set(0, 0.67335f, 5);
-			character.getComponent(Scale.class).setScale(2f);
-
-			fire = CachedAssets.loadTexture("textures/particles/fire0.png");
-
-			particleSystem = new ParticleSystem(new ParticleTexture(fire.getID(), 4), 1000, 1, -1f, 3f, 6f);
-			particleSystem.setDirection(new Vector3d(0, -1, 0), 0.4f);
-			particlesPoint = new Vector3d(0, 1.7f, -5);
-
-			camera.setPosition(new Vector3d(0, 2, 0));
-			physicsSystem.getEngine().addEntity(camera);
-			physicsSystem.getEngine().addEntity(plane);
-			physicsSystem.getEngine().addEntity(mat2);
-			physicsSystem.getEngine().addEntity(character);
-
 			Renderer.render(engine.getEntities(), ParticleDomain.getParticles(), waterTiles, lightRenderer, camera,
 					worldSimulation, sun, 0);
 			gameWindow = new GameWindow(0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
@@ -184,6 +164,45 @@ public class MainState extends AbstractState {
 			GraphicalSubsystem.getWindowManager().addWindow(gameWindow);
 			loaded = true;
 		});
+
+		// Renderer.getLightRenderer().addLight(new Light(new Vector3f(-8, 5,
+		// -8), new Vector3f(1, 1, 1)));
+		// Renderer.getLightRenderer().addLight(new Light(new Vector3f(-8, 5,
+		// 8), new Vector3f(1, 1, 1)));
+		// Renderer.getLightRenderer().addLight(new Light(new Vector3f(8, 5,
+		// -8), new Vector3f(1, 1, 1)));
+		// Renderer.getLightRenderer().addLight(new Light(new Vector3f(8, 5, 8),
+		// new Vector3f(1, 1, 1)));
+		// Renderer.getLightRenderer().addLight(new Light(new Vector3f(0, 5, 0),
+		// new Vector3f(1, 1, 1)));
+
+		lightRenderer = new LightRenderer();
+
+		light0 = new Light(new Vector3d(4.5f, 4.2f, 8f), new Vector3f(50, 50, 50), new Vector3d(245, -45, 0), 50, 40);
+		// light0.setShadow(true);
+		// Renderer.getLightRenderer().addLight(light0);
+		light1 = new Light(new Vector3d(-4.5f, 4.2f, 8f), new Vector3f(50, 50, 50), new Vector3d(245, 45, 0), 50, 40);
+		// light1.setShadow(true);
+		// Renderer.getLightRenderer().addLight(light1);
+
+		//mat2 = new RenderEntity("", "levels/test_state/models/sphere.blend");
+		//mat2.getComponent(Position.class).set(3, 1, 0);
+
+		plane = new RenderEntity("", "levels/test_state/models/plane.blend");
+
+		//character = new RenderEntity("", "levels/test_state/models/tigre_sumatra.blend");
+		//character.getComponent(Position.class).set(0, 0.67335f, 5);
+		//character.getComponent(Scale.class).setScale(2f);
+
+		fire = CachedAssets.loadTexture("textures/particles/fire0.png");
+
+		particleSystem = new ParticleSystem(new ParticleTexture(fire.getID(), 4), 1000, 1, -1f, 3f, 6f);
+		particleSystem.setDirection(new Vector3d(0, -1, 0), 0.4f);
+		particlesPoint = new Vector3d(0, 1.7f, -5);
+
+		engine.addEntity(plane);
+		//engine.addEntity(mat2);
+		//engine.addEntity(character);
 		super.start();
 	}
 
@@ -197,7 +216,8 @@ public class MainState extends AbstractState {
 			fire.dispose();
 			lightRenderer.dispose();
 		});
-		client.sendPacket(new ClientDisconnect(Components.UUID.get(camera).getUUID(), Components.NAME.get(camera).getName()));
+		client.sendPacket(
+				new ClientDisconnect(Components.UUID.get(camera).getUUID(), Components.NAME.get(camera).getName()));
 		client.end();
 		super.end();
 	}
@@ -219,6 +239,9 @@ public class MainState extends AbstractState {
 			// light1.getPosition().set(Math.sin(worldSimulation.getGlobalTime() / 7f) * 3f
 			// - 4.5f, 8.2f, 8f);
 
+			client.sendPacket(new UpdateBasicEntity(Components.UUID.get(camera).getUUID(), camera.getPosition(),
+					camera.getRotation(), Components.VELOCITY.get(camera).getVelocity(),
+					Components.SCALE.get(camera).getScale()));
 			if (kbh.isKeyPressed(GLFW.GLFW_KEY_ESCAPE)) {
 				kbh.ignoreKeyUntilRelease(GLFW.GLFW_KEY_ESCAPE);
 				MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), false);

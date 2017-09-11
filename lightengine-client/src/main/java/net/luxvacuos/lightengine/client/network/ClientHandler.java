@@ -22,31 +22,26 @@ package net.luxvacuos.lightengine.client.network;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.util.ReferenceCountUtil;
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.universal.network.packets.Disconnect;
 import net.luxvacuos.lightengine.universal.network.packets.Message;
 import net.luxvacuos.lightengine.universal.network.packets.Time;
 
 public class ClientHandler extends ChannelInboundHandlerAdapter {
-	
+
 	public ClientHandler() {
 	}
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object obj) throws Exception {
-		try {
-			if (obj instanceof Message) {
-				handleMessage((Message) obj);
-			} else if (obj instanceof String) {
-				handleString((String) obj);
-			} else if (obj instanceof Time) {
-				handleTime((Time) obj);
-			} else if (obj instanceof Disconnect) {
-				handleDisconnect((Disconnect) obj);
-			}
-		} finally {
-			ReferenceCountUtil.release(obj);
+		if (obj instanceof Message) {
+			handleMessage((Message) obj);
+		} else if (obj instanceof String) {
+			handleString((String) obj);
+		} else if (obj instanceof Time) {
+			handleTime((Time) obj);
+		} else if (obj instanceof Disconnect) {
+			handleDisconnect((Disconnect) obj);
 		}
 		super.channelRead(ctx, obj);
 	}

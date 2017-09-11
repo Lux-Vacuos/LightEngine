@@ -18,14 +18,12 @@
  * 
  */
 
-
 package net.luxvacuos.lightengine.server.network;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
-import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.universal.network.packets.ClientConnect;
@@ -53,18 +51,14 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object obj) throws Exception {
-		try {
-			if (obj instanceof Message) {
-				handleMessage((Message) obj);
-			} else if (obj instanceof String) {
-				handleString(ctx, (String) obj);
-			} else if (obj instanceof ClientConnect) {
-				handleConnect((ClientConnect) obj);
-			} else if (obj instanceof ClientDisconnect) {
-				handleDisconnect((ClientDisconnect) obj);
-			}
-		} finally {
-			ReferenceCountUtil.release(obj);
+		if (obj instanceof Message) {
+			handleMessage((Message) obj);
+		} else if (obj instanceof String) {
+			handleString(ctx, (String) obj);
+		} else if (obj instanceof ClientConnect) {
+			handleConnect((ClientConnect) obj);
+		} else if (obj instanceof ClientDisconnect) {
+			handleDisconnect((ClientDisconnect) obj);
 		}
 		super.channelRead(ctx, obj);
 	}

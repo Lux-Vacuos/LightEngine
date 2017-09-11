@@ -32,6 +32,7 @@ import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 import net.luxvacuos.lightengine.universal.network.AbstractNettyNetworkHandler;
+import net.luxvacuos.lightengine.universal.network.LastChannelHandler;
 
 public class Client extends AbstractNettyNetworkHandler {
 
@@ -41,6 +42,7 @@ public class Client extends AbstractNettyNetworkHandler {
 	public Client() {
 	}
 
+	@Override
 	public void run(ChannelInboundHandlerAdapter... channels) {
 		workGroup = new NioEventLoopGroup();
 		try {
@@ -56,22 +58,13 @@ public class Client extends AbstractNettyNetworkHandler {
 							new ObjectDecoder(ClassResolvers.softCachingResolver(ClassLoader.getSystemClassLoader())));
 					pipeline.addLast("encoder", new ObjectEncoder());
 					pipeline.addLast("handler", new ClientHandler());
-					for(ChannelInboundHandlerAdapter channel_ : channels) {
+					for (ChannelInboundHandlerAdapter channel_ : channels) {
 						pipeline.addLast(channel_);
 					}
+					pipeline.addLast(new LastChannelHandler());
 				}
 			});
 			future = b.connect(host, port).sync();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void end() {
-		workGroup.shutdownGracefully();
-		try {
-			if (future != null)
-				future.channel().closeFuture().sync();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -84,10 +77,9 @@ public class Client extends AbstractNettyNetworkHandler {
 	public void setPort(int port) {
 		this.port = port;
 	}
-	
+
 	public void sendPacket(Object obj) {
 		future.channel().writeAndFlush(obj);
 	}
-
 
 }
