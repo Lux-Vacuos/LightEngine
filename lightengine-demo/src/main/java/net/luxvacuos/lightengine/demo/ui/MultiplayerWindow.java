@@ -12,6 +12,7 @@ import net.luxvacuos.lightengine.client.ui.Button;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.EditBox;
 import net.luxvacuos.lightengine.client.ui.Text;
+import net.luxvacuos.lightengine.demo.MainState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 
 public class MultiplayerWindow extends ComponentWindow {
@@ -42,6 +43,7 @@ public class MultiplayerWindow extends ComponentWindow {
 		playButton.setOnButtonPress(() -> {
 			String ip = address.getText();
 			if (!ip.equals("")) {
+				MainState.ip = ip;
 				address.setText("");
 				GraphicalSubsystem.getWindowManager().toggleShell();
 				super.closeWindow();

@@ -68,6 +68,7 @@ public class MainState extends AbstractState {
 	private ClientNetworkHandler nh;
 
 	public static boolean paused = false, exitWorld = false, loaded = false;
+	public static String ip = "";
 
 	protected MainState() {
 		super("mainState");
@@ -86,6 +87,8 @@ public class MainState extends AbstractState {
 		sun = new Sun();
 
 		client = new Client();
+		if (!ip.isEmpty())
+			client.setHost(ip);
 		nh = new ClientNetworkHandler();
 		client.run(nh);
 		nh.getEngine().getSystem(ClientPhysicsSystem.class)
@@ -184,7 +187,7 @@ public class MainState extends AbstractState {
 			nh.update(delta);
 			lightRenderer.update(delta);
 			sun.update(camera.getPosition(), nh.getWorldSimulation().getRotation(), delta);
-			//particleSystem.generateParticles(particlesPoint, delta);
+			// particleSystem.generateParticles(particlesPoint, delta);
 			ParticleDomain.update(delta, camera);
 			client.sendPacket(new UpdateBasicEntity(Components.UUID.get(camera).getUUID(), camera.getPosition(),
 					camera.getRotation(), Components.VELOCITY.get(camera).getVelocity(),
