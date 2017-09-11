@@ -124,7 +124,8 @@ public class GameState extends AbstractState {
 		if (!paused) {
 			lightRenderer.update(delta);
 			engine.update(delta);
-			sun.update(camera.getPosition(), worldSimulation.update(delta), delta);
+			worldSimulation.update(delta);
+			sun.update(camera.getPosition(), worldSimulation.getRotation(), delta);
 			// particleSystem.generateParticles(particlesPoint, delta);
 			ParticleDomain.update(delta, camera);
 

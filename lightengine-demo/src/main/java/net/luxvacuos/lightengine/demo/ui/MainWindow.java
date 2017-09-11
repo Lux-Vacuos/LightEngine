@@ -34,7 +34,7 @@ import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 
 public class MainWindow extends ComponentWindow {
 
-	public MainWindow(int x, int y,int w, int h) {
+	public MainWindow(int x, int y, int w, int h) {
 		super(x, y, w, h, LANG.getRegistryItem("lightengine.mainwindow.name"));
 	}
 
@@ -58,12 +58,8 @@ public class MainWindow extends ComponentWindow {
 		exitButton.setWindowAlignment(Alignment.CENTER);
 
 		playButton.setOnButtonPress(() -> {
-			GraphicalSubsystem.getWindowManager().toggleShell();
-			super.setWindowClose(WindowClose.DISPOSE);
-			super.closeWindow();
-			StateMachine.setCurrentState("mainState");
-			// GraphicalSubsystem.getWindowManager().addWindow(new RectGL(200, 500, 480,
-			// 754));
+			GraphicalSubsystem.getWindowManager()
+					.addWindow(new MultiplayerWindow(w / 2 - 250 + x, y - 100, 500, 400, this));
 		});
 
 		optionsButton.setOnButtonPress(() -> {

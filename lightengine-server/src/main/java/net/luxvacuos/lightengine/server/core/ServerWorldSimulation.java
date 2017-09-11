@@ -36,16 +36,12 @@ public class ServerWorldSimulation extends WorldSimulation {
 	 * @return Rotation for sun
 	 */
 	@Override
-	public float update(float delta) {
+	public void update(float delta) {
 		// Set time
 		time += delta * TIME_MULTIPLIER;
 		time %= 24000;
 		// Set global time for clouds
 		globalTime += delta * TIME_MULTIPLIER;
-		float res = time * 0.015f;
-
-		// Return the sun rotation
-		return res - 90;
 	}
 
 }

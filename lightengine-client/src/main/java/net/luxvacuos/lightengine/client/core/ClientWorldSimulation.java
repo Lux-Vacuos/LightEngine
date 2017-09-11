@@ -46,7 +46,7 @@ public final class ClientWorldSimulation extends WorldSimulation {
 	 * @return Rotation for sun
 	 */
 	@Override
-	public float update(float delta) {
+	public void update(float delta) {
 		// Set move factor for waves
 		this.moveFactor += ClientVariables.WAVE_SPEED * delta;
 		this.moveFactor %= 6.3f;
@@ -56,9 +56,7 @@ public final class ClientWorldSimulation extends WorldSimulation {
 		// Set global time for clouds
 		this.globalTime += delta * TIME_MULTIPLIER;
 		float res = time * 0.015f;
-		
-		// Return the sun rotation
-		return (this.rotation = (res - 90));
+		this.rotation = res - 90;
 	}
 	
 	public float getRotation() {

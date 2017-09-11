@@ -42,6 +42,11 @@ public class WorldSimulation implements IWorldSimulation {
 	public float getTime() {
 		return this.time;
 	}
+	
+	@Override
+	public float getRotation() {
+		return 0;
+	}
 
 	@Override
 	public void setTime(float time) {
@@ -49,8 +54,7 @@ public class WorldSimulation implements IWorldSimulation {
 	}
 
 	@Override
-	public float update(float deltaTime) {
-		return 0;
+	public void update(float deltaTime) {
 	}
 
 }

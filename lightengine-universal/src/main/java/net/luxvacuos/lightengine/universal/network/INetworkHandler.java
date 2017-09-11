@@ -18,19 +18,26 @@
  * 
  */
 
-package net.luxvacuos.lightengine.universal.core;
+package net.luxvacuos.lightengine.universal.network;
 
-public interface IWorldSimulation {
-	public static final float TIME_MULTIPLIER = 10;
+import java.util.Map;
+import java.util.UUID;
 
-	public void update(float deltaTime);
+import com.badlogic.ashley.core.Engine;
 
-	public float getGlobalTime();
+import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
+import net.luxvacuos.lightengine.universal.ecs.entities.PlayerEntity;
 
-	public float getTime();
-
-	public float getRotation();
-
-	public void setTime(float time);
+public interface INetworkHandler {
+	
+	public void update(float delta);
+	
+	public void dispose();
+	
+	public Map<UUID, PlayerEntity> getPlayers();
+	
+	public Engine getEngine();
+	
+	public IWorldSimulation getWorldSimulation();
 
 }
