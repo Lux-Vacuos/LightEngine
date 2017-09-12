@@ -26,9 +26,8 @@ out vec4 out_Color;
 
 uniform sampler2D composite0;
 
-void main(void){
-	vec2 texcoord = textureCoords;
-	vec4 image = texture(composite0, texcoord);
+void main(){
+	vec4 image = texture(composite0, textureCoords);
 	vec4 result = vec4(0.0);
 	float brightness = dot(image.rgb, vec3(0.2126, 0.7152, 0.0722));
     if(brightness > 1)

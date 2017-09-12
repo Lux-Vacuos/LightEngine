@@ -29,7 +29,7 @@ uniform sampler2D window;
 uniform int blurBehind;
 uniform vec4 frame;
 
-void main(void){
+void main(){
     out_Color = texture(image, textureCoords);
     out_Color.a = 1;
     if(blurBehind == 1)

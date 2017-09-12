@@ -28,7 +28,7 @@ out vec4 out_Color;
 uniform sampler2D image;
 uniform sampler2D window;
 
-void main(void){
+void main(){
     vec4 result = vec4(0.0);
     vec4 mask = texture(image, textureCoords);
     if(mask.a == 0) {

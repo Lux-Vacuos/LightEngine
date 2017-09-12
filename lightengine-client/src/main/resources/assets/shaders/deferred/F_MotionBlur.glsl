@@ -36,14 +36,12 @@ uniform sampler2D gDepth;
 
 uniform int useMotionBlur;
 
-void main(void){
-	vec2 texcoord = textureCoords;
-	vec3 textureColour = vec3(0.0);
-	textureColour = texture(composite0, texcoord).rgb;
+void main(){
+	vec3 textureColour = texture(composite0, textureCoords).rgb;
 	if(useMotionBlur == 1){
 		vec3 sum = textureColour.rgb;
-		vec4 tex = vec4(texcoord, 0.0,0.0);
-		float depth = texture(gDepth, texcoord).x;
+		vec4 tex = vec4(textureCoords, 0.0,0.0);
+		float depth = texture(gDepth, textureCoords).x;
 		vec4 currentPosition = vec4(tex.x * 2.0 - 1.0, tex.y * 2.0 - 1.0, 2.0 * depth - 1.0, 1.0);
 		vec4 fragposition = inverseProjectionMatrix * currentPosition;
 		fragposition = inverseViewMatrix * fragposition;
@@ -59,12 +57,11 @@ void main(void){
 		int samples = 1;
 		vec2 coord = tex.st + velocity;
 		for (int i = 0; i < 12; ++i, coord += velocity) {
-				sum += texture(composite0, coord).rgb;
-				++samples;
+			sum += texture(composite0, coord).rgb;
+			samples++;
 		}	
 		sum = sum/samples;
 		textureColour = sum;
 	}
-	
     out_Color = textureColour;
 }

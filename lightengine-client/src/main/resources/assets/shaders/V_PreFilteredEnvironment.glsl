@@ -20,7 +20,7 @@
 
 #version 330 core
 
-in vec3 position;
+layout(location = 0) in vec3 position;
 
 out vec3 pass_Position;
 
@@ -32,5 +32,4 @@ void main() {
 	vec4 positionRelativeToCam = viewMatrix * worldPosition;
 	gl_Position = projectionMatrix * positionRelativeToCam;
 	pass_Position = position;
-
 }

@@ -61,7 +61,7 @@ float noise(vec2 x) {
 }
 
 
-void main(void){
+void main(){
     vec4 source = texture(image,textureCoords);
     vec4 window = texture(window,textureCoords);
      if(blurBehind == 1)

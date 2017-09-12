@@ -37,12 +37,8 @@ import java.nio.IntBuffer;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
 import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.glfw.GLFWVidMode;
-import org.lwjgl.glfw.GLFWWindowPosCallback;
-import org.lwjgl.glfw.GLFWWindowRefreshCallback;
-import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.nanovg.NanoVGGL3;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.NVXGPUMemoryInfo;
@@ -222,66 +218,11 @@ public final class WindowManager {
 		return (long) (getTime() * (1000L * 1000L * 1000L));
 	}
 
-	protected static GLFWWindowSizeCallback windowSizeCallback;
-	protected static GLFWWindowPosCallback windowPosCallback;
-	protected static GLFWWindowRefreshCallback windowRefreshCallback;
-	protected static GLFWFramebufferSizeCallback framebufferSizeCallback;
-
-	private static IntBuffer maxVram = BufferUtils.createIntBuffer(1);
-	private static IntBuffer usedVram = BufferUtils.createIntBuffer(1);
+	private static int[] maxVram = new int[1];
+	private static int[] usedVram = new int[1];
 	private static boolean nvidia = false;
 	private static boolean amd = false;
 	private static boolean detected = false;
-
-	static {
-		windowSizeCallback = new GLFWWindowSizeCallback() {
-			@Override
-			public void invoke(long windowID, int width, int height) {
-				Window window = getWindow(windowID);
-				if (window == null)
-					return;
-				window.width = width;
-				window.height = height;
-				window.pixelRatio = (float) window.framebufferWidth / (float) window.width;
-				window.resetViewport();
-				window.resized = true;
-			}
-		};
-
-		windowPosCallback = new GLFWWindowPosCallback() {
-			@Override
-			public void invoke(long windowID, int xpos, int ypos) {
-				Window window = getWindow(windowID);
-				if (window == null)
-					return;
-				window.posX = xpos;
-				window.posY = ypos;
-			}
-		};
-
-		windowRefreshCallback = new GLFWWindowRefreshCallback() {
-			@Override
-			public void invoke(long windowID) {
-				Window window = getWindow(windowID);
-				if (window == null)
-					return;
-				window.dirty = true;
-			}
-		};
-
-		framebufferSizeCallback = new GLFWFramebufferSizeCallback() {
-			@Override
-			public void invoke(long windowID, int width, int height) {
-				Window window = getWindow(windowID);
-				if (window == null)
-					return;
-				window.framebufferWidth = width;
-				window.framebufferHeight = height;
-				window.pixelRatio = (float) window.framebufferWidth / (float) window.width;
-			}
-		};
-
-	}
 
 	public static int getUsedVRAM() {
 		if (!detected)
@@ -289,7 +230,7 @@ public final class WindowManager {
 
 		if (nvidia)
 			glGetIntegerv(NVXGPUMemoryInfo.GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, usedVram);
-		return maxVram.get(0) - usedVram.get(0);
+		return maxVram[0] - usedVram[0];
 	}
 
 	public static boolean isNvidia() {
@@ -308,11 +249,11 @@ public final class WindowManager {
 		if (glGetString(GL_VENDOR).contains("NVIDIA")) {
 			nvidia = true;
 			glGetIntegerv(NVXGPUMemoryInfo.GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, maxVram);
-			Logger.log("Max VRam: " + maxVram.get(0) + "KB");
+			Logger.log("Max VRam: " + maxVram[0] + "KB");
 		} else if (glGetString(GL_VENDOR).contains("AMD")) {
 			amd = true;
 			glGetIntegerv(WGLAMDGPUAssociation.WGL_GPU_RAM_AMD, maxVram);
-			Logger.log("Max VRam: " + maxVram.get(0) + "MB");
+			Logger.log("Max VRam: " + maxVram[0] + "MB");
 		}
 
 		detected = true;

@@ -29,11 +29,10 @@ uniform sampler2D gMask;
 
 void main(void){
 
-	vec2 texcoord = textureCoords;
 	vec4 image = vec4(0.0);
-	vec4 mask = texture(gMask, texcoord);
+	vec4 mask = texture(gMask, textureCoords);
     if(mask.a == 1) {
-		image = texture(gDiffuse, texcoord);
+		image = texture(gDiffuse, textureCoords);
     }
     out_Color = image;
 

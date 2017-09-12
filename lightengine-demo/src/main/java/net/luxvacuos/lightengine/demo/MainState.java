@@ -187,7 +187,7 @@ public class MainState extends AbstractState {
 			nh.update(delta);
 			lightRenderer.update(delta);
 			sun.update(camera.getPosition(), nh.getWorldSimulation().getRotation(), delta);
-			// particleSystem.generateParticles(particlesPoint, delta);
+			particleSystem.generateParticles(particlesPoint, delta);
 			ParticleDomain.update(delta, camera);
 			client.sendPacket(new UpdateBasicEntity(Components.UUID.get(camera).getUUID(), camera.getPosition(),
 					camera.getRotation(), Components.VELOCITY.get(camera).getVelocity(),

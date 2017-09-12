@@ -23,7 +23,6 @@
 ##include struct Light
 
 in vec2 textureCoords;
-in vec4 posPos;
 
 out vec4 out_Color;
 
@@ -68,18 +67,17 @@ vec3 calcLight(Light light, vec3 position, vec3 diffuse, vec3 L, vec3 N, vec3 V,
 	return (kD * diffuse / PI + brdf) * radiance * NdotL; 
 }
 
-void main(void){
-	vec2 texcoord = textureCoords;
-    vec4 composite = texture(composite0, texcoord);
-	vec4 diffuse = texture(gDiffuse, texcoord);
-	vec4 mask = texture(gMask, texcoord);
+void main(){
+    vec4 composite = texture(composite0, textureCoords);
+	vec4 mask = texture(gMask, textureCoords);
 	if(mask.a != 1) {
-		vec4 pbr = texture(gPBR, texcoord);
-    	vec4 position = texture(gPosition, texcoord);
-    	vec4 normal = texture(gNormal, texcoord);
+		vec4 diffuse = texture(gDiffuse, textureCoords);
+		vec2 pbr = texture(gPBR, textureCoords).rg;
+    	vec3 position = texture(gPosition, textureCoords).rgb;
+    	vec3 normal = texture(gNormal, textureCoords).rgb;
 
-		vec3 N = normalize(normal.rgb);
-	    vec3 V = normalize(cameraPosition - position.rgb);
+		vec3 N = normalize(normal);
+	    vec3 V = normalize(cameraPosition - position);
 
 		float roughness = pbr.r;
 		float metallic = pbr.g;
@@ -94,9 +92,9 @@ void main(void){
 	
     	vec3 Lo = vec3(0.0);
 		for(int i = 0; i < totalLights; i++) {
-			vec3 L = normalize(lights[i].position - position.rgb);
+			vec3 L = normalize(lights[i].position - position);
 			if(lights[i].type == 0) 
-				Lo += calcLight(lights[i], position.rgb, diffuse.rgb, L, N, V, kD, F, roughness);
+				Lo += calcLight(lights[i], position, diffuse.rgb, L, N, V, kD, F, roughness);
 			else if(lights[i].type == 1) {
 				float theta = dot(L, normalize(-lights[i].direction));
 				float epsilon = lights[i].inRadius - lights[i].radius;
@@ -104,11 +102,11 @@ void main(void){
 				if(intensity > 0.0) {
         			float shadow = 1.0;
 					if(lights[i].shadowEnabled == 1)	{
-						vec4 posLight = lights[i].shadowViewMatrix * position;
+						vec4 posLight = lights[i].shadowViewMatrix * vec4(position, 1.0);
 						vec4 shadowCoord = biasMatrix * (lights[i].shadowProjectionMatrix * posLight);
 						shadow = texture(lights[i].shadowMap, (shadowCoord.xyz/shadowCoord.w), 0);
 					}
-					Lo += calcLight(lights[i], position.rgb, diffuse.rgb, L, N, V, kD, F, roughness) * intensity * shadow;
+					Lo += calcLight(lights[i], position, diffuse.rgb, L, N, V, kD, F, roughness) * intensity * shadow;
 				}
 			}
     	}

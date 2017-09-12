@@ -26,7 +26,7 @@ out vec4 out_Color;
 
 uniform sampler2D composite0;
 
-void main(void){
+void main(){
     vec4 result = vec4(0.0);
     result += texture(composite0, blurTexCoords[0]) * 0.003924;
     result += texture(composite0, blurTexCoords[1]) * 0.008962;

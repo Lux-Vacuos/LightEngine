@@ -30,7 +30,7 @@ out vec4 [5] out_Color;
 
 uniform Material material;
 
-void main(void) {
+void main() {
 
 	vec4 diffuseF = texture(material.diffuseTex, pass_textureCoords);
 	float roughnessF = texture(material.roughnessTex, pass_textureCoords).r;

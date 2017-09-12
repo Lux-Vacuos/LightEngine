@@ -35,13 +35,13 @@ uniform int useVolumetricLight;
 
 const int NUM_SAMPLES = 50;
 
-const float exposure = 0.1/NUM_SAMPLES;
+const float exposure = 0.1 / NUM_SAMPLES;
 const float decay = 0.95;
 const float density	= 1.0;
 const float weight = 8.0;
 float illuminationDecay = 2.0;
 
-void main(void){
+void main(){
 	vec2 texcoord = textureCoords;
 	vec4 position = texture(gPosition, texcoord);
 	vec4 positionCenter = texture(gPosition, vec2(0.5, 0.5));
@@ -54,16 +54,16 @@ void main(void){
 	vec4 raysColor = texture(composite0, texcoord);
 	vec4 image = vec4(0.0);
 	if(useVolumetricLight == 1){
-		if (lightDirDOTviewDir>0.0){
+		if (lightDirDOTviewDir > 0.0){
 			vec2 pos = vec2(0.0);
 			pos.x = (sunPositionInScreen.x) / resolution.x;
 			pos.y = (sunPositionInScreen.y) / resolution.y;
 			vec2 deltaTextCoord = vec2( texcoord - pos);
 			vec2 textCoo = texcoord;
 			deltaTextCoord *= 1.0 / float(NUM_SAMPLES) * density;
-			for(int i=0; i < NUM_SAMPLES ; i++) {
+			for(int i = 0; i < NUM_SAMPLES ; i++) {
 				textCoo -= deltaTextCoord;
-				vec4 tsample = texture(composite0, textCoo );
+				vec4 tsample = texture(composite0, textCoo);
 				tsample *= illuminationDecay * weight;
 				raysColor += tsample;
 				illuminationDecay *= decay;

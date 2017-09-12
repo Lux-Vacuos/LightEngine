@@ -83,17 +83,16 @@ const vec2 poisson16[] = vec2[](
 
 ##include function computeShadow
 
-void main(void) {
-	vec2 texcoord = textureCoords;
-	vec4 mask = texture(gMask, texcoord);
-	vec4 image = texture(gDiffuse, texcoord);
+void main() {
+	vec4 mask = texture(gMask, textureCoords);
+	vec4 image = texture(gDiffuse, textureCoords);
 	if (mask.a != 1) {
-		vec4 pbr = texture(gPBR, texcoord);
-    	vec4 position = texture(gPosition, texcoord);
-    	vec4 normal = texture(gNormal, texcoord);
+		vec2 pbr = texture(gPBR, textureCoords).rg;
+    	vec3 position = texture(gPosition, textureCoords).rgb;
+    	vec3 normal = texture(gNormal, textureCoords).rgb;
 
-		vec3 N = normalize(normal.rgb);
-	    vec3 V = normalize(cameraPosition - position.rgb);
+		vec3 N = normalize(normal);
+	    vec3 V = normalize(cameraPosition - position);
 		vec3 R = reflect(-V, N);
 
 		float roughness = pbr.r;
@@ -129,11 +128,10 @@ void main(void) {
 		vec2 envBRDF = texture(composite3, vec2(max(dot(N, V), 0.0), roughness)).rg;
 		vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
 
-		vec3 ambient = (kD * diffuse + specular) * computeAmbientOcclusion(position.rgb, N);
+		vec3 ambient = (kD * diffuse + specular) * computeAmbientOcclusion(position, N);
     	vec3 color = ambient + Lo;
 		image.rgb = color;
 	}
-    image += texture(composite0, texcoord);
+    image += texture(composite0, textureCoords);
 	out_Color = image;
-	
 }

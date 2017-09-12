@@ -108,10 +108,10 @@ float lookup(vec2 offset){
 	return 1.0;
 }
 
-float computeShadow(vec4 position){
+float computeShadow(vec3 position){
     if(useShadows == 1){
         float shadow = 0.0;
-		vec4 posLight = viewLightMatrix * position;
+		vec4 posLight = viewLightMatrix * vec4(position, 1.0);
 		ShadowCoord[0] = biasMatrix * (projectionLightMatrix[0] * posLight);
 		ShadowCoord[1] = biasMatrix * (projectionLightMatrix[1] * posLight);
 		ShadowCoord[2] = biasMatrix * (projectionLightMatrix[2] * posLight);

@@ -20,10 +20,10 @@
  
 #version 330 core
 
-in vec2 position;
-in mat4 modelViewMatrix;
-in vec4 texOffsets;
-in float blendFactor;
+layout(location = 0) in vec2 position;
+layout(location = 1) in mat4 modelViewMatrix;
+layout(location = 5) in vec4 texOffsets;
+layout(location = 6) in float blendFactor;
 
 out vec2 textureCoords0;
 out vec2 textureCoords1;
@@ -32,8 +32,7 @@ out float blend;
 uniform mat4 projectionMatrix;
 uniform float numberOfRows;
 
-void main(void){
-
+void main(){
 	vec2 textureCoords = position + vec2(0.5,0.5);
 	textureCoords.y = 1.0 - textureCoords.y;
 	textureCoords /= numberOfRows;

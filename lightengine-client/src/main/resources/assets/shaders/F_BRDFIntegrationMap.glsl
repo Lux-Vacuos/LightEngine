@@ -24,7 +24,7 @@ in vec2 textureCoords;
 
 out vec2 out_color;
 
-#define PI 3.14159265359f
+##include variable pi
 
 const uint SAMPLE_COUNT = 1024u;
 
@@ -38,14 +38,14 @@ float RadicalInverse_VdC(uint bits) {
 }
 
 vec2 Hammersley(uint i, uint N) {
-    return vec2(float(i)/float(N), RadicalInverse_VdC(i));
+    return vec2(float(i) / float(N), RadicalInverse_VdC(i));
 }
 
 vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness) {
-    float a = roughness*roughness;
+    float a = roughness * roughness;
 	
     float phi = 2.0 * PI * Xi.x;
-    float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (a*a - 1.0) * Xi.y));
+    float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (a * a - 1.0) * Xi.y));
     float sinTheta = sqrt(1.0 - cosTheta*cosTheta);
 	
     vec3 H;
@@ -60,7 +60,6 @@ vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness) {
     vec3 sampleVec = tangent * H.x + bitangent * H.y + N * H.z;
     return normalize(sampleVec);
 }
-
 
 float GeometrySchlickGGX(float NdotV, float roughness) {
     float a = roughness;
@@ -117,6 +116,5 @@ vec2 IntegrateBRDF(float roughness, float NdotV) {
 }
 
 void main() {
-    vec2 integratedBRDF = IntegrateBRDF(textureCoords.y, textureCoords.x);
-    out_color = integratedBRDF;
+    out_color = IntegrateBRDF(textureCoords.y, textureCoords.x);
 }

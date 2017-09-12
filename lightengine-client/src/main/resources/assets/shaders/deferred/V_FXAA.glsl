@@ -20,7 +20,7 @@
 
 #version 330 core
 
-in vec2 position;
+layout(location = 0) in vec2 position;
 
 out vec2 textureCoords;
 out vec4 posPos;
@@ -31,9 +31,9 @@ uniform int useFXAA;
 
 #define FXAA_SUBPIX_SHIFT (1.0/4.0)
 
-void main(void){
+void main(){
 	gl_Position = vec4(position, -0.8, 1.0);
-	textureCoords = vec2((position.x+1.0)/2.0, (position.y+1.0)/2.0);
+	textureCoords = vec2((position.x + 1.0) / 2.0, (position.y + 1.0) / 2.0);
 	if(useFXAA == 1){
 		vec2 rcpFrame = vec2(1.0/resolution.x, 1.0/resolution.y);
 		posPos.xy = textureCoords;

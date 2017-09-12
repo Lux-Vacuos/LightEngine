@@ -30,7 +30,7 @@ uniform float exposure;
 
 #define GAMMA 2.2
 
-void main(void){
+void main(){
 	vec2 texcoord = textureCoords;
     vec4 color = texture(composite0, texcoord);
     vec4 final = vec4(1.0) - exp(-color * exposure);

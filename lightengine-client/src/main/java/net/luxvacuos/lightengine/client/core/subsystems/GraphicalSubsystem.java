@@ -119,6 +119,12 @@ public class GraphicalSubsystem implements ISubsystem {
 				aiGetVersionMajor() + "." + aiGetVersionMinor() + "." + aiGetVersionRevision());
 		REGISTRY.register(new Key("/Light Engine/System/vk"), "Not Available");
 		window.setVisible(true);
+		window.setOnRefresh(() -> {
+			Renderer.clearColors(0, 0, 0, 1);
+			Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			GraphicalSubsystem.getWindowManager().update(0);
+			GraphicalSubsystem.getWindowManager().render(0);
+		});
 	}
 
 	@Override
@@ -131,18 +137,20 @@ public class GraphicalSubsystem implements ISubsystem {
 
 	@Override
 	public void render(float delta) {
-		if (window.wasResized()) {
-			REGISTRY.register(new Key("/Light Engine/Display/width"), window.getWidth());
-			REGISTRY.register(new Key("/Light Engine/Display/height"), window.getHeight());
-			Renderer.reloadDeferred();
-			windowManager.reloadCompositor();
+		if (!window.isIconified()) {
+			if (window.wasResized()) {
+				REGISTRY.register(new Key("/Light Engine/Display/width"), window.getWidth());
+				REGISTRY.register(new Key("/Light Engine/Display/height"), window.getHeight());
+				Renderer.reloadDeferred();
+				windowManager.reloadCompositor();
+			}
+			CachedAssets.update(delta);
+			Renderer.clearColors(0, 0, 0, 1);
+			Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			GraphicalSubsystem.getWindowManager().update(delta);
+			GraphicalSubsystem.getWindowManager().render(delta);
 		}
-		CachedAssets.update(delta);
 		WindowManager.update();
-		Renderer.clearColors(0, 0, 0, 1);
-		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		GraphicalSubsystem.getWindowManager().update(delta);
-		GraphicalSubsystem.getWindowManager().render(delta);
 	}
 
 	@Override

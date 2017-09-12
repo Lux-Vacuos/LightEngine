@@ -35,8 +35,8 @@ uniform int useFXAA;
 #define FxaaTexLod0(t, p) textureLod(t, p, 0.0)
 #define FxaaTexOff(t, p, o, r) textureLodOffset(t, p, 0.0, o)
 
-#define FXAA_REDUCE_MIN   (1.0/128.0)
-#define FXAA_REDUCE_MUL   (1.0/8.0)
+#define FXAA_REDUCE_MIN   (1.0 / 128.0)
+#define FXAA_REDUCE_MUL   (1.0 / 8.0)
 #define FXAA_SPAN_MAX     8.0
 
 #define rt_w resolution.x
@@ -82,15 +82,13 @@ vec3 FxaaPixelShader(vec4 posPos, sampler2D tex, vec2 rcpFrame) {
 		return rgbB; }
  
 vec3 PostFX(sampler2D tex, vec2 uv, float time) {
-	vec3 c = vec3(0.0);
-	vec2 rcpFrame = vec2(1.0/rt_w, 1.0/rt_h);
-	c = FxaaPixelShader(posPos, tex, rcpFrame);
-	return c;
+	vec2 rcpFrame = vec2(1.0 / rt_w, 1.0 / rt_h);
+	return FxaaPixelShader(posPos, tex, rcpFrame);
 }
 
-void main(void){
+void main(){
 	if (useFXAA == 1) 
 		out_Color = PostFX(composite0, textureCoords, 0);
 	else 
-		out_Color = texture(composite0,textureCoords).rgb;
+		out_Color = texture(composite0, textureCoords).rgb;
 }

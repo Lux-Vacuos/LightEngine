@@ -30,19 +30,17 @@ uniform sampler2D gDepth;
 uniform int useDOF;
 
 void main(void){
-	vec2 texcoord = textureCoords;
-	vec3 textureColour = texture(composite0, texcoord).rgb;
+	vec3 textureColour = texture(composite0, textureCoords).rgb;
 	if(useDOF == 1){
 		vec3 sum = textureColour.rgb;
-		float bias = min(abs(texture(gDepth, texcoord).x - texture(gDepth, vec2(0.5)).x) * .01, .005);
+		float bias = min(abs(texture(gDepth, textureCoords).x - texture(gDepth, vec2(0.5)).x) * .01, .005);
 		for (int i = -4; i < 4; i++) {
 			for (int j = -4; j < 4; j++) {
-				sum += texture(composite0, texcoord + vec2(j, i) * bias ).rgb;
+				sum += texture(composite0, textureCoords + vec2(j, i) * bias ).rgb;
 			}
 		}
 		sum /= 65.0;
 		textureColour = sum;
 	}
-	
     out_Color = textureColour;
 }

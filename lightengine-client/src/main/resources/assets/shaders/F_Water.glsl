@@ -44,7 +44,7 @@ float fresnelSchlickRoughness(float cosTheta, float F0, float roughness) {
     return F0 + (max(1.0 - roughness, F0) - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
-void main(void) {
+void main() {
 
 	vec2 ndc = (clipSpaceOut.xy / clipSpaceOut.w) / 2.0 + 0.5;
 

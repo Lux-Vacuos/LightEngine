@@ -20,11 +20,11 @@
 
 #version 330 core
 
-in vec2 position;
+layout(location = 0) in vec2 position;
 
 out vec2 textureCoords;
 
-void main(void){
+void main(){
 	gl_Position = vec4(position, -0.8, 1.0);
 	textureCoords = vec2((position.x+1.0)/2.0, (position.y+1.0)/2.0);
 }
