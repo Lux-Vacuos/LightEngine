@@ -68,6 +68,11 @@ public class EditBox extends Component {
 		if (selected) {
 			text = kb.handleInput(text);
 			componentState = ComponentState.SELECTED;
+			if(kb.isKeyPressed(GLFW.GLFW_KEY_LEFT_CONTROL) && kb.isKeyPressed(GLFW.GLFW_KEY_V)) {
+				kb.ignoreKeyUntilRelease(GLFW.GLFW_KEY_LEFT_CONTROL);
+				kb.ignoreKeyUntilRelease(GLFW.GLFW_KEY_V);
+				text += GLFW.glfwGetClipboardString(window.getID());
+			}
 		}
 		if (kb.isKeyPressed(GLFW.GLFW_KEY_ENTER)) {
 			kb.ignoreKeyUntilRelease(GLFW.GLFW_KEY_ENTER);
