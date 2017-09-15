@@ -51,7 +51,6 @@ public class Mesh implements IDisposable {
 		List<Vector2f> tex = new ArrayList<>();
 		List<Vector3f> nor = new ArrayList<>();
 		List<Vector3f> tan = new ArrayList<>();
-
 		for (int i = 0; i < aiMesh.mNumVertices(); i++) {
 			AIVector3D position = aiMesh.mVertices().get(i);
 			AIVector3D texcoord = null;
@@ -68,16 +67,14 @@ public class Mesh implements IDisposable {
 			tan.add(new Vector3f(tangent.x(), tangent.y(), tangent.z()));
 		}
 		loadData(pos, tex, nor, tan);
-
 		int faceCount = aiMesh.mNumFaces();
 		int elementCount = faceCount * 3;
 		IntBuffer elementArrayBufferData = BufferUtils.createIntBuffer(elementCount);
 		AIFace.Buffer facesBuffer = aiMesh.mFaces();
 		for (int i = 0; i < faceCount; ++i) {
 			AIFace face = facesBuffer.get(i);
-			if (face.mNumIndices() != 3) {
+			if (face.mNumIndices() != 3)
 				throw new IllegalStateException("AIFace.mNumIndices() != 3");
-			}
 			elementArrayBufferData.put(face.mIndices());
 		}
 		elementArrayBufferData.flip();
@@ -139,7 +136,10 @@ public class Mesh implements IDisposable {
 		mesh.createAttribute(1, texA, 2, GL_STATIC_DRAW);
 		mesh.createAttribute(2, norA, 3, GL_STATIC_DRAW);
 		mesh.createAttribute(3, tanA, 3, GL_STATIC_DRAW);
-
+		posB.clear();
+		texB.clear();
+		norB.clear();
+		tanB.clear();
 	}
 
 }

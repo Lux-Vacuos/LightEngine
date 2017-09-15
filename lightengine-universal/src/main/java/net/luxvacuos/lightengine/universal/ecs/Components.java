@@ -36,18 +36,16 @@ public class Components {
 
 	public static final ComponentMapper<Scale> SCALE = ComponentMapper.getFor(Scale.class);
 
-	public static final ComponentMapper<Velocity> VELOCITY = ComponentMapper.getFor(Velocity.class);
-
 	public static final ComponentMapper<Health> HEALTH = ComponentMapper.getFor(Health.class);
 
-	public static final ComponentMapper<AABB> AABB = ComponentMapper.getFor(AABB.class);
-	
+	public static final ComponentMapper<Collision> COLLISION = ComponentMapper.getFor(Collision.class);
+
 	public static final ComponentMapper<NBTComponent> NBT = ComponentMapper.getFor(NBTComponent.class);
-	
+
 	public static final ComponentMapper<Player> PLAYER = ComponentMapper.getFor(Player.class);
-	
+
 	public static final ComponentMapper<Name> NAME = ComponentMapper.getFor(Name.class);
-	
+
 	public static final ComponentMapper<UUIDComponent> UUID = ComponentMapper.getFor(UUIDComponent.class);
-	
+
 }

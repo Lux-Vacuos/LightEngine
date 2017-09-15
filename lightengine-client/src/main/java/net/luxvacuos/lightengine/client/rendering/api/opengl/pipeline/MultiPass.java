@@ -71,12 +71,6 @@ public class MultiPass extends DeferredPipeline {
 		super.imagePasses.add(gH1);
 		super.imagePasses.add(gV1);
 		
-		gH2 = new GaussianHorizonal("GaussianHorizontal", width / 4, height / 4);
-		super.imagePasses.add(gH2);
-		
-		gV2 = new GaussianVertical("GaussianVertical", width / 4, height / 4);
-		super.imagePasses.add(gV2);
-		
 		bloom = new Bloom("Bloom", width, height);
 		super.imagePasses.add(bloom);
 		

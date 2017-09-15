@@ -18,26 +18,32 @@
  * 
  */
 
-package net.luxvacuos.lightengine.universal.ecs.entities;
+package net.luxvacuos.lightengine.universal.util;
 
-import net.luxvacuos.lightengine.universal.ecs.components.Position;
-import net.luxvacuos.lightengine.universal.ecs.components.Rotation;
-import net.luxvacuos.lightengine.universal.ecs.components.Scale;
+import javax.vecmath.Quat4f;
+import javax.vecmath.Vector3f;
 
-public class BasicEntity extends LEEntity {
+import net.luxvacuos.igl.vector.Quaternion;
 
-	public BasicEntity(String name) {
-		super(name);
-		add(new Position());
-		add(new Rotation());
-		add(new Scale());
+public final class VectoVec {
+
+	private VectoVec() {
 	}
-	
-	public BasicEntity(String name, String uuid) {
-		super(name, uuid);
-		add(new Position());
-		add(new Rotation());
-		add(new Scale());
+
+	public static Vector3f toVec3(net.luxvacuos.igl.vector.Vector3f vec) {
+		return new Vector3f(vec.getX(), vec.getY(), vec.getZ());
+	}
+
+	public static Vector3f toVec3(net.luxvacuos.igl.vector.Vector3d vec) {
+		return new Vector3f((float) vec.getX(), (float) vec.getY(), (float) vec.getZ());
+	}
+
+	public static net.luxvacuos.igl.vector.Vector3d toVec3(Vector3f vec) {
+		return new net.luxvacuos.igl.vector.Vector3d(vec.x, vec.y, vec.z);
+	}
+
+	public static Quat4f toQuat4(Quaternion q) {
+		return new Quat4f(q.x, q.y, q.z, q.w);
 	}
 
 }

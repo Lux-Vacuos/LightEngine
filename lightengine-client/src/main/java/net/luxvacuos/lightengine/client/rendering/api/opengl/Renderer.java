@@ -42,6 +42,7 @@ import java.util.Map;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.utils.ImmutableArray;
+import com.badlogic.gdx.utils.Array;
 
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.igl.vector.Matrix4d;
@@ -117,9 +118,11 @@ public class Renderer {
 		}
 	}
 
-	public static void render(ImmutableArray<Entity> entities, Map<ParticleTexture, List<Particle>> particles,
+	public static void render(ImmutableArray<Entity> entitiesT, Map<ParticleTexture, List<Particle>> particles,
 			List<WaterTile> waterTiles, LightRenderer lightRenderer, CameraEntity cameraT,
 			IWorldSimulation worldSimulation, Sun sunT, float alpha) {
+		Array<Entity> entitiesR = new Array<>(entitiesT.toArray(Entity.class));
+		ImmutableArray<Entity> entities = new ImmutableArray<>(entitiesR);
 		CameraEntity camera = cameraT;
 		Sun sun = sunT;
 		resetState();

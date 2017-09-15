@@ -21,12 +21,15 @@
 package net.luxvacuos.lightengine.client.network;
 
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 
 import com.badlogic.ashley.core.Engine;
 
 import io.netty.channel.ChannelHandlerContext;
+import net.luxvacuos.igl.vector.Vector3d;
 import net.luxvacuos.lightengine.client.core.ClientWorldSimulation;
+import net.luxvacuos.lightengine.client.ecs.entities.PlayerCamera;
 import net.luxvacuos.lightengine.client.ecs.entities.RenderPlayerEntity;
 import net.luxvacuos.lightengine.client.world.ClientPhysicsSystem;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
@@ -40,10 +43,16 @@ import net.luxvacuos.lightengine.universal.network.packets.UpdateBasicEntity;
 
 public class ClientNetworkHandler extends AbstractNetworkHandler {
 
-	public ClientNetworkHandler() {
+	private PlayerCamera player;
+	private Client client;
+
+	public ClientNetworkHandler(Client client) {
+		this.client = client;
 		worldSimulation = new ClientWorldSimulation(10000);
 		engine = new Engine();
 		engine.addSystem(new ClientPhysicsSystem());
+		player = new PlayerCamera("player" + new Random().nextInt(1000), UUID.randomUUID().toString());
+		engine.addEntity(player);
 	}
 
 	@Override
@@ -64,6 +73,8 @@ public class ClientNetworkHandler extends AbstractNetworkHandler {
 	public void update(float delta) {
 		engine.update(delta);
 		worldSimulation.update(delta);
+		client.sendPacket(new UpdateBasicEntity(Components.UUID.get(player).getUUID(), player.getPosition(),
+				player.getRotation(), new Vector3d(), Components.SCALE.get(player).getScale()));
 	}
 
 	@Override
@@ -83,13 +94,13 @@ public class ClientNetworkHandler extends AbstractNetworkHandler {
 	}
 
 	private void handleDisconnect(ClientDisconnect con) {
-		engine.removeEntity(players.remove(con.getUUID()));
+		PlayerEntity p = players.remove(con.getUUID());
+		engine.removeEntity(p);
 	}
 
 	private void handleUpdateBasicEntity(UpdateBasicEntity ube) {
 		PlayerEntity e = players.get(ube.getUUID());
 		Components.POSITION.get(e).set(ube.getPosition());
-		Components.VELOCITY.get(e).set(ube.getVelocity());
 	}
 
 	@Override
@@ -105,6 +116,10 @@ public class ClientNetworkHandler extends AbstractNetworkHandler {
 	@Override
 	public IWorldSimulation getWorldSimulation() {
 		return worldSimulation;
+	}
+
+	public PlayerCamera getPlayer() {
+		return player;
 	}
 
 }

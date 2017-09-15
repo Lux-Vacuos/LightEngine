@@ -86,7 +86,7 @@ public class GameState extends AbstractState {
 			worldSimulation = new ClientWorldSimulation(10000);
 			engine = new Engine();
 			physicsSystem = new ClientPhysicsSystem();
-			physicsSystem.addBox(new BoundingBox(new Vector3(-50, -1, -50), new Vector3(50, 0, 50)));
+			//physicsSystem.addBox(new BoundingBox(new Vector3(-50, -1, -50), new Vector3(50, 0, 50)));
 			engine.addSystem(physicsSystem);
 
 			physicsSystem.getEngine().addEntity(camera);

@@ -27,6 +27,7 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.client.bootstrap.Bootstrap;
+import net.luxvacuos.lightengine.client.core.exception.UpdateThreadException;
 import net.luxvacuos.lightengine.client.core.states.CrashState;
 import net.luxvacuos.lightengine.client.core.subsystems.ClientCoreSubsystem;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
@@ -45,6 +46,9 @@ import net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class LightEngineClient extends AbstractEngine {
+
+	private Thread watchdog;
+	private Thread updateThread;
 
 	public LightEngineClient() {
 		GLFW.glfwSetErrorCallback(GLFWErrorCallback.createPrint(System.err));
@@ -97,7 +101,7 @@ public class LightEngineClient extends AbstractEngine {
 	public void update() {
 		int fps = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/fps"));
 		int ups = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/ups"));
-		Thread update = new Thread(() -> {
+		updateThread = new Thread(() -> {
 			float delta = 0;
 			float accumulator = 0f;
 			float interval = 1f / ups;
@@ -122,8 +126,26 @@ public class LightEngineClient extends AbstractEngine {
 				sync.sync(ups);
 			}
 		});
-		update.setName("Update Thread");
-		update.start();
+		updateThread.setName("Update Thread");
+		updateThread.start();
+
+		watchdog = new Thread(() -> {
+			while (true) {
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {
+				}
+				if (!updateThread.isAlive()) {
+					TaskManager.addTask(() -> {
+						throw new UpdateThreadException("Update Thread died");
+					});
+				}
+			}
+		});
+		watchdog.setDaemon(true);
+		watchdog.setName("WatchDog Thread");
+		watchdog.start();
+
 		Window window = GraphicalSubsystem.getMainWindow();
 		float delta = 0;
 		while (StateMachine.isRunning()) {

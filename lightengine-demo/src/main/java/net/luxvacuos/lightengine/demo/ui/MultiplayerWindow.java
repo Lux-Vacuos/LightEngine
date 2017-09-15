@@ -1,6 +1,5 @@
 package net.luxvacuos.lightengine.demo.ui;
 
-
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.LANG;
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_CENTER;
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_MIDDLE;
@@ -42,15 +41,13 @@ public class MultiplayerWindow extends ComponentWindow {
 
 		playButton.setOnButtonPress(() -> {
 			String ip = address.getText();
-			if (!ip.equals("")) {
-				MainState.ip = ip;
-				address.setText("");
-				GraphicalSubsystem.getWindowManager().toggleShell();
-				super.closeWindow();
-				root.setWindowClose(WindowClose.DISPOSE);
-				root.closeWindow();
-				StateMachine.setCurrentState("mainState");
-			}
+			MainState.ip = ip;
+			address.setText("");
+			GraphicalSubsystem.getWindowManager().toggleShell();
+			super.closeWindow();
+			root.setWindowClose(WindowClose.DISPOSE);
+			root.closeWindow();
+			StateMachine.setCurrentState("mainState");
 		});
 
 		super.addComponent(address);

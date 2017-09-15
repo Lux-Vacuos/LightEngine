@@ -20,99 +20,103 @@
 
 package net.luxvacuos.lightengine.universal.world;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.vecmath.Vector3f;
 
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.EntityListener;
 import com.badlogic.ashley.core.EntitySystem;
-import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.BoundingBox;
+import com.bulletphysics.collision.broadphase.AxisSweep3;
+import com.bulletphysics.collision.broadphase.BroadphaseInterface;
+import com.bulletphysics.collision.broadphase.CollisionFilterGroups;
+import com.bulletphysics.collision.dispatch.CollisionConfiguration;
+import com.bulletphysics.collision.dispatch.CollisionDispatcher;
+import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
+import com.bulletphysics.collision.dispatch.GhostPairCallback;
+import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
+import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
+import com.bulletphysics.linearmath.Transform;
 
 import net.luxvacuos.lightengine.universal.ecs.Components;
-import net.luxvacuos.lightengine.universal.ecs.components.AABB;
-import net.luxvacuos.lightengine.universal.ecs.components.Health;
+import net.luxvacuos.lightengine.universal.ecs.components.Collision;
+import net.luxvacuos.lightengine.universal.ecs.components.Player;
 import net.luxvacuos.lightengine.universal.ecs.components.Position;
-import net.luxvacuos.lightengine.universal.ecs.components.Velocity;
 import net.luxvacuos.lightengine.universal.ecs.entities.LEEntity;
+import net.luxvacuos.lightengine.universal.util.VectoVec;
 
 public class PhysicsSystem extends EntitySystem {
 	protected ImmutableArray<Entity> entities;
 
-	protected List<BoundingBox> boxes = new ArrayList<>();
-	protected Vector3 normalTMP = new Vector3();
-	protected double depthTMP;
-	protected int faceTMP;
+	protected DiscreteDynamicsWorld dynamicsWorld;
+
+	public PhysicsSystem() {
+		CollisionConfiguration collisionConfiguration = new DefaultCollisionConfiguration();
+		CollisionDispatcher dispatcher = new CollisionDispatcher(collisionConfiguration);
+		Vector3f worldMin = new Vector3f(-10000, -10000, -10000);
+		Vector3f worldMax = new Vector3f(10000, 10000, 10000);
+		AxisSweep3 sweepBP = new AxisSweep3(worldMin, worldMax);
+		BroadphaseInterface overlappingPairCache = sweepBP;
+		SequentialImpulseConstraintSolver constraintSolver = new SequentialImpulseConstraintSolver();
+		dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, overlappingPairCache, constraintSolver,
+				collisionConfiguration);
+		dynamicsWorld.setGravity(new Vector3f(0, -9.8f, 0));
+		overlappingPairCache.getOverlappingPairCache().setInternalGhostPairCallback(new GhostPairCallback());
+	}
 
 	@Override
 	public void addedToEngine(Engine engine) {
 		super.addedToEngine(engine);
-		entities = engine.getEntitiesFor(Family.all(Position.class, Velocity.class, AABB.class).get());
+		entities = engine.getEntities();
+		engine.addEntityListener(new EntityListener() {
+
+			@Override
+			public void entityAdded(Entity entity) {
+				if (Components.PLAYER.has(entity)) {
+					Player p = Components.PLAYER.get(entity);
+					dynamicsWorld.addCollisionObject(p.ghostObject, CollisionFilterGroups.CHARACTER_FILTER,
+							(short) (CollisionFilterGroups.STATIC_FILTER | CollisionFilterGroups.DEFAULT_FILTER));
+					dynamicsWorld.addAction(p.character);
+					return;
+				}
+				if (Components.COLLISION.has(entity))
+					dynamicsWorld.addRigidBody(Components.COLLISION.get(entity).getDynamicObject().getBody());
+			}
+
+			@Override
+			public void entityRemoved(Entity entity) {
+				if (Components.PLAYER.has(entity)) {
+					Player p = Components.PLAYER.get(entity);
+					dynamicsWorld.removeAction(p.character);
+					dynamicsWorld.removeCollisionObject(p.ghostObject);
+					return;
+				}
+				if (Components.COLLISION.has(entity))
+					dynamicsWorld.removeRigidBody(Components.COLLISION.get(entity).getDynamicObject().getBody());
+			}
+
+		});
 	}
 
 	@Override
 	public void update(float delta) {
+		dynamicsWorld.stepSimulation(delta);
 		for (Entity entity : entities) {
-			Position pos = Components.POSITION.get(entity);
-			Velocity velocity = Components.VELOCITY.get(entity);
-			AABB aabb = Components.AABB.get(entity);
-			Health health = Components.HEALTH.get(entity);
-
-			if (entity instanceof LEEntity)
+			if (entity instanceof LEEntity) {
 				((LEEntity) entity).beforeUpdate(delta);
-
-			if (entity instanceof LEEntity)
 				((LEEntity) entity).update(delta);
+			}
 
-			if (aabb.isGravity())
-				velocity.setY(velocity.getY() - 15f * delta);
-			else
-				velocity.setY(velocity.getY() * 0.7f - velocity.getY() * 0.0001f);
-			velocity.setX(velocity.getX() * 0.7f - velocity.getX() * 0.0001f);
-			velocity.setZ(velocity.getZ() * 0.7f - velocity.getZ() * 0.0001f);
-
-			aabb.update(pos.getPosition());
-
-			if (aabb.isEnabled())
-				for (BoundingBox boundingBox : boxes) {
-					normalTMP.set(0, 0, 0);
-					if (AABBIntersect(aabb.getBoundingBox().min, aabb.getBoundingBox().max, boundingBox.min,
-							boundingBox.max)) {
-						depthTMP /= 3f;
-						if (normalTMP.x > 0 && velocity.getX() > 0) {
-							velocity.setX(0);
-							pos.setX(pos.getX() - depthTMP);
-						}
-						if (normalTMP.x < 0 && velocity.getX() < 0) {
-							velocity.setX(0);
-							pos.setX(pos.getX() + depthTMP);
-						}
-
-						if (normalTMP.y > 0 && velocity.getY() > 0)
-							velocity.setY(0);
-						if (normalTMP.y < 0 && velocity.getY() < 0) {
-							if (health != null && velocity.getY() < -10f) {
-								health.take((float) (velocity.getY() * 0.4f));
-							}
-							velocity.setY(0);
-							pos.setY(pos.getY() + depthTMP);
-						}
-
-						if (normalTMP.z > 0 && velocity.getZ() > 0) {
-							velocity.setZ(0);
-							pos.setZ(pos.getZ() - depthTMP);
-						}
-						if (normalTMP.z < 0 && velocity.getZ() < 0) {
-							velocity.setZ(0);
-							pos.setZ(pos.getZ() + depthTMP);
-						}
-					}
+			if (Components.POSITION.has(entity) && Components.COLLISION.has(entity)) {
+				Position pos = Components.POSITION.get(entity);
+				Collision coll = Components.COLLISION.get(entity);
+				if (!Components.PLAYER.has(entity)) {
+					Transform trans = new Transform();
+					coll.getDynamicObject().getBody().getMotionState().getWorldTransform(trans);
+					pos.set(VectoVec.toVec3(trans.origin));
 				}
-			pos.setX(pos.getX() + velocity.getX() * delta);
-			pos.setY(pos.getY() + velocity.getY() * delta);
-			pos.setZ(pos.getZ() + velocity.getZ() * delta);
+			}
+			update(delta, entity);
 
 			if (entity instanceof LEEntity)
 				((LEEntity) entity).afterUpdate(delta);
@@ -120,31 +124,11 @@ public class PhysicsSystem extends EntitySystem {
 		}
 	}
 
-	private boolean AABBIntersect(final Vector3 mina, final Vector3 maxa, final Vector3 minb, final Vector3 maxb) {
-		final Vector3 faces[] = { new Vector3(-1, 0, 0), new Vector3(1, 0, 0), new Vector3(0, -1, 0),
-				new Vector3(0, 1, 0), new Vector3(0, 0, -1), new Vector3(0, 0, 1) };
-		double distances[] = { (maxb.x - mina.x), (maxa.x - minb.x), (maxb.y - mina.y), (maxa.y - minb.y),
-				(maxb.z - mina.z), (maxa.z - minb.z) };
-		for (int i = 0; i < 6; i++) {
-			if (distances[i] < 0.0f)
-				return false;
-			if ((i == 0) || (distances[i] < depthTMP)) {
-				faceTMP = i;
-				normalTMP = faces[i];
-				depthTMP = distances[i];
-			}
-
-		}
-		return true;
-
+	protected void update(float delta, Entity entity) {
 	}
 
-	public List<BoundingBox> getBoxes() {
-		return boxes;
-	}
-
-	public void addBox(BoundingBox box) {
-		boxes.add(box);
+	public void addCollision(DynamicObject dyo) {
+		dynamicsWorld.addRigidBody(dyo.getBody());
 	}
 
 }

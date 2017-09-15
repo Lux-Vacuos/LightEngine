@@ -23,9 +23,7 @@ package net.luxvacuos.lightengine.client.network;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import net.luxvacuos.igl.Logger;
-import net.luxvacuos.lightengine.universal.network.packets.Disconnect;
 import net.luxvacuos.lightengine.universal.network.packets.Message;
-import net.luxvacuos.lightengine.universal.network.packets.Time;
 
 public class ClientHandler extends ChannelInboundHandlerAdapter {
 
@@ -38,10 +36,6 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 			handleMessage((Message) obj);
 		} else if (obj instanceof String) {
 			handleString((String) obj);
-		} else if (obj instanceof Time) {
-			handleTime((Time) obj);
-		} else if (obj instanceof Disconnect) {
-			handleDisconnect((Disconnect) obj);
 		}
 		super.channelRead(ctx, obj);
 	}
@@ -61,9 +55,4 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 		Logger.log("[" + msg.getSender() + "]: " + msg.getMessage());
 	}
 
-	private void handleTime(Time time) {
-	}
-
-	private void handleDisconnect(Disconnect disconnect) {
-	}
 }

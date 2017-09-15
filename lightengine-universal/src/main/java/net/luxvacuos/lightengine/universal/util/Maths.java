@@ -18,26 +18,8 @@
  * 
  */
 
-package net.luxvacuos.lightengine.universal.ecs.entities;
+package net.luxvacuos.lightengine.universal.util;
 
-import net.luxvacuos.lightengine.universal.ecs.components.Position;
-import net.luxvacuos.lightengine.universal.ecs.components.Rotation;
-import net.luxvacuos.lightengine.universal.ecs.components.Scale;
-
-public class BasicEntity extends LEEntity {
-
-	public BasicEntity(String name) {
-		super(name);
-		add(new Position());
-		add(new Rotation());
-		add(new Scale());
-	}
-	
-	public BasicEntity(String name, String uuid) {
-		super(name, uuid);
-		add(new Position());
-		add(new Rotation());
-		add(new Scale());
-	}
+public class Maths {
 
 }

@@ -20,22 +20,35 @@
 
 package net.luxvacuos.lightengine.universal.ecs.entities;
 
-import net.luxvacuos.igl.vector.Vector3d;
-import net.luxvacuos.lightengine.universal.ecs.components.AABB;
+import javax.vecmath.Vector3f;
+
+import com.bulletphysics.collision.shapes.BoxShape;
+import com.bulletphysics.linearmath.Transform;
+
+import net.luxvacuos.lightengine.universal.ecs.components.Collision;
 import net.luxvacuos.lightengine.universal.ecs.components.Player;
+import net.luxvacuos.lightengine.universal.world.DynamicObject;
 
 public class PlayerEntity extends BasicEntity {
 
 	public PlayerEntity(String name) {
 		super(name);
-		this.add(new Player());
-		this.add(new AABB(new Vector3d(-0.25f, -1.5f, -0.25f), new Vector3d(0.25f, 0.2f, 0.25f)));
+		Transform transform = new Transform();
+		transform.setIdentity();
+		transform.origin.set(new Vector3f(5, 45, 0));
+		this.add(new Player(transform));
+		BoxShape shape = new BoxShape(new Vector3f(0.25f, 1.7f, 0.25f));
+		this.add(new Collision(new DynamicObject(shape, transform, 1)));
 	}
 
 	public PlayerEntity(String name, String uuid) {
 		super(name, uuid);
-		this.add(new Player());
-		this.add(new AABB(new Vector3d(-0.25f, -1.5f, -0.25f), new Vector3d(0.25f, 0.2f, 0.25f)));
+		Transform transform = new Transform();
+		transform.setIdentity();
+		transform.origin.set(new Vector3f(5, 45, 0));
+		this.add(new Player(transform));
+		BoxShape shape = new BoxShape(new Vector3f(0.25f, 1.7f, 0.25f));
+		this.add(new Collision(new DynamicObject(shape, transform, 1)));
 	}
 
 }

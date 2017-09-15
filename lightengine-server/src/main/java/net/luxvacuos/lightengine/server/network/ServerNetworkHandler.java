@@ -66,6 +66,7 @@ public class ServerNetworkHandler extends AbstractNetworkHandler {
 
 	@Override
 	public void dispose() {
+		engine.removeAllEntities();
 	}
 
 	private void handleConnect(ClientConnect con, ChannelHandlerContext ctx) {
@@ -88,7 +89,6 @@ public class ServerNetworkHandler extends AbstractNetworkHandler {
 	private void handleUpdateBasicEntity(UpdateBasicEntity ube) {
 		PlayerEntity e = players.get(ube.getUUID());
 		Components.POSITION.get(e).set(ube.getPosition());
-		Components.VELOCITY.get(e).set(ube.getVelocity());
 		ServerHandler.channels.writeAndFlush(ube);
 	}
 

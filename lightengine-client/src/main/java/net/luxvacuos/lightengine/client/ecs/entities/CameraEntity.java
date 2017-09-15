@@ -54,7 +54,7 @@ public class CameraEntity extends PlayerEntity {
 	@Override
 	public void afterUpdate(float delta) {
 		super.afterUpdate(delta);
-		ClientComponents.VIEW_MATRIX.get(this).setViewMatrix(Maths.createViewMatrix(this));
+		setViewMatrix(Maths.createViewMatrix(this));
 	}
 
 	public Vector3d getPosition() {

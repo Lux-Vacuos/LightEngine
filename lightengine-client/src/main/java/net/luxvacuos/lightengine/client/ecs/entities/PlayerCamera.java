@@ -22,12 +22,15 @@ package net.luxvacuos.lightengine.client.ecs.entities;
 
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 
+import javax.vecmath.Vector3f;
+
 import org.lwjgl.glfw.GLFW;
+
+import com.bulletphysics.linearmath.Transform;
 
 import net.luxvacuos.igl.vector.Vector2d;
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
-import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
 import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
@@ -36,35 +39,28 @@ import net.luxvacuos.lightengine.client.resources.CastRay;
 import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.ecs.Components;
 import net.luxvacuos.lightengine.universal.ecs.components.Health;
+import net.luxvacuos.lightengine.universal.ecs.components.Player;
 import net.luxvacuos.lightengine.universal.ecs.components.Rotation;
-import net.luxvacuos.lightengine.universal.ecs.components.Velocity;
+import net.luxvacuos.lightengine.universal.util.VectoVec;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class PlayerCamera extends CameraEntity {
 
-	private boolean jump = false;
-	private float speed = 1f;
 	private int mouseSpeed = 8;
 	private final int maxLookUp = 90;
 	private final int maxLookDown = -90;
-	private boolean flyMode = false;
 	private Vector2d center;
 
 	public PlayerCamera(String name, String uuid) {
 		super(name, uuid);
 		this.add(new Health(20));
-
-		if (flyMode)
-			Components.AABB.get(this).setEnabled(false);
-		Components.AABB.get(this).setGravity(!flyMode);
 		int width = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
 		int height = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
 
-		ClientComponents.PROJECTION_MATRIX.get(this)
-				.setProjectionMatrix(Renderer.createProjectionMatrix(width, height,
-						(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/fov")),
-						ClientVariables.NEAR_PLANE, ClientVariables.FAR_PLANE));
-		ClientComponents.VIEW_MATRIX.get(this).setViewMatrix(Maths.createViewMatrix(this));
+		setProjectionMatrix(Renderer.createProjectionMatrix(width, height,
+				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/fov")), ClientVariables.NEAR_PLANE,
+				ClientVariables.FAR_PLANE));
+		setViewMatrix(Maths.createViewMatrix(this));
 		center = new Vector2d(width / 2, height / 2);
 		castRay = new CastRay(getProjectionMatrix(), getViewMatrix(), center, width, height);
 	}
@@ -92,46 +88,35 @@ public class PlayerCamera extends CameraEntity {
 		else if (rotation.getX() - mouseDY > maxLookUp)
 			rotation.setX(maxLookUp);
 
-		Velocity vel = Components.VELOCITY.get(this);
+		Player p = Components.PLAYER.get(this);
+		Transform characterWorldTrans = p.ghostObject.getWorldTransform(new Transform());
+		setPosition(VectoVec.toVec3(characterWorldTrans.origin));
+
+		Vector3f walkDirection = new Vector3f(0.0f, 0.0f, 0.0f);
+		float walkVelocity = 1.1f * 2.0f;
+		float walkSpeed = walkVelocity * delta * p.characterScale;
 
 		if (kbh.isKeyPressed(GLFW.GLFW_KEY_W)) {
-			vel.setZ(vel.getZ() + -Math.cos(Math.toRadians(rotation.getY())) * this.speed);
-			vel.setX(vel.getX() + Math.sin(Math.toRadians(rotation.getY())) * this.speed);
+			walkDirection.z += (float) -Math.cos(Math.toRadians(rotation.getY()));
+			walkDirection.x += (float) Math.sin(Math.toRadians(rotation.getY()));
 		} else if (kbh.isKeyPressed(GLFW.GLFW_KEY_S)) {
-			vel.setZ(vel.getZ() - -Math.cos(Math.toRadians(rotation.getY())) * this.speed);
-			vel.setX(vel.getX() - Math.sin(Math.toRadians(rotation.getY())) * this.speed);
+			walkDirection.z += (float) Math.cos(Math.toRadians(rotation.getY()));
+			walkDirection.x += (float) -Math.sin(Math.toRadians(rotation.getY()));
 		}
 
 		if (kbh.isKeyPressed(GLFW.GLFW_KEY_D)) {
-			vel.setZ(vel.getZ() + Math.sin(Math.toRadians(rotation.getY())) * this.speed);
-			vel.setX(vel.getX() + Math.cos(Math.toRadians(rotation.getY())) * this.speed);
+			walkDirection.z += (float) Math.sin(Math.toRadians(rotation.getY()));
+			walkDirection.x += (float) Math.cos(Math.toRadians(rotation.getY()));
 		} else if (kbh.isKeyPressed(GLFW.GLFW_KEY_A)) {
-			vel.setZ(vel.getZ() - Math.sin(Math.toRadians(rotation.getY())) * this.speed);
-			vel.setX(vel.getX() - Math.cos(Math.toRadians(rotation.getY())) * this.speed);
+			walkDirection.z += (float) -Math.sin(Math.toRadians(rotation.getY()));
+			walkDirection.x += (float) -Math.cos(Math.toRadians(rotation.getY()));
 		}
 
-		this.speed = (kbh.isCtrlPressed() ? (this.flyMode ? 6f : 2f) : 1f);
+		walkDirection.scale(walkSpeed);
+		p.character.setWalkDirection(walkDirection);
 
-		if (this.flyMode) {
-			if (kbh.isKeyPressed(GLFW.GLFW_KEY_SPACE))
-				vel.setY(5f * this.speed);
-			else if (kbh.isShiftPressed())
-				vel.setY(-5f * this.speed);
-		} else {
-			if (kbh.isKeyPressed(GLFW.GLFW_KEY_SPACE) && !jump) {
-				vel.setY(6f);
-				jump = true;
-			}
-
-			if (kbh.isShiftPressed() && !jump)
-				speed = 0.2f;
-			else if (kbh.isCtrlPressed())
-				speed = 2f;
-			else
-				speed = 1f;
-
-			if (vel.getY() == 0 && !kbh.isKeyPressed(GLFW.GLFW_KEY_SPACE))
-				jump = false;
+		if (kbh.isKeyPressed(GLFW.GLFW_KEY_SPACE)) {
+			p.character.jump();
 		}
 	}
 

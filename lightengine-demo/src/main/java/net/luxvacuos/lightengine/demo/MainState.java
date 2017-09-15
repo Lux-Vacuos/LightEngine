@@ -4,21 +4,15 @@ import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.UUID;
 
 import org.lwjgl.glfw.GLFW;
 
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.BoundingBox;
-
+import io.netty.channel.ChannelHandlerContext;
 import net.luxvacuos.igl.vector.Vector3d;
 import net.luxvacuos.igl.vector.Vector3f;
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.ecs.ClientComponents;
-import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
-import net.luxvacuos.lightengine.client.ecs.entities.PlayerCamera;
 import net.luxvacuos.lightengine.client.ecs.entities.RenderEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.Sun;
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
@@ -26,6 +20,8 @@ import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.network.Client;
 import net.luxvacuos.lightengine.client.network.ClientNetworkHandler;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.IWindow.WindowClose;
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.LightRenderer;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.ParticleDomain;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
@@ -35,27 +31,27 @@ import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Light;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.ParticleTexture;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.WaterTile;
 import net.luxvacuos.lightengine.client.ui.windows.GameWindow;
-import net.luxvacuos.lightengine.client.world.ClientPhysicsSystem;
 import net.luxvacuos.lightengine.client.world.particles.ParticleSystem;
 import net.luxvacuos.lightengine.demo.ui.PauseWindow;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.ecs.Components;
+import net.luxvacuos.lightengine.universal.ecs.components.Position;
+import net.luxvacuos.lightengine.universal.ecs.components.Scale;
+import net.luxvacuos.lightengine.universal.network.SharedChannelHandler;
 import net.luxvacuos.lightengine.universal.network.packets.ClientConnect;
 import net.luxvacuos.lightengine.universal.network.packets.ClientDisconnect;
-import net.luxvacuos.lightengine.universal.network.packets.UpdateBasicEntity;
+import net.luxvacuos.lightengine.universal.network.packets.Disconnect;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class MainState extends AbstractState {
 
 	private Sun sun;
-	private CameraEntity camera;
 	private ParticleSystem particleSystem;
 	private Vector3d particlesPoint;
 	private GameWindow gameWindow;
 	private PauseWindow pauseWindow;
-	private Light light0, light1;
 	private LightRenderer lightRenderer;
 
 	private RenderEntity mat2, plane, character;
@@ -89,16 +85,26 @@ public class MainState extends AbstractState {
 		client = new Client();
 		if (!ip.isEmpty())
 			client.setHost(ip);
-		nh = new ClientNetworkHandler();
-		client.run(nh);
-		nh.getEngine().getSystem(ClientPhysicsSystem.class)
-				.addBox(new BoundingBox(new Vector3(-50, -1, -50), new Vector3(50, 0, 50)));
+		nh = new ClientNetworkHandler(client);
+		client.run(nh, new SharedChannelHandler() {
 
-		camera = new PlayerCamera("player" + new Random().nextInt(1000), UUID.randomUUID().toString());
-		camera.setPosition(new Vector3d(0, 2, 0));
+			@Override
+			public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+				if (msg instanceof Disconnect) {
+					handleDisconnect((Disconnect) msg);
+				}
+				super.channelRead(ctx, msg);
+			}
+
+			private void handleDisconnect(Disconnect disconnect) {
+				exitWorld = true;
+				if (pauseWindow != null)
+					pauseWindow.notifyWindow(WindowMessage.WM_CLOSE, WindowClose.DO_NOTHING);
+			}
+		});
 
 		Renderer.setOnResize(() -> {
-			ClientComponents.PROJECTION_MATRIX.get(camera)
+			ClientComponents.PROJECTION_MATRIX.get(nh.getPlayer())
 					.setProjectionMatrix(Renderer.createProjectionMatrix(
 							(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
 							(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
@@ -108,7 +114,7 @@ public class MainState extends AbstractState {
 
 		TaskManager.addTask(() -> {
 			Renderer.render(nh.getEngine().getEntities(), ParticleDomain.getParticles(), waterTiles, lightRenderer,
-					camera, nh.getWorldSimulation(), sun, 0);
+					nh.getPlayer(), nh.getWorldSimulation(), sun, 0);
 			gameWindow = new GameWindow(0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
 					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
 					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")));
@@ -116,35 +122,30 @@ public class MainState extends AbstractState {
 			loaded = true;
 		});
 
-		// Renderer.getLightRenderer().addLight(new Light(new Vector3f(-8, 5,
-		// -8), new Vector3f(1, 1, 1)));
-		// Renderer.getLightRenderer().addLight(new Light(new Vector3f(-8, 5,
-		// 8), new Vector3f(1, 1, 1)));
-		// Renderer.getLightRenderer().addLight(new Light(new Vector3f(8, 5,
-		// -8), new Vector3f(1, 1, 1)));
-		// Renderer.getLightRenderer().addLight(new Light(new Vector3f(8, 5, 8),
-		// new Vector3f(1, 1, 1)));
-		// Renderer.getLightRenderer().addLight(new Light(new Vector3f(0, 5, 0),
-		// new Vector3f(1, 1, 1)));
-
 		lightRenderer = new LightRenderer();
 
-		light0 = new Light(new Vector3d(4.5f, 4.2f, 8f), new Vector3f(50, 50, 50), new Vector3d(245, -45, 0), 50, 40);
-		// light0.setShadow(true);
-		// Renderer.getLightRenderer().addLight(light0);
-		light1 = new Light(new Vector3d(-4.5f, 4.2f, 8f), new Vector3f(50, 50, 50), new Vector3d(245, 45, 0), 50, 40);
-		// light1.setShadow(true);
-		// Renderer.getLightRenderer().addLight(light1);
+		Light light0 = new Light(new Vector3d(0, 8, 0.05), new Vector3f(50, 50, 50), new Vector3d(-45, 0, 0), 35, 30);
+		light0.setShadow(true);
+		lightRenderer.addLight(light0);
+		Light light1 = new Light(new Vector3d(-0.05, 8, 0), new Vector3f(50, 50, 50), new Vector3d(-45, 90, 0), 35, 30);
+		light1.setShadow(true);
+		lightRenderer.addLight(light1);
+		Light light2 = new Light(new Vector3d(0, 8, -0.05), new Vector3f(50, 50, 50), new Vector3d(-45, 180, 0), 35,
+				30);
+		light2.setShadow(true);
+		lightRenderer.addLight(light2);
+		Light light3 = new Light(new Vector3d(0.05, 8, 0), new Vector3f(50, 50, 50), new Vector3d(-45, -90, 0), 35, 30);
+		light3.setShadow(true);
+		lightRenderer.addLight(light3);
 
-		// mat2 = new RenderEntity("", "levels/test_state/models/sphere.blend");
-		// mat2.getComponent(Position.class).set(3, 1, 0);
+		mat2 = new RenderEntity("", "levels/test_state/models/sphere.blend");
+		mat2.getComponent(Position.class).set(3, 1, 0);
 
-		plane = new RenderEntity("", "levels/test_state/models/plane.blend");
+		plane = new RenderEntity("", "levels/test_state/models/level.blend");
 
-		// character = new RenderEntity("",
-		// "levels/test_state/models/tigre_sumatra.blend");
-		// character.getComponent(Position.class).set(0, 0.67335f, 5);
-		// character.getComponent(Scale.class).setScale(2f);
+		character = new RenderEntity("", "levels/test_state/models/tigre_sumatra.blend");
+		character.getComponent(Position.class).set(0, 0.67335f, 5);
+		character.getComponent(Scale.class).setScale(2f);
 
 		fire = CachedAssets.loadTexture("textures/particles/fire0.png");
 
@@ -152,12 +153,11 @@ public class MainState extends AbstractState {
 		particleSystem.setDirection(new Vector3d(0, -1, 0), 0.4f);
 		particlesPoint = new Vector3d(0, 1.7f, -5);
 
-		nh.getEngine().addEntity(camera);
 		nh.getEngine().addEntity(plane);
-		// engine.addEntity(mat2);
-		// engine.addEntity(character);
-		client.sendPacket(
-				new ClientConnect(Components.UUID.get(camera).getUUID(), Components.NAME.get(camera).getName()));
+		nh.getEngine().addEntity(mat2);
+		nh.getEngine().addEntity(character);
+		client.sendPacket(new ClientConnect(Components.UUID.get(nh.getPlayer()).getUUID(),
+				Components.NAME.get(nh.getPlayer()).getName()));
 		super.start();
 	}
 
@@ -170,8 +170,8 @@ public class MainState extends AbstractState {
 			fire.dispose();
 			lightRenderer.dispose();
 		});
-		client.sendPacket(
-				new ClientDisconnect(Components.UUID.get(camera).getUUID(), Components.NAME.get(camera).getName()));
+		client.sendPacket(new ClientDisconnect(Components.UUID.get(nh.getPlayer()).getUUID(),
+				Components.NAME.get(nh.getPlayer()).getName()));
 		nh.dispose();
 		client.end();
 		super.end();
@@ -186,12 +186,9 @@ public class MainState extends AbstractState {
 		if (!paused) {
 			nh.update(delta);
 			lightRenderer.update(delta);
-			sun.update(camera.getPosition(), nh.getWorldSimulation().getRotation(), delta);
-			particleSystem.generateParticles(particlesPoint, delta);
-			ParticleDomain.update(delta, camera);
-			client.sendPacket(new UpdateBasicEntity(Components.UUID.get(camera).getUUID(), camera.getPosition(),
-					camera.getRotation(), Components.VELOCITY.get(camera).getVelocity(),
-					Components.SCALE.get(camera).getScale()));
+			sun.update(nh.getPlayer().getPosition(), nh.getWorldSimulation().getRotation(), delta);
+			// particleSystem.generateParticles(particlesPoint, delta);
+			ParticleDomain.update(delta, nh.getPlayer());
 			if (kbh.isKeyPressed(GLFW.GLFW_KEY_ESCAPE)) {
 				kbh.ignoreKeyUntilRelease(GLFW.GLFW_KEY_ESCAPE);
 				MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), false);
@@ -226,7 +223,7 @@ public class MainState extends AbstractState {
 	public void render(float alpha) {
 		if (!loaded)
 			return;
-		Renderer.render(nh.getEngine().getEntities(), ParticleDomain.getParticles(), waterTiles, lightRenderer, camera,
-				nh.getWorldSimulation(), sun, alpha);
+		Renderer.render(nh.getEngine().getEntities(), ParticleDomain.getParticles(), waterTiles, lightRenderer,
+				nh.getPlayer(), nh.getWorldSimulation(), sun, alpha);
 	}
 }

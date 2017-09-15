@@ -27,6 +27,7 @@ import com.badlogic.ashley.core.EntityListener;
 import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.ecs.entities.RenderEntity;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
+import net.luxvacuos.lightengine.universal.ecs.Components;
 import net.luxvacuos.lightengine.universal.world.PhysicsSystem;
 
 public class ClientPhysicsSystem extends PhysicsSystem {
@@ -37,15 +38,28 @@ public class ClientPhysicsSystem extends PhysicsSystem {
 		engine.addEntityListener(new EntityListener() {
 			@Override
 			public void entityRemoved(Entity entity) {
-				if (entity instanceof RenderEntity) {
+				if (ClientComponents.RENDERABLE.has(entity))
 					TaskManager.addTask(() -> ClientComponents.RENDERABLE.get(entity).getModel().dispose());
-				}
+				if (entity instanceof RenderEntity)
+					if (Components.COLLISION.has(entity))
+						((RenderEntity) entity).addedToSim = false;
 			}
 
 			@Override
 			public void entityAdded(Entity entity) {
 			}
 		});
+	}
+
+	@Override
+	protected void update(float delta, Entity entity) {
+		super.update(delta, entity);
+		if (entity instanceof RenderEntity)
+			if (!((RenderEntity) entity).addedToSim)
+				if (Components.COLLISION.has(entity)) {
+					dynamicsWorld.addRigidBody(Components.COLLISION.get(entity).getDynamicObject().getBody());
+					((RenderEntity) entity).addedToSim = true;
+				}
 	}
 
 }

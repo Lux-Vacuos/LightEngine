@@ -32,13 +32,7 @@ import net.luxvacuos.igl.vector.Vector3d;
 import net.luxvacuos.igl.vector.Vector4d;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 
-/**
- * Maths
- * 
- * @author Guerra24 <pablo230699@hotmail.com>
- * @category Util
- */
-public class Maths {
+public class Maths extends net.luxvacuos.lightengine.universal.util.Maths {
 
 	private final static Vector3 v2 = new Vector3();
 

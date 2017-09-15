@@ -18,26 +18,15 @@
  * 
  */
 
-package net.luxvacuos.lightengine.universal.ecs.entities;
 
-import net.luxvacuos.lightengine.universal.ecs.components.Position;
-import net.luxvacuos.lightengine.universal.ecs.components.Rotation;
-import net.luxvacuos.lightengine.universal.ecs.components.Scale;
+package net.luxvacuos.lightengine.client.core.exception;
 
-public class BasicEntity extends LEEntity {
-
-	public BasicEntity(String name) {
-		super(name);
-		add(new Position());
-		add(new Rotation());
-		add(new Scale());
-	}
+public class UpdateThreadException extends RuntimeException {
 	
-	public BasicEntity(String name, String uuid) {
-		super(name, uuid);
-		add(new Position());
-		add(new Rotation());
-		add(new Scale());
+	private static final long serialVersionUID = -3118532727359064362L;
+
+	public UpdateThreadException(String message) {
+		super(message);
 	}
 
 }
