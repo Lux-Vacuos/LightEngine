@@ -47,7 +47,7 @@ public class Player implements LEComponent {
 
 		float stepHeight = 0.15f * characterScale;
 		character = new KinematicCharacterController(ghostObject, capsule, stepHeight);
-		character.setJumpSpeed(4.5f);
+		character.setJumpSpeed(3.5f);
 	}
 
 	@Override

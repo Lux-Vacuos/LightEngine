@@ -11,6 +11,7 @@ subprojects {
 		mavenCentral()
 		maven { url "https://oss.sonatype.org/content/repositories/releases/" }
 		maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+		maven { url "http://maven.geotoolkit.org/" }
 	}
 }
 
@@ -87,7 +88,7 @@ project(":lightengine-universal") {
 		compile 'org.codehaus.groovy:groovy-jsr223:2.4.7'
 		compile 'io.netty:netty-all:4.1.15.Final'
 		compile 'com.google.code.gson:gson:2.8.0'
-		compile 'cz.advel.jbullet:jbullet:20101010-1'
+		compile project(':external:jbullet')
 		compile project(':lightengine-utils')
 		testCompile group: 'junit', name: 'junit', version: '4.12'
 	}
