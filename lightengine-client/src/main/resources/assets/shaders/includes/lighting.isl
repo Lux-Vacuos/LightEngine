@@ -88,21 +88,23 @@ float computeAmbientOcclusion(vec3 position, vec3 normal) {
 
 vec4 ShadowCoord[4];
 
+vec2 multTex[4];
+
 float lookup(vec2 offset){
 	if(ShadowCoord[3].x > 0 && ShadowCoord[3].x < 1 && ShadowCoord[3].y > 0 && ShadowCoord[3].y < 1) {
 		if(ShadowCoord[2].x > 0 && ShadowCoord[2].x < 1 && ShadowCoord[2].y > 0 && ShadowCoord[2].y < 1) {
 			if(ShadowCoord[1].x > 0 && ShadowCoord[1].x < 1 && ShadowCoord[1].y > 0 && ShadowCoord[1].y < 1) {
 				if(ShadowCoord[0].x > 0 && ShadowCoord[0].x < 1 && ShadowCoord[0].y > 0 && ShadowCoord[0].y < 1) {
-					offset *= 1.0 / textureSize(shadowMap[0], 0);
+					offset *= multTex[0];
 					return texture(shadowMap[0], ShadowCoord[0].xyz + vec3(offset.x,offset.y, 0));
 				} 
-				offset *= 1.0 / textureSize(shadowMap[1], 0);
+				offset *= multTex[1];
 				return texture(shadowMap[1], ShadowCoord[1].xyz + vec3(offset.x,offset.y, 0));
 			}
-			offset *= 1.0 / textureSize(shadowMap[2], 0);
+			offset *= multTex[2];
 			return texture(shadowMap[2], ShadowCoord[2].xyz + vec3(offset.x,offset.y, 0));
 		} 
-		offset *= 1.0 / textureSize(shadowMap[2], 0);
+		offset *= multTex[3];
 		return texture(shadowMap[3], ShadowCoord[3].xyz + vec3(offset.x,offset.y, 0));
 	}
 	return 1.0;
@@ -116,13 +118,16 @@ float computeShadow(vec3 position){
 		ShadowCoord[1] = biasMatrix * (projectionLightMatrix[1] * posLight);
 		ShadowCoord[2] = biasMatrix * (projectionLightMatrix[2] * posLight);
 		ShadowCoord[3] = biasMatrix * (projectionLightMatrix[3] * posLight);
+		multTex[0] = 1.0 / textureSize(shadowMap[0], 0);
+		multTex[1] = 1.0 / textureSize(shadowMap[1], 0);
+		multTex[2] = 1.0 / textureSize(shadowMap[2], 0);
+		multTex[3] = 1.0 / textureSize(shadowMap[3], 0);
 		for(int x = -1; x <= 1; ++x) {
 	    	for(int y = -1; y <= 1; ++y) {
 				shadow += -lookup(vec2(x, y)) + 1;
 	    	}    
 		}
-		shadow /= 9.0;
-        return shadow;
+        return shadow / 9.0;
 	} else
         return 0.0;
 }

@@ -118,7 +118,7 @@ void main() {
        	float denominator = max(dot(V, N), 0.0) * max(dot(L, N), 0.0) + 0.001; 
         vec3 brdf = nominator / denominator;
 	
-       	float NdotL = max(dot(N, L) - computeShadow(position), 0.0) ;      
+       	float NdotL = max(dot(N, L) - computeShadow(position), 0.0);      
        	Lo += (kD * image.rgb / PI + brdf) * radiance * NdotL;
 		
 		vec3 irradiance = texture(composite1, N).rgb;
