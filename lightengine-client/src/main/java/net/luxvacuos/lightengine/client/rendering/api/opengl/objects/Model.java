@@ -105,18 +105,14 @@ public class Model implements IDisposable {
 
 	@Override
 	public void dispose() {
-		try {
-			aiReleaseImport(scene);
-		} catch (NullPointerException e) {
-			// XXX: Assimp + animations = NPE...
-		}
+		aiReleaseImport(scene);
 		for (Material material : materials) {
 			material.dispose();
 		}
 		for (Mesh mesh : meshes) {
 			mesh.dispose();
 		}
-		for(IndexedMesh mesh : triangleIndexVertexArray.getIndexedMeshArray()) {
+		for (IndexedMesh mesh : triangleIndexVertexArray.getIndexedMeshArray()) {
 			memFree(mesh.triangleIndexBase);
 			memFree(mesh.vertexBase);
 		}
