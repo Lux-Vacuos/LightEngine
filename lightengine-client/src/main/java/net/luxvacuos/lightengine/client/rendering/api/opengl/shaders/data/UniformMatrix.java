@@ -21,19 +21,19 @@
 package net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data;
 
 import static org.lwjgl.opengl.GL20.glUniformMatrix4fv;
+import static org.lwjgl.system.MemoryUtil.memAllocDouble;
+import static org.lwjgl.system.MemoryUtil.memAllocFloat;
 
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
-
-import org.lwjgl.BufferUtils;
 
 import net.luxvacuos.igl.vector.Matrix4d;
 import net.luxvacuos.igl.vector.Matrix4f;
 
 public class UniformMatrix extends Uniform {
 
-	private static DoubleBuffer matrixBuffer = BufferUtils.createDoubleBuffer(16);
-	private static FloatBuffer matrixFBuffer = BufferUtils.createFloatBuffer(16);
+	private static DoubleBuffer matrixBuffer = memAllocDouble(16);
+	private static FloatBuffer matrixFBuffer = memAllocFloat(16);
 
 	public UniformMatrix(String name) {
 		super(name);
@@ -66,11 +66,11 @@ public class UniformMatrix extends Uniform {
 		glUniformMatrix4fv(super.getLocation(), false, fm);
 	}
 
-	
-	public void loadMatrix(Matrix4f matrix){
+	public void loadMatrix(Matrix4f matrix) {
 		matrixFBuffer.clear();
 		matrix.store(matrixFBuffer);
 		matrixFBuffer.flip();
 		glUniformMatrix4fv(super.getLocation(), false, matrixFBuffer);
 	}
+
 }

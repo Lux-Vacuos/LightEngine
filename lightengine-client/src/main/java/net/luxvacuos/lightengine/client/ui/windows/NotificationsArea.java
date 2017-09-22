@@ -52,10 +52,10 @@ public class NotificationsArea extends ComponentWindow {
 	@Override
 	public void initApp() {
 		super.setDecorations(false);
-		super.setBackgroundColor("#00000000");
 		super.setLayout(new FlowLayout(Direction.DOWN, 5, 0));
 		super.setAsBackground(true);
 		super.setBlurBehind(false);
+		super.setHidden(true);
 		super.initApp();
 	}
 

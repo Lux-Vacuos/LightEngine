@@ -35,6 +35,10 @@ public abstract class Uniform implements IUniform {
 	public void storeUniformLocation(int programID) {
 		location = glGetUniformLocation(programID, name);
 	}
+	
+	@Override
+	public void dispose() {
+	}
 
 	protected int getLocation() {
 		return location;

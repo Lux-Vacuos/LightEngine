@@ -21,12 +21,13 @@
 package net.luxvacuos.lightengine.client.rendering.api.opengl.objects;
 
 import static org.lwjgl.assimp.Assimp.aiReleaseImport;
+import static org.lwjgl.system.MemoryUtil.memAlloc;
+import static org.lwjgl.system.MemoryUtil.memFree;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.assimp.AIFace;
 import org.lwjgl.assimp.AIMaterial;
@@ -46,6 +47,7 @@ public class Model implements IDisposable {
 	private List<Mesh> meshes;
 	private List<Material> materials;
 	private CollisionShape shape;
+	private TriangleIndexVertexArray triangleIndexVertexArray;
 
 	public Model(AIScene scene, String rootPath) {
 		this.scene = scene;
@@ -63,13 +65,14 @@ public class Model implements IDisposable {
 		for (int i = 0; i < materialCount; ++i) {
 			materials.add(new Material(AIMaterial.create(materialsBuffer.get(i)), rootPath));
 		}
-		TriangleIndexVertexArray triangleIndexVertexArray = new TriangleIndexVertexArray();
+		triangleIndexVertexArray = new TriangleIndexVertexArray();
 		for (Mesh m : meshes) {
 			IndexedMesh mesh = new IndexedMesh();
 
 			int faceCount = m.getAiMesh().mNumFaces();
 			int elementCount = faceCount * 3;
-			ByteBuffer elementArrayBufferData = BufferUtils.createByteBuffer(elementCount * 4);
+
+			ByteBuffer elementArrayBufferData = memAlloc(elementCount * 4);
 			AIFace.Buffer facesBuffer = m.getAiMesh().mFaces();
 			for (int i = 0; i < faceCount; ++i) {
 				AIFace face = facesBuffer.get(i);
@@ -80,7 +83,7 @@ public class Model implements IDisposable {
 				}
 			}
 			elementArrayBufferData.flip();
-			ByteBuffer vertices = BufferUtils.createByteBuffer(m.getAiMesh().mNumVertices() * 3 * 4);
+			ByteBuffer vertices = memAlloc(m.getAiMesh().mNumVertices() * 3 * 4);
 			for (int i = 0; i < m.getAiMesh().mNumVertices(); i++) {
 				AIVector3D position = m.getAiMesh().mVertices().get(i);
 				vertices.putFloat(position.x());
@@ -112,6 +115,10 @@ public class Model implements IDisposable {
 		}
 		for (Mesh mesh : meshes) {
 			mesh.dispose();
+		}
+		for(IndexedMesh mesh : triangleIndexVertexArray.getIndexedMeshArray()) {
+			memFree(mesh.triangleIndexBase);
+			memFree(mesh.vertexBase);
 		}
 	}
 

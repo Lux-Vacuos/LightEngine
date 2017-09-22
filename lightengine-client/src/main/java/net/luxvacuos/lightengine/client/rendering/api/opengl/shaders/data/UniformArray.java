@@ -42,5 +42,9 @@ public class UniformArray implements IUniform {
 	protected int[] getLocation() {
 		return location;
 	}
+	
+	@Override
+	public void dispose() {
+	}
 
 }

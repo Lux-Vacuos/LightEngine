@@ -78,7 +78,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
@@ -184,13 +183,10 @@ public class ResourceLoader implements IDisposable {
 		return vbo;
 	}
 
-	public void updateVBO(int vbo, float[] data, FloatBuffer buffer) {
-		buffer.clear();
-		buffer.put(data);
-		buffer.flip();
+	public void updateVBO(int vbo, float[] data) {
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, buffer.capacity() * 4, GL_STREAM_DRAW);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, buffer);
+		glBufferData(GL_ARRAY_BUFFER, data.length * 4, GL_STREAM_DRAW);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, data);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
@@ -640,8 +636,7 @@ public class ResourceLoader implements IDisposable {
 		int vboID = glGenBuffers();
 		vbos.add(vboID);
 		glBindBuffer(GL_ARRAY_BUFFER, vboID);
-		FloatBuffer buffer = storeDataInFloatBuffer(data);
-		glBufferData(GL_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, data, GL_STATIC_DRAW);
 		glVertexAttribPointer(attributeNumber, coordinateSize, GL_FLOAT, false, 0, 0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
@@ -664,36 +659,7 @@ public class ResourceLoader implements IDisposable {
 		int vboID = glGenBuffers();
 		vbos.add(vboID);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboID);
-		IntBuffer buffer = storeDataInIntBuffer(indices);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);
-	}
-
-	/**
-	 * Store Data in IntBuffer
-	 * 
-	 * @param data
-	 *            Array of data
-	 * @return IntBuffer
-	 */
-	private IntBuffer storeDataInIntBuffer(int[] data) {
-		IntBuffer buffer = BufferUtils.createIntBuffer(data.length);
-		buffer.put(data);
-		buffer.flip();
-		return buffer;
-	}
-
-	/**
-	 * Store Data in FloatBuffer
-	 * 
-	 * @param data
-	 *            Array of data
-	 * @return FloatBuffer
-	 */
-	private FloatBuffer storeDataInFloatBuffer(float[] data) {
-		FloatBuffer buffer = BufferUtils.createFloatBuffer(data.length);
-		buffer.put(data);
-		buffer.flip();
-		return buffer;
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
 	}
 
 	/**

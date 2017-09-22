@@ -112,16 +112,6 @@ public class MainState extends AbstractState {
 							ClientVariables.NEAR_PLANE, ClientVariables.FAR_PLANE));
 		});
 
-		TaskManager.addTask(() -> {
-			Renderer.render(nh.getEngine().getEntities(), ParticleDomain.getParticles(), waterTiles, lightRenderer,
-					nh.getPlayer(), nh.getWorldSimulation(), sun, 0);
-			gameWindow = new GameWindow(0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
-					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
-					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")));
-			GraphicalSubsystem.getWindowManager().addWindow(gameWindow);
-			loaded = true;
-		});
-
 		lightRenderer = new LightRenderer();
 
 		Light light0 = new Light(new Vector3d(0, 8, 0.05), new Vector3f(50, 50, 50), new Vector3d(-45, 0, 0), 35, 30);
@@ -158,6 +148,17 @@ public class MainState extends AbstractState {
 		nh.getEngine().addEntity(character);
 		client.sendPacket(new ClientConnect(Components.UUID.get(nh.getPlayer()).getUUID(),
 				Components.NAME.get(nh.getPlayer()).getName()));
+
+		TaskManager.addTask(() -> {
+			Renderer.render(nh.getEngine().getEntities(), ParticleDomain.getParticles(), waterTiles, lightRenderer,
+					nh.getPlayer(), nh.getWorldSimulation(), sun, 0);
+			gameWindow = new GameWindow(0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
+					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
+					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")));
+			GraphicalSubsystem.getWindowManager().addWindow(gameWindow);
+			loaded = true;
+		});
+
 		super.start();
 	}
 
@@ -187,7 +188,7 @@ public class MainState extends AbstractState {
 			nh.update(delta);
 			lightRenderer.update(delta);
 			sun.update(nh.getPlayer().getPosition(), nh.getWorldSimulation().getRotation(), delta);
-			// particleSystem.generateParticles(particlesPoint, delta);
+			//particleSystem.generateParticles(particlesPoint, delta);
 			ParticleDomain.update(delta, nh.getPlayer());
 			if (kbh.isKeyPressed(GLFW.GLFW_KEY_ESCAPE)) {
 				kbh.ignoreKeyUntilRelease(GLFW.GLFW_KEY_ESCAPE);

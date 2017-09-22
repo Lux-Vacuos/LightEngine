@@ -34,12 +34,9 @@ import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL31.glDrawArraysInstanced;
 
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import org.lwjgl.BufferUtils;
 
 import net.luxvacuos.igl.vector.Matrix4d;
 import net.luxvacuos.igl.vector.Vector3d;
@@ -55,7 +52,6 @@ public class ParticleRenderer {
 	private static final float[] VERTICES = { -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, -0.5f };
 	private static final int MAX_INSTANCES = 10000;
 	private static final int INSTANCE_DATA_LENGHT = 21;
-	private static final FloatBuffer buffer = BufferUtils.createFloatBuffer(MAX_INSTANCES * INSTANCE_DATA_LENGHT);
 
 	private RawModel quad;
 	private ParticleShader shader;
@@ -94,7 +90,7 @@ public class ParticleRenderer {
 						camera.getViewMatrix(), vboData);
 				updateTexCoordInfo(particle, vboData);
 			}
-			loader.updateVBO(vbo, vboData, buffer);
+			loader.updateVBO(vbo, vboData);
 			glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, quad.getVertexCount(), particleList.size());
 		}
 		finishRendering();

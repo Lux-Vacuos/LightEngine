@@ -20,6 +20,9 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.opengl.objects;
 
+import static org.lwjgl.system.MemoryUtil.*;
+import static org.lwjgl.system.MemoryUtil.memFree;
+
 import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 
 import java.nio.FloatBuffer;
@@ -27,7 +30,6 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lwjgl.BufferUtils;
 import org.lwjgl.assimp.AIFace;
 import org.lwjgl.assimp.AIMesh;
 import org.lwjgl.assimp.AIVector3D;
@@ -69,7 +71,7 @@ public class Mesh implements IDisposable {
 		loadData(pos, tex, nor, tan);
 		int faceCount = aiMesh.mNumFaces();
 		int elementCount = faceCount * 3;
-		IntBuffer elementArrayBufferData = BufferUtils.createIntBuffer(elementCount);
+		IntBuffer elementArrayBufferData = memAllocInt(elementCount);
 		AIFace.Buffer facesBuffer = aiMesh.mFaces();
 		for (int i = 0; i < faceCount; ++i) {
 			AIFace face = facesBuffer.get(i);
@@ -81,6 +83,7 @@ public class Mesh implements IDisposable {
 		int[] ind = new int[elementCount];
 		elementArrayBufferData.get(ind);
 		mesh.createIndexBuffer(ind, GL_STATIC_DRAW);
+		memFree(elementArrayBufferData);
 		mesh.unbind();
 	}
 
@@ -99,10 +102,10 @@ public class Mesh implements IDisposable {
 
 	private void loadData(List<Vector3f> positions, List<Vector2f> texcoords, List<Vector3f> normals,
 			List<Vector3f> tangets) {
-		FloatBuffer posB = BufferUtils.createFloatBuffer(positions.size() * 3);
-		FloatBuffer texB = BufferUtils.createFloatBuffer(texcoords.size() * 2);
-		FloatBuffer norB = BufferUtils.createFloatBuffer(normals.size() * 3);
-		FloatBuffer tanB = BufferUtils.createFloatBuffer(tangets.size() * 3);
+		FloatBuffer posB = memAllocFloat(positions.size() * 3);
+		FloatBuffer texB = memAllocFloat(texcoords.size() * 2);
+		FloatBuffer norB = memAllocFloat(normals.size() * 3);
+		FloatBuffer tanB = memAllocFloat(tangets.size() * 3);
 		for (int i = 0; i < positions.size(); i++) {
 			posB.put(positions.get(i).x);
 			posB.put(positions.get(i).y);
@@ -136,10 +139,10 @@ public class Mesh implements IDisposable {
 		mesh.createAttribute(1, texA, 2, GL_STATIC_DRAW);
 		mesh.createAttribute(2, norA, 3, GL_STATIC_DRAW);
 		mesh.createAttribute(3, tanA, 3, GL_STATIC_DRAW);
-		posB.clear();
-		texB.clear();
-		norB.clear();
-		tanB.clear();
+		memFree(posB);
+		memFree(texB);
+		memFree(norB);
+		memFree(tanB);
 	}
 
 }

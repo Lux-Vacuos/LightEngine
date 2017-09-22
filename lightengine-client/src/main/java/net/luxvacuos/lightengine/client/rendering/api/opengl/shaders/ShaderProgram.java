@@ -24,7 +24,6 @@ import static org.lwjgl.opengl.GL11.GL_FALSE;
 import static org.lwjgl.opengl.GL20.GL_COMPILE_STATUS;
 import static org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER;
 import static org.lwjgl.opengl.GL20.GL_VERTEX_SHADER;
-import static org.lwjgl.opengl.GL32.GL_GEOMETRY_SHADER;
 import static org.lwjgl.opengl.GL20.glAttachShader;
 import static org.lwjgl.opengl.GL20.glBindAttribLocation;
 import static org.lwjgl.opengl.GL20.glCompileShader;
@@ -39,11 +38,15 @@ import static org.lwjgl.opengl.GL20.glLinkProgram;
 import static org.lwjgl.opengl.GL20.glShaderSource;
 import static org.lwjgl.opengl.GL20.glUseProgram;
 import static org.lwjgl.opengl.GL20.glValidateProgram;
+import static org.lwjgl.opengl.GL32.GL_GEOMETRY_SHADER;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.client.core.exception.CompileShaderException;
@@ -60,6 +63,7 @@ public abstract class ShaderProgram implements IDisposable {
 
 	private boolean loaded;
 	private static boolean binded = false;
+	private List<IUniform> uniforms = new ArrayList<>();
 
 	public ShaderProgram(String vertexFile, String fragmentFile, Attribute... inVariables) {
 		int vertexShaderID = loadShader(vertexFile, GL_VERTEX_SHADER);
@@ -75,7 +79,7 @@ public abstract class ShaderProgram implements IDisposable {
 		glDeleteShader(fragmentShaderID);
 		loaded = true;
 	}
-	
+
 	public ShaderProgram(String vertexFile, String fragmentFile, String geometryFile, Attribute... inVariables) {
 		int vertexShaderID = loadShader(vertexFile, GL_VERTEX_SHADER);
 		int geometryShaderID = loadShader(geometryFile, GL_GEOMETRY_SHADER);
@@ -105,6 +109,7 @@ public abstract class ShaderProgram implements IDisposable {
 		for (IUniform uniform : uniforms) {
 			uniform.storeUniformLocation(programID);
 		}
+		this.uniforms.addAll(Arrays.asList(uniforms));
 		glValidateProgram(programID);
 	}
 
@@ -117,6 +122,7 @@ public abstract class ShaderProgram implements IDisposable {
 		for (IUniform uniform : uniforms) {
 			uniform.storeUniformLocation(programID);
 		}
+		this.uniforms.addAll(Arrays.asList(uniforms));
 	}
 
 	/**
@@ -150,6 +156,10 @@ public abstract class ShaderProgram implements IDisposable {
 		stop();
 		glDeleteProgram(programID);
 		loaded = false;
+		for (IUniform uniform : uniforms) {
+			uniform.dispose();
+		}
+		uniforms.clear();
 	}
 
 	/**

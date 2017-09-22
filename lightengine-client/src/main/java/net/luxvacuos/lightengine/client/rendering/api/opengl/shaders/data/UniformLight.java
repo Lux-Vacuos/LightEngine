@@ -24,10 +24,9 @@ import static org.lwjgl.opengl.GL20.glUniform1f;
 import static org.lwjgl.opengl.GL20.glUniform1i;
 import static org.lwjgl.opengl.GL20.glUniform3f;
 import static org.lwjgl.opengl.GL20.glUniformMatrix4fv;
+import static org.lwjgl.system.MemoryUtil.memAllocDouble;
 
 import java.nio.DoubleBuffer;
-
-import org.lwjgl.BufferUtils;
 
 import net.luxvacuos.igl.vector.Matrix4d;
 import net.luxvacuos.igl.vector.Vector3d;
@@ -36,7 +35,7 @@ import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Light;
 
 public class UniformLight extends UniformArray {
 
-	private static DoubleBuffer matrixBuffer = BufferUtils.createDoubleBuffer(16);
+	private static DoubleBuffer matrixBuffer = memAllocDouble(16);
 
 	public UniformLight(String name) {
 		super(name + ".position", name + ".color", name + ".direction", name + ".radius", name + ".inRadius",
