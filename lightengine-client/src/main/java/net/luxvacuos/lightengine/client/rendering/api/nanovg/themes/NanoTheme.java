@@ -76,7 +76,7 @@ import org.lwjgl.nanovg.NVGTextRow;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme.BackgroundStyle;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme.ButtonStyle;
 import net.luxvacuos.lightengine.client.ui.ComponentState;
-import net.luxvacuos.lightengine.universal.util.registry.Key;
+import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
 public class NanoTheme implements ITheme {
 
@@ -99,11 +99,12 @@ public class NanoTheme implements ITheme {
 			NVGColor backgroundColor, boolean decorations, boolean titleBar, boolean maximized, int ft, int fb, int fr,
 			int fl) {
 		NVGPaint shadowPaint = paintA;
-		int borderSize = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/borderSize"));
+		int borderSize = (int) REGISTRY
+				.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/borderSize"));
 		int titleBarHeight = (int) REGISTRY
-				.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
+				.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/titleBarHeight"));
 		boolean titleBarBorder = (boolean) REGISTRY
-				.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarBorder"));
+				.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/titleBarBorder"));
 		nvgSave(vg);
 		if (Theme.DEBUG)
 			nvgStrokeWidth(vg, Theme.DEBUG_STROKE);
@@ -401,7 +402,7 @@ public class NanoTheme implements ITheme {
 		nvgIntersectScissor(vg, x, y, w, h);
 		nvgBeginPath(vg);
 		nvgRect(vg, x + 1, y + 1, w - 2, h - 2);
-		switch(componentState) {
+		switch (componentState) {
 		case HOVER:
 			nvgFillColor(vg, buttonHighlight);
 			break;
@@ -751,7 +752,7 @@ public class NanoTheme implements ITheme {
 	public void renderScrollBarV(long vg, ComponentState componentState, float x, float y, float w, float h, float pos,
 			float sizeV) {
 		int scrollBarSize = (int) REGISTRY
-				.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/scrollBarSize"));
+				.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/scrollBarSize"));
 
 		nvgSave(vg);
 		nvgIntersectScissor(vg, x, y, w, h);

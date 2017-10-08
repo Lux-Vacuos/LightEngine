@@ -69,6 +69,9 @@ import static org.lwjgl.stb.STBImage.stbi_failure_reason;
 import static org.lwjgl.stb.STBImage.stbi_info_from_memory;
 import static org.lwjgl.stb.STBImage.stbi_is_hdr_from_memory;
 import static org.lwjgl.stb.STBImage.stbi_load_from_memory;
+import static org.lwjgl.system.MemoryStack.stackPush;
+import static org.lwjgl.system.MemoryUtil.memAlloc;
+import static org.lwjgl.system.MemoryUtil.memFree;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -85,8 +88,8 @@ import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.EXTTextureFilterAnisotropic;
+import org.lwjgl.system.MemoryStack;
 
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.igl.vector.Vector2f;
@@ -243,16 +246,16 @@ public class ResourceLoader implements IDisposable {
 				glPixelStorei(GL_UNPACK_ALIGNMENT, 2 - (data.getWidth() & 1));
 			glTexImage2D(GL_TEXTURE_2D, 0, format, data.getWidth(), data.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE,
 					data.getBuffer());
-		} else if (data.getComp() == 2) {
+		} else if (data.getComp() == 2)
 			glTexImage2D(GL_TEXTURE_2D, 0, format, data.getWidth(), data.getHeight(), 0, GL_RG, GL_UNSIGNED_BYTE,
 					data.getBuffer());
-		} else if (data.getComp() == 1) {
+		else if (data.getComp() == 1)
 			glTexImage2D(GL_TEXTURE_2D, 0, format, data.getWidth(), data.getHeight(), 0, GL_RED, GL_UNSIGNED_BYTE,
 					data.getBuffer());
-		} else {
+		else
 			glTexImage2D(GL_TEXTURE_2D, 0, format, data.getWidth(), data.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE,
 					data.getBuffer());
-		}
+
 		if (textureMipMapAF) {
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0);
@@ -261,11 +264,11 @@ public class ResourceLoader implements IDisposable {
 			if (WindowManager.getWindow(windowID).getCapabilities().GL_EXT_texture_filter_anisotropic) {
 				float amount = Math.min(16f, EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT);
 				glTexParameterf(GL_TEXTURE_2D, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT, amount);
-			} else {
+			} else
 				Logger.warn("Anisotropic Filtering not supported");
-			}
 		}
 		glBindTexture(GL_TEXTURE_2D, 0);
+		data.dispose();
 		return texture_id;
 	}
 
@@ -291,7 +294,7 @@ public class ResourceLoader implements IDisposable {
 		int tex = 0;
 		try {
 			Logger.log("Loading NVGTexture: " + file + ".png");
-			buffer = ioResourceToByteBuffer("assets/textures/menu/" + file + ".png", 8 * 1024);
+			buffer = ioResourceToByteBuffer("assets/textures/menu/" + file + ".png", 1024 * 1024);
 			tex = nvgCreateImageMem(nvgID, 0, buffer);
 		} catch (Exception e) {
 			throw new LoadTextureException(file, e);
@@ -343,34 +346,36 @@ public class ResourceLoader implements IDisposable {
 	}
 
 	private RawTexture decodeTextureFile(String file) {
-		int width = 0;
-		int height = 0;
-		int component = 0;
 		ByteBuffer imageBuffer;
-		ByteBuffer image;
 		try {
-			imageBuffer = ioResourceToByteBuffer(file, 8 * 1024);
+			imageBuffer = ioResourceToByteBuffer(file, 1024 * 1024);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+		int width = 0;
+		int height = 0;
+		int component = 0;
+		ByteBuffer image;
+		try (MemoryStack stack = stackPush()) {
+			IntBuffer w = stack.callocInt(1);
+			IntBuffer h = stack.callocInt(1);
+			IntBuffer comp = stack.callocInt(1);
 
-		IntBuffer w = BufferUtils.createIntBuffer(1);
-		IntBuffer h = BufferUtils.createIntBuffer(1);
-		IntBuffer comp = BufferUtils.createIntBuffer(1);
+			if (!stbi_info_from_memory(imageBuffer, w, h, comp))
+				throw new DecodeTextureException("Failed to read image information: " + stbi_failure_reason());
 
-		if (!stbi_info_from_memory(imageBuffer, w, h, comp))
-			throw new DecodeTextureException("Failed to read image information: " + stbi_failure_reason());
+			Logger.log("Image width: " + w.get(0), "Image height: " + h.get(0), "Image components: " + comp.get(0),
+					"Image HDR: " + stbi_is_hdr_from_memory(imageBuffer));
 
-		Logger.log("Image width: " + w.get(0), "Image height: " + h.get(0), "Image components: " + comp.get(0),
-				"Image HDR: " + stbi_is_hdr_from_memory(imageBuffer));
+			image = stbi_load_from_memory(imageBuffer, w, h, comp, 0);
+			memFree(imageBuffer);
 
-		image = stbi_load_from_memory(imageBuffer, w, h, comp, 0);
-		if (image == null)
-			throw new DecodeTextureException("Failed to load image: " + stbi_failure_reason());
-		width = w.get(0);
-		height = h.get(0);
-		component = comp.get(0);
-
+			if (image == null)
+				throw new DecodeTextureException("Failed to load image: " + stbi_failure_reason());
+			width = w.get(0);
+			height = h.get(0);
+			component = comp.get(0);
+		}
 		return new RawTexture(image, width, height, component);
 	}
 
@@ -567,7 +572,7 @@ public class ResourceLoader implements IDisposable {
 			FileInputStream fis = new FileInputStream(file);
 			FileChannel fc = fis.getChannel();
 
-			buffer = BufferUtils.createByteBuffer((int) fc.size() + 1);
+			buffer = memAlloc((int) fc.size() + 1);
 
 			while (fc.read(buffer) != -1)
 				;
@@ -575,15 +580,11 @@ public class ResourceLoader implements IDisposable {
 			fis.close();
 			fc.close();
 		} else {
-			buffer = BufferUtils.createByteBuffer(bufferSize);
-
-			InputStream source = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource);
-			if (source == null)
-				throw new FileNotFoundException(resource);
-
-			try {
-				ReadableByteChannel rbc = Channels.newChannel(source);
-				try {
+			buffer = memAlloc(bufferSize);
+			try (InputStream source = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource)) {
+				if (source == null)
+					throw new FileNotFoundException(resource);
+				try (ReadableByteChannel rbc = Channels.newChannel(source)) {
 					while (true) {
 						int bytes = rbc.read(buffer);
 						if (bytes == -1)
@@ -591,11 +592,7 @@ public class ResourceLoader implements IDisposable {
 						if (buffer.remaining() == 0)
 							buffer = resizeBuffer(buffer, buffer.capacity() * 2);
 					}
-				} finally {
-					rbc.close();
 				}
-			} finally {
-				source.close();
 			}
 		}
 		buffer.put((byte) 0);
@@ -604,9 +601,10 @@ public class ResourceLoader implements IDisposable {
 	}
 
 	private static ByteBuffer resizeBuffer(ByteBuffer buffer, int newCapacity) {
-		ByteBuffer newBuffer = BufferUtils.createByteBuffer(newCapacity);
+		ByteBuffer newBuffer = memAlloc(newCapacity);
 		buffer.flip();
 		newBuffer.put(buffer);
+		memFree(buffer);
 		return newBuffer;
 	}
 

@@ -40,7 +40,7 @@ import net.luxvacuos.lightengine.client.rendering.api.opengl.GLUtil;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.GPUProfiler;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem;
-import net.luxvacuos.lightengine.universal.util.registry.Key;
+import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
 public class NanoWindowManager implements IWindowManager {
 
@@ -55,7 +55,7 @@ public class NanoWindowManager implements IWindowManager {
 	public NanoWindowManager(Window win) {
 		this.window = win;
 		compositorEnabled = (boolean) REGISTRY
-				.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/compositor"));
+				.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/compositor"));
 		windows = new ArrayList<>();
 		width = (int) (win.getWidth() * win.getPixelRatio());
 		height = (int) (win.getHeight() * win.getPixelRatio());
@@ -65,7 +65,7 @@ public class NanoWindowManager implements IWindowManager {
 		if (height > GLUtil.GL_MAX_TEXTURE_SIZE)
 			height = GLUtil.GL_MAX_TEXTURE_SIZE;
 		compositor = new Compositor(win, width, height);
-		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/shellHeight"), 0);
+		REGISTRY.register(KeyCache.getKey("/Light Engine/Settings/WindowManager/shellHeight"), 0);
 	}
 
 	@Override
@@ -266,7 +266,7 @@ public class NanoWindowManager implements IWindowManager {
 		TaskManager.addTask(() -> {
 			compositor = new Compositor(window, width, height);
 			compositorEnabled = true;
-			REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/compositor"), compositorEnabled);
+			REGISTRY.register(KeyCache.getKey("/Light Engine/Settings/WindowManager/compositor"), compositorEnabled);
 		});
 		notifyAllWindows(WindowMessage.WM_COMPOSITOR_ENABLED, null);
 	}
@@ -278,7 +278,7 @@ public class NanoWindowManager implements IWindowManager {
 		TaskManager.addTask(() -> compositor.dispose());
 		notifyAllWindows(WindowMessage.WM_COMPOSITOR_DISABLED, null);
 		compositorEnabled = false;
-		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/compositor"), compositorEnabled);
+		REGISTRY.register(KeyCache.getKey("/Light Engine/Settings/WindowManager/compositor"), compositorEnabled);
 	}
 
 	@Override

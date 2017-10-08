@@ -20,42 +20,18 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.opengl.objects;
 
+import static org.lwjgl.stb.STBImage.stbi_image_free;
+
 import java.nio.ByteBuffer;
 
-/**
- * Entity Texture
- * 
- * @author Guerra24 <pablo230699@hotmail.com>
- * @category Assets
- */
-public class RawTexture {
-	/**
-	 * Texture Width
-	 */
+import net.luxvacuos.lightengine.universal.resources.IDisposable;
+
+public class RawTexture implements IDisposable {
 	private int width;
-	/**
-	 * Texture Height
-	 */
 	private int height;
-	/**
-	 * Components
-	 */
 	private int comp;
-	/**
-	 * ByteBuffer
-	 */
 	private ByteBuffer buffer;
 
-	/**
-	 * Constructor, Create an Entity Texutre
-	 * 
-	 * @param buffer
-	 *            ByteBuffer
-	 * @param width
-	 *            Texture Width
-	 * @param height
-	 *            Texture Height
-	 */
 	public RawTexture(ByteBuffer buffer, int width, int height, int comp) {
 		this.buffer = buffer;
 		this.width = width;
@@ -63,20 +39,15 @@ public class RawTexture {
 		this.comp = comp;
 	}
 
-	/**
-	 * Get the Texture Width
-	 * 
-	 * @return Texture Width
-	 */
+	@Override
+	public void dispose() {
+		stbi_image_free(buffer);
+	}
+
 	public int getWidth() {
 		return width;
 	}
 
-	/**
-	 * Get the Texture Height
-	 * 
-	 * @return Texture Height
-	 */
 	public int getHeight() {
 		return height;
 	}
@@ -85,11 +56,6 @@ public class RawTexture {
 		return comp;
 	}
 
-	/**
-	 * Get Texture ByteBuffer
-	 * 
-	 * @return ByteBuffer
-	 */
 	public ByteBuffer getBuffer() {
 		return buffer;
 	}

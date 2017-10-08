@@ -28,7 +28,7 @@ import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 public class Image extends Component {
 
 	private int image;
-	private boolean deleteOnClose;
+	private boolean deleteOnClose = true;
 
 	public Image(float x, float y, float w, float h, int image) {
 		this.x = x;

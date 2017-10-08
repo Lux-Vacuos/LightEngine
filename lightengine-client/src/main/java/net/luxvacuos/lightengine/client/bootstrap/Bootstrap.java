@@ -25,6 +25,7 @@ import net.luxvacuos.lightengine.client.core.LightEngineClient;
 import net.luxvacuos.lightengine.universal.bootstrap.AbstractBootstrap;
 import net.luxvacuos.lightengine.universal.bootstrap.Platform;
 import net.luxvacuos.lightengine.universal.core.GlobalVariables;
+import net.luxvacuos.lightengine.universal.core.TempVariables;
 
 public class Bootstrap extends AbstractBootstrap {
 
@@ -35,6 +36,7 @@ public class Bootstrap extends AbstractBootstrap {
 	@Override
 	public void init() {
 		Thread.currentThread().setName("Light Engine-Client");
+		String prefix = "";
 		if (getPlatform().equals(Platform.WINDOWS_32) || getPlatform().equals(Platform.WINDOWS_64))
 			prefix = System.getenv("AppData");
 		else if (getPlatform().equals(Platform.LINUX_32) || getPlatform().equals(Platform.LINUX_64))
@@ -43,14 +45,15 @@ public class Bootstrap extends AbstractBootstrap {
 			prefix = System.getProperty("user.home");
 			prefix += "/Library/Application Support";
 		}
-		prefix += "/." + GlobalVariables.PROJECT.toLowerCase();
+		prefix += "/." + GlobalVariables.PROJECT;
+		TempVariables.userDir = prefix;
 		new LightEngineClient();
 	}
 
 	@Override
 	public void parseArgs(String[] args) {
 		// Booleans to prevent setting a previously set value
-		boolean gaveWidth = false, gaveHeight = false;
+		boolean gaveWidth = false, gaveHeight = false, gaveSysDir = false;
 		// Iterate through array
 		for (int i = 0; i < args.length; i++) {
 			switch (args[i]) {
@@ -74,6 +77,12 @@ public class Bootstrap extends AbstractBootstrap {
 					throw new IllegalArgumentException("Height must be positive");
 				gaveHeight = true;
 				break;
+			case "-systemDir":
+				if(gaveSysDir)
+					throw new IllegalStateException("SystemDir already given");
+				TempVariables.systemDir = args[++i];
+				gaveSysDir = true;
+				break;
 			default:
 				// If there is an unknown arg throw exception
 				if (args[i].startsWith("-")) {
@@ -83,6 +92,10 @@ public class Bootstrap extends AbstractBootstrap {
 				}
 			}
 		}
+	}
+	
+	public static void main(String[] args) {
+		new Bootstrap(args);
 	}
 
 }

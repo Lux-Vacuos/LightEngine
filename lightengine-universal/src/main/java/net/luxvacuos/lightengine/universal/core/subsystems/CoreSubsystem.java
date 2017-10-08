@@ -20,13 +20,14 @@
 
 package net.luxvacuos.lightengine.universal.core.subsystems;
 
+import static net.luxvacuos.lightengine.universal.util.registry.KeyCache.getKey;
+
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-import net.luxvacuos.lightengine.universal.bootstrap.AbstractBootstrap;
 import net.luxvacuos.lightengine.universal.core.AbstractGameSettings;
 import net.luxvacuos.lightengine.universal.core.GlobalVariables;
-import net.luxvacuos.lightengine.universal.util.registry.Key;
+import net.luxvacuos.lightengine.universal.core.TempVariables;
 import net.luxvacuos.lightengine.universal.util.registry.LanguageRegistry;
 import net.luxvacuos.lightengine.universal.util.registry.SystemRegistry;
 
@@ -56,12 +57,13 @@ public class CoreSubsystem implements ISubsystem {
 		} catch (Exception e) {
 		}
 		REGISTRY = new SystemRegistry();
-		REGISTRY.register(new Key("/Light Engine/Settings/file"),
-				AbstractBootstrap.getPrefix() + "/config/registry.json");
-		REGISTRY.register(new Key("/Light Engine/System/os"),
+		REGISTRY.register(getKey("/Light Engine/Settings/file"), TempVariables.userDir + "/config/registry.json");
+		REGISTRY.register(getKey("/Light Engine/System/os"),
 				System.getProperty("os.name") + " " + System.getProperty("os.arch").toUpperCase());
-		REGISTRY.register(new Key("/Light Engine/universalVersion"), GlobalVariables.versionUniversal + "-"
+		REGISTRY.register(getKey("/Light Engine/universalVersion"), GlobalVariables.versionUniversal + "-"
 				+ GlobalVariables.branchUniversal + "-" + GlobalVariables.buildUniversal);
+		REGISTRY.register(getKey("/Light Engine/System/userDir"), TempVariables.userDir);
+		REGISTRY.register(getKey("/Light Engine/System/systemDir"), TempVariables.systemDir);
 		LANG = new LanguageRegistry();
 	}
 

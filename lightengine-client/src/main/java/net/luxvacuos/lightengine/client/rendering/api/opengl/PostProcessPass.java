@@ -35,7 +35,7 @@ import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.DeferredShadingShader;
-import net.luxvacuos.lightengine.universal.util.registry.Key;
+import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
 public abstract class PostProcessPass implements IPostProcessPass {
 
@@ -94,11 +94,12 @@ public abstract class PostProcessPass implements IPostProcessPass {
 		shader.loadUnderWater(false);
 		shader.loadMotionBlurData(camera, previousViewMatrix, previousCameraPosition);
 		shader.loadviewMatrix(camera);
-		shader.loadSettings((boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/dof")),
-				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/fxaa")),
-				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/motionBlur")), false, false,
-				false, 0,
-				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/chromaticAberration")),
+		shader.loadSettings((boolean) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/dof")),
+				(boolean) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/fxaa")),
+				(boolean) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/motionBlur")),
+				false, false, false, 0,
+				(boolean) REGISTRY
+						.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/chromaticAberration")),
 				false, false);
 
 		render(auxs);

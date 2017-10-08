@@ -18,16 +18,14 @@
  * 
  */
 
-package net.luxvacuos.lightengine.universal.core.states;
+package net.luxvacuos.lightengine.universal.core;
 
-public class StateNames {
-
-	private StateNames() {
+public final class TempVariables {
+	
+	private TempVariables() {
 	}
-
-	public static final String SPLASH_SCREEN = "_sys_splash_screen";
-	public static final String MAIN = "_sys_main";
-	public static final String LOAD = "_sys_load";
-	public static final String CRASH = "_sys_crash";
+	
+	public static String systemDir;
+	public static String userDir;
 
 }

@@ -61,7 +61,7 @@ import net.luxvacuos.lightengine.client.ui.OnAction;
 import net.luxvacuos.lightengine.client.world.particles.Particle;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
-import net.luxvacuos.lightengine.universal.util.registry.Key;
+import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
 public class Renderer {
 
@@ -95,7 +95,7 @@ public class Renderer {
 		if (!enabled) {
 			Renderer.window = window;
 			shadowResolution = (int) REGISTRY
-					.getRegistryItem(new Key("/Light Engine/Settings/Graphics/shadowsResolution"));
+					.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/shadowsResolution"));
 
 			if (shadowResolution > GLUtil.GL_MAX_TEXTURE_SIZE)
 				shadowResolution = GLUtil.GL_MAX_TEXTURE_SIZE;
@@ -139,7 +139,7 @@ public class Renderer {
 		GPUProfiler.end();
 		GPUProfiler.start("Shadows");
 		SunCamera sunCamera = (SunCamera) sun.getCamera();
-		if ((boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/shadows"))) {
+		if ((boolean) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/shadows"))) {
 			GPUProfiler.start("Directional");
 			sunCamera.switchProjectionMatrix(0);
 			frustum.calculateFrustum(sunCamera);
@@ -299,7 +299,8 @@ public class Renderer {
 			return;
 		Logger.log("Reloading Shadow Maps");
 		shadowFBO.dispose();
-		shadowResolution = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/shadowsResolution"));
+		shadowResolution = (int) REGISTRY
+				.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/shadowsResolution"));
 
 		if (shadowResolution > GLUtil.GL_MAX_TEXTURE_SIZE)
 			shadowResolution = GLUtil.GL_MAX_TEXTURE_SIZE;

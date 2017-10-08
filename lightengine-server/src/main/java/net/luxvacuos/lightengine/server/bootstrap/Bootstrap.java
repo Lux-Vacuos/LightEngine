@@ -25,6 +25,7 @@ import java.io.IOException;
 
 import net.luxvacuos.lightengine.server.core.LightEngineServer;
 import net.luxvacuos.lightengine.universal.bootstrap.AbstractBootstrap;
+import net.luxvacuos.lightengine.universal.core.TempVariables;
 
 public class Bootstrap extends AbstractBootstrap {
 
@@ -36,14 +37,14 @@ public class Bootstrap extends AbstractBootstrap {
 	public void init() {
 		Thread.currentThread().setName("Light Engine-Server");
 		try {
-			prefix = new File(".").getCanonicalPath().toString();
+			File file = new File(new File(".").getCanonicalPath() + "/logs");
+			if (!file.exists())
+				file.mkdirs();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		try {
-			File file = new File(new File(".").getCanonicalPath() + "/logs");
-			if (!file.exists())
-				file.mkdirs();
+			TempVariables.userDir = new File(".").getCanonicalPath().toString();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -52,8 +53,15 @@ public class Bootstrap extends AbstractBootstrap {
 
 	@Override
 	public void parseArgs(String[] args) {
+		boolean gaveSysDir = false;
 		for (int i = 0; i < args.length; i++) {
 			switch (args[i]) {
+			case "-systemDir":
+				if (gaveSysDir)
+					throw new IllegalStateException("SystemDir already given");
+				TempVariables.systemDir = args[++i];
+				gaveSysDir = true;
+				break;
 			default:
 				if (args[i].startsWith("-")) {
 					throw new IllegalArgumentException("Unknown argument: " + args[i].substring(1));

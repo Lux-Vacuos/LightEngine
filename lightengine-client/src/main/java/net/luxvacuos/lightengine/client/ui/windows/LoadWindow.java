@@ -18,8 +18,21 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.resources.models;
+package net.luxvacuos.lightengine.client.ui.windows;
 
-public class RendereableTexturedModel {
+import net.luxvacuos.lightengine.client.ui.ComponentWindow;
+
+public class LoadWindow extends ComponentWindow {
+
+	public LoadWindow(int x, int y, int w, int h) {
+		super(x, y, w, h, "System Loader");
+	}
+	
+	@Override
+	public void initApp() {
+		super.setResizable(false);
+		super.setCloseButton(false);
+		super.initApp();
+	}
 
 }

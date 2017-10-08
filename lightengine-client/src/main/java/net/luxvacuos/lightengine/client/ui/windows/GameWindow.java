@@ -27,7 +27,7 @@ import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.Image;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
-import net.luxvacuos.lightengine.universal.util.registry.Key;
+import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
 public class GameWindow extends ComponentWindow {
 
@@ -57,9 +57,9 @@ public class GameWindow extends ComponentWindow {
 	@Override
 	public void processWindowMessage(int message, Object param) {
 		if (message == WindowMessage.WM_RESIZE) {
-			y = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
-			w = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
-			h = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
+			y = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
+			w = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"));
+			h = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
 			TaskManager.addTask(() -> game.setImage(Renderer.getResultTexture()));
 		}
 		super.processWindowMessage(message, param);

@@ -37,15 +37,15 @@ import net.luxvacuos.lightengine.client.ui.FlowLayout;
 import net.luxvacuos.lightengine.client.ui.Notification;
 import net.luxvacuos.lightengine.client.ui.Text;
 import net.luxvacuos.lightengine.client.ui.TextArea;
-import net.luxvacuos.lightengine.universal.util.registry.Key;
+import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
 public class NotificationsArea extends ComponentWindow {
 
 	public NotificationsArea() {
-		super((int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")) - 200,
-				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")), 200,
-				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"))
-						- (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/shellHeight")),
+		super((int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width")) - 200,
+				(int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height")), 200,
+				(int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height")) - (int) REGISTRY
+						.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/shellHeight")),
 				"");
 	}
 
@@ -115,13 +115,15 @@ public class NotificationsArea extends ComponentWindow {
 					public void alwaysUpdateApp(float delta) {
 						if (fadeIn) {
 							x -= 500 * delta;
-							float xt = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")) - 295;
+							float xt = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"))
+									- 295;
 							if (x <= xt)
 								fadeIn = false;
 						}
 						if (fadeOut) {
 							x += 500 * delta;
-							float xt = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")) + 5;
+							float xt = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"))
+									+ 5;
 							if (x >= xt)
 								super.closeWindow();
 						}
@@ -149,10 +151,10 @@ public class NotificationsArea extends ComponentWindow {
 			addNotification((Notification) param);
 			break;
 		case WindowMessage.WM_RESIZE:
-			x = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")) - 200;
-			y = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
-			h = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"))
-					- (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/shellHeight"));
+			x = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width")) - 200;
+			y = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
+			h = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height")) - (int) REGISTRY
+					.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/shellHeight"));
 			w = 200;
 			break;
 		}

@@ -29,13 +29,13 @@ import static org.lwjgl.stb.STBImage.stbi_failure_reason;
 import static org.lwjgl.stb.STBImage.stbi_image_free;
 import static org.lwjgl.stb.STBImage.stbi_info_from_memory;
 import static org.lwjgl.stb.STBImage.stbi_load_from_memory;
+import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
-import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -43,6 +43,7 @@ import org.lwjgl.nanovg.NanoVGGL3;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.NVXGPUMemoryInfo;
 import org.lwjgl.opengl.WGLAMDGPUAssociation;
+import org.lwjgl.system.MemoryStack;
 
 import com.badlogic.gdx.utils.Array;
 
@@ -79,67 +80,65 @@ public final class WindowManager {
 		GLFW.glfwSetWindowPos(windowID, (vidmode.width() - window.width) / 2, (vidmode.height() - window.height) / 2);
 		GLFW.glfwMakeContextCurrent(windowID);
 		GLFW.glfwSwapInterval(vsync ? 1 : 0);
+		try (MemoryStack stack = stackPush()) {
+			IntBuffer w = stack.callocInt(1);
+			IntBuffer h = stack.callocInt(1);
+			IntBuffer comp = stack.callocInt(1);
 
-		if (handle.cursor != null) {
+			if (handle.cursor != null) {
 
-			ByteBuffer imageBuffer;
-			try {
-				imageBuffer = ResourceLoader.ioResourceToByteBuffer("assets/cursors/" + handle.cursor + ".png",
-						8 * 1024);
-			} catch (IOException e) {
-				throw new GLFWException(e);
-			}
-
-			IntBuffer w = BufferUtils.createIntBuffer(1);
-			IntBuffer h = BufferUtils.createIntBuffer(1);
-			IntBuffer comp = BufferUtils.createIntBuffer(1);
-
-			if (!stbi_info_from_memory(imageBuffer, w, h, comp))
-				throw new DecodeTextureException("Failed to read image information: " + stbi_failure_reason());
-
-			ByteBuffer image = stbi_load_from_memory(imageBuffer, w, h, comp, 0);
-			if (image == null)
-				throw new DecodeTextureException("Failed to load image: " + stbi_failure_reason());
-
-			GLFWImage img = GLFWImage.malloc().set(w.get(0), h.get(0), image);
-			GLFW.glfwSetCursor(windowID, GLFW.glfwCreateCursor(img, 0, 0));
-
-			stbi_image_free(image);
-		}
-
-		if (handle.icons.size != 0) {
-			GLFWImage.Buffer iconsbuff = GLFWImage.malloc(handle.icons.size);
-			int i = 0;
-			for (Icon icon : handle.icons) {
 				ByteBuffer imageBuffer;
 				try {
-					imageBuffer = ResourceLoader.ioResourceToByteBuffer("assets/icons/" + icon.path + ".png", 8 * 1024);
+					imageBuffer = ResourceLoader.ioResourceToByteBuffer("assets/cursors/" + handle.cursor + ".png",
+							1 * 1024);
 				} catch (IOException e) {
 					throw new GLFWException(e);
 				}
 
-				IntBuffer w = BufferUtils.createIntBuffer(1);
-				IntBuffer h = BufferUtils.createIntBuffer(1);
-				IntBuffer comp = BufferUtils.createIntBuffer(1);
-
 				if (!stbi_info_from_memory(imageBuffer, w, h, comp))
 					throw new DecodeTextureException("Failed to read image information: " + stbi_failure_reason());
 
-				icon.image = stbi_load_from_memory(imageBuffer, w, h, comp, 0);
-				if (icon.image == null)
+				ByteBuffer image = stbi_load_from_memory(imageBuffer, w, h, comp, 0);
+				if (image == null)
 					throw new DecodeTextureException("Failed to load image: " + stbi_failure_reason());
 
-				icon.image.flip();
-				iconsbuff.position(i).width(w.get(0)).height(h.get(0)).pixels(icon.image);
-				i++;
-			}
-			iconsbuff.position(0);
-			GLFW.glfwSetWindowIcon(windowID, iconsbuff);
-			iconsbuff.free();
-			for (Icon icon : handle.icons) {
-				stbi_image_free(icon.image);
+				GLFWImage img = GLFWImage.malloc().set(w.get(0), h.get(0), image);
+				GLFW.glfwSetCursor(windowID, GLFW.glfwCreateCursor(img, 0, 0));
+
+				stbi_image_free(image);
 			}
 
+			if (handle.icons.size != 0) {
+				GLFWImage.Buffer iconsbuff = GLFWImage.malloc(handle.icons.size);
+				int i = 0;
+				for (Icon icon : handle.icons) {
+					ByteBuffer imageBuffer;
+					try {
+						imageBuffer = ResourceLoader.ioResourceToByteBuffer("assets/icons/" + icon.path + ".png",
+								16 * 1024);
+					} catch (IOException e) {
+						throw new GLFWException(e);
+					}
+
+					if (!stbi_info_from_memory(imageBuffer, w, h, comp))
+						throw new DecodeTextureException("Failed to read image information: " + stbi_failure_reason());
+
+					icon.image = stbi_load_from_memory(imageBuffer, w, h, comp, 0);
+					if (icon.image == null)
+						throw new DecodeTextureException("Failed to load image: " + stbi_failure_reason());
+
+					icon.image.flip();
+					iconsbuff.position(i).width(w.get(0)).height(h.get(0)).pixels(icon.image);
+					i++;
+				}
+				iconsbuff.position(0);
+				GLFW.glfwSetWindowIcon(windowID, iconsbuff);
+				iconsbuff.free();
+				for (Icon icon : handle.icons) {
+					stbi_image_free(icon.image);
+				}
+
+			}
 		}
 
 		boolean forwardCompat = GLFW.glfwGetWindowAttrib(windowID, GLFW.GLFW_OPENGL_FORWARD_COMPAT) == GLFW.GLFW_TRUE;

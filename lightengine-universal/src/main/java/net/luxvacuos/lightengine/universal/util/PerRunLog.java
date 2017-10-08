@@ -29,7 +29,7 @@ import org.apache.log4j.FileAppender;
 import org.apache.log4j.Layout;
 import org.apache.log4j.spi.ErrorCode;
 
-import net.luxvacuos.lightengine.universal.bootstrap.AbstractBootstrap;
+import net.luxvacuos.lightengine.universal.core.TempVariables;
 
 public class PerRunLog extends FileAppender {
 
@@ -82,7 +82,7 @@ public class PerRunLog extends FileAppender {
 			} else {
 				newFileName = fileName + HIPHEN + timeStampFormat.format(new Date());
 			}
-			return AbstractBootstrap.getPrefix() + "/" + logFile.getParent() + File.separator + newFileName;
+			return TempVariables.userDir + "/" + logFile.getParent() + File.separator + newFileName;
 		}
 		return null;
 	}

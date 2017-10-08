@@ -71,18 +71,25 @@ public class SplashScreenState extends AbstractState {
 	public void end() {
 		super.end();
 		component.closeWindow();
-		Shell shell = new Shell(0, 30, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")), 30);
+		Shell shell = new Shell(0, 0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")), 30);
 		GraphicalSubsystem.getWindowManager().addWindow(shell);
 		GraphicalSubsystem.getWindowManager().setShell(shell);
+		shell.toggleShell();
 	}
 
-	public void render( float alpha) {
+	public void render(float alpha) {
 	}
 
 	@Override
 	public void update(float delta) {
-		if (TaskManager.isEmpty())
-			StateMachine.setCurrentState("_main");
+		if (TaskManager.isEmpty()) {
+			try {
+				StateMachine.setCurrentState(StateNames.MAIN);
+			} catch (NullPointerException e) {
+				StateMachine.registerState(new LoadState());
+				StateMachine.setCurrentState(StateNames.LOAD);
+			}
+		}
 	}
 
 }

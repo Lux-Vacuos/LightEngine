@@ -54,13 +54,11 @@ public class SystemRegistry extends PersistentRegistry<Key, Object> {
 			writer = new FileWriter(this.database);
 			Map<Key, Object> save = new HashMap<>(this.registry);
 			List<Key> toRemove = new ArrayList<>();
-			for (Key key : save.keySet()) {
+			for (Key key : save.keySet())
 				if (!key.saveKey())
 					toRemove.add(key);
-			}
-			for (Key key : toRemove) {
+			for (Key key : toRemove)
 				save.remove(key);
-			}
 			gson.toJson(save, writer);
 		} catch (IOException e) {
 			e.printStackTrace();

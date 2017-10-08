@@ -39,7 +39,7 @@ import net.luxvacuos.lightengine.client.ui.FlowLayout;
 import net.luxvacuos.lightengine.client.ui.WindowButton;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem;
-import net.luxvacuos.lightengine.universal.util.registry.Key;
+import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
 public class Shell extends ComponentWindow implements IShell {
 
@@ -51,7 +51,7 @@ public class Shell extends ComponentWindow implements IShell {
 
 	public Shell(int x, int y, int w, int h) {
 		super(x, y, w, h, "Shell");
-		CoreSubsystem.REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/shellHeight"), y);
+		CoreSubsystem.REGISTRY.register(KeyCache.getKey("/Light Engine/Settings/WindowManager/shellHeight"), y);
 	}
 
 	@Override
@@ -83,7 +83,7 @@ public class Shell extends ComponentWindow implements IShell {
 		if (fadeIn) {
 			y += 100f * delta;
 			if (y >= h) {
-				CoreSubsystem.REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/shellHeight"), y);
+				CoreSubsystem.REGISTRY.register(KeyCache.getKey("/Light Engine/Settings/WindowManager/shellHeight"), y);
 				fadeIn = false;
 				y = h;
 			}
@@ -91,7 +91,7 @@ public class Shell extends ComponentWindow implements IShell {
 		if (fadeOut) {
 			y -= 100f * delta;
 			if (y <= 0) {
-				CoreSubsystem.REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/shellHeight"), 0);
+				CoreSubsystem.REGISTRY.register(KeyCache.getKey("/Light Engine/Settings/WindowManager/shellHeight"), 0);
 				super.setHidden(!enabled);
 				fadeOut = false;
 				y = 0;
@@ -109,7 +109,7 @@ public class Shell extends ComponentWindow implements IShell {
 	public void disposeApp() {
 		super.disposeApp();
 		buttons.clear();
-		CoreSubsystem.REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/shellHeight"), 0);
+		CoreSubsystem.REGISTRY.register(KeyCache.getKey("/Light Engine/Settings/WindowManager/shellHeight"), 0);
 	}
 
 	@Override
@@ -149,7 +149,7 @@ public class Shell extends ComponentWindow implements IShell {
 			buttons.get(window.hashCode()).setActive(true);
 			break;
 		case WindowMessage.WM_RESIZE:
-			w = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
+			w = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"));
 			break;
 		}
 		super.processWindowMessage(message, param);

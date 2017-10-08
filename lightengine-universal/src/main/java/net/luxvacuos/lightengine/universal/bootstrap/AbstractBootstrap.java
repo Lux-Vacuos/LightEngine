@@ -20,20 +20,26 @@
 
 package net.luxvacuos.lightengine.universal.bootstrap;
 
-import net.luxvacuos.igl.Logger;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
-/**
- * Bootstrap, this initializes the game path using <b>AppData</b> on Windows and
- * <b>user.home</b> on Linux and OS X
- * 
- * @author Guerra24 <pablo230699@hotmail.com>
- */
+import net.luxvacuos.igl.Logger;
+import net.luxvacuos.lightengine.universal.core.GlobalVariables;
+
 public abstract class AbstractBootstrap implements IBootstrap {
 
-	protected static String prefix;
 	private static Platform platform;
 
 	public AbstractBootstrap(String[] args) {
+		try (BufferedReader br = new BufferedReader(new FileReader("project"))) {
+			GlobalVariables.PROJECT = br.readLine();
+		} catch (IOException e1) {
+			BufferedReader br = new BufferedReader(new InputStreamReader(
+					getClass().getClassLoader().getResourceAsStream("project")));
+			GlobalVariables.PROJECT = br.lines().reduce("", String::concat);
+		}
 		try {
 			parseArgs(args);
 		} catch (ArrayIndexOutOfBoundsException aioe) {
@@ -71,10 +77,6 @@ public abstract class AbstractBootstrap implements IBootstrap {
 		}
 
 		return platform;
-	}
-
-	public static String getPrefix() {
-		return prefix;
 	}
 
 }

@@ -35,7 +35,7 @@ import net.luxvacuos.lightengine.client.rendering.api.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.RenderArea;
-import net.luxvacuos.lightengine.universal.util.registry.Key;
+import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
 public class BackgroundWindow extends ComponentWindow {
 
@@ -96,9 +96,9 @@ public class BackgroundWindow extends ComponentWindow {
 	@Override
 	public void processWindowMessage(int message, Object param) {
 		if (message == WindowMessage.WM_RESIZE) {
-			y = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
-			w = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
-			h = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
+			y = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
+			w = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"));
+			h = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
 		}
 		super.processWindowMessage(message, param);
 	}

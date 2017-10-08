@@ -1,5 +1,6 @@
 package paulscode.sound;
 
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -1399,7 +1400,7 @@ public class SoundSystem
 
             try
             {
-                soundLibrary = (Library) libraryClass.newInstance();
+                soundLibrary = (Library) libraryClass.getDeclaredConstructor().newInstance();
             }
             catch( InstantiationException ie )
             {
@@ -1416,7 +1417,19 @@ public class SoundSystem
             catch( SecurityException se )
             {
                 errorMessage( "The specified library did not load properly", 1 );
-            }
+            } 
+            catch (IllegalArgumentException e) 
+            {
+            	errorMessage( "The specified library did not load properly", 1 );
+			} 
+            catch (InvocationTargetException e) 
+            {
+				errorMessage( "The specified library did not load properly", 1 );
+			} 
+            catch (NoSuchMethodException e) 
+            {
+				errorMessage( "The specified library did not load properly", 1 );
+			}
 
             if( errorCheck( soundLibrary == null, "Library null after " +
                             "initialization in method 'switchLibrary'", 1 ) )
@@ -1528,7 +1541,7 @@ public class SoundSystem
 
         try
         {
-            soundLibrary = (Library) libraryClass.newInstance();
+            soundLibrary = (Library) libraryClass.getDeclaredConstructor().newInstance();
         }
         catch( InstantiationException ie )
         {
@@ -1545,7 +1558,19 @@ public class SoundSystem
         catch( SecurityException se )
         {
             errorMessage( "The specified library did not load properly", 1 );
-        }
+        } 
+        catch (IllegalArgumentException e) 
+        {
+        	errorMessage( "The specified library did not load properly", 1 );
+		} 
+        catch (InvocationTargetException e) 
+        {
+        	errorMessage( "The specified library did not load properly", 1 );
+		} 
+        catch (NoSuchMethodException e) 
+        {
+        	errorMessage( "The specified library did not load properly", 1 );
+		}
 
         if( errorCheck( soundLibrary == null, "Library null after " +
                         "initialization in method 'newLibrary'", 1 ) )

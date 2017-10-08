@@ -56,7 +56,7 @@ import net.luxvacuos.lightengine.client.ui.TitleBarButton;
 import net.luxvacuos.lightengine.client.ui.TitleBarText;
 import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
-import net.luxvacuos.lightengine.universal.util.registry.Key;
+import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
 public abstract class NanoWindow implements IWindow {
 
@@ -95,7 +95,8 @@ public abstract class NanoWindow implements IWindow {
 		this.window = wind;
 		titleBar.init(window);
 		initApp();
-		compositor = (boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/compositor"));
+		compositor = (boolean) REGISTRY
+				.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/compositor"));
 		if (compositor) {
 			updateRenderSize();
 			fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
@@ -185,10 +186,11 @@ public abstract class NanoWindow implements IWindow {
 		if (decorations && !hidden && !minimized) {
 			if (!isResizing() && !minimized)
 				titleBar.update(delta, window);
-			int borderSize = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/borderSize"));
+			int borderSize = (int) REGISTRY
+					.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/borderSize"));
 			borderSize = Maths.clampInt(borderSize, 8);
 			int tileBarHeight = (int) REGISTRY
-					.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
+					.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/titleBarHeight"));
 			MouseHandler mh = window.getMouseHandler();
 			if ((mh.isButtonPressed(0) && canResizeRightBottom(borderSize, mh) && !isResizing())
 					|| resizingRightBottom) {
@@ -287,18 +289,20 @@ public abstract class NanoWindow implements IWindow {
 		case WindowMessage.WM_MAXIMIZE:
 			if (resizable && !maximized) {
 				maximized = true;
-				int height = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
+				int height = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
 				oldX = this.x;
 				oldY = this.y;
 				oldW = this.w;
 				oldH = this.h;
 				this.x = 0;
 				this.y = height - (int) REGISTRY
-						.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
-				this.w = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
+						.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/titleBarHeight"));
+				this.w = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"));
 				this.h = height
-						- (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"))
-						- (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/shellHeight"));
+						- (int) REGISTRY
+								.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/titleBarHeight"))
+						- (int) REGISTRY
+								.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/shellHeight"));
 				updateRenderSize();
 				if (compositor)
 					TaskManager.addTask(() -> {
@@ -322,7 +326,7 @@ public abstract class NanoWindow implements IWindow {
 					});
 			}
 			if (minimized) {
-				if(compositor) {
+				if (compositor) {
 					animationState = AnimationState.RESTORE_MINIMIZE;
 				}
 				minimized = false;
@@ -367,10 +371,10 @@ public abstract class NanoWindow implements IWindow {
 		if (titleBar.isEnabled())
 			return mh.getX() > x
 					&& mh.getY() < y + (int) REGISTRY.getRegistryItem(
-							new Key("/Light Engine/Settings/WindowManager/titleBarHeight")) + borderSize
+							KeyCache.getKey("/Light Engine/Settings/WindowManager/titleBarHeight")) + borderSize
 					&& mh.getX() < x + w
 					&& mh.getY() > y + (int) REGISTRY
-							.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"))
+							.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/titleBarHeight"))
 					&& resizable && !maximized && !minimized;
 		else
 			return mh.getX() > x && mh.getY() < y + borderSize && mh.getX() < x + w && mh.getY() > y && resizable
@@ -394,14 +398,15 @@ public abstract class NanoWindow implements IWindow {
 
 	@Override
 	public boolean insideWindow() {
-		int borderSize = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/borderSize"));
+		int borderSize = (int) REGISTRY
+				.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/borderSize"));
 		MouseHandler mh = GraphicalSubsystem.getMainWindow().getMouseHandler();
 		borderSize = Maths.clampInt(borderSize, 8);
 		if (titleBar.isEnabled() && decorations)
 			return mh.getX() > x - borderSize && mh.getX() < x + w + borderSize && mh.getY() > y - h - borderSize
 					&& mh.getY() < y
-							+ (int) REGISTRY
-									.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"))
+							+ (int) REGISTRY.getRegistryItem(
+									KeyCache.getKey("/Light Engine/Settings/WindowManager/titleBarHeight"))
 							+ borderSize;
 		else if (!decorations)
 			return mh.getX() > x && mh.getX() < x + w && mh.getY() > y - h && mh.getY() < y;
@@ -543,11 +548,12 @@ public abstract class NanoWindow implements IWindow {
 	}
 
 	public void updateRenderSize() {
-		int borderSize = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/borderSize"));
+		int borderSize = (int) REGISTRY
+				.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/borderSize"));
 		int titleBarHeight = (int) REGISTRY
-				.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
+				.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/titleBarHeight"));
 		boolean titleBarBorder = (boolean) REGISTRY
-				.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarBorder"));
+				.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/titleBarBorder"));
 		if (titleBar.isEnabled() && decorations && !maximized)
 			if (titleBarBorder) {
 				lfx = borderSize;
@@ -701,7 +707,7 @@ public abstract class NanoWindow implements IWindow {
 	public boolean isCompositor() {
 		return compositor;
 	}
-	
+
 	@Override
 	public boolean isAnimating() {
 		return !animationState.equals(AnimationState.NONE);

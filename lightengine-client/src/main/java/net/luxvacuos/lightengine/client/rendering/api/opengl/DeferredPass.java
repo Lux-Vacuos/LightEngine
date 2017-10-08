@@ -23,9 +23,11 @@ package net.luxvacuos.lightengine.client.rendering.api.opengl;
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL30.GL_RGBA16F;
+import static org.lwjgl.opengl.GL11.GL_FLOAT;
+import static org.lwjgl.opengl.GL11.GL_RGBA;
+import static org.lwjgl.opengl.GL11.GL_TRIANGLE_STRIP;
 import static org.lwjgl.opengl.GL11.glDrawArrays;
+import static org.lwjgl.opengl.GL30.GL_RGBA16F;
 
 import java.util.List;
 
@@ -43,7 +45,7 @@ import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Texture;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.DeferredShadingShader;
 import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
-import net.luxvacuos.lightengine.universal.util.registry.Key;
+import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
 public abstract class DeferredPass implements IDeferredPass {
 
@@ -106,12 +108,13 @@ public abstract class DeferredPass implements IDeferredPass {
 		shader.loadLightPosition(sun.getSunPosition(), sun.getInvertedSunPosition());
 		shader.loadviewMatrix(camera);
 		shader.loadSettings(false, false, false,
-				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/volumetricLight")),
-				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/reflections")),
-				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/ambientOcclusion")),
-				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/shadowsDrawDistance")), false,
-				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/lensFlares")),
-				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/shadows")));
+				(boolean) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/volumetricLight")),
+				(boolean) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/reflections")),
+				(boolean) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/ambientOcclusion")),
+				(int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/shadowsDrawDistance")),
+				false,
+				(boolean) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/lensFlares")),
+				(boolean) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/shadows")));
 		shader.loadSunPosition(Maths.convertTo2F(new Vector3d(sun.getSunPosition()), camera.getProjectionMatrix(),
 				Maths.createViewMatrixRot(camera.getRotation().getX(), camera.getRotation().getY(),
 						camera.getRotation().getZ(), tmp),

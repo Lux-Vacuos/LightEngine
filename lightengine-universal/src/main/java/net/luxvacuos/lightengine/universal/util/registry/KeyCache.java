@@ -18,16 +18,26 @@
  * 
  */
 
-package net.luxvacuos.lightengine.universal.core.states;
+package net.luxvacuos.lightengine.universal.util.registry;
 
-public class StateNames {
+import java.util.HashMap;
+import java.util.Map;
 
-	private StateNames() {
+public final class KeyCache {
+
+	private static Map<String, Key> keyCache = new HashMap<>();
+
+	private KeyCache() {
 	}
 
-	public static final String SPLASH_SCREEN = "_sys_splash_screen";
-	public static final String MAIN = "_sys_main";
-	public static final String LOAD = "_sys_load";
-	public static final String CRASH = "_sys_crash";
+	public static Key getKey(String key) {
+		if (keyCache.containsKey(key))
+			return keyCache.get(key);
+		else {
+			Key k = new Key(key);
+			keyCache.put(key, k);
+			return k;
+		}
+	}
 
 }
