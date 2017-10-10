@@ -22,7 +22,7 @@ package net.luxvacuos.lightengine.client.rendering.api.opengl;
 
 import java.nio.DoubleBuffer;
 
-import org.lwjgl.BufferUtils;
+import static org.lwjgl.system.MemoryUtil.*;
 
 import net.luxvacuos.igl.vector.Matrix4d;
 import net.luxvacuos.igl.vector.Vector3d;
@@ -265,6 +265,6 @@ public class Frustum {
 	 * 
 	 */
 	public Frustum() {
-		clip_b = BufferUtils.createDoubleBuffer(16);
+		clip_b = memAllocDouble(16);
 	}
 }

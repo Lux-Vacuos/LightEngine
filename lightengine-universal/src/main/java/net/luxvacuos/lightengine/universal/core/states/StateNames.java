@@ -27,7 +27,6 @@ public class StateNames {
 
 	public static final String SPLASH_SCREEN = "_sys_splash_screen";
 	public static final String MAIN = "_sys_main";
-	public static final String LOAD = "_sys_load";
 	public static final String CRASH = "_sys_crash";
 
 }

@@ -36,6 +36,7 @@ import net.luxvacuos.lightengine.demo.ui.PauseWindow;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
+import net.luxvacuos.lightengine.universal.core.states.StateNames;
 import net.luxvacuos.lightengine.universal.ecs.Components;
 import net.luxvacuos.lightengine.universal.ecs.components.Position;
 import net.luxvacuos.lightengine.universal.ecs.components.Scale;
@@ -113,20 +114,24 @@ public class MainState extends AbstractState {
 		});
 
 		lightRenderer = new LightRenderer();
-
-		Light light0 = new Light(new Vector3d(0, 8, 0.05), new Vector3f(50, 50, 50), new Vector3d(-45, 0, 0), 35, 30);
-		light0.setShadow(true);
-		lightRenderer.addLight(light0);
-		Light light1 = new Light(new Vector3d(-0.05, 8, 0), new Vector3f(50, 50, 50), new Vector3d(-45, 90, 0), 35, 30);
-		light1.setShadow(true);
-		lightRenderer.addLight(light1);
-		Light light2 = new Light(new Vector3d(0, 8, -0.05), new Vector3f(50, 50, 50), new Vector3d(-45, 180, 0), 35,
-				30);
-		light2.setShadow(true);
-		lightRenderer.addLight(light2);
-		Light light3 = new Light(new Vector3d(0.05, 8, 0), new Vector3f(50, 50, 50), new Vector3d(-45, -90, 0), 35, 30);
-		light3.setShadow(true);
-		lightRenderer.addLight(light3);
+		TaskManager.addTask(() -> {
+			Light light0 = new Light(new Vector3d(0, 8, 0.05), new Vector3f(50, 50, 50), new Vector3d(-45, 0, 0), 35,
+					30);
+			light0.setShadow(true);
+			lightRenderer.addLight(light0);
+			Light light1 = new Light(new Vector3d(-0.05, 8, 0), new Vector3f(50, 50, 50), new Vector3d(-45, 90, 0), 35,
+					30);
+			light1.setShadow(true);
+			lightRenderer.addLight(light1);
+			Light light2 = new Light(new Vector3d(0, 8, -0.05), new Vector3f(50, 50, 50), new Vector3d(-45, 180, 0), 35,
+					30);
+			light2.setShadow(true);
+			lightRenderer.addLight(light2);
+			Light light3 = new Light(new Vector3d(0.05, 8, 0), new Vector3f(50, 50, 50), new Vector3d(-45, -90, 0), 35,
+					30);
+			light3.setShadow(true);
+			lightRenderer.addLight(light3);
+		});
 
 		mat2 = new RenderEntity("", "levels/test_state/models/sphere.blend");
 		mat2.getComponent(Position.class).set(3, 1, 0);
@@ -136,12 +141,12 @@ public class MainState extends AbstractState {
 		character = new RenderEntity("", "levels/test_state/models/tigre_sumatra.blend");
 		character.getComponent(Position.class).set(0, 0.67335f, 5);
 		character.getComponent(Scale.class).setScale(2f);
-
-		fire = CachedAssets.loadTexture("textures/particles/fire0.png");
-
-		particleSystem = new ParticleSystem(new ParticleTexture(fire.getID(), 4), 1000, 1, -1f, 3f, 6f);
-		particleSystem.setDirection(new Vector3d(0, -1, 0), 0.4f);
-		particlesPoint = new Vector3d(0, 1.7f, -5);
+		TaskManager.addTask(() -> {
+			fire = CachedAssets.loadTexture("textures/particles/fire0.png");
+			particleSystem = new ParticleSystem(new ParticleTexture(fire.getID(), 4), 1000, 1, -1f, 3f, 6f);
+			particleSystem.setDirection(new Vector3d(0, -1, 0), 0.4f);
+			particlesPoint = new Vector3d(0, 1.7f, -5);
+		});
 
 		nh.getEngine().addEntity(plane);
 		nh.getEngine().addEntity(mat2);
@@ -158,7 +163,6 @@ public class MainState extends AbstractState {
 			GraphicalSubsystem.getWindowManager().addWindow(gameWindow);
 			loaded = true;
 		});
-
 		super.start();
 	}
 
@@ -188,7 +192,7 @@ public class MainState extends AbstractState {
 			nh.update(delta);
 			lightRenderer.update(delta);
 			sun.update(nh.getPlayer().getPosition(), nh.getWorldSimulation().getRotation(), delta);
-			//particleSystem.generateParticles(particlesPoint, delta);
+			// particleSystem.generateParticles(particlesPoint, delta);
 			ParticleDomain.update(delta, nh.getPlayer());
 			if (kbh.isKeyPressed(GLFW.GLFW_KEY_ESCAPE)) {
 				kbh.ignoreKeyUntilRelease(GLFW.GLFW_KEY_ESCAPE);
@@ -210,7 +214,7 @@ public class MainState extends AbstractState {
 			gameWindow.closeWindow();
 			exitWorld = false;
 			paused = false;
-			StateMachine.setCurrentState("_main");
+			StateMachine.setCurrentState(StateNames.MAIN);
 		} else {
 			if (kbh.isKeyPressed(GLFW.GLFW_KEY_ESCAPE)) {
 				kbh.ignoreKeyUntilRelease(GLFW.GLFW_KEY_ESCAPE);

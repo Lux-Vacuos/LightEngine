@@ -340,6 +340,26 @@ public abstract class NanoWindow implements IWindow {
 					minimized = true;
 			}
 			break;
+		case WindowMessage.WM_RESIZE:
+			updateRenderSize();
+			if (maximized) {
+				int height = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
+				this.x = 0;
+				this.y = height - (int) REGISTRY
+						.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/titleBarHeight"));
+				this.w = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"));
+				this.h = height
+						- (int) REGISTRY
+								.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/titleBarHeight"))
+						- (int) REGISTRY
+								.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/shellHeight"));
+				if (compositor)
+					TaskManager.addTask(() -> {
+						nvgluDeleteFramebuffer(window.getNVGID(), fbo);
+						fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
+					});
+			}
+			break;
 		case WindowMessage.WM_COMPOSITOR_DISABLED:
 			compositor = false;
 			TaskManager.addTask(() -> {

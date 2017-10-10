@@ -43,11 +43,11 @@ public class Spinner extends Component {
 	}
 
 	@Override
-	public void update(float delta, Window window) {
-		super.update(delta, window);
+	public void alwaysUpdate(float delta, Window window) {
+		super.alwaysUpdate(delta, window);
 		progress += 1 * delta;
 	}
-	
+
 	@Override
 	public void setAlignment(Alignment alignment) {
 		throw new UnsupportedOperationException("Not Available");

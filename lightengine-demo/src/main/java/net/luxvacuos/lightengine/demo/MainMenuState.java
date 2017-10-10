@@ -44,26 +44,30 @@ public class MainMenuState extends AbstractState {
 	public void init() {
 		super.init();
 		TaskManager.addTask(() -> StateMachine.registerState(new MainState()));
-		//TaskManager.addTask(() -> StateMachine.registerState(new GameState()));
+		// TaskManager.addTask(() -> StateMachine.registerState(new GameState()));
 	}
 
 	@Override
 	public void start() {
-		GraphicalSubsystem.getWindowManager().toggleShell();
-		if (background == null)
-			background = new BackgroundWindow(0,
-					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
-					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
-					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")));
-		if (!GraphicalSubsystem.getWindowManager().existWindow(background))
-			GraphicalSubsystem.getWindowManager().addWindow(0, background);
+		if (!GraphicalSubsystem.getWindowManager().isShellEnabled())
+			GraphicalSubsystem.getWindowManager().toggleShell();
+		background = new BackgroundWindow(0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
+				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
+				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")));
+		GraphicalSubsystem.getWindowManager().addWindow(0, background);
 		int ww = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
 		int wh = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
 		int x = ww / 2 - 512;
 		int y = wh / 2 - 300;
 		GraphicalSubsystem.getWindowManager().addWindow(new MainWindow(x, wh - y, 1024, 600));
-		//GraphicalSubsystem.getWindowManager().addWindow(new Profiler());
+		// GraphicalSubsystem.getWindowManager().addWindow(new Profiler());
 		super.start();
+	}
+
+	@Override
+	public void end() {
+		background.closeWindow();
+		super.end();
 	}
 
 	@Override

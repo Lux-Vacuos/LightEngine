@@ -66,6 +66,7 @@ public class NanoWindowManager implements IWindowManager {
 			height = GLUtil.GL_MAX_TEXTURE_SIZE;
 		compositor = new Compositor(win, width, height);
 		REGISTRY.register(KeyCache.getKey("/Light Engine/Settings/WindowManager/shellHeight"), 0);
+		shell = new DummyShell();
 	}
 
 	@Override
@@ -248,15 +249,13 @@ public class NanoWindowManager implements IWindowManager {
 
 	@Override
 	public void notifyClose(IWindow window) {
-		if (this.shell != null)
-			this.shell.notifyWindow(WindowMessage.WM_SHELL_WINDOW_CLOSED, window);
+		this.shell.notifyWindow(WindowMessage.WM_SHELL_WINDOW_CLOSED, window);
 	}
 
 	@Override
 	public void notifyAdd(IWindow window) {
-		if (this.shell != null)
-			if (window.hasDecorations() && !window.isHidden())
-				this.shell.notifyWindow(WindowMessage.WM_SHELL_WINDOW_CREATED, window);
+		if (window.hasDecorations() && !window.isHidden())
+			this.shell.notifyWindow(WindowMessage.WM_SHELL_WINDOW_CREATED, window);
 	}
 
 	@Override
@@ -305,15 +304,12 @@ public class NanoWindowManager implements IWindowManager {
 
 	@Override
 	public void toggleShell() {
-		if (shell != null)
-			shell.toggleShell();
+		shell.toggleShell();
 	}
 
 	@Override
 	public boolean isShellEnabled() {
-		if (shell != null)
-			return shell.isEnabled();
-		return false;
+		return shell.isEnabled();
 	}
 
 	@Override

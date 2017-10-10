@@ -23,15 +23,13 @@ package net.luxvacuos.lightengine.client.core.states;
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
-import net.luxvacuos.lightengine.client.ui.Alignment;
-import net.luxvacuos.lightengine.client.ui.ComponentWindow;
-import net.luxvacuos.lightengine.client.ui.Image;
+import net.luxvacuos.lightengine.client.ui.windows.LoadWindow;
 import net.luxvacuos.lightengine.client.ui.windows.Shell;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.core.states.StateNames;
-import net.luxvacuos.lightengine.universal.util.registry.Key;
+import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
 /**
  * Splash screen State, show only in the load.
@@ -41,37 +39,28 @@ import net.luxvacuos.lightengine.universal.util.registry.Key;
  */
 public class SplashScreenState extends AbstractState {
 
-	private ComponentWindow component;
+	private LoadWindow window;
+	private boolean tryLoad = true;
 
 	public SplashScreenState() {
 		super(StateNames.SPLASH_SCREEN);
 	}
 
 	@Override
-	public void init() {
-		component = new ComponentWindow(0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
-				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
-				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")), "splash");
-		component.toggleTitleBar();
-		component.setDecorations(false);
-		component.setBackgroundColor(1, 1, 1, 1);
-		component.setBlurBehind(false);
-		component.setAsBackground(true);
-		Image lv = new Image(0, 0, 512, 512,
-				GraphicalSubsystem.getMainWindow().getResourceLoader().loadNVGTexture("LuxVacuos-Logo"));
-		lv.setAlignment(Alignment.CENTER);
-		lv.setWindowAlignment(Alignment.CENTER);
-
-		component.addComponent(lv);
-
-		GraphicalSubsystem.getWindowManager().addWindow(component);
+	public void start() {
+		window = new LoadWindow(0, (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height")),
+				(int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width")),
+				(int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height")));
+		GraphicalSubsystem.getWindowManager().addWindow(window);
+		super.start();
 	}
 
 	@Override
 	public void end() {
 		super.end();
-		component.closeWindow();
-		Shell shell = new Shell(0, 0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")), 30);
+		window.closeWindow();
+		Shell shell = new Shell(0, 0, (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width")),
+				30);
 		GraphicalSubsystem.getWindowManager().addWindow(shell);
 		GraphicalSubsystem.getWindowManager().setShell(shell);
 		shell.toggleShell();
@@ -82,14 +71,28 @@ public class SplashScreenState extends AbstractState {
 
 	@Override
 	public void update(float delta) {
-		if (TaskManager.isEmpty()) {
-			try {
-				StateMachine.setCurrentState(StateNames.MAIN);
-			} catch (NullPointerException e) {
-				StateMachine.registerState(new LoadState());
-				StateMachine.setCurrentState(StateNames.LOAD);
+		if (tryLoad)
+			if (TaskManager.isEmpty()) {
+				try {
+					StateMachine.setCurrentState(StateNames.MAIN);
+				} catch (NullPointerException e) {
+					tryLoad = false;
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e1) {
+					}
+					if (window.onLoadFailed())
+						tryLoad = true;
+					else {
+						try {
+							Thread.sleep(3000);
+						} catch (InterruptedException e1) {
+						}
+						StateMachine.stop();
+					}
+
+				}
 			}
-		}
 	}
 
 }

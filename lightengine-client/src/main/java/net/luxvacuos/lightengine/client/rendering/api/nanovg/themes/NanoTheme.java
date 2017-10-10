@@ -636,7 +636,7 @@ public class NanoTheme implements ITheme {
 
 	@Override
 	public void renderSpinner(long vg, float cx, float cy, float r, float t) {
-		float a0 = 0.0f + t * 6;
+		float a0 = t * 6;
 		float a1 = NVG_PI + t * 6;
 		float r0 = r;
 		float r1 = r * 0.75f;
@@ -652,7 +652,7 @@ public class NanoTheme implements ITheme {
 		ay = cy + (float) Math.sin(a0) * (r0 + r1) * 0.5f;
 		bx = cx + (float) Math.cos(a1) * (r0 + r1) * 0.5f;
 		by = cy + (float) Math.sin(a1) * (r0 + r1) * 0.5f;
-		nvgLinearGradient(vg, ax, ay, bx, by, Theme.rgba(0, 0, 0, 0, colorA), Theme.rgba(0, 0, 0, 128, colorB), paint);
+		nvgLinearGradient(vg, ax, ay, bx, by, Theme.rgba(0, 0, 0, 0, colorA), Theme.rgba(0, 0, 0, 255, colorB), paint);
 		nvgFillPaint(vg, paint);
 		nvgFill(vg);
 

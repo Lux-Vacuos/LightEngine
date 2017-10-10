@@ -12,6 +12,7 @@ import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.EditBox;
 import net.luxvacuos.lightengine.client.ui.Text;
 import net.luxvacuos.lightengine.demo.MainState;
+import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 
 public class MultiplayerWindow extends ComponentWindow {
@@ -47,7 +48,7 @@ public class MultiplayerWindow extends ComponentWindow {
 			super.closeWindow();
 			root.setWindowClose(WindowClose.DISPOSE);
 			root.closeWindow();
-			StateMachine.setCurrentState("mainState");
+			TaskManager.addTaskAsync(() -> StateMachine.setCurrentState("mainState"));
 		});
 
 		super.addComponent(address);

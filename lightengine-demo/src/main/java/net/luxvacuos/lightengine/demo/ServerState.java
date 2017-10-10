@@ -23,6 +23,7 @@ import net.luxvacuos.lightengine.universal.core.GlobalVariables;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
+import net.luxvacuos.lightengine.universal.core.states.StateNames;
 import net.luxvacuos.lightengine.universal.util.VectoVec;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 import net.luxvacuos.lightengine.universal.world.DynamicObject;
@@ -35,7 +36,7 @@ public class ServerState extends AbstractState {
 	private ServerNetworkHandler nh;
 
 	public ServerState() {
-		super("_main");
+		super(StateNames.MAIN);
 	}
 
 	@Override

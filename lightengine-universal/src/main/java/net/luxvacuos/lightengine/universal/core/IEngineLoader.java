@@ -18,44 +18,11 @@
  * 
  */
 
+
 package net.luxvacuos.lightengine.universal.core;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
-public final class TaskManager {
-
-	private TaskManager() {
-	}
-
-	private static Queue<Runnable> tasks = new LinkedList<>(), tasksAsync = new LinkedList<>();
-
-	public static void update() {
-		if (!tasks.isEmpty()) {
-			tasks.poll().run();
-		}
-	}
-
-	public static void updateAsync() {
-		if (!tasksAsync.isEmpty()) {
-			tasksAsync.poll().run();
-		}
-	}
-
-	public static void addTask(Runnable task) {
-		tasks.add(task);
-	}
-
-	public static void addTaskAsync(Runnable task) {
-		tasksAsync.add(task);
-	}
-
-	public static boolean isEmpty() {
-		return tasks.isEmpty();
-	}
-
-	public static boolean isEmptyAsync() {
-		return tasksAsync.isEmpty();
-	}
+public interface IEngineLoader {
+	
+	public void loadExternal();
 
 }
