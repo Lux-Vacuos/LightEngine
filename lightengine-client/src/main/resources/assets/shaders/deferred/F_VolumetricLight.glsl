@@ -42,18 +42,18 @@ const float weight = 8.0;
 float illuminationDecay = 2.0;
 
 void main(){
-	vec2 texcoord = textureCoords;
-	vec4 position = texture(gPosition, texcoord);
-	vec4 positionCenter = texture(gPosition, vec2(0.5, 0.5));
-	vec3 eyeDir = normalize(cameraPosition-position.xyz);
-    vec3 eyeDirCenter = normalize(cameraPosition-positionCenter.xyz);
-    vec3 invertedlightDir = invertedLightPosition;
-    invertedlightDir = normalize(invertedlightDir);
-    float lightDirDOTviewDir = dot(invertedlightDir,eyeDir);
-    float lightDirCenter = dot(invertedlightDir,eyeDirCenter);
-	vec4 raysColor = texture(composite0, texcoord);
-	vec4 image = vec4(0.0);
-	if(useVolumetricLight == 1){
+	if(useVolumetricLight == 1) {
+		vec2 texcoord = textureCoords;
+		vec4 position = texture(gPosition, texcoord);
+		vec4 positionCenter = texture(gPosition, vec2(0.5, 0.5));
+		vec3 eyeDir = normalize(cameraPosition-position.xyz);
+    	vec3 eyeDirCenter = normalize(cameraPosition-positionCenter.xyz);
+    	vec3 invertedlightDir = invertedLightPosition;
+    	invertedlightDir = normalize(invertedlightDir);
+    	float lightDirDOTviewDir = dot(invertedlightDir,eyeDir);
+    	float lightDirCenter = dot(invertedlightDir,eyeDirCenter);
+		vec4 raysColor = texture(composite0, texcoord);
+		vec4 image = vec4(0.0);
 		if (lightDirDOTviewDir > 0.0){
 			vec2 pos = vec2(0.0);
 			pos.x = (sunPositionInScreen.x) / resolution.x;
@@ -71,6 +71,8 @@ void main(){
 			raysColor *= exposure * lightDirDOTviewDir;
 			image += raysColor * lightDirCenter;
 		}
+		out_Color = image;
+	} else {
+		out_Color = vec4(0.0);
 	}
-	out_Color = image;
 }

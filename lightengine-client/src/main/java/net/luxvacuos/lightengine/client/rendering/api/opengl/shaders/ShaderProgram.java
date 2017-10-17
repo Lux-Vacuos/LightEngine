@@ -62,7 +62,7 @@ public abstract class ShaderProgram implements IDisposable {
 	private int programID;
 
 	private boolean loaded;
-	private static boolean binded = false;
+	private static boolean bound = false;
 	private List<IUniform> uniforms = new ArrayList<>();
 
 	public ShaderProgram(String vertexFile, String fragmentFile, Attribute... inVariables) {
@@ -130,10 +130,10 @@ public abstract class ShaderProgram implements IDisposable {
 	 * 
 	 */
 	public void start() {
-		if (binded)
+		if (bound)
 			throw new RuntimeException("A Shader Program is already bound");
 		glUseProgram(programID);
-		binded = true;
+		bound = true;
 	}
 
 	/**
@@ -142,7 +142,7 @@ public abstract class ShaderProgram implements IDisposable {
 	 */
 	public void stop() {
 		glUseProgram(0);
-		binded = false;
+		bound = false;
 	}
 
 	/**

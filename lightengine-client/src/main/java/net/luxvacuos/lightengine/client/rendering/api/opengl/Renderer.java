@@ -65,8 +65,6 @@ import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
 public class Renderer {
 
-	private static EntityRenderer entityRenderer;
-	private static EntityShadowRenderer entityShadowRenderer;
 	private static SkyboxRenderer skyboxRenderer;
 	private static IDeferredPipeline deferredPipeline;
 	private static IPostProcessPipeline postProcessPipeline;
@@ -91,8 +89,11 @@ public class Renderer {
 
 	private static boolean reloading, enabled;
 
+	private static RenderingManager renderingManager;
+
 	public static void init(Window window) {
 		if (!enabled) {
+			renderingManager = new RenderingManager();
 			Renderer.window = window;
 			shadowResolution = (int) REGISTRY
 					.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/shadowsResolution"));
@@ -102,9 +103,7 @@ public class Renderer {
 
 			TaskManager.addTask(() -> frustum = new Frustum());
 			TaskManager.addTask(() -> shadowFBO = new ShadowFBO(shadowResolution, shadowResolution));
-			TaskManager.addTask(() -> entityRenderer = new EntityRenderer(window.getResourceLoader()));
 
-			TaskManager.addTask(() -> entityShadowRenderer = new EntityShadowRenderer());
 			TaskManager.addTask(() -> skyboxRenderer = new SkyboxRenderer(window.getResourceLoader()));
 			TaskManager.addTask(() -> deferredPipeline = new MultiPass());
 			TaskManager.addTask(() -> postProcessPipeline = new PostProcess(window));
@@ -114,18 +113,20 @@ public class Renderer {
 					new CubeMapTexture(window.getResourceLoader().createEmptyCubeMap(128, true, false), 128)));
 			TaskManager.addTask(() -> preFilteredEnvironment = new PreFilteredEnvironment(window));
 			TaskManager.addTask(() -> waterRenderer = new WaterRenderer(window.getResourceLoader()));
+			TaskManager.addTask(() -> renderingManager.addRenderer(new EntityRenderer(window.getResourceLoader())));
 			enabled = true;
 		}
 	}
 
 	public static void render(ImmutableArray<Entity> entitiesT, Map<ParticleTexture, List<Particle>> particles,
 			List<WaterTile> waterTiles, LightRenderer lightRenderer, CameraEntity cameraT,
-			IWorldSimulation worldSimulation, Sun sunT, float alpha) {
+			IWorldSimulation worldSimulation, Sun sunT, float delta) {
 		Array<Entity> entitiesR = new Array<>(entitiesT.toArray(Entity.class));
 		ImmutableArray<Entity> entities = new ImmutableArray<>(entitiesR);
 		CameraEntity camera = cameraT;
 		Sun sun = sunT;
 		resetState();
+		renderingManager.preProcess(entities);
 		GPUProfiler.start("Main Renderer");
 		GPUProfiler.start("EnvMap");
 		environmentRenderer.renderEnvironmentMap(camera.getPosition(), skyboxRenderer, worldSimulation,
@@ -149,7 +150,7 @@ public class Renderer {
 			clearBuffer(GL_DEPTH_BUFFER_BIT);
 			if (shadowPass != null)
 				shadowPass.render(camera, sunCamera, frustum, shadowFBO);
-			entityShadowRenderer.renderEntity(entities, sunCamera);
+			renderingManager.renderShadow(sunCamera);
 
 			sunCamera.switchProjectionMatrix(1);
 			frustum.calculateFrustum(sunCamera);
@@ -158,7 +159,7 @@ public class Renderer {
 			clearBuffer(GL_DEPTH_BUFFER_BIT);
 			if (shadowPass != null)
 				shadowPass.render(camera, sunCamera, frustum, shadowFBO);
-			entityShadowRenderer.renderEntity(entities, sunCamera);
+			renderingManager.renderShadow(sunCamera);
 
 			sunCamera.switchProjectionMatrix(2);
 			frustum.calculateFrustum(sunCamera);
@@ -167,7 +168,7 @@ public class Renderer {
 			clearBuffer(GL_DEPTH_BUFFER_BIT);
 			if (shadowPass != null)
 				shadowPass.render(camera, sunCamera, frustum, shadowFBO);
-			entityShadowRenderer.renderEntity(entities, sunCamera);
+			renderingManager.renderShadow(sunCamera);
 
 			sunCamera.switchProjectionMatrix(3);
 			frustum.calculateFrustum(sunCamera);
@@ -176,7 +177,7 @@ public class Renderer {
 			clearBuffer(GL_DEPTH_BUFFER_BIT);
 			if (shadowPass != null)
 				shadowPass.render(camera, sunCamera, frustum, shadowFBO);
-			entityShadowRenderer.renderEntity(entities, sunCamera);
+			renderingManager.renderShadow(sunCamera);
 			shadowFBO.end();
 			GPUProfiler.end();
 			GPUProfiler.start("Shadow lights");
@@ -186,7 +187,7 @@ public class Renderer {
 					clearBuffer(GL_DEPTH_BUFFER_BIT);
 					if (shadowPass != null)
 						shadowPass.render(camera, light.getCamera(), frustum, null);
-					entityShadowRenderer.renderEntity(entities, light.getCamera());
+					renderingManager.renderShadow(light.getCamera());
 					light.getShadowMap().end();
 				}
 			}
@@ -210,8 +211,8 @@ public class Renderer {
 		if (deferredPass != null)
 			deferredPass.render(camera, sunCamera, frustum, shadowFBO);
 		GPUProfiler.end();
-		GPUProfiler.start("Entities");
-		entityRenderer.renderEntity(entities, camera);
+		GPUProfiler.start("RenderingManager");
+		renderingManager.render(camera);
 		GPUProfiler.end();
 		deferredPipeline.end();
 		GPUProfiler.end();
@@ -238,6 +239,7 @@ public class Renderer {
 		postProcessPipeline.preRender(window.getNVGID(), camera);
 		GPUProfiler.end();
 		GPUProfiler.end();
+		renderingManager.end();
 	}
 
 	public static void cleanUp() {
@@ -247,10 +249,6 @@ public class Renderer {
 				TaskManager.addTask(() -> environmentRenderer.cleanUp());
 			if (shadowFBO != null)
 				TaskManager.addTask(() -> shadowFBO.dispose());
-			if (entityRenderer != null)
-				TaskManager.addTask(() -> entityRenderer.cleanUp());
-			if (entityShadowRenderer != null)
-				TaskManager.addTask(() -> entityShadowRenderer.cleanUp());
 			if (deferredPipeline != null)
 				TaskManager.addTask(() -> deferredPipeline.dispose());
 			if (postProcessPipeline != null)
@@ -263,6 +261,8 @@ public class Renderer {
 				TaskManager.addTask(() -> preFilteredEnvironment.dispose());
 			if (waterRenderer != null)
 				TaskManager.addTask(() -> waterRenderer.dispose());
+			if (renderingManager != null)
+				renderingManager.dispose();
 		}
 	}
 

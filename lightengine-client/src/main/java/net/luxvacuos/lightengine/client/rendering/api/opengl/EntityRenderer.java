@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.utils.ImmutableArray;
 
 import net.luxvacuos.igl.vector.Matrix4d;
 import net.luxvacuos.lightengine.client.ecs.ClientComponents;
@@ -54,42 +53,44 @@ import net.luxvacuos.lightengine.universal.ecs.components.Rotation;
 import net.luxvacuos.lightengine.universal.ecs.components.Scale;
 import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
 
-/**
- * Entity Rendering
- * 
- * @author Guerra24 <pablo230699@hotmail.com>
- * @category Rendering
- */
-public class EntityRenderer {
+public class EntityRenderer implements IRenderer {
+
+	public static final int ENTITY_RENDERER_ID = 10;
 	/**
 	 * Entity Shader
 	 */
 	private EntityShader shader;
-	private Map<Model, List<BasicEntity>> entities = new HashMap<Model, List<BasicEntity>>();
+	private Map<Model, List<BasicEntity>> entities = new HashMap<>();
+	private EntityShadowRenderer shadowRenderer;
 
 	public EntityRenderer(ResourceLoader loader) {
 		shader = new EntityShader();
+		shadowRenderer = new EntityShadowRenderer();
 	}
 
-	public void cleanUp() {
-		shader.dispose();
-	}
-
-	public void renderEntity(ImmutableArray<Entity> immutableArray, CameraEntity camera) {
-		for (Entity entity : immutableArray) {
-			if (ClientComponents.RENDERABLE.has(entity))
-				if (ClientComponents.RENDERABLE.get(entity).isLoaded())
-					processEntity((BasicEntity) entity);
+	@Override
+	public void preProcess(List<BasicEntity> entities) {
+		for (Entity entity : entities) {
+			processEntity((BasicEntity) entity);
 		}
-		renderEntity(camera);
 	}
 
-	private void renderEntity(CameraEntity camera) {
+	@Override
+	public void render(CameraEntity camera) {
 		shader.start();
 		shader.loadViewMatrix(camera);
 		shader.loadProjectionMatrix(camera.getProjectionMatrix());
 		renderEntity(entities);
 		shader.stop();
+	}
+
+	@Override
+	public void renderShadow(CameraEntity sun) {
+		shadowRenderer.renderShadow(entities, sun);
+	}
+
+	@Override
+	public void end() {
 		entities.clear();
 	}
 
@@ -105,9 +106,9 @@ public class EntityRenderer {
 		}
 	}
 
-	private void renderEntity(Map<Model, List<BasicEntity>> blockEntities) {
-		for (Model model : blockEntities.keySet()) {
-			List<BasicEntity> batch = blockEntities.get(model);
+	private void renderEntity(Map<Model, List<BasicEntity>> entities) {
+		for (Model model : entities.keySet()) {
+			List<BasicEntity> batch = entities.get(model);
 			for (BasicEntity entity : batch) {
 				prepareInstance(entity);
 				for (Mesh mesh : model.getMeshes()) {
@@ -145,6 +146,17 @@ public class EntityRenderer {
 		Matrix4d transformationMatrix = Maths.createTransformationMatrix(pos.getPosition(), rot.getX(), rot.getY(),
 				rot.getZ(), scale.getScale());
 		shader.loadTransformationMatrix(transformationMatrix);
+	}
+
+	@Override
+	public void dispose() {
+		shader.dispose();
+		shadowRenderer.dispose();
+	}
+
+	@Override
+	public int getID() {
+		return ENTITY_RENDERER_ID;
 	}
 
 }

@@ -92,7 +92,8 @@ public abstract class PostProcessPipeline implements IPostProcessPipeline {
 		glBindVertexArray(quad.getVaoID());
 		glEnableVertexAttribArray(0);
 		for (IPostProcessPass deferredPass : imagePasses) {
-			deferredPass.process(camera, previousViewMatrix, previousCameraPosition, auxs, quad);
+			if (deferredPass.isEnabled())
+				deferredPass.process(camera, previousViewMatrix, previousCameraPosition, auxs, quad);
 		}
 		glDisableVertexAttribArray(0);
 		glBindVertexArray(0);

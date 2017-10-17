@@ -61,7 +61,7 @@ import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 public abstract class NanoWindow implements IWindow {
 
 	private boolean draggable = true, decorations = true, resizable = true, maximized, hidden, exit, alwaysOnTop,
-			background, blurBehind = true, minimized, closeButton = true, afterResize, exiting;
+			background, blurBehind = true, minimized, closeButton = true, afterResize, exiting, transparentInput;
 	private boolean resizingRight, resizingRightBottom, resizingBottom, resizingTop, resizingLeft;
 	private int ft, fb, fr, fl;
 	private BackgroundStyle backgroundStyle = BackgroundStyle.SOLID;
@@ -418,6 +418,8 @@ public abstract class NanoWindow implements IWindow {
 
 	@Override
 	public boolean insideWindow() {
+		if (transparentInput)
+			return false;
 		int borderSize = (int) REGISTRY
 				.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/borderSize"));
 		MouseHandler mh = GraphicalSubsystem.getMainWindow().getMouseHandler();
@@ -538,6 +540,11 @@ public abstract class NanoWindow implements IWindow {
 	}
 
 	@Override
+	public void setTransparentInput(boolean transparentInput) {
+		this.transparentInput = transparentInput;
+	}
+
+	@Override
 	public void closeWindow() {
 		notifyWindow(WindowMessage.WM_CLOSE, windowClose);
 	}
@@ -647,6 +654,11 @@ public abstract class NanoWindow implements IWindow {
 	@Override
 	public AnimationState getAnimationState() {
 		return animationState;
+	}
+
+	@Override
+	public boolean hasTransparentInput() {
+		return transparentInput;
 	}
 
 	@Override

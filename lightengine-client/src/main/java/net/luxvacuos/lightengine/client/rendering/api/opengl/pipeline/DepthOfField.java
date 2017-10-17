@@ -20,6 +20,7 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.opengl.pipeline;
 
+import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.glBindTexture;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE6;
@@ -27,6 +28,7 @@ import static org.lwjgl.opengl.GL13.glActiveTexture;
 
 import net.luxvacuos.lightengine.client.rendering.api.opengl.FBO;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.PostProcessPass;
+import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
 public class DepthOfField extends PostProcessPass {
 
@@ -38,6 +40,11 @@ public class DepthOfField extends PostProcessPass {
 	public void render(FBO[] auxs) {
 		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, auxs[0].getTexture());
+	}
+	
+	@Override
+	public boolean isEnabled() {
+		return (boolean) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/dof"));
 	}
 
 }

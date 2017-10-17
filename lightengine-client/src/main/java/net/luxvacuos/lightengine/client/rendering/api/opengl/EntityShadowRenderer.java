@@ -31,16 +31,10 @@ import static org.lwjgl.opengl.GL11.glDrawElements;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.utils.ImmutableArray;
-
 import net.luxvacuos.igl.vector.Matrix4d;
-import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Material;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Mesh;
@@ -52,56 +46,29 @@ import net.luxvacuos.lightengine.universal.ecs.components.Position;
 import net.luxvacuos.lightengine.universal.ecs.components.Rotation;
 import net.luxvacuos.lightengine.universal.ecs.components.Scale;
 import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
+import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
-public class EntityShadowRenderer {
+public class EntityShadowRenderer implements IDisposable {
 
 	private EntityBasicShader shader;
-
-	private Map<Model, List<BasicEntity>> entities = new HashMap<Model, List<BasicEntity>>();
 
 	public EntityShadowRenderer() {
 		shader = new EntityBasicShader();
 	}
 
-	public void cleanUp() {
-		shader.dispose();
-	}
-
-	public void renderEntity(ImmutableArray<Entity> immutableArray, CameraEntity sunCamera) {
-		for (Entity entity : immutableArray) {
-			if (ClientComponents.RENDERABLE.has(entity))
-				if (ClientComponents.RENDERABLE.get(entity).isLoaded())
-					processEntity((BasicEntity) entity);
-		}
-		renderEntity(sunCamera);
-	}
-
-	private void renderEntity(CameraEntity sunCamera) {
+	protected void renderShadow(Map<Model, List<BasicEntity>> entities, CameraEntity sunCamera) {
 		glCullFace(GL_FRONT);
 		shader.start();
 		shader.loadviewMatrix(sunCamera);
 		shader.loadProjectionMatrix(sunCamera.getProjectionMatrix());
 		renderEntity(entities);
 		shader.stop();
-		entities.clear();
 		glCullFace(GL_BACK);
 	}
 
-	private void processEntity(BasicEntity entity) {
-		Model entityModel = ClientComponents.RENDERABLE.get(entity).getModel();
-		List<BasicEntity> batch = entities.get(entityModel);
-		if (batch != null)
-			batch.add(entity);
-		else {
-			List<BasicEntity> newBatch = new ArrayList<BasicEntity>();
-			newBatch.add(entity);
-			entities.put(entityModel, newBatch);
-		}
-	}
-
-	private void renderEntity(Map<Model, List<BasicEntity>> blockEntities) {
-		for (Model model : blockEntities.keySet()) {
-			List<BasicEntity> batch = blockEntities.get(model);
+	private void renderEntity(Map<Model, List<BasicEntity>> entities) {
+		for (Model model : entities.keySet()) {
+			List<BasicEntity> batch = entities.get(model);
 			for (BasicEntity entity : batch) {
 				prepareInstance(entity);
 				for (Mesh mesh : model.getMeshes()) {
@@ -131,6 +98,11 @@ public class EntityShadowRenderer {
 		Matrix4d transformationMatrix = Maths.createTransformationMatrix(pos.getPosition(), rot.getX(), rot.getY(),
 				rot.getZ(), scale.getScale());
 		shader.loadTransformationMatrix(transformationMatrix);
+	}
+
+	@Override
+	public void dispose() {
+		shader.dispose();
 	}
 
 }

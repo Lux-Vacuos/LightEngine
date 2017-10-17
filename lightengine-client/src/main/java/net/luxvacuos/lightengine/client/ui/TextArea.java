@@ -32,7 +32,7 @@ public class TextArea extends Component {
 
 	private String text, font = "Poppins-Medium";
 	private int align = NVG_ALIGN_LEFT | NVG_ALIGN_TOP;
-	private float fontSize = 25;
+	private float fontSize = 22;
 	private NVGColor color = Theme.rgba(255, 255, 255, 255, NVGColor.create());
 
 	public TextArea(String text, float x, float y, float w) {

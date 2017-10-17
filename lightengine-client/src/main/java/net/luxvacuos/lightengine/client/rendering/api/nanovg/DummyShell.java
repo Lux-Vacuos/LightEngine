@@ -313,4 +313,13 @@ public class DummyShell implements IShell {
 	public void processWindowMessage(int message, Object param) {
 	}
 
+	@Override
+	public void setTransparentInput(boolean transparentInput) {
+	}
+
+	@Override
+	public boolean hasTransparentInput() {
+		return false;
+	}
+
 }

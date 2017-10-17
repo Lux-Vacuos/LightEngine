@@ -28,7 +28,7 @@ import static org.lwjgl.assimp.Assimp.aiGetMaterialTextureCount;
 import static org.lwjgl.assimp.Assimp.aiReturn_SUCCESS;
 import static org.lwjgl.assimp.Assimp.aiTextureType_DIFFUSE;
 import static org.lwjgl.assimp.Assimp.aiTextureType_NONE;
-import static org.lwjgl.assimp.Assimp.aiTextureType_NORMALS;
+import static org.lwjgl.assimp.Assimp.*;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -105,29 +105,25 @@ public class Material implements IDisposable {
 				this.diffuseTexture = loadTexture(path, rootPath);
 
 		}
-		if (aiGetMaterialTextureCount(material, aiTextureType_DIFFUSE) > 1
-				|| aiGetMaterialTextureCount(material, aiTextureType_NORMALS) > 0) {
+		if (aiGetMaterialTextureCount(material, aiTextureType_AMBIENT) > 0) {
 			AIString path = AIString.create();
-			if (aiGetMaterialTexture(material, aiTextureType_DIFFUSE, 1, path, (IntBuffer) null, (IntBuffer) null,
-					(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS
-					|| aiGetMaterialTexture(material, aiTextureType_NORMALS, 1, path, (IntBuffer) null,
-							(IntBuffer) null, (FloatBuffer) null, (IntBuffer) null, (IntBuffer) null,
-							(IntBuffer) null) == aiReturn_SUCCESS)
+			if (aiGetMaterialTexture(material, aiTextureType_AMBIENT, 0, path, (IntBuffer) null, (IntBuffer) null,
+					(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS)
 				this.normalTexture = loadTextureMisc(path, rootPath);
 
 		}
-		if (aiGetMaterialTextureCount(material, aiTextureType_DIFFUSE) > 2) {
+		if (aiGetMaterialTextureCount(material, aiTextureType_SPECULAR) > 0) {
 			AIString path = AIString.create();
-			if (aiGetMaterialTexture(material, aiTextureType_DIFFUSE, 2, path, (IntBuffer) null, (IntBuffer) null,
+			if (aiGetMaterialTexture(material, aiTextureType_SPECULAR, 0, path, (IntBuffer) null, (IntBuffer) null,
 					(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS) {
 				this.roughnessTexture = loadTextureMisc(path, rootPath);
 				this.roughness = 1f;
 			}
 
 		}
-		if (aiGetMaterialTextureCount(material, aiTextureType_DIFFUSE) > 3) {
+		if (aiGetMaterialTextureCount(material, aiTextureType_REFLECTION) > 0) {
 			AIString path = AIString.create();
-			if (aiGetMaterialTexture(material, aiTextureType_DIFFUSE, 3, path, (IntBuffer) null, (IntBuffer) null,
+			if (aiGetMaterialTexture(material, aiTextureType_REFLECTION, 0, path, (IntBuffer) null, (IntBuffer) null,
 					(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS) {
 				this.metallicTexture = loadTextureMisc(path, rootPath);
 				this.metallic = 1f;

@@ -20,35 +20,41 @@
 
 package net.luxvacuos.lightengine.client.ui.windows;
 
+import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
+
+import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
+import net.luxvacuos.lightengine.client.rendering.api.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.GPUProfiler;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.GPUTaskProfile;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
-import net.luxvacuos.lightengine.client.ui.Direction;
-import net.luxvacuos.lightengine.client.ui.FlowLayout;
-import net.luxvacuos.lightengine.client.ui.ScrollArea;
 import net.luxvacuos.lightengine.client.ui.TextArea;
+import net.luxvacuos.lightengine.universal.util.registry.Key;
+import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
 public class Profiler extends ComponentWindow {
 
 	private TextArea text;
-	private float timer;
+	private float timer, timerOnTop;
 
 	public Profiler() {
-		super(0, 400, 400, 400, "Profiler");
+		super(0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
+				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
+				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")), "Profiler");
 	}
 
 	@Override
 	public void initApp() {
-		super.setBackgroundColor(0.4f, 0.4f, 0.4f, 1f);
+		super.setBackgroundColor(0.4f, 0.4f, 0.4f, 0f);
+		super.setDecorations(false);
+		super.setBlurBehind(false);
+		super.setAlwaysOnTop(true);
+		super.setTransparentInput(true);
 
-		ScrollArea area = new ScrollArea(0, 0, w, h, 0, 0);
-		area.setLayout(new FlowLayout(Direction.DOWN, 0, 0));
 		text = new TextArea("", 0, 0, w);
 		text.setWindowAlignment(Alignment.LEFT_TOP);
-		area.addComponent(text);
 
-		super.addComponent(area);
+		super.addComponent(text);
 		super.initApp();
 	}
 
@@ -56,6 +62,7 @@ public class Profiler extends ComponentWindow {
 	public void alwaysUpdateApp(float delta) {
 		GPUTaskProfile tp;
 		timer += delta;
+		timerOnTop += delta;
 		while ((tp = GPUProfiler.getFrameResults()) != null) {
 			if (timer > 0.5f) {
 				text.setText(tp.dumpS());
@@ -63,7 +70,21 @@ public class Profiler extends ComponentWindow {
 			}
 			GPUProfiler.recycle(tp);
 		}
+		if (timerOnTop > 1) {
+			GraphicalSubsystem.getWindowManager().bringToFront(this);
+			timerOnTop = 0;
+		}
 		super.alwaysUpdateApp(delta);
+	}
+
+	@Override
+	public void processWindowMessage(int message, Object param) {
+		if (message == WindowMessage.WM_RESIZE) {
+			y = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
+			w = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"));
+			h = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
+		}
+		super.processWindowMessage(message, param);
 	}
 
 }

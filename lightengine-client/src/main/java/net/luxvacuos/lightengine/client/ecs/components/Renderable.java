@@ -4,6 +4,7 @@ import com.hackhalo2.nbt.exceptions.NBTException;
 import com.hackhalo2.nbt.tags.TagCompound;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.EntityRenderer;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Model;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.ecs.components.LEComponent;
@@ -12,6 +13,7 @@ public class Renderable implements LEComponent {
 
 	private Model model;
 	private boolean loaded;
+	private int rendererID = EntityRenderer.ENTITY_RENDERER_ID;
 
 	public Renderable(Model model) {
 		this.model = model;
@@ -31,6 +33,10 @@ public class Renderable implements LEComponent {
 	
 	public boolean isLoaded() {
 		return this.loaded;
+	}
+	
+	public int getRendererID() {
+		return rendererID;
 	}
 
 	@Override

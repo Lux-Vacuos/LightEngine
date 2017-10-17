@@ -89,7 +89,6 @@ public abstract class PostProcessPass implements IPostProcessPass {
 		GPUProfiler.start(name);
 		fbo.begin();
 		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		Renderer.clearColors(0, 0, 0, 1);
 		shader.start();
 		shader.loadUnderWater(false);
 		shader.loadMotionBlurData(camera, previousViewMatrix, previousCameraPosition);

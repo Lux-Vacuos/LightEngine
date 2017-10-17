@@ -87,6 +87,8 @@ public interface IWindow {
 	public void extendFrame(int t, int b, int r, int l);
 
 	public void setAnimationState(AnimationState animationState);
+	
+	public void setTransparentInput(boolean transparentInput);
 
 	public void toggleMinimize();
 
@@ -147,6 +149,8 @@ public interface IWindow {
 	public boolean hasBlurBehind();
 
 	public boolean isAlwaysOnTop();
+	
+	public boolean hasTransparentInput();
 
 	public void notifyWindow(int message, Object param);
 

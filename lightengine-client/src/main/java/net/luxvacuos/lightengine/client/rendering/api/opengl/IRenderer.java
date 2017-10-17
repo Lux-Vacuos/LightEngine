@@ -20,21 +20,22 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.opengl;
 
-import net.luxvacuos.igl.vector.Matrix4d;
-import net.luxvacuos.igl.vector.Vector3d;
+import java.util.List;
+
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.RawModel;
+import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
-public interface IPostProcessPass extends IDisposable {
+public interface IRenderer extends IDisposable {
 
-	public void init();
+	public void preProcess(List<BasicEntity> entities);
 
-	public void process(CameraEntity camera, Matrix4d previousViewMatrix, Vector3d previousCameraPosition, FBO[] auxs,
-			RawModel quad);
+	public void render(CameraEntity camera);
 
-	public void render(FBO[] auxs);
-	
-	public boolean isEnabled();
+	public void renderShadow(CameraEntity sun);
+
+	public void end();
+
+	public int getID();
 
 }
