@@ -71,7 +71,7 @@ abstract public class Pool<T> {
 	/** Puts the specified objects in the pool. Null objects within the array are silently ignored.
 	 * @see #free(Object) */
 	public void freeAll (Array<T> objects) {
-		if (objects == null) throw new IllegalArgumentException("object cannot be null.");
+		if (objects == null) throw new IllegalArgumentException("objects cannot be null.");
 		Array<T> freeObjects = this.freeObjects;
 		int max = this.max;
 		for (int i = 0; i < objects.size; i++) {
@@ -93,7 +93,7 @@ abstract public class Pool<T> {
 		return freeObjects.size;
 	}
 
-	/** Objects implementing this interface will have {@link #reset()} called when passed to {@link #free(Object)}. */
+	/** Objects implementing this interface will have {@link #reset()} called when passed to {@link Pool#free(Object)}. */
 	static public interface Poolable {
 		/** Resets the object for reuse. Object references should be nulled and fields may be set to default values. */
 		public void reset ();

@@ -9,8 +9,6 @@ import java.util.UUID;
 import org.lwjgl.glfw.GLFW;
 
 import com.badlogic.ashley.core.Engine;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.BoundingBox;
 
 import net.luxvacuos.igl.vector.Vector3d;
 import net.luxvacuos.lightengine.client.core.ClientVariables;

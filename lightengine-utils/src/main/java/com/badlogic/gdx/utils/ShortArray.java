@@ -16,49 +16,49 @@
 
 package com.badlogic.gdx.utils;
 
-import com.badlogic.gdx.math.MathUtils;
-
 import java.util.Arrays;
 
-/** A resizable, ordered or unordered int array. Avoids the boxing that occurs with ArrayList<Integer>. If unordered, this class
+import com.badlogic.gdx.math.MathUtils;
+
+/** A resizable, ordered or unordered short array. Avoids the boxing that occurs with ArrayList<Short>. If unordered, this class
  * avoids a memory copy when removing elements (the last element is moved to the removed element's position).
  * @author Nathan Sweet */
-public class IntArray {
-	public int[] items;
+public class ShortArray {
+	public short[] items;
 	public int size;
 	public boolean ordered;
 
 	/** Creates an ordered array with a capacity of 16. */
-	public IntArray () {
+	public ShortArray () {
 		this(true, 16);
 	}
 
 	/** Creates an ordered array with the specified capacity. */
-	public IntArray (int capacity) {
+	public ShortArray (int capacity) {
 		this(true, capacity);
 	}
 
 	/** @param ordered If false, methods that remove elements may change the order of other elements in the array, which avoids a
 	 *           memory copy.
 	 * @param capacity Any elements added beyond this will cause the backing array to be grown. */
-	public IntArray (boolean ordered, int capacity) {
+	public ShortArray (boolean ordered, int capacity) {
 		this.ordered = ordered;
-		items = new int[capacity];
+		items = new short[capacity];
 	}
 
 	/** Creates a new array containing the elements in the specific array. The new array will be ordered if the specific array is
 	 * ordered. The capacity is set to the number of elements, so any subsequent elements added will cause the backing array to be
 	 * grown. */
-	public IntArray (IntArray array) {
+	public ShortArray (ShortArray array) {
 		this.ordered = array.ordered;
 		size = array.size;
-		items = new int[size];
+		items = new short[size];
 		System.arraycopy(array.items, 0, items, 0, size);
 	}
 
 	/** Creates a new ordered array containing the elements in the specified array. The capacity is set to the number of elements,
 	 * so any subsequent elements added will cause the backing array to be grown. */
-	public IntArray (int[] array) {
+	public ShortArray (short[] array) {
 		this(true, array, 0, array.length);
 	}
 
@@ -66,63 +66,70 @@ public class IntArray {
 	 * subsequent elements added will cause the backing array to be grown.
 	 * @param ordered If false, methods that remove elements may change the order of other elements in the array, which avoids a
 	 *           memory copy. */
-	public IntArray (boolean ordered, int[] array, int startIndex, int count) {
+	public ShortArray (boolean ordered, short[] array, int startIndex, int count) {
 		this(ordered, count);
 		size = count;
 		System.arraycopy(array, startIndex, items, 0, count);
 	}
 
+	/** Casts the specified value to short and adds it. */
 	public void add (int value) {
-		int[] items = this.items;
+		short[] items = this.items;
+		if (size == items.length) items = resize(Math.max(8, (int)(size * 1.75f)));
+		items[size++] = (short)value;
+	}
+
+	public void add (short value) {
+		short[] items = this.items;
 		if (size == items.length) items = resize(Math.max(8, (int)(size * 1.75f)));
 		items[size++] = value;
 	}
 
-	public void addAll (IntArray array) {
+	public void addAll (ShortArray array) {
 		addAll(array, 0, array.size);
 	}
 
-	public void addAll (IntArray array, int offset, int length) {
+	public void addAll (ShortArray array, int offset, int length) {
 		if (offset + length > array.size)
 			throw new IllegalArgumentException("offset + length must be <= size: " + offset + " + " + length + " <= " + array.size);
 		addAll(array.items, offset, length);
 	}
 
-	public void addAll (int... array) {
+	public void addAll (short... array) {
 		addAll(array, 0, array.length);
 	}
 
-	public void addAll (int[] array, int offset, int length) {
-		int[] items = this.items;
+	public void addAll (short[] array, int offset, int length) {
+		short[] items = this.items;
 		int sizeNeeded = size + length;
 		if (sizeNeeded > items.length) items = resize(Math.max(8, (int)(sizeNeeded * 1.75f)));
 		System.arraycopy(array, offset, items, size, length);
 		size += length;
 	}
 
-	public int get (int index) {
+	public short get (int index) {
 		if (index >= size) throw new IndexOutOfBoundsException("index can't be >= size: " + index + " >= " + size);
 		return items[index];
 	}
 
-	public void set (int index, int value) {
+	public void set (int index, short value) {
 		if (index >= size) throw new IndexOutOfBoundsException("index can't be >= size: " + index + " >= " + size);
 		items[index] = value;
 	}
 
-	public void incr (int index, int value) {
+	public void incr (int index, short value) {
 		if (index >= size) throw new IndexOutOfBoundsException("index can't be >= size: " + index + " >= " + size);
 		items[index] += value;
 	}
 
-	public void mul (int index, int value) {
+	public void mul (int index, short value) {
 		if (index >= size) throw new IndexOutOfBoundsException("index can't be >= size: " + index + " >= " + size);
 		items[index] *= value;
 	}
 
-	public void insert (int index, int value) {
+	public void insert (int index, short value) {
 		if (index > size) throw new IndexOutOfBoundsException("index can't be > size: " + index + " > " + size);
-		int[] items = this.items;
+		short[] items = this.items;
 		if (size == items.length) items = resize(Math.max(8, (int)(size * 1.75f)));
 		if (ordered)
 			System.arraycopy(items, index, items, index + 1, size - index);
@@ -135,36 +142,36 @@ public class IntArray {
 	public void swap (int first, int second) {
 		if (first >= size) throw new IndexOutOfBoundsException("first can't be >= size: " + first + " >= " + size);
 		if (second >= size) throw new IndexOutOfBoundsException("second can't be >= size: " + second + " >= " + size);
-		int[] items = this.items;
-		int firstValue = items[first];
+		short[] items = this.items;
+		short firstValue = items[first];
 		items[first] = items[second];
 		items[second] = firstValue;
 	}
 
-	public boolean contains (int value) {
+	public boolean contains (short value) {
 		int i = size - 1;
-		int[] items = this.items;
+		short[] items = this.items;
 		while (i >= 0)
 			if (items[i--] == value) return true;
 		return false;
 	}
 
-	public int indexOf (int value) {
-		int[] items = this.items;
+	public int indexOf (short value) {
+		short[] items = this.items;
 		for (int i = 0, n = size; i < n; i++)
 			if (items[i] == value) return i;
 		return -1;
 	}
 
-	public int lastIndexOf (int value) {
-		int[] items = this.items;
+	public int lastIndexOf (char value) {
+		short[] items = this.items;
 		for (int i = size - 1; i >= 0; i--)
 			if (items[i] == value) return i;
 		return -1;
 	}
 
-	public boolean removeValue (int value) {
-		int[] items = this.items;
+	public boolean removeValue (short value) {
+		short[] items = this.items;
 		for (int i = 0, n = size; i < n; i++) {
 			if (items[i] == value) {
 				removeIndex(i);
@@ -175,10 +182,10 @@ public class IntArray {
 	}
 
 	/** Removes and returns the item at the specified index. */
-	public int removeIndex (int index) {
+	public short removeIndex (int index) {
 		if (index >= size) throw new IndexOutOfBoundsException("index can't be >= size: " + index + " >= " + size);
-		int[] items = this.items;
-		int value = items[index];
+		short[] items = this.items;
+		short value = items[index];
 		size--;
 		if (ordered)
 			System.arraycopy(items, index + 1, items, index, size - index);
@@ -191,7 +198,7 @@ public class IntArray {
 	public void removeRange (int start, int end) {
 		if (end >= size) throw new IndexOutOfBoundsException("end can't be >= size: " + end + " >= " + size);
 		if (start > end) throw new IndexOutOfBoundsException("start can't be > end: " + start + " > " + end);
-		int[] items = this.items;
+		short[] items = this.items;
 		int count = end - start + 1;
 		if (ordered)
 			System.arraycopy(items, start + count, items, start, size - (start + count));
@@ -205,12 +212,12 @@ public class IntArray {
 
 	/** Removes from this array all of elements contained in the specified array.
 	 * @return true if this array was modified. */
-	public boolean removeAll (IntArray array) {
+	public boolean removeAll (ShortArray array) {
 		int size = this.size;
 		int startSize = size;
-		int[] items = this.items;
+		short[] items = this.items;
 		for (int i = 0, n = array.size; i < n; i++) {
-			int item = array.get(i);
+			short item = array.get(i);
 			for (int ii = 0; ii < size; ii++) {
 				if (item == items[ii]) {
 					removeIndex(ii);
@@ -223,17 +230,17 @@ public class IntArray {
 	}
 
 	/** Removes and returns the last item. */
-	public int pop () {
+	public short pop () {
 		return items[--size];
 	}
 
 	/** Returns the last item. */
-	public int peek () {
+	public short peek () {
 		return items[size - 1];
 	}
 
 	/** Returns the first item. */
-	public int first () {
+	public short first () {
 		if (size == 0) throw new IllegalStateException("Array is empty.");
 		return items[0];
 	}
@@ -245,7 +252,7 @@ public class IntArray {
 	/** Reduces the size of the backing array to the size of the actual items. This is useful to release memory when many items
 	 * have been removed, or if it is known that more items will not be added.
 	 * @return {@link #items} */
-	public int[] shrink () {
+	public short[] shrink () {
 		if (items.length != size) resize(size);
 		return items;
 	}
@@ -253,7 +260,7 @@ public class IntArray {
 	/** Increases the size of the backing array to accommodate the specified number of additional items. Useful before adding many
 	 * items to avoid multiple backing array resizes.
 	 * @return {@link #items} */
-	public int[] ensureCapacity (int additionalCapacity) {
+	public short[] ensureCapacity (int additionalCapacity) {
 		int sizeNeeded = size + additionalCapacity;
 		if (sizeNeeded > items.length) resize(Math.max(8, sizeNeeded));
 		return items;
@@ -261,15 +268,15 @@ public class IntArray {
 
 	/** Sets the array size, leaving any values beyond the current size undefined. 
 	 * @return {@link #items} */
-	public int[] setSize (int newSize) {
+	public short[] setSize (int newSize) {
 		if (newSize > items.length) resize(Math.max(8, newSize));
 		size = newSize;
 		return items;
 	}
 
-	protected int[] resize (int newSize) {
-		int[] newItems = new int[newSize];
-		int[] items = this.items;
+	protected short[] resize (int newSize) {
+		short[] newItems = new short[newSize];
+		short[] items = this.items;
 		System.arraycopy(items, 0, newItems, 0, Math.min(size, newItems.length));
 		this.items = newItems;
 		return newItems;
@@ -280,20 +287,20 @@ public class IntArray {
 	}
 
 	public void reverse () {
-		int[] items = this.items;
+		short[] items = this.items;
 		for (int i = 0, lastIndex = size - 1, n = size / 2; i < n; i++) {
 			int ii = lastIndex - i;
-			int temp = items[i];
+			short temp = items[i];
 			items[i] = items[ii];
 			items[ii] = temp;
 		}
 	}
 
 	public void shuffle () {
-		int[] items = this.items;
+		short[] items = this.items;
 		for (int i = size - 1; i >= 0; i--) {
 			int ii = MathUtils.random(i);
-			int temp = items[i];
+			short temp = items[i];
 			items[i] = items[ii];
 			items[ii] = temp;
 		}
@@ -306,20 +313,20 @@ public class IntArray {
 	}
 
 	/** Returns a random item from the array, or zero if the array is empty. */
-	public int random () {
+	public short random () {
 		if (size == 0) return 0;
 		return items[MathUtils.random(0, size - 1)];
 	}
 
-	public int[] toArray () {
-		int[] array = new int[size];
+	public short[] toArray () {
+		short[] array = new short[size];
 		System.arraycopy(items, 0, array, 0, size);
 		return array;
 	}
 
 	public int hashCode () {
 		if (!ordered) return super.hashCode();
-		int[] items = this.items;
+		short[] items = this.items;
 		int h = 1;
 		for (int i = 0, n = size; i < n; i++)
 			h = h * 31 + items[i];
@@ -329,13 +336,13 @@ public class IntArray {
 	public boolean equals (Object object) {
 		if (object == this) return true;
 		if (!ordered) return false;
-		if (!(object instanceof IntArray)) return false;
-		IntArray array = (IntArray)object;
+		if (!(object instanceof ShortArray)) return false;
+		ShortArray array = (ShortArray)object;
 		if (!array.ordered) return false;
 		int n = size;
 		if (n != array.size) return false;
-		int[] items1 = this.items;
-		int[] items2 = array.items;
+		short[] items1 = this.items;
+		short[] items2 = array.items;
 		for (int i = 0; i < n; i++)
 			if (items[i] != array.items[i]) return false;
 		return true;
@@ -343,7 +350,7 @@ public class IntArray {
 
 	public String toString () {
 		if (size == 0) return "[]";
-		int[] items = this.items;
+		short[] items = this.items;
 		StringBuilder buffer = new StringBuilder(32);
 		buffer.append('[');
 		buffer.append(items[0]);
@@ -357,7 +364,7 @@ public class IntArray {
 
 	public String toString (String separator) {
 		if (size == 0) return "";
-		int[] items = this.items;
+		short[] items = this.items;
 		StringBuilder buffer = new StringBuilder(32);
 		buffer.append(items[0]);
 		for (int i = 1; i < size; i++) {
@@ -367,8 +374,8 @@ public class IntArray {
 		return buffer.toString();
 	}
 
-	/** @see #IntArray(int[]) */
-	static public IntArray with (int... array) {
-		return new IntArray(array);
+	/** @see #ShortArray(short[]) */
+	static public ShortArray with (short... array) {
+		return new ShortArray(array);
 	}
 }
