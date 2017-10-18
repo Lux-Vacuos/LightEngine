@@ -118,6 +118,14 @@ public class Model implements IDisposable {
 		}
 	}
 
+	public boolean isDoneLoading() {
+		for (Mesh m : meshes) {
+			if (!m.isDoneLoading())
+				return false;
+		}
+		return true;
+	}
+
 	public CollisionShape getShape() {
 		return shape;
 	}

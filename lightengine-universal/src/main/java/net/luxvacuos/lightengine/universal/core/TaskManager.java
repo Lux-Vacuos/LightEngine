@@ -23,12 +23,19 @@ package net.luxvacuos.lightengine.universal.core;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import com.badlogic.gdx.utils.async.AsyncExecutor;
+
 public final class TaskManager {
 
 	private TaskManager() {
 	}
 
 	private static Queue<Runnable> tasks = new LinkedList<>(), tasksAsync = new LinkedList<>();
+	private static AsyncExecutor asyncExecutor;
+	
+	public static void init() {
+		asyncExecutor = new AsyncExecutor(2);
+	}
 
 	public static void update() {
 		if (!tasks.isEmpty()) {
@@ -56,6 +63,10 @@ public final class TaskManager {
 
 	public static boolean isEmptyAsync() {
 		return tasksAsync.isEmpty();
+	}
+	
+	public static AsyncExecutor getAsyncExecutor() {
+		return asyncExecutor;
 	}
 
 }

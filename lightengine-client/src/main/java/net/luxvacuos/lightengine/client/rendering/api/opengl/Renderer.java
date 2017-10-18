@@ -121,6 +121,8 @@ public class Renderer {
 	public static void render(ImmutableArray<Entity> entitiesT, Map<ParticleTexture, List<Particle>> particles,
 			List<WaterTile> waterTiles, LightRenderer lightRenderer, CameraEntity cameraT,
 			IWorldSimulation worldSimulation, Sun sunT, float delta) {
+		if(!enabled)
+			return;
 		Array<Entity> entitiesR = new Array<>(entitiesT.toArray(Entity.class));
 		ImmutableArray<Entity> entities = new ImmutableArray<>(entitiesR);
 		CameraEntity camera = cameraT;
@@ -262,7 +264,7 @@ public class Renderer {
 			if (waterRenderer != null)
 				TaskManager.addTask(() -> waterRenderer.dispose());
 			if (renderingManager != null)
-				renderingManager.dispose();
+				TaskManager.addTask(() -> renderingManager.dispose());
 		}
 	}
 

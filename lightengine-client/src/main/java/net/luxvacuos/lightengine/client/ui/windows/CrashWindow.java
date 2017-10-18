@@ -30,14 +30,17 @@ import net.luxvacuos.lightengine.client.ui.Box;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.Text;
 import net.luxvacuos.lightengine.client.ui.TextArea;
+import net.luxvacuos.lightengine.universal.util.registry.Key;
 import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
 public class CrashWindow extends ComponentWindow {
 
 	private Throwable t;
 
-	public CrashWindow(int x, int y, int w, int h, Throwable t) {
-		super(x, y, w, h, "BSOD");
+	public CrashWindow(Throwable t) {
+		super(0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
+				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
+				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")), "BSOD");
 		this.t = t;
 	}
 

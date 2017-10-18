@@ -35,7 +35,7 @@ public class PlayerEntity extends BasicEntity {
 		super(name);
 		Transform transform = new Transform();
 		transform.setIdentity();
-		transform.origin.set(new Vector3f(5, 45, 0));
+		transform.origin.set(new Vector3f(0, 45, 5));
 		this.add(new Player(transform));
 		BoxShape shape = new BoxShape(new Vector3f(0.25f, 1.7f, 0.25f));
 		this.add(new Collision(new DynamicObject(shape, transform, 1)));
@@ -45,7 +45,7 @@ public class PlayerEntity extends BasicEntity {
 		super(name, uuid);
 		Transform transform = new Transform();
 		transform.setIdentity();
-		transform.origin.set(new Vector3f(5, 45, 0));
+		transform.origin.set(new Vector3f(0, 45, 5));
 		this.add(new Player(transform));
 		BoxShape shape = new BoxShape(new Vector3f(0.25f, 1.7f, 0.25f));
 		this.add(new Collision(new DynamicObject(shape, transform, 1)));

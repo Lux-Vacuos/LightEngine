@@ -38,6 +38,7 @@ import org.lwjgl.assimp.AIMaterial;
 import org.lwjgl.assimp.AIString;
 
 import net.luxvacuos.igl.vector.Vector4f;
+import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
 /**
@@ -102,21 +103,21 @@ public class Material implements IDisposable {
 			AIString path = AIString.create();
 			if (aiGetMaterialTexture(material, aiTextureType_DIFFUSE, 0, path, (IntBuffer) null, (IntBuffer) null,
 					(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS)
-				this.diffuseTexture = loadTexture(path, rootPath);
+				TaskManager.addTask(() -> this.diffuseTexture = loadTexture(path, rootPath));
 
 		}
 		if (aiGetMaterialTextureCount(material, aiTextureType_AMBIENT) > 0) {
 			AIString path = AIString.create();
 			if (aiGetMaterialTexture(material, aiTextureType_AMBIENT, 0, path, (IntBuffer) null, (IntBuffer) null,
 					(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS)
-				this.normalTexture = loadTextureMisc(path, rootPath);
+				TaskManager.addTask(() -> this.normalTexture = loadTextureMisc(path, rootPath));
 
 		}
 		if (aiGetMaterialTextureCount(material, aiTextureType_SPECULAR) > 0) {
 			AIString path = AIString.create();
 			if (aiGetMaterialTexture(material, aiTextureType_SPECULAR, 0, path, (IntBuffer) null, (IntBuffer) null,
 					(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS) {
-				this.roughnessTexture = loadTextureMisc(path, rootPath);
+				TaskManager.addTask(() -> this.roughnessTexture = loadTextureMisc(path, rootPath));
 				this.roughness = 1f;
 			}
 
@@ -125,7 +126,7 @@ public class Material implements IDisposable {
 			AIString path = AIString.create();
 			if (aiGetMaterialTexture(material, aiTextureType_REFLECTION, 0, path, (IntBuffer) null, (IntBuffer) null,
 					(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS) {
-				this.metallicTexture = loadTextureMisc(path, rootPath);
+				TaskManager.addTask(() -> this.metallicTexture = loadTextureMisc(path, rootPath));
 				this.metallic = 1f;
 			}
 

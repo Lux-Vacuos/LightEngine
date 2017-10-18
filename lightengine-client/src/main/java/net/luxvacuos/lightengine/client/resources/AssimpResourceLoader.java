@@ -39,16 +39,22 @@ import static org.lwjgl.assimp.Assimp.aiSetImportPropertyFloat;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.lwjgl.assimp.AIPropertyStore;
 import org.lwjgl.assimp.AIScene;
 
+import com.badlogic.gdx.utils.async.AsyncResult;
+
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Model;
+import net.luxvacuos.lightengine.universal.core.TaskManager;
 
 public class AssimpResourceLoader {
 
 	private AIPropertyStore propertyStore;
+	private List<AsyncResult<Model>> tasks = new ArrayList<>();
 
 	public AssimpResourceLoader() {
 		propertyStore = aiCreatePropertyStore();
@@ -74,6 +80,21 @@ public class AssimpResourceLoader {
 			Logger.error(aiGetErrorString());
 		}
 		return new Model(scene, filePath.substring(0, filePath.lastIndexOf("/")));
+	}
+
+	public AsyncResult<Model> loadAsyncModel(String filePath) {
+		AsyncResult<Model> res = TaskManager.getAsyncExecutor().submit(new AsyncModelTask(filePath));
+		tasks.add(res);
+		return res;
+	}
+
+	public boolean isDoneLoading() {
+		for (AsyncResult<Model> res : tasks) {
+			if (!res.isDone())
+				return false;
+		}
+		tasks.clear();
+		return true;
 	}
 
 }

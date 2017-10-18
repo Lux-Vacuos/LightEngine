@@ -33,6 +33,7 @@ public abstract class AbstractEngine implements IEngine, IDisposable {
 
 	public AbstractEngine() {
 		subsystems = new ArrayList<>();
+		TaskManager.init();
 	}
 
 	@Override

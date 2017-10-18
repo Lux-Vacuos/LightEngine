@@ -20,13 +20,10 @@
 
 package net.luxvacuos.lightengine.client.core.states;
 
-import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
-
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.ui.windows.CrashWindow;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateNames;
-import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class CrashState extends AbstractState {
 
@@ -39,10 +36,7 @@ public class CrashState extends AbstractState {
 	@Override
 	public void start() {
 		GraphicalSubsystem.getWindowManager().closeAllWindows();
-		GraphicalSubsystem.getWindowManager()
-				.addWindow(new CrashWindow(0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
-						(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
-						(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")), t));
+		GraphicalSubsystem.getWindowManager().addWindow(new CrashWindow(t));
 	}
 
 	@Override

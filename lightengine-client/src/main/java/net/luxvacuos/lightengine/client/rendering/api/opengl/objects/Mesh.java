@@ -36,18 +36,17 @@ import org.lwjgl.assimp.AIVector3D;
 
 import net.luxvacuos.igl.vector.Vector2f;
 import net.luxvacuos.igl.vector.Vector3f;
+import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
 public class Mesh implements IDisposable {
 
 	private VAO mesh;
 	private AIMesh aiMesh;
+	private boolean doneLoading;
 
 	public Mesh(AIMesh aiMesh) {
 		this.aiMesh = aiMesh;
-
-		mesh = VAO.create();
-		mesh.bind();
 
 		List<Vector3f> pos = new ArrayList<>();
 		List<Vector2f> tex = new ArrayList<>();
@@ -68,7 +67,6 @@ public class Mesh implements IDisposable {
 			nor.add(new Vector3f(normal.x(), normal.y(), normal.z()));
 			tan.add(new Vector3f(tangent.x(), tangent.y(), tangent.z()));
 		}
-		loadData(pos, tex, nor, tan);
 		int faceCount = aiMesh.mNumFaces();
 		int elementCount = faceCount * 3;
 		IntBuffer elementArrayBufferData = memAllocInt(elementCount);
@@ -82,9 +80,15 @@ public class Mesh implements IDisposable {
 		elementArrayBufferData.flip();
 		int[] ind = new int[elementCount];
 		elementArrayBufferData.get(ind);
-		mesh.createIndexBuffer(ind, GL_STATIC_DRAW);
 		memFree(elementArrayBufferData);
-		mesh.unbind();
+		TaskManager.addTask(() -> {
+			mesh = VAO.create();
+			mesh.bind();
+			loadData(pos, tex, nor, tan);
+			mesh.createIndexBuffer(ind, GL_STATIC_DRAW);
+			mesh.unbind();
+			doneLoading = true;
+		});
 	}
 
 	@Override
@@ -98,6 +102,10 @@ public class Mesh implements IDisposable {
 
 	public VAO getMesh() {
 		return mesh;
+	}
+
+	public boolean isDoneLoading() {
+		return doneLoading;
 	}
 
 	private void loadData(List<Vector3f> positions, List<Vector2f> texcoords, List<Vector3f> normals,
@@ -135,14 +143,14 @@ public class Mesh implements IDisposable {
 		texB.get(texA);
 		norB.get(norA);
 		tanB.get(tanA);
-		mesh.createAttribute(0, posA, 3, GL_STATIC_DRAW);
-		mesh.createAttribute(1, texA, 2, GL_STATIC_DRAW);
-		mesh.createAttribute(2, norA, 3, GL_STATIC_DRAW);
-		mesh.createAttribute(3, tanA, 3, GL_STATIC_DRAW);
 		memFree(posB);
 		memFree(texB);
 		memFree(norB);
 		memFree(tanB);
+		mesh.createAttribute(0, posA, 3, GL_STATIC_DRAW);
+		mesh.createAttribute(1, texA, 2, GL_STATIC_DRAW);
+		mesh.createAttribute(2, norA, 3, GL_STATIC_DRAW);
+		mesh.createAttribute(3, tanA, 3, GL_STATIC_DRAW);
 	}
 
 }

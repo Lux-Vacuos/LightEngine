@@ -31,7 +31,6 @@ import com.esotericsoftware.kryonet.util.ObjectIntMap;
 
 import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
-import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
@@ -56,7 +55,8 @@ public class RenderingManager implements IDisposable {
 		for (Entry<IRenderer> rendererEntry : renderers) {
 			IRenderer renderer = rendererEntry.value;
 			List<BasicEntity> batch = entitiesToRenderers.findKey(renderer.getID());
-			renderer.preProcess(batch);
+			if (batch != null)
+				renderer.preProcess(batch);
 		}
 	}
 
@@ -74,7 +74,8 @@ public class RenderingManager implements IDisposable {
 		for (Entry<IRenderer> rendererEntry : renderers) {
 			IRenderer renderer = rendererEntry.value;
 			List<BasicEntity> batch = entitiesToRenderers.findKey(renderer.getID());
-			batch.clear();
+			if (batch != null)
+				batch.clear();
 			renderer.end();
 		}
 	}
@@ -93,9 +94,8 @@ public class RenderingManager implements IDisposable {
 
 	@Override
 	public void dispose() {
-		for (Entry<IRenderer> rendererEntry : renderers) {
-			TaskManager.addTask(() -> rendererEntry.value.dispose());
-		}
+		for (Entry<IRenderer> rendererEntry : renderers)
+			rendererEntry.value.dispose();
 	}
 
 }
