@@ -108,7 +108,7 @@ public class LightEngineClient extends AbstractEngine {
 			Sync sync = new Sync();
 			while (StateMachine.isRunning()) {
 				Timers.startCPUTimer();
-				TaskManager.updateAsync();
+				TaskManager.updateThread();
 				if (sync.timeCount > 1f) {
 					CoreSubsystem.ups = CoreSubsystem.upsCount;
 					CoreSubsystem.upsCount = 0;

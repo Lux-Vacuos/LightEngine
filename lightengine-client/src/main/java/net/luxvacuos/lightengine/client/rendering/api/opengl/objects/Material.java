@@ -26,9 +26,11 @@ import static org.lwjgl.assimp.Assimp.aiGetMaterialColor;
 import static org.lwjgl.assimp.Assimp.aiGetMaterialTexture;
 import static org.lwjgl.assimp.Assimp.aiGetMaterialTextureCount;
 import static org.lwjgl.assimp.Assimp.aiReturn_SUCCESS;
+import static org.lwjgl.assimp.Assimp.aiTextureType_AMBIENT;
 import static org.lwjgl.assimp.Assimp.aiTextureType_DIFFUSE;
 import static org.lwjgl.assimp.Assimp.aiTextureType_NONE;
-import static org.lwjgl.assimp.Assimp.*;
+import static org.lwjgl.assimp.Assimp.aiTextureType_REFLECTION;
+import static org.lwjgl.assimp.Assimp.aiTextureType_SPECULAR;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -103,21 +105,21 @@ public class Material implements IDisposable {
 			AIString path = AIString.create();
 			if (aiGetMaterialTexture(material, aiTextureType_DIFFUSE, 0, path, (IntBuffer) null, (IntBuffer) null,
 					(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS)
-				TaskManager.addTask(() -> this.diffuseTexture = loadTexture(path, rootPath));
+				TaskManager.addTaskAsync(() -> this.diffuseTexture = loadTexture(path, rootPath));
 
 		}
 		if (aiGetMaterialTextureCount(material, aiTextureType_AMBIENT) > 0) {
 			AIString path = AIString.create();
 			if (aiGetMaterialTexture(material, aiTextureType_AMBIENT, 0, path, (IntBuffer) null, (IntBuffer) null,
 					(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS)
-				TaskManager.addTask(() -> this.normalTexture = loadTextureMisc(path, rootPath));
+				TaskManager.addTaskAsync(() -> this.normalTexture = loadTextureMisc(path, rootPath));
 
 		}
 		if (aiGetMaterialTextureCount(material, aiTextureType_SPECULAR) > 0) {
 			AIString path = AIString.create();
 			if (aiGetMaterialTexture(material, aiTextureType_SPECULAR, 0, path, (IntBuffer) null, (IntBuffer) null,
 					(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS) {
-				TaskManager.addTask(() -> this.roughnessTexture = loadTextureMisc(path, rootPath));
+				TaskManager.addTaskAsync(() -> this.roughnessTexture = loadTextureMisc(path, rootPath));
 				this.roughness = 1f;
 			}
 
@@ -126,7 +128,7 @@ public class Material implements IDisposable {
 			AIString path = AIString.create();
 			if (aiGetMaterialTexture(material, aiTextureType_REFLECTION, 0, path, (IntBuffer) null, (IntBuffer) null,
 					(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS) {
-				TaskManager.addTask(() -> this.metallicTexture = loadTextureMisc(path, rootPath));
+				TaskManager.addTaskAsync(() -> this.metallicTexture = loadTextureMisc(path, rootPath));
 				this.metallic = 1f;
 			}
 

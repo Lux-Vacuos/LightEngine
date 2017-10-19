@@ -30,11 +30,28 @@ public final class TaskManager {
 	private TaskManager() {
 	}
 
-	private static Queue<Runnable> tasks = new LinkedList<>(), tasksAsync = new LinkedList<>();
+	private static Queue<Runnable> tasks = new LinkedList<>(), tasksAsync = new LinkedList<>(),
+			updateThreadTasks = new LinkedList<>();
 	private static AsyncExecutor asyncExecutor;
-	
+	private static Thread asyncThread;
+
 	public static void init() {
 		asyncExecutor = new AsyncExecutor(2);
+		asyncThread = new Thread(() -> {
+			while (true) {
+				if (!tasksAsync.isEmpty()) {
+					tasksAsync.poll().run();
+				} else {
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e) {
+					}
+				}
+			}
+		});
+		asyncThread.setDaemon(true);
+		asyncThread.setName("Async Thread");
+		asyncThread.start();
 	}
 
 	public static void update() {
@@ -43,9 +60,9 @@ public final class TaskManager {
 		}
 	}
 
-	public static void updateAsync() {
-		if (!tasksAsync.isEmpty()) {
-			tasksAsync.poll().run();
+	public static void updateThread() {
+		if (!updateThreadTasks.isEmpty()) {
+			updateThreadTasks.poll().run();
 		}
 	}
 
@@ -57,6 +74,10 @@ public final class TaskManager {
 		tasksAsync.add(task);
 	}
 
+	public static void addTaskUpdate(Runnable task) {
+		updateThreadTasks.add(task);
+	}
+
 	public static boolean isEmpty() {
 		return tasks.isEmpty();
 	}
@@ -64,7 +85,7 @@ public final class TaskManager {
 	public static boolean isEmptyAsync() {
 		return tasksAsync.isEmpty();
 	}
-	
+
 	public static AsyncExecutor getAsyncExecutor() {
 		return asyncExecutor;
 	}

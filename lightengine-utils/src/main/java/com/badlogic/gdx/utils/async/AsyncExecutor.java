@@ -52,7 +52,7 @@ public class AsyncExecutor implements Disposable {
 		if (executor.isShutdown()) {
 			throw new GdxRuntimeException("Cannot run tasks on an executor that has been shutdown (disposed)");
 		}
-		return new AsyncResult(executor.submit(new Callable<T>() {
+		return new AsyncResult<T>(executor.submit(new Callable<T>() {
 			@Override
 			public T call () throws Exception {
 				return task.call();

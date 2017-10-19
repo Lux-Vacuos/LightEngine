@@ -103,6 +103,7 @@ import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.RawTexture;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Texture;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.VertexNM;
 import net.luxvacuos.lightengine.client.ui.Font;
+import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
 /**
@@ -234,42 +235,96 @@ public class ResourceLoader implements IDisposable {
 	}
 
 	private int loadTexture(String file, int filter, int textureWarp, int format, boolean textureMipMapAF) {
-		int texture_id = glGenTextures();
-		glBindTexture(GL_TEXTURE_2D, texture_id);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, textureWarp);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, textureWarp);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
 		RawTexture data = decodeTextureFile(file);
-		if (data.getComp() == 3) {
-			if ((data.getWidth() & 3) != 0)
-				glPixelStorei(GL_UNPACK_ALIGNMENT, 2 - (data.getWidth() & 1));
-			glTexImage2D(GL_TEXTURE_2D, 0, format, data.getWidth(), data.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE,
-					data.getBuffer());
-		} else if (data.getComp() == 2)
-			glTexImage2D(GL_TEXTURE_2D, 0, format, data.getWidth(), data.getHeight(), 0, GL_RG, GL_UNSIGNED_BYTE,
-					data.getBuffer());
-		else if (data.getComp() == 1)
-			glTexImage2D(GL_TEXTURE_2D, 0, format, data.getWidth(), data.getHeight(), 0, GL_RED, GL_UNSIGNED_BYTE,
-					data.getBuffer());
-		else
-			glTexImage2D(GL_TEXTURE_2D, 0, format, data.getWidth(), data.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE,
-					data.getBuffer());
+		if (isMainThread()) {
+			int textureID = glGenTextures();
+			glBindTexture(GL_TEXTURE_2D, textureID);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, textureWarp);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, textureWarp);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+			if (data.getComp() == 3) {
+				if ((data.getWidth() & 3) != 0)
+					glPixelStorei(GL_UNPACK_ALIGNMENT, 2 - (data.getWidth() & 1));
+				glTexImage2D(GL_TEXTURE_2D, 0, format, data.getWidth(), data.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE,
+						data.getBuffer());
+			} else if (data.getComp() == 2)
+				glTexImage2D(GL_TEXTURE_2D, 0, format, data.getWidth(), data.getHeight(), 0, GL_RG, GL_UNSIGNED_BYTE,
+						data.getBuffer());
+			else if (data.getComp() == 1)
+				glTexImage2D(GL_TEXTURE_2D, 0, format, data.getWidth(), data.getHeight(), 0, GL_RED, GL_UNSIGNED_BYTE,
+						data.getBuffer());
+			else
+				glTexImage2D(GL_TEXTURE_2D, 0, format, data.getWidth(), data.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE,
+						data.getBuffer());
 
-		if (textureMipMapAF) {
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0);
-			glGenerateMipmap(GL_TEXTURE_2D);
+			if (textureMipMapAF) {
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0);
+				glGenerateMipmap(GL_TEXTURE_2D);
 
-			if (WindowManager.getWindow(windowID).getCapabilities().GL_EXT_texture_filter_anisotropic) {
-				float amount = Math.min(16f, EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT);
-				glTexParameterf(GL_TEXTURE_2D, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT, amount);
-			} else
-				Logger.warn("Anisotropic Filtering not supported");
+				if (WindowManager.getWindow(windowID).getCapabilities().GL_EXT_texture_filter_anisotropic) {
+					float amount = Math.min(16f, EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT);
+					glTexParameterf(GL_TEXTURE_2D, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT, amount);
+				} else
+					Logger.warn("Anisotropic Filtering not supported");
+			}
+			glBindTexture(GL_TEXTURE_2D, 0);
+			data.dispose();
+			return textureID;
+		} else {
+			int[] textureID = new int[1];
+			boolean[] ready = new boolean[1];
+			textureID[0] = -1;
+			TaskManager.addTask(() -> {
+				textureID[0] = glGenTextures();
+				glBindTexture(GL_TEXTURE_2D, textureID[0]);
+				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, textureWarp);
+				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, textureWarp);
+				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+				if (data.getComp() == 3) {
+					if ((data.getWidth() & 3) != 0)
+						glPixelStorei(GL_UNPACK_ALIGNMENT, 2 - (data.getWidth() & 1));
+					glTexImage2D(GL_TEXTURE_2D, 0, format, data.getWidth(), data.getHeight(), 0, GL_RGB,
+							GL_UNSIGNED_BYTE, data.getBuffer());
+				} else if (data.getComp() == 2)
+					glTexImage2D(GL_TEXTURE_2D, 0, format, data.getWidth(), data.getHeight(), 0, GL_RG,
+							GL_UNSIGNED_BYTE, data.getBuffer());
+				else if (data.getComp() == 1)
+					glTexImage2D(GL_TEXTURE_2D, 0, format, data.getWidth(), data.getHeight(), 0, GL_RED,
+							GL_UNSIGNED_BYTE, data.getBuffer());
+				else
+					glTexImage2D(GL_TEXTURE_2D, 0, format, data.getWidth(), data.getHeight(), 0, GL_RGBA,
+							GL_UNSIGNED_BYTE, data.getBuffer());
+
+				if (textureMipMapAF) {
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+					glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0);
+					glGenerateMipmap(GL_TEXTURE_2D);
+
+					if (WindowManager.getWindow(windowID).getCapabilities().GL_EXT_texture_filter_anisotropic) {
+						float amount = Math.min(16f, EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT);
+						glTexParameterf(GL_TEXTURE_2D, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT,
+								amount);
+					} else
+						Logger.warn("Anisotropic Filtering not supported");
+				}
+				glBindTexture(GL_TEXTURE_2D, 0);
+				ready[0] = true;
+			});
+			while (true) {
+				if (ready[0])
+					break;
+				else
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+					}
+			}
+			data.dispose();
+			return textureID[0];
 		}
-		glBindTexture(GL_TEXTURE_2D, 0);
-		data.dispose();
-		return texture_id;
 	}
 
 	public Font loadNVGFont(String filename, String name) {
@@ -606,6 +661,12 @@ public class ResourceLoader implements IDisposable {
 		newBuffer.put(buffer);
 		memFree(buffer);
 		return newBuffer;
+	}
+
+	private static long mainThreadId = Thread.currentThread().getId();
+
+	public static boolean isMainThread() {
+		return Thread.currentThread().getId() == mainThreadId;
 	}
 
 	/**
