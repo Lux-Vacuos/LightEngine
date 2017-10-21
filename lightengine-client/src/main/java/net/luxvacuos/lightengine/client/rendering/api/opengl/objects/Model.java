@@ -30,6 +30,7 @@ import java.util.List;
 
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.assimp.AIFace;
+import org.lwjgl.assimp.AILight;
 import org.lwjgl.assimp.AIMaterial;
 import org.lwjgl.assimp.AIMesh;
 import org.lwjgl.assimp.AIScene;
@@ -40,12 +41,14 @@ import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.IndexedMesh;
 import com.bulletphysics.collision.shapes.TriangleIndexVertexArray;
 
+import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
 public class Model implements IDisposable {
 	private AIScene scene;
 	private List<Mesh> meshes;
 	private List<Material> materials;
+	private List<Light> lights;
 	private CollisionShape shape;
 	private TriangleIndexVertexArray triangleIndexVertexArray;
 
@@ -58,13 +61,19 @@ public class Model implements IDisposable {
 		for (int i = 0; i < meshCount; ++i) {
 			meshes.add(new Mesh(AIMesh.create(meshesBuffer.get(i))));
 		}
-
 		int materialCount = scene.mNumMaterials();
 		PointerBuffer materialsBuffer = scene.mMaterials();
 		materials = new ArrayList<>();
 		for (int i = 0; i < materialCount; ++i) {
 			materials.add(new Material(AIMaterial.create(materialsBuffer.get(i)), rootPath));
 		}
+		int lightCount = scene.mNumLights();
+		PointerBuffer lightBuffer = scene.mLights();
+		lights = new ArrayList<>();
+		for (int i = 0; i < lightCount; i++) {
+			lights.add(new Light(AILight.create(lightBuffer.get(i))));
+		}
+		Renderer.getLightRenderer().addAllLights(lights);
 		triangleIndexVertexArray = new TriangleIndexVertexArray();
 		for (Mesh m : meshes) {
 			IndexedMesh mesh = new IndexedMesh();
@@ -116,6 +125,7 @@ public class Model implements IDisposable {
 			memFree(mesh.triangleIndexBase);
 			memFree(mesh.vertexBase);
 		}
+		Renderer.getLightRenderer().removeAllLights(lights);
 	}
 
 	public boolean isDoneLoading() {
@@ -136,6 +146,10 @@ public class Model implements IDisposable {
 
 	public List<Mesh> getMeshes() {
 		return meshes;
+	}
+	
+	public List<Light> getLights() {
+		return lights;
 	}
 
 }

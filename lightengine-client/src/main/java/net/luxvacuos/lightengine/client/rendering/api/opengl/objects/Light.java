@@ -20,6 +20,9 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.opengl.objects;
 
+import org.lwjgl.assimp.AILight;
+import static org.lwjgl.assimp.Assimp.*;
+
 import net.luxvacuos.igl.vector.Vector3d;
 import net.luxvacuos.igl.vector.Vector3f;
 import net.luxvacuos.lightengine.client.ecs.entities.SpotlightCamera;
@@ -51,17 +54,39 @@ public class Light {
 		type = 0;
 	}
 
+	public Light(AILight light) {
+		this.position = new Vector3d(light.mPosition().x(), light.mPosition().y(), light.mPosition().z());
+		this.color = new Vector3f(light.mColorDiffuse().r(), light.mColorDiffuse().g(), light.mColorDiffuse().b());
+		System.out.println(position);
+		switch (light.mType()) {
+		case aiLightSource_POINT:
+			type = 0;
+			System.out.println("Point");
+			break;
+		case aiLightSource_SPOT:
+			System.out.println("Spot");
+			this.rotation= new Vector3d(light.mDirection().x(),light.mDirection().y(),light.mDirection().z());
+			System.out.println(rotation);
+			this.radius = light.mAngleOuterCone();
+			this.inRadius = light.mAngleInnerCone();
+			type = 1;
+			break;
+		}
+	}
+
 	public void init() {
-		camera = new SpotlightCamera(radius * 2f, 1024, 1024);
-		if (shadow) {
+		if (shadow && type == 1) {
+			camera = new SpotlightCamera(radius * 2f, 1024, 1024);
 			shadowMap = new LightShadowMap(1024, 1024);
 		}
 	}
 
 	public void update(float delta) {
-		camera.setPosition(position);
-		camera.setRotation(Vector3d.add(rotation, new Vector3d(180,0,0), null));
-		camera.update(delta);
+		if (type == 1) {
+			camera.setPosition(position);
+			camera.setRotation(Vector3d.add(rotation, new Vector3d(180, 0, 0), null));
+			camera.update(delta);
+		}
 	}
 
 	public Vector3d getPosition() {
@@ -99,7 +124,7 @@ public class Light {
 	public LightShadowMap getShadowMap() {
 		return shadowMap;
 	}
-	
+
 	public SpotlightCamera getCamera() {
 		return camera;
 	}

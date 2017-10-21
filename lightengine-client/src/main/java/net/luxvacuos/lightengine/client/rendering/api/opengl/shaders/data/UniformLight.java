@@ -47,10 +47,10 @@ public class UniformLight extends UniformArray {
 	public void loadLight(Light light, int offset, int number) {
 		Vector3d pos = light.getPosition();
 		Vector3f color = light.getColor();
-		Vector3d dir = light.getDirection();
 		glUniform3f(super.getLocation()[0], (float) pos.getX(), (float) pos.getY(), (float) pos.getZ());
 		glUniform3f(super.getLocation()[1], color.getX(), color.getY(), color.getZ());
 		if (light.getType() == 1) {
+			Vector3d dir = light.getDirection();
 			glUniform3f(super.getLocation()[2], (float) dir.getX(), (float) dir.getY(), (float) dir.getZ());
 			glUniform1f(super.getLocation()[3], (float) Math.cos(Math.toRadians(light.getRadius())));
 			glUniform1f(super.getLocation()[4], (float) Math.cos(Math.toRadians(light.getInRadius())));

@@ -73,6 +73,7 @@ public class Renderer {
 	private static IrradianceCapture irradianceCapture;
 	private static PreFilteredEnvironment preFilteredEnvironment;
 	private static WaterRenderer waterRenderer;
+	private static LightRenderer lightRenderer;
 
 	private static ShadowFBO shadowFBO;
 
@@ -114,19 +115,20 @@ public class Renderer {
 			TaskManager.addTask(() -> preFilteredEnvironment = new PreFilteredEnvironment(window));
 			TaskManager.addTask(() -> waterRenderer = new WaterRenderer(window.getResourceLoader()));
 			TaskManager.addTask(() -> renderingManager.addRenderer(new EntityRenderer(window.getResourceLoader())));
+			lightRenderer = new LightRenderer();
 			enabled = true;
 		}
 	}
 
 	public static void render(ImmutableArray<Entity> entitiesT, Map<ParticleTexture, List<Particle>> particles,
-			List<WaterTile> waterTiles, LightRenderer lightRenderer, CameraEntity cameraT,
-			IWorldSimulation worldSimulation, Sun sunT, float delta) {
-		if(!enabled)
+			List<WaterTile> waterTiles, CameraEntity cameraT, IWorldSimulation worldSimulation, Sun sunT, float delta) {
+		if (!enabled)
 			return;
 		Array<Entity> entitiesR = new Array<>(entitiesT.toArray(Entity.class));
 		ImmutableArray<Entity> entities = new ImmutableArray<>(entitiesR);
 		CameraEntity camera = cameraT;
 		Sun sun = sunT;
+		lightRenderer.update(delta);
 		resetState();
 		renderingManager.preProcess(entities);
 		GPUProfiler.start("Main Renderer");
@@ -265,6 +267,8 @@ public class Renderer {
 				TaskManager.addTask(() -> waterRenderer.dispose());
 			if (renderingManager != null)
 				TaskManager.addTask(() -> renderingManager.dispose());
+			if (lightRenderer != null)
+				TaskManager.addTask(() -> lightRenderer.dispose());
 		}
 	}
 
@@ -294,6 +298,10 @@ public class Renderer {
 
 	public static Frustum getFrustum() {
 		return frustum;
+	}
+
+	public static LightRenderer getLightRenderer() {
+		return lightRenderer;
 	}
 
 	public static void reloadShadowMaps() {

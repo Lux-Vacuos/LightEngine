@@ -60,6 +60,7 @@ public class LightShadowMap implements IFBO {
 	private int shadowMap;
 
 	private int width, height;
+	private boolean disposed;
 
 	public LightShadowMap(int width, int height) {
 		this.width = width;
@@ -97,6 +98,9 @@ public class LightShadowMap implements IFBO {
 
 	@Override
 	public void dispose() {
+		if (disposed)
+			return;
+		disposed = true;
 		glDeleteTextures(shadowMap);
 		glDeleteFramebuffers(fbo);
 	}

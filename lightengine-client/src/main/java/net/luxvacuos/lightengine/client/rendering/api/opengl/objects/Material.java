@@ -95,7 +95,7 @@ public class Material implements IDisposable {
 		AIColor4D diffuse = AIColor4D.create();
 		AIColor4D data = AIColor4D.create();
 		if (aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, aiTextureType_NONE, 0, diffuse) == aiReturn_SUCCESS) {
-			this.diffuse = new Vector4f(diffuse.r(), diffuse.g(), diffuse.b(), diffuse.a());
+			this.diffuse.set(diffuse.r(), diffuse.g(), diffuse.b(), diffuse.a());
 		}
 		if (aiGetMaterialColor(material, AI_MATKEY_COLOR_SPECULAR, aiTextureType_NONE, 0, data) == aiReturn_SUCCESS) {
 			this.roughness = data.r();
@@ -104,9 +104,10 @@ public class Material implements IDisposable {
 		if (aiGetMaterialTextureCount(material, aiTextureType_DIFFUSE) > 0) {
 			AIString path = AIString.create();
 			if (aiGetMaterialTexture(material, aiTextureType_DIFFUSE, 0, path, (IntBuffer) null, (IntBuffer) null,
-					(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS)
+					(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS) {
 				TaskManager.addTaskAsync(() -> this.diffuseTexture = loadTexture(path, rootPath));
-
+				this.diffuse.set(1, 1, 1, 1);
+			}
 		}
 		if (aiGetMaterialTextureCount(material, aiTextureType_AMBIENT) > 0) {
 			AIString path = AIString.create();

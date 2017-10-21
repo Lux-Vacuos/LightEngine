@@ -124,12 +124,12 @@ float computeShadow(vec3 position){
 		multTex[3] = 1.0 / textureSize(shadowMap[3], 0);
 		for(int x = -1; x <= 1; ++x) {
 	    	for(int y = -1; y <= 1; ++y) {
-				shadow += -lookup(vec2(x, y)) + 1;
+				shadow += lookup(vec2(x, y));
 	    	}    
 		}
         return shadow / 9.0;
 	} else
-        return 0.0;
+        return 1.0;
 }
 
 ##end

@@ -42,20 +42,6 @@ import org.lwjgl.glfw.GLFW;
  */
 public class ClientSync {
 
-	static {
-		if (System.getProperty("os.name").startsWith("Win")) {
-			Thread timerAccuracyThread = new Thread(() -> {
-				try {
-					Thread.sleep(Long.MAX_VALUE);
-				} catch (Exception e) {
-				}
-			});
-			timerAccuracyThread.setName("LWJGL Timer");
-			timerAccuracyThread.setDaemon(true);
-			timerAccuracyThread.start();
-		}
-	}
-
 	private static final long NANOS_IN_SECOND = 1000L * 1000L * 1000L;
 	private long nextFrame = 0;
 	private RunningAvg sleepDurations = new RunningAvg(10);

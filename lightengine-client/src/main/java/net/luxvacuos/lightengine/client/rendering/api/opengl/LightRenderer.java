@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Light;
+import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
 public class LightRenderer implements IDisposable {
@@ -39,9 +40,25 @@ public class LightRenderer implements IDisposable {
 		lights.add(light);
 	}
 
+	public void addAllLights(List<Light> lights) {
+		TaskManager.addTask(() -> {
+			for (Light light : lights)
+				light.init();
+			this.lights.addAll(lights);
+		});
+	}
+
 	public void removeLight(Light light) {
 		lights.remove(light);
-		light.getShadowMap().dispose();
+		if (light.isShadow())
+			TaskManager.addTask(() -> light.getShadowMap().dispose());
+	}
+
+	public void removeAllLights(List<Light> lights) {
+		this.lights.removeAll(lights);
+		for (Light light : lights)
+			if (light.isShadow())
+				TaskManager.addTask(() -> light.getShadowMap().dispose());
 	}
 
 	public void update(float delta) {
@@ -56,6 +73,7 @@ public class LightRenderer implements IDisposable {
 			if (light.isShadow())
 				light.getShadowMap().dispose();
 		}
+		lights.clear();
 	}
 
 	List<Light> getLights() {
