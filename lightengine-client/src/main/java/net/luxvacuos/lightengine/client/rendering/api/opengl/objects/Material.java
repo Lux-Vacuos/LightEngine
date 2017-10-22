@@ -21,6 +21,7 @@
 package net.luxvacuos.lightengine.client.rendering.api.opengl.objects;
 
 import static org.lwjgl.assimp.Assimp.AI_MATKEY_COLOR_DIFFUSE;
+import static org.lwjgl.assimp.Assimp.AI_MATKEY_COLOR_EMISSIVE;
 import static org.lwjgl.assimp.Assimp.AI_MATKEY_COLOR_SPECULAR;
 import static org.lwjgl.assimp.Assimp.aiGetMaterialColor;
 import static org.lwjgl.assimp.Assimp.aiGetMaterialTexture;
@@ -49,7 +50,7 @@ import net.luxvacuos.lightengine.universal.resources.IDisposable;
  */
 public class Material implements IDisposable {
 
-	private Vector4f diffuse;
+	private Vector4f diffuse, emissive;
 	private float roughness, metallic;
 	private Texture diffuseTexture, normalTexture, roughnessTexture, metallicTexture;
 
@@ -68,8 +69,9 @@ public class Material implements IDisposable {
 	 * @param normal
 	 *            Normal texture.
 	 */
-	public Material(Vector4f diffuse, float roughness, float metallic) {
+	public Material(Vector4f diffuse, Vector4f emissive, float roughness, float metallic) {
 		this.diffuse = diffuse;
+		this.emissive = emissive;
 		this.roughness = roughness;
 		this.metallic = metallic;
 		this.diffuseTexture = DefaultData.diffuse;
@@ -84,7 +86,8 @@ public class Material implements IDisposable {
 	 *            Assimp Material
 	 */
 	public Material(AIMaterial material, String rootPath) {
-		this.diffuse = new Vector4f(0.8f, 0.8f, 0.8f, 1);
+		this.diffuse = new Vector4f(1, 1, 1, 1);
+		this.emissive = new Vector4f(0, 0, 0, 0);
 		this.roughness = 0.5f;
 		this.metallic = 0;
 		this.diffuseTexture = DefaultData.diffuse;
@@ -93,10 +96,12 @@ public class Material implements IDisposable {
 		this.metallicTexture = DefaultData.metallic;
 
 		AIColor4D diffuse = AIColor4D.create();
+		AIColor4D emissive = AIColor4D.create();
 		AIColor4D data = AIColor4D.create();
-		if (aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, aiTextureType_NONE, 0, diffuse) == aiReturn_SUCCESS) {
+		if (aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, aiTextureType_NONE, 0, diffuse) == aiReturn_SUCCESS)
 			this.diffuse.set(diffuse.r(), diffuse.g(), diffuse.b(), diffuse.a());
-		}
+		if (aiGetMaterialColor(material, AI_MATKEY_COLOR_EMISSIVE, aiTextureType_NONE, 0, emissive) == aiReturn_SUCCESS)
+			this.emissive.set(emissive.r(), emissive.g(), emissive.b(), emissive.a());
 		if (aiGetMaterialColor(material, AI_MATKEY_COLOR_SPECULAR, aiTextureType_NONE, 0, data) == aiReturn_SUCCESS) {
 			this.roughness = data.r();
 			this.metallic = data.g();
@@ -156,6 +161,10 @@ public class Material implements IDisposable {
 		return diffuse;
 	}
 
+	public Vector4f getEmissive() {
+		return emissive;
+	}
+
 	public float getMetallic() {
 		return metallic;
 	}
@@ -194,14 +203,34 @@ public class Material implements IDisposable {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof Material)
+		if (!(obj instanceof Material))
 			return false;
 		Material t = (Material) obj;
-		return t.getDiffuse().getX() == diffuse.getX() && t.getDiffuse().getY() == diffuse.getY()
-				&& t.getDiffuse().getZ() == diffuse.getZ() && t.getRoughness() == roughness
-				&& t.getMetallic() == metallic && t.getDiffuse().equals(diffuse)
-				&& t.getNormalTexture().equals(normalTexture) && t.getRoughnessTexture().equals(roughnessTexture)
-				&& t.getMetallicTexture().equals(metallicTexture);
+		if (t.getRoughness() != roughness)
+			return false;
+		if (t.getMetallic() != metallic)
+			return false;
+		if (!t.getDiffuseTexture().equals(diffuseTexture))
+			return false;
+		if (!t.getNormalTexture().equals(normalTexture))
+			return false;
+		if (!t.getRoughnessTexture().equals(roughnessTexture))
+			return false;
+		if (!t.getMetallicTexture().equals(metallicTexture))
+			return false;
+		if (t.getDiffuse().getX() != diffuse.getX())
+			return false;
+		if (t.getDiffuse().getY() != diffuse.getY())
+			return false;
+		if (t.getDiffuse().getZ() != diffuse.getZ())
+			return false;
+		if (t.getEmissive().getX() != emissive.getX())
+			return false;
+		if (t.getEmissive().getY() != emissive.getY())
+			return false;
+		if (t.getEmissive().getZ() != emissive.getZ())
+			return false;
+		return true;
 	}
 
 	private static Texture loadTexture(AIString path, String rootPath) {

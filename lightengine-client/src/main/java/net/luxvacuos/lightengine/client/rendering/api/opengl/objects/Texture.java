@@ -62,7 +62,7 @@ public class Texture implements IDisposable {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof Texture)
+		if (!(obj instanceof Texture))
 			return false;
 		Texture t = (Texture) obj;
 		return t.getID() == textureID;

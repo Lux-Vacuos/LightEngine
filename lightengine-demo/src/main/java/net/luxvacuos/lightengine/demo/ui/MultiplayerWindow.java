@@ -48,7 +48,7 @@ public class MultiplayerWindow extends ComponentWindow {
 			super.closeWindow();
 			root.setWindowClose(WindowClose.DISPOSE);
 			root.closeWindow();
-			TaskManager.addTaskAsync(() -> StateMachine.setCurrentState("mainState"));
+			TaskManager.addTaskUpdate(() -> StateMachine.setCurrentState("mainState"));
 		});
 
 		super.addComponent(address);

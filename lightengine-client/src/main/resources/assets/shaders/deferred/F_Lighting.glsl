@@ -128,7 +128,9 @@ void main() {
 		vec2 envBRDF = texture(composite3, vec2(max(dot(N, V), 0.0), roughness)).rg;
 		vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
 
-		vec3 ambient = (kD * diffuse + specular) * computeAmbientOcclusion(position, N);
+		vec3 emissive = texture(gMask, vec2(textureCoords)).rgb;
+
+		vec3 ambient = (kD * diffuse + specular + emissive) * computeAmbientOcclusion(position, N);
     	vec3 color = ambient + Lo;
 		image.rgb = color;
 	}

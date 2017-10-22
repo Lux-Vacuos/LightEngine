@@ -20,7 +20,6 @@ import net.luxvacuos.lightengine.client.ecs.entities.RenderEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.Sun;
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.LightRenderer;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.ParticleDomain;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.WaterTile;
@@ -44,10 +43,9 @@ public class GameState extends AbstractState {
 	private CameraEntity camera;
 	private GameWindow gameWindow;
 	private PauseWindow pauseWindow;
-	private LightRenderer lightRenderer;
 
 	private RenderEntity level;
-	
+
 	private List<WaterTile> waterTiles;
 
 	public static boolean paused = false, exitWorld = false, loaded = false;
@@ -84,15 +82,16 @@ public class GameState extends AbstractState {
 			worldSimulation = new ClientWorldSimulation(10000);
 			engine = new Engine();
 			physicsSystem = new ClientPhysicsSystem();
-			//physicsSystem.addBox(new BoundingBox(new Vector3(-50, -1, -50), new Vector3(50, 0, 50)));
+			// physicsSystem.addBox(new BoundingBox(new Vector3(-50, -1, -50), new
+			// Vector3(50, 0, 50)));
 			engine.addSystem(physicsSystem);
 
 			physicsSystem.getEngine().addEntity(camera);
 			physicsSystem.getEngine().addEntity(level);
-			
+
 			waterTiles = new ArrayList<>();
-			
-			Renderer.render(engine.getEntities(), ParticleDomain.getParticles(),waterTiles, lightRenderer, camera, worldSimulation,
+
+			Renderer.render(engine.getEntities(), ParticleDomain.getParticles(), waterTiles, camera, worldSimulation,
 					sun, 0);
 			gameWindow = new GameWindow(0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
 					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
@@ -108,7 +107,6 @@ public class GameState extends AbstractState {
 		loaded = false;
 		TaskManager.addTask(() -> {
 			physicsSystem.getEngine().removeAllEntities();
-			lightRenderer.dispose();
 		});
 		super.end();
 	}
@@ -120,7 +118,6 @@ public class GameState extends AbstractState {
 		Window window = GraphicalSubsystem.getMainWindow();
 		KeyboardHandler kbh = window.getKeyboardHandler();
 		if (!paused) {
-			lightRenderer.update(delta);
 			engine.update(delta);
 			worldSimulation.update(delta);
 			sun.update(camera.getPosition(), worldSimulation.getRotation(), delta);
@@ -136,8 +133,9 @@ public class GameState extends AbstractState {
 						.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
 				int height = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
 				pauseWindow = new PauseWindow(borderSize + 10, height - titleBarHeight - 10,
-						(int) ((int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")) - borderSize * 2f - 20),
-						(int)(height - titleBarHeight - borderSize - 50));
+						(int) ((int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")) - borderSize * 2f
+								- 20),
+						(int) (height - titleBarHeight - borderSize - 50));
 				GraphicalSubsystem.getWindowManager().addWindow(pauseWindow);
 				GraphicalSubsystem.getWindowManager().toggleShell();
 			}
@@ -162,7 +160,7 @@ public class GameState extends AbstractState {
 	public void render(float alpha) {
 		if (!loaded)
 			return;
-		Renderer.render(engine.getEntities(), ParticleDomain.getParticles(),waterTiles, lightRenderer, camera, worldSimulation,
-				sun, alpha);
+		Renderer.render(engine.getEntities(), ParticleDomain.getParticles(), waterTiles, camera, worldSimulation, sun,
+				alpha);
 	}
 }

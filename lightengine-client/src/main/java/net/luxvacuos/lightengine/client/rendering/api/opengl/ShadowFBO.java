@@ -123,10 +123,8 @@ public class ShadowFBO implements IFBO {
 
 	@Override
 	public void dispose() {
-		for (int i : shadowMaps) {
-			System.out.println(i);
+		for (int i : shadowMaps) 
 			glDeleteTextures(i);
-		}
 		glDeleteFramebuffers(fbo);
 	}
 
