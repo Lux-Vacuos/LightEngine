@@ -2,13 +2,13 @@ package net.luxvacuos.lightengine.demo;
 
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+
 import com.bulletphysics.collision.shapes.BoxShape;
 import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.linearmath.Transform;
 
-import net.luxvacuos.igl.vector.Quaternion;
-import net.luxvacuos.igl.vector.Vector3f;
-import net.luxvacuos.igl.vector.Vector4f;
 import net.luxvacuos.lightengine.server.bootstrap.Bootstrap;
 import net.luxvacuos.lightengine.server.commands.SayCommand;
 import net.luxvacuos.lightengine.server.commands.ServerCommandManager;
@@ -60,9 +60,9 @@ public class ServerState extends AbstractState {
 
 		groundTransform.setIdentity();
 		groundTransform.origin.set(VectoVec.toVec3(new Vector3f(-31, 0, 0)));
-		Quaternion q = new Quaternion();
-		q.setIdentity();
-		q.setFromAxisAngle(new Vector4f(0, 1, 0, (float) Math.toRadians(90)));
+		Quaternionf q = new Quaternionf();
+		q.identity();
+		q.fromAxisAngleDeg(new Vector3f(0, 1, 0), (float) Math.toRadians(90));
 		groundTransform.setRotation(VectoVec.toQuat4(q));
 		nh.getEngine().getSystem(PhysicsSystem.class).addCollision(new DynamicObject(wallShape, groundTransform, 0));
 		groundTransform.setIdentity();

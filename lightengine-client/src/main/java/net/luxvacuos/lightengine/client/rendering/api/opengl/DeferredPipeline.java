@@ -39,9 +39,10 @@ import static org.lwjgl.opengl.GL30.glBlitFramebuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.luxvacuos.igl.vector.Matrix4d;
-import net.luxvacuos.igl.vector.Vector2d;
-import net.luxvacuos.igl.vector.Vector3d;
+import org.joml.Matrix4f;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
+
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
@@ -60,8 +61,8 @@ public abstract class DeferredPipeline implements IDeferredPipeline {
 	protected RenderingPipelineFBO mainFBO;
 	protected int width, height;
 	protected List<IDeferredPass> imagePasses;
-	private Matrix4d previousViewMatrix;
-	private Vector3d previousCameraPosition;
+	private Matrix4f previousViewMatrix;
+	private Vector3f previousCameraPosition;
 	private RawModel quad;
 	private FBO[] auxs;
 	private DeferredShadingShader finalShader;
@@ -84,11 +85,11 @@ public abstract class DeferredPipeline implements IDeferredPipeline {
 		imagePasses = new ArrayList<>();
 		auxs = new FBO[3];
 
-		previousCameraPosition = new Vector3d();
-		previousViewMatrix = new Matrix4d();
+		previousCameraPosition = new Vector3f();
+		previousViewMatrix = new Matrix4f();
 		finalShader = new DeferredShadingShader("Final");
 		finalShader.start();
-		finalShader.loadResolution(new Vector2d(window.getWidth(), window.getHeight()));
+		finalShader.loadResolution(new Vector2f(window.getWidth(), window.getHeight()));
 		finalShader.loadSkyColor(ClientVariables.skyColor);
 		finalShader.stop();
 		init();
@@ -158,7 +159,7 @@ public abstract class DeferredPipeline implements IDeferredPipeline {
 	public RenderingPipelineFBO getMainFBO() {
 		return mainFBO;
 	}
-	
+
 	@Override
 	public int getLastTexture() {
 		return auxs[0].getTexture();

@@ -24,11 +24,11 @@ import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.
 
 import javax.vecmath.Vector3f;
 
+import org.joml.Vector2f;
 import org.lwjgl.glfw.GLFW;
 
 import com.bulletphysics.linearmath.Transform;
 
-import net.luxvacuos.igl.vector.Vector2d;
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
@@ -49,7 +49,7 @@ public class PlayerCamera extends CameraEntity {
 	private int mouseSpeed = 8;
 	private final int maxLookUp = 90;
 	private final int maxLookDown = -90;
-	protected Vector2d center;
+	protected Vector2f center;
 
 	public PlayerCamera(String name, String uuid) {
 		super(name, uuid);
@@ -61,7 +61,7 @@ public class PlayerCamera extends CameraEntity {
 				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/fov")), ClientVariables.NEAR_PLANE,
 				ClientVariables.FAR_PLANE));
 		setViewMatrix(Maths.createViewMatrix(this));
-		center = new Vector2d(width / 2, height / 2);
+		center = new Vector2f(width / 2f, height / 2f);
 		castRay = new CastRay(getProjectionMatrix(), getViewMatrix(), center, width, height);
 	}
 

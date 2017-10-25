@@ -22,8 +22,7 @@ package net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data;
 
 import static org.lwjgl.opengl.GL20.glUniform4f;
 
-import net.luxvacuos.igl.vector.Vector4d;
-import net.luxvacuos.igl.vector.Vector4f;
+import org.joml.Vector4f;
 
 public class UniformVec4 extends Uniform {
 	private float currentX;
@@ -34,10 +33,6 @@ public class UniformVec4 extends Uniform {
 
 	public UniformVec4(String name) {
 		super(name);
-	}
-
-	public void loadVec4(Vector4d vector) {
-		loadVec4((float) vector.x, (float) vector.y, (float) vector.z, (float) vector.w);
 	}
 
 	public void loadVec4(Vector4f vector) {

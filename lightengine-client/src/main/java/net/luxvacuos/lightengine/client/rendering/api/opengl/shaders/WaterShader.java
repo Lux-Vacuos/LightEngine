@@ -20,8 +20,9 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.opengl.shaders;
 
-import net.luxvacuos.igl.vector.Matrix4d;
-import net.luxvacuos.igl.vector.Vector3d;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.Attribute;
@@ -47,7 +48,7 @@ public class WaterShader extends ShaderProgram {
 		super(ClientVariables.VERTEX_WATER, ClientVariables.FRAGMENT_WATER, ClientVariables.GEOMETRY_WATER,
 				new Attribute(0, "position"), new Attribute(1, "textureCoords"));
 		super.storeAllUniformLocations(transformationMatrix, projectionMatrix, viewMatrix, reflection, refraction,
-				cameraPosition, time, dudv, depth,foamMask);
+				cameraPosition, time, dudv, depth, foamMask);
 		connectTextureUnits();
 	}
 
@@ -61,7 +62,7 @@ public class WaterShader extends ShaderProgram {
 		super.stop();
 	}
 
-	public void loadTransformationMatrix(Matrix4d matrix) {
+	public void loadTransformationMatrix(Matrix4f matrix) {
 		transformationMatrix.loadMatrix(matrix);
 	}
 
@@ -69,11 +70,11 @@ public class WaterShader extends ShaderProgram {
 		viewMatrix.loadMatrix(camera.getViewMatrix());
 	}
 
-	public void loadProjectionMatrix(Matrix4d projection) {
+	public void loadProjectionMatrix(Matrix4f projection) {
 		projectionMatrix.loadMatrix(projection);
 	}
 
-	public void loadCameraPosition(Vector3d cameraPosition) {
+	public void loadCameraPosition(Vector3f cameraPosition) {
 		this.cameraPosition.loadVec3(cameraPosition);
 	}
 

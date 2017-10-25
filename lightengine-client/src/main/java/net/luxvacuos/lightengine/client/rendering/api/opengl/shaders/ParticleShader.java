@@ -20,7 +20,8 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.opengl.shaders;
 
-import net.luxvacuos.igl.vector.Matrix4d;
+import org.joml.Matrix4f;
+
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.Attribute;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.UniformFloat;
@@ -42,7 +43,7 @@ public class ParticleShader extends ShaderProgram {
 		numberOfRows.loadFloat(rows);
 	}
 
-	public void loadProjectionMatrix(Matrix4d projectionMatrix) {
+	public void loadProjectionMatrix(Matrix4f projectionMatrix) {
 		this.projectionMatrix.loadMatrix(projectionMatrix);
 	}
 

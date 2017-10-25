@@ -36,9 +36,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.joml.Matrix4f;
+
 import com.badlogic.ashley.core.Entity;
 
-import net.luxvacuos.igl.vector.Matrix4d;
 import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Material;
@@ -143,7 +144,7 @@ public class EntityRenderer implements IRenderer {
 		Position pos = Components.POSITION.get(entity);
 		Rotation rot = Components.ROTATION.get(entity);
 		Scale scale = Components.SCALE.get(entity);
-		Matrix4d transformationMatrix = Maths.createTransformationMatrix(pos.getPosition(), rot.getX(), rot.getY(),
+		Matrix4f transformationMatrix = Maths.createTransformationMatrix(pos.getPosition(), rot.getX(), rot.getY(),
 				rot.getZ(), scale.getScale());
 		shader.loadTransformationMatrix(transformationMatrix);
 	}

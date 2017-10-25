@@ -48,7 +48,8 @@ import static org.lwjgl.opengl.GL30.glGenFramebuffers;
 import static org.lwjgl.opengl.GL30.glGenRenderbuffers;
 import static org.lwjgl.opengl.GL30.glRenderbufferStorage;
 
-import net.luxvacuos.igl.vector.Vector3d;
+import org.joml.Vector3f;
+
 import net.luxvacuos.lightengine.client.core.exception.FrameBufferException;
 import net.luxvacuos.lightengine.client.ecs.entities.CubeMapCamera;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
@@ -78,7 +79,7 @@ public class IrradianceCapture implements IDisposable {
 
 	public IrradianceCapture(ResourceLoader loader) {
 		shader = new IrradianceCaptureShader();
-		camera = new CubeMapCamera(new Vector3d());
+		camera = new CubeMapCamera(new Vector3f());
 		cube = loader.loadToVAO(VERTICES, 3);
 		cubeMapTexture = new CubeMapTexture(loader.createEmptyCubeMap(32, true, false), 32);
 		fbo = glGenFramebuffers();

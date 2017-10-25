@@ -31,8 +31,9 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.luxvacuos.igl.vector.Matrix4d;
-import net.luxvacuos.igl.vector.Vector3d;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
@@ -44,8 +45,8 @@ public abstract class PostProcessPipeline implements IPostProcessPipeline {
 	protected FBO fbo;
 	protected int width, height;
 	protected List<IPostProcessPass> imagePasses;
-	private Matrix4d previousViewMatrix;
-	private Vector3d previousCameraPosition;
+	private Matrix4f previousViewMatrix;
+	private Vector3f previousCameraPosition;
 	private RawModel quad;
 	private FBO[] auxs;
 	private String name;
@@ -68,8 +69,8 @@ public abstract class PostProcessPipeline implements IPostProcessPipeline {
 		imagePasses = new ArrayList<>();
 		auxs = new FBO[3];
 
-		previousCameraPosition = new Vector3d();
-		previousViewMatrix = new Matrix4d();
+		previousCameraPosition = new Vector3f();
+		previousViewMatrix = new Matrix4f();
 		init();
 		for (IPostProcessPass deferredPass : imagePasses) {
 			deferredPass.init();
@@ -92,8 +93,7 @@ public abstract class PostProcessPipeline implements IPostProcessPipeline {
 		glBindVertexArray(quad.getVaoID());
 		glEnableVertexAttribArray(0);
 		for (IPostProcessPass deferredPass : imagePasses) {
-			if (deferredPass.isEnabled())
-				deferredPass.process(camera, previousViewMatrix, previousCameraPosition, auxs, quad);
+			deferredPass.process(camera, previousViewMatrix, previousCameraPosition, auxs, quad);
 		}
 		glDisableVertexAttribArray(0);
 		glBindVertexArray(0);

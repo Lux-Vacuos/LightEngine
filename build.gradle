@@ -83,6 +83,8 @@ project(":lightengine-server") {
 }
 
 project(":lightengine-universal") {
+	project.ext.jomlVersion = "1.9.4"
+
 	dependencies {
 		compile 'org.codehaus.groovy:groovy:2.4.7'
 		compile 'org.codehaus.groovy:groovy-jsr223:2.4.7'
@@ -91,6 +93,7 @@ project(":lightengine-universal") {
 		compile 'org.apache.commons:commons-vfs2:2.1'
 		compile project(':external:jbullet')
 		compile project(':lightengine-utils')
+		compile "org.joml:joml:${jomlVersion}"
 		testCompile group: 'junit', name: 'junit', version: '4.12'
 	}
 }

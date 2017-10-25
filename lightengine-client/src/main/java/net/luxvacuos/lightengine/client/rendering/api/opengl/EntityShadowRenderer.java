@@ -20,13 +20,10 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.opengl;
 
-import static org.lwjgl.opengl.GL11.GL_BACK;
-import static org.lwjgl.opengl.GL11.GL_FRONT;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
 import static org.lwjgl.opengl.GL11.glBindTexture;
-import static org.lwjgl.opengl.GL11.glCullFace;
 import static org.lwjgl.opengl.GL11.glDrawElements;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
@@ -34,7 +31,8 @@ import static org.lwjgl.opengl.GL13.glActiveTexture;
 import java.util.List;
 import java.util.Map;
 
-import net.luxvacuos.igl.vector.Matrix4d;
+import org.joml.Matrix4f;
+
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Material;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Mesh;
@@ -57,13 +55,11 @@ public class EntityShadowRenderer implements IDisposable {
 	}
 
 	protected void renderShadow(Map<Model, List<BasicEntity>> entities, CameraEntity sunCamera) {
-		glCullFace(GL_FRONT);
 		shader.start();
 		shader.loadviewMatrix(sunCamera);
 		shader.loadProjectionMatrix(sunCamera.getProjectionMatrix());
 		renderEntity(entities);
 		shader.stop();
-		glCullFace(GL_BACK);
 	}
 
 	private void renderEntity(Map<Model, List<BasicEntity>> entities) {
@@ -95,7 +91,7 @@ public class EntityShadowRenderer implements IDisposable {
 		Position pos = Components.POSITION.get(entity);
 		Rotation rot = Components.ROTATION.get(entity);
 		Scale scale = Components.SCALE.get(entity);
-		Matrix4d transformationMatrix = Maths.createTransformationMatrix(pos.getPosition(), rot.getX(), rot.getY(),
+		Matrix4f transformationMatrix = Maths.createTransformationMatrix(pos.getPosition(), rot.getX(), rot.getY(),
 				rot.getZ(), scale.getScale());
 		shader.loadTransformationMatrix(transformationMatrix);
 	}

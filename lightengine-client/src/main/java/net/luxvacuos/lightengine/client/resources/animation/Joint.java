@@ -23,7 +23,7 @@ package net.luxvacuos.lightengine.client.resources.animation;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.luxvacuos.igl.vector.Matrix4d;
+import org.joml.Matrix4f;
 
 public class Joint {
 
@@ -31,20 +31,20 @@ public class Joint {
 	public final String name;
 	public final List<Joint> children = new ArrayList<>();
 
-	private Matrix4d animatedTransform = new Matrix4d();
+	private Matrix4f animatedTransform = new Matrix4f();
 
-	private final Matrix4d localBindTransform;
-	private Matrix4d inverseBindTransform = new Matrix4d();
+	private final Matrix4f localBindTransform;
+	private Matrix4f inverseBindTransform = new Matrix4f();
 
-	public Joint(int index, String name, Matrix4d localBindTransform) {
+	public Joint(int index, String name, Matrix4f localBindTransform) {
 		this.index = index;
 		this.name = name;
 		this.localBindTransform = localBindTransform;
 	}
 
-	public void calcInverseBindTransform(Matrix4d parentBindTransform) {
-		Matrix4d bindTransform = Matrix4d.mul(parentBindTransform, localBindTransform, null);
-		Matrix4d.invert(bindTransform, inverseBindTransform);
+	public void calcInverseBindTransform(Matrix4f parentBindTransform) {
+		Matrix4f bindTransform = parentBindTransform.mul(localBindTransform);
+		bindTransform.invert(inverseBindTransform);
 		for (Joint joint : children) {
 			joint.calcInverseBindTransform(bindTransform);
 		}
@@ -54,15 +54,15 @@ public class Joint {
 		this.children.add(child);
 	}
 
-	public Matrix4d getAnimatedTransform() {
+	public Matrix4f getAnimatedTransform() {
 		return animatedTransform;
 	}
 
-	public void setAnimationTransform(Matrix4d animationTransform) {
+	public void setAnimationTransform(Matrix4f animationTransform) {
 		this.animatedTransform = animationTransform;
 	}
 
-	public Matrix4d getInverseBindTransform() {
+	public Matrix4f getInverseBindTransform() {
 		return inverseBindTransform;
 	}
 

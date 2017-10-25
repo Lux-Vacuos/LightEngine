@@ -20,7 +20,8 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.nanovg.shaders;
 
-import net.luxvacuos.igl.vector.Vector2f;
+import org.joml.Vector2f;
+
 import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.ShaderProgram;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.Attribute;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.UniformBoolean;

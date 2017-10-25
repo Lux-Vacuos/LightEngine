@@ -36,11 +36,11 @@ import static org.lwjgl.assimp.Assimp.aiTextureType_SPECULAR;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
+import org.joml.Vector4f;
 import org.lwjgl.assimp.AIColor4D;
 import org.lwjgl.assimp.AIMaterial;
 import org.lwjgl.assimp.AIString;
 
-import net.luxvacuos.igl.vector.Vector4f;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
@@ -218,17 +218,9 @@ public class Material implements IDisposable {
 			return false;
 		if (!t.getMetallicTexture().equals(metallicTexture))
 			return false;
-		if (t.getDiffuse().getX() != diffuse.getX())
+		if (!t.getDiffuse().equals(diffuse))
 			return false;
-		if (t.getDiffuse().getY() != diffuse.getY())
-			return false;
-		if (t.getDiffuse().getZ() != diffuse.getZ())
-			return false;
-		if (t.getEmissive().getX() != emissive.getX())
-			return false;
-		if (t.getEmissive().getY() != emissive.getY())
-			return false;
-		if (t.getEmissive().getZ() != emissive.getZ())
+		if (!t.getEmissive().equals(emissive))
 			return false;
 		return true;
 	}

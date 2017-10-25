@@ -31,7 +31,8 @@ import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 
-import net.luxvacuos.igl.vector.Vector3d;
+import org.joml.Vector3f;
+
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.SkyboxShader;
@@ -39,12 +40,6 @@ import net.luxvacuos.lightengine.client.resources.ResourceLoader;
 import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
 
-/**
- * Skybox Rendering
- * 
- * @author Guerra24 <pablo230699@hotmail.com>
- * @category Rendering
- */
 public class SkyboxRenderer {
 
 	private RawModel dome;
@@ -54,26 +49,12 @@ public class SkyboxRenderer {
 		dome = loader.loadObjModel("SkyDome");
 		shader = new SkyboxShader();
 		shader.start();
-		shader.loadTransformationMatrix(Maths.createTransformationMatrix(new Vector3d(), 0, 0, 0, 360));
+		shader.loadTransformationMatrix(Maths.createTransformationMatrix(new Vector3f(), 0, 0, 0, 400));
 		shader.stop();
 	}
 
-	/**
-	 * Render the Skybox
-	 * 
-	 * @param camera
-	 *            A Camera
-	 * @param r
-	 *            Fog Red Color
-	 * @param g
-	 *            Fog Green Color
-	 * @param b
-	 *            Fog Blue Color
-	 * @param delta
-	 *            Delta
-	 */
 	public void render(float r, float g, float b, CameraEntity camera, IWorldSimulation clientWorldSimulation,
-			Vector3d lightPosition) {
+			Vector3f lightPosition) {
 		glDepthMask(false);
 		glDisable(GL_CULL_FACE);
 		shader.start();

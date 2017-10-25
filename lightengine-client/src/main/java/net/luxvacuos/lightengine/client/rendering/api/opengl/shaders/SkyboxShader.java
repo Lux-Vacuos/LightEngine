@@ -20,8 +20,9 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.opengl.shaders;
 
-import net.luxvacuos.igl.vector.Matrix4d;
-import net.luxvacuos.igl.vector.Vector3d;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.Attribute;
@@ -30,15 +31,7 @@ import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.Unifor
 import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.UniformVec3;
 import net.luxvacuos.lightengine.client.util.Maths;
 
-/**
- * Skybox Shader
- * 
- * @author Guerra24 <pablo230699@hotmail.com>
- * @category Rendering
- */
 public class SkyboxShader extends ShaderProgram {
-
-	private static Matrix4d camM;
 
 	private UniformMatrix projectionMatrix = new UniformMatrix("projectionMatrix");
 	private UniformMatrix transformationMatrix = new UniformMatrix("transformationMatrix");
@@ -49,55 +42,30 @@ public class SkyboxShader extends ShaderProgram {
 
 	public SkyboxShader() {
 		super(ClientVariables.VERTEX_FILE_SKYBOX, ClientVariables.FRAGMENT_FILE_SKYBOX, new Attribute(0, "position"),
-				new Attribute(1, "textureCoords"),
-				new Attribute(2, "normal"));
+				new Attribute(1, "textureCoords"), new Attribute(2, "normal"));
 		super.storeAllUniformLocations(projectionMatrix, transformationMatrix, viewMatrix, time, fogColour,
 				lightPosition);
 	}
 
-	/**
-	 * Loads a Projection Matrixd
-	 * 
-	 * @param matrix
-	 *            Projection Matrixd
-	 */
-	public void loadProjectionMatrix(Matrix4d matrix) {
+	public void loadProjectionMatrix(Matrix4f matrix) {
 		projectionMatrix.loadMatrix(matrix);
 	}
 
-	/**
-	 * Loads View Matrixd
-	 * 
-	 * @param camera
-	 *            Camera
-	 * @param delta
-	 *            Delta
-	 */
 	public void loadViewMatrix(CameraEntity camera) {
-		viewMatrix.loadMatrix(Maths.createViewMatrixRot(camera.getRotation().getX(), camera.getRotation().getY(),
-				camera.getRotation().getZ(), camM));
+		viewMatrix.loadMatrix(Maths.createViewMatrixRot(camera.getRotation().x(), camera.getRotation().y(),
+				camera.getRotation().z(), null));
 	}
 
-	public void loadTransformationMatrix(Matrix4d mat) {
+	public void loadTransformationMatrix(Matrix4f mat) {
 		transformationMatrix.loadMatrix(mat);
 	}
 
-	public void loadLightPosition(Vector3d pos) {
+	public void loadLightPosition(Vector3f pos) {
 		lightPosition.loadVec3(pos);
 	}
 
-	/**
-	 * Loads Fog Color
-	 * 
-	 * @param r
-	 *            Red Value
-	 * @param g
-	 *            Green Value
-	 * @param b
-	 *            Blue Value
-	 */
 	public void loadFog(float r, float g, float b) {
-		fogColour.loadVec3(new Vector3d(r, g, b));
+		fogColour.loadVec3(new Vector3f(r, g, b));
 	}
 
 	public void loadTime(float time) {

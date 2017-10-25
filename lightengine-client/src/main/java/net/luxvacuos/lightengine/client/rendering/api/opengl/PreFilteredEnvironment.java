@@ -62,7 +62,8 @@ import static org.lwjgl.opengl.GL30.glGenFramebuffers;
 import static org.lwjgl.opengl.GL30.glGenRenderbuffers;
 import static org.lwjgl.opengl.GL30.glRenderbufferStorage;
 
-import net.luxvacuos.igl.vector.Vector3d;
+import org.joml.Vector3f;
+
 import net.luxvacuos.lightengine.client.core.exception.FrameBufferException;
 import net.luxvacuos.lightengine.client.ecs.entities.CubeMapCamera;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
@@ -96,7 +97,7 @@ public class PreFilteredEnvironment implements IDisposable {
 
 	public PreFilteredEnvironment(Window window) {
 		shader = new PreFilteredEnvironmentShader();
-		camera = new CubeMapCamera(new Vector3d());
+		camera = new CubeMapCamera(new Vector3f());
 		cube = window.getResourceLoader().loadToVAO(CUBE, 3);
 		quad = window.getResourceLoader().loadToVAO(QUAD, 2);
 		cubeMapTexture = new CubeMapTexture(window.getResourceLoader().createEmptyCubeMap(128, true, true), 128);

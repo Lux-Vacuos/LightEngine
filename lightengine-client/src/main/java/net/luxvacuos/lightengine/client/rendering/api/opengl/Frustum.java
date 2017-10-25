@@ -20,12 +20,9 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.opengl;
 
-import java.nio.DoubleBuffer;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
-import static org.lwjgl.system.MemoryUtil.*;
-
-import net.luxvacuos.igl.vector.Matrix4d;
-import net.luxvacuos.igl.vector.Vector3d;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 
 /**
@@ -51,9 +48,7 @@ public class Frustum {
 	private final int B = 1;
 	private final int C = 2;
 	private final int D = 3;
-	private double[][] m_Frustum = new double[6][4];
-	private Matrix4d clip_ = new Matrix4d();
-	private DoubleBuffer clip_b;
+	private float[][] m_Frustum = new float[6][4];
 
 	/**
 	 * Normalize Frustum Plane
@@ -63,8 +58,8 @@ public class Frustum {
 	 * @param side
 	 *            side
 	 */
-	public void normalizePlane(double[][] frustum, int side) {
-		double magnitude = Math.sqrt(frustum[side][A] * frustum[side][A] + frustum[side][B] * frustum[side][B]
+	public void normalizePlane(float[][] frustum, int side) {
+		float magnitude = (float) Math.sqrt(frustum[side][A] * frustum[side][A] + frustum[side][B] * frustum[side][B]
 				+ frustum[side][C] * frustum[side][C]);
 
 		frustum[side][A] /= magnitude;
@@ -77,13 +72,11 @@ public class Frustum {
 	 * Updates the frustum view
 	 */
 	public void calculateFrustum(CameraEntity camera) {
-		double[] clip = new double[16];
+		float[] clip = new float[16];
 
-		Matrix4d.mul(camera.getProjectionMatrix(), camera.getViewMatrix(), clip_);
-		clip_b.rewind();
-		clip_.store(clip_b);
-		clip_b.rewind();
-		clip_b.get(clip);
+		Matrix4f fn = new Matrix4f();
+		camera.getProjectionMatrix().mul(camera.getViewMatrix(), fn);
+		fn.get(clip);
 
 		m_Frustum[RIGHT][A] = clip[3] - clip[0];
 		m_Frustum[RIGHT][B] = clip[7] - clip[4];
@@ -170,8 +163,8 @@ public class Frustum {
 	 *            Size of the cube
 	 * @return true if in Frustum
 	 */
-	public boolean cubeInFrustum(Vector3d center, double size) {
-		return cubeInFrustum(center.x, center.y, center.z, size);
+	public boolean cubeInFrustum(Vector3f center, float size) {
+		return cubeInFrustum(center.x(), center.y(), center.z(), size);
 	}
 
 	/**
@@ -187,7 +180,7 @@ public class Frustum {
 	 *            Size of the cube
 	 * @return true if in Frustum
 	 */
-	public boolean cubeInFrustum(double x, double y, double z, double size) {
+	public boolean cubeInFrustum(float x, float y, float z, float size) {
 		for (int i = 0; i < 6; i++) {
 			if (m_Frustum[i][A] * (x - size) + m_Frustum[i][B] * (y - size) + m_Frustum[i][C] * (z - size)
 					+ m_Frustum[i][D] > 0)
@@ -260,11 +253,4 @@ public class Frustum {
 		return true;
 	}
 
-	/**
-	 * Frustum constructor
-	 * 
-	 */
-	public Frustum() {
-		clip_b = memAllocDouble(16);
-	}
 }

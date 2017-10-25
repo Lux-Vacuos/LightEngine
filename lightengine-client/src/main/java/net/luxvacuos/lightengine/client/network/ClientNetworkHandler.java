@@ -24,10 +24,11 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
+import org.joml.Vector3f;
+
 import com.badlogic.ashley.core.Engine;
 
 import io.netty.channel.ChannelHandlerContext;
-import net.luxvacuos.igl.vector.Vector3d;
 import net.luxvacuos.lightengine.client.core.ClientWorldSimulation;
 import net.luxvacuos.lightengine.client.ecs.entities.PlayerCamera;
 import net.luxvacuos.lightengine.client.ecs.entities.RenderPlayerEntity;
@@ -74,7 +75,7 @@ public class ClientNetworkHandler extends AbstractNetworkHandler {
 		engine.update(delta);
 		worldSimulation.update(delta);
 		client.sendPacket(new UpdateBasicEntity(Components.UUID.get(player).getUUID(), player.getPosition(),
-				player.getRotation(), new Vector3d(), Components.SCALE.get(player).getScale()));
+				player.getRotation(), new Vector3f(), Components.SCALE.get(player).getScale()));
 	}
 
 	@Override

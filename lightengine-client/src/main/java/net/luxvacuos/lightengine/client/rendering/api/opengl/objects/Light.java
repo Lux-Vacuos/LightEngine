@@ -20,26 +20,27 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.opengl.objects;
 
-import org.lwjgl.assimp.AILight;
-import static org.lwjgl.assimp.Assimp.*;
+import static org.lwjgl.assimp.Assimp.aiLightSource_POINT;
+import static org.lwjgl.assimp.Assimp.aiLightSource_SPOT;
 
-import net.luxvacuos.igl.vector.Vector3d;
-import net.luxvacuos.igl.vector.Vector3f;
+import org.joml.Vector3f;
+import org.lwjgl.assimp.AILight;
+
 import net.luxvacuos.lightengine.client.ecs.entities.SpotlightCamera;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.LightShadowMap;
 
 public class Light {
 
-	private Vector3d position;
+	private Vector3f position;
 	private Vector3f color;
-	private Vector3d rotation;
+	private Vector3f rotation;
 	private float radius, inRadius;
 	private int type;
 	private boolean shadow;
 	private LightShadowMap shadowMap;
 	private SpotlightCamera camera;
 
-	public Light(Vector3d position, Vector3f color, Vector3d rotation, float radius, float inRadius) {
+	public Light(Vector3f position, Vector3f color, Vector3f rotation, float radius, float inRadius) {
 		this.position = position;
 		this.color = color;
 		this.rotation = rotation;
@@ -48,14 +49,14 @@ public class Light {
 		type = 1;
 	}
 
-	public Light(Vector3d position, Vector3f color) {
+	public Light(Vector3f position, Vector3f color) {
 		this.position = position;
 		this.color = color;
 		type = 0;
 	}
 
 	public Light(AILight light) {
-		this.position = new Vector3d(light.mPosition().x(), light.mPosition().y(), light.mPosition().z());
+		this.position = new Vector3f(light.mPosition().x(), light.mPosition().y(), light.mPosition().z());
 		this.color = new Vector3f(light.mColorDiffuse().r(), light.mColorDiffuse().g(), light.mColorDiffuse().b());
 		System.out.println(position);
 		switch (light.mType()) {
@@ -65,7 +66,7 @@ public class Light {
 			break;
 		case aiLightSource_SPOT:
 			System.out.println("Spot");
-			this.rotation= new Vector3d(light.mDirection().x(),light.mDirection().y(),light.mDirection().z());
+			this.rotation= new Vector3f(light.mDirection().x(),light.mDirection().y(),light.mDirection().z());
 			System.out.println(rotation);
 			this.radius = light.mAngleOuterCone();
 			this.inRadius = light.mAngleInnerCone();
@@ -84,12 +85,12 @@ public class Light {
 	public void update(float delta) {
 		if (type == 1) {
 			camera.setPosition(position);
-			camera.setRotation(Vector3d.add(rotation, new Vector3d(180, 0, 0), null));
+			camera.setRotation(rotation.add(new Vector3f(180, 0, 0)));
 			camera.update(delta);
 		}
 	}
 
-	public Vector3d getPosition() {
+	public Vector3f getPosition() {
 		return position;
 	}
 
@@ -97,11 +98,11 @@ public class Light {
 		return color;
 	}
 
-	public Vector3d getRotation() {
+	public Vector3f getRotation() {
 		return rotation;
 	}
 
-	public Vector3d getDirection() {
+	public Vector3f getDirection() {
 		return camera.getDirection();
 	}
 

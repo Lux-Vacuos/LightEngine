@@ -23,26 +23,22 @@ package net.luxvacuos.lightengine.universal.util;
 import javax.vecmath.Quat4f;
 import javax.vecmath.Vector3f;
 
-import net.luxvacuos.igl.vector.Quaternion;
+import org.joml.Quaternionf;
 
 public final class VectoVec {
 
 	private VectoVec() {
 	}
 
-	public static Vector3f toVec3(net.luxvacuos.igl.vector.Vector3f vec) {
-		return new Vector3f(vec.getX(), vec.getY(), vec.getZ());
+	public static Vector3f toVec3(org.joml.Vector3f vec) {
+		return new Vector3f(vec.x(), vec.y(), vec.z());
 	}
 
-	public static Vector3f toVec3(net.luxvacuos.igl.vector.Vector3d vec) {
-		return new Vector3f((float) vec.getX(), (float) vec.getY(), (float) vec.getZ());
+	public static org.joml.Vector3f toVec3(Vector3f vec) {
+		return new org.joml.Vector3f(vec.getX(), vec.getY(), vec.getZ());
 	}
 
-	public static net.luxvacuos.igl.vector.Vector3d toVec3(Vector3f vec) {
-		return new net.luxvacuos.igl.vector.Vector3d(vec.x, vec.y, vec.z);
-	}
-
-	public static Quat4f toQuat4(Quaternion q) {
+	public static Quat4f toQuat4(Quaternionf q) {
 		return new Quat4f(q.x, q.y, q.z, q.w);
 	}
 

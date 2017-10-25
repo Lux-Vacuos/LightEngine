@@ -38,10 +38,10 @@ public class UniformMaterial extends UniformArray {
 
 	public void loadMaterial(Material value) {
 		if (!used || !currentValue.equals(value)) {
-			glUniform4f(super.getLocation()[0], value.getDiffuse().getX(), value.getDiffuse().getY(),
-					value.getDiffuse().getZ(), value.getDiffuse().getW());
-			glUniform4f(super.getLocation()[1], value.getEmissive().getX(), value.getEmissive().getY(),
-					value.getEmissive().getZ(), value.getEmissive().getW());
+			glUniform4f(super.getLocation()[0], value.getDiffuse().x(), value.getDiffuse().y(), value.getDiffuse().z(),
+					value.getDiffuse().w());
+			glUniform4f(super.getLocation()[1], value.getEmissive().x(), value.getEmissive().y(),
+					value.getEmissive().z(), value.getEmissive().w());
 			glUniform1f(super.getLocation()[2], value.getRoughness());
 			glUniform1f(super.getLocation()[3], value.getMetallic());
 			glUniform1i(super.getLocation()[4], 0);

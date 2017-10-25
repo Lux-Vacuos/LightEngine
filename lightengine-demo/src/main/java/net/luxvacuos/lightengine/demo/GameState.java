@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
 import com.badlogic.ashley.core.Engine;
 
-import net.luxvacuos.igl.vector.Vector3d;
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.core.ClientWorldSimulation;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
@@ -62,8 +62,8 @@ public class GameState extends AbstractState {
 
 			// camera = new PlayerCamera("player", UUID.randomUUID().toString());
 			camera = new TPSCamera("player", UUID.randomUUID().toString());
-			camera.setRotation(new Vector3d(50, 45, 0));
-			camera.setPosition(new Vector3d(0, 10, 0));
+			camera.setRotation(new Vector3f(50, 45, 0));
+			camera.setPosition(new Vector3f(0, 10, 0));
 			sun = new Sun();
 
 			Renderer.setOnResize(() -> {

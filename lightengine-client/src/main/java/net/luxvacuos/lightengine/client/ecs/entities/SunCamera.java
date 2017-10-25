@@ -20,41 +20,42 @@
 
 package net.luxvacuos.lightengine.client.ecs.entities;
 
-import net.luxvacuos.igl.vector.Matrix4d;
-import net.luxvacuos.igl.vector.Vector2d;
+import org.joml.Matrix4f;
+import org.joml.Vector2f;
+
 import net.luxvacuos.lightengine.client.resources.CastRay;
 import net.luxvacuos.lightengine.client.util.Maths;
 
 public class SunCamera extends CameraEntity {
 
-	private Vector2d center;
+	private Vector2f center;
 
-	private Matrix4d[] projectionArray;
+	private Matrix4f[] projectionArray;
 
-	public SunCamera(Matrix4d[] projectionArray) {
+	public SunCamera(Matrix4f[] projectionArray) {
 		super("sun");
 		this.projectionArray = projectionArray;
-		center = new Vector2d(1024, 1024);
+		center = new Vector2f(1024, 1024);
 		castRay = new CastRay(this.getProjectionMatrix(), Maths.createViewMatrix(this), center, 2048, 2048);
 		setProjectionMatrix(projectionArray[0]);
 		setViewMatrix(Maths.createViewMatrix(this));
 	}
 
 	public void updateShadowRay(boolean inverted) {
+		setViewMatrix(Maths.createViewMatrix(this));
 		if (inverted)
 			castRay.update(this.getProjectionMatrix(), Maths.createViewMatrixPos(this.getPosition(), Maths
-					.createViewMatrixRot(getRotation().getX() + 180, getRotation().getY(), getRotation().getZ(), null)),
+					.createViewMatrixRot(getRotation().x() + 180, getRotation().y(), getRotation().z(), null)),
 					center, 2048, 2048);
 		else
-			castRay.update(this.getProjectionMatrix(), Maths.createViewMatrix(this), center, 2048, 2048);
-		setViewMatrix(Maths.createViewMatrix(this));
+			castRay.update(this.getProjectionMatrix(), getViewMatrix(), center, 2048, 2048);
 	}
 
 	public void switchProjectionMatrix(int id) {
 		setProjectionMatrix(this.projectionArray[id]);
 	}
 
-	public Matrix4d[] getProjectionArray() {
+	public Matrix4f[] getProjectionArray() {
 		return projectionArray;
 	}
 

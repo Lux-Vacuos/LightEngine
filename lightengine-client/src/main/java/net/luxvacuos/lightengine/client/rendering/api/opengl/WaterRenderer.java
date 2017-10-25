@@ -41,7 +41,8 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 
 import java.util.List;
 
-import net.luxvacuos.igl.vector.Vector3d;
+import org.joml.Vector3f;
+
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CachedAssets;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CubeMapTexture;
@@ -75,9 +76,11 @@ public class WaterRenderer implements IDisposable {
 		prepareRender(camera, reflection, refraction, depth, time);
 		for (WaterTile tile : water) {
 			float halfTileSize = WaterTile.TILE_SIZE * 2;
-			if (!frustum.cubeInFrustum(tile.getX() + halfTileSize, tile.getY(), tile.getZ() - halfTileSize, halfTileSize))
+			if (!frustum.cubeInFrustum(tile.getX() + halfTileSize, tile.getY(), tile.getZ() - halfTileSize,
+					halfTileSize))
 				continue;
-			shader.loadTransformationMatrix(Maths.createTransformationMatrix(new Vector3d(tile.getX(), tile.getY(), tile.getZ()), 0, 0, 0, WaterTile.TILE_SIZE));
+			shader.loadTransformationMatrix(Maths.createTransformationMatrix(
+					new Vector3f(tile.getX(), tile.getY(), tile.getZ()), 0, 0, 0, WaterTile.TILE_SIZE));
 			glDrawElements(GL_TRIANGLES, quad.getVertexCount(), GL_UNSIGNED_INT, 0);
 		}
 		unbind();

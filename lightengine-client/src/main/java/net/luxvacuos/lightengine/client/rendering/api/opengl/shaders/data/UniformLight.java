@@ -24,18 +24,13 @@ import static org.lwjgl.opengl.GL20.glUniform1f;
 import static org.lwjgl.opengl.GL20.glUniform1i;
 import static org.lwjgl.opengl.GL20.glUniform3f;
 import static org.lwjgl.opengl.GL20.glUniformMatrix4fv;
-import static org.lwjgl.system.MemoryUtil.memAllocDouble;
 
-import java.nio.DoubleBuffer;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
-import net.luxvacuos.igl.vector.Matrix4d;
-import net.luxvacuos.igl.vector.Vector3d;
-import net.luxvacuos.igl.vector.Vector3f;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Light;
 
 public class UniformLight extends UniformArray {
-
-	private static DoubleBuffer matrixBuffer = memAllocDouble(16);
 
 	public UniformLight(String name) {
 		super(name + ".position", name + ".color", name + ".direction", name + ".radius", name + ".inRadius",
@@ -45,13 +40,13 @@ public class UniformLight extends UniformArray {
 	}
 
 	public void loadLight(Light light, int offset, int number) {
-		Vector3d pos = light.getPosition();
+		Vector3f pos = light.getPosition();
 		Vector3f color = light.getColor();
-		glUniform3f(super.getLocation()[0], (float) pos.getX(), (float) pos.getY(), (float) pos.getZ());
-		glUniform3f(super.getLocation()[1], color.getX(), color.getY(), color.getZ());
+		glUniform3f(super.getLocation()[0], (float) pos.x(), (float) pos.y(), (float) pos.z());
+		glUniform3f(super.getLocation()[1], color.x(), color.y(), color.z());
 		if (light.getType() == 1) {
-			Vector3d dir = light.getDirection();
-			glUniform3f(super.getLocation()[2], (float) dir.getX(), (float) dir.getY(), (float) dir.getZ());
+			Vector3f dir = light.getDirection();
+			glUniform3f(super.getLocation()[2], (float) dir.x(), (float) dir.y(), (float) dir.z());
 			glUniform1f(super.getLocation()[3], (float) Math.cos(Math.toRadians(light.getRadius())));
 			glUniform1f(super.getLocation()[4], (float) Math.cos(Math.toRadians(light.getInRadius())));
 		}
@@ -64,30 +59,9 @@ public class UniformLight extends UniformArray {
 		}
 	}
 
-	public void loadMatrix(Matrix4d matrix, int loc) {
-		matrixBuffer.clear();
-		matrix.store(matrixBuffer);
-		matrixBuffer.flip();
-
-		double[] dm = new double[16];
-		matrixBuffer.get(dm);
+	public void loadMatrix(Matrix4f matrix, int loc) {
 		float[] fm = new float[16];
-		fm[0] = (float) dm[0];
-		fm[1] = (float) dm[1];
-		fm[2] = (float) dm[2];
-		fm[3] = (float) dm[3];
-		fm[4] = (float) dm[4];
-		fm[5] = (float) dm[5];
-		fm[6] = (float) dm[6];
-		fm[7] = (float) dm[7];
-		fm[8] = (float) dm[8];
-		fm[9] = (float) dm[9];
-		fm[10] = (float) dm[10];
-		fm[11] = (float) dm[11];
-		fm[12] = (float) dm[12];
-		fm[13] = (float) dm[13];
-		fm[14] = (float) dm[14];
-		fm[15] = (float) dm[15];
+		matrix.get(fm);
 		glUniformMatrix4fv(loc, false, fm);
 	}
 

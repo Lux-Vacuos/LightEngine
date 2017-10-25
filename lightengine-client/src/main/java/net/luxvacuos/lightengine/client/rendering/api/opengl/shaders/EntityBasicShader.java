@@ -20,7 +20,8 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.opengl.shaders;
 
-import net.luxvacuos.igl.vector.Matrix4d;
+import org.joml.Matrix4f;
+
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.Attribute;
@@ -54,7 +55,7 @@ public class EntityBasicShader extends ShaderProgram {
 	 * @param matrix
 	 *            Transformation Matrixd
 	 */
-	public void loadTransformationMatrix(Matrix4d matrix) {
+	public void loadTransformationMatrix(Matrix4f matrix) {
 		transformationMatrix.loadMatrix(matrix);
 	}
 
@@ -74,7 +75,7 @@ public class EntityBasicShader extends ShaderProgram {
 	 * @param projection
 	 *            Projection Matrixd
 	 */
-	public void loadProjectionMatrix(Matrix4d projection) {
+	public void loadProjectionMatrix(Matrix4f projection) {
 		projectionMatrix.loadMatrix(projection);
 	}
 

@@ -20,8 +20,9 @@
 
 package net.luxvacuos.lightengine.client.ecs.entities;
 
-import net.luxvacuos.igl.vector.Matrix4d;
-import net.luxvacuos.igl.vector.Vector3d;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+
 import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.ecs.Components;
@@ -34,7 +35,7 @@ public class CubeMapCamera extends CameraEntity {
 	private static final float FOV = 90;
 	private static final float ASPECT_RATIO = 1f;
 
-	public CubeMapCamera(Vector3d position) {
+	public CubeMapCamera(Vector3f position) {
 		super("cubeCam");
 		Components.POSITION.get(this).set(position);
 		createProjectionMatrix();
@@ -76,13 +77,14 @@ public class CubeMapCamera extends CameraEntity {
 		float y_scale = (float) ((1f / Math.tan(Math.toRadians(FOV / 2f))));
 		float x_scale = y_scale / ASPECT_RATIO;
 		float frustum_length = FAR_PLANE - NEAR_PLANE;
-		Matrix4d projectionMatrix = new Matrix4d();
-		projectionMatrix.m00 = x_scale;
-		projectionMatrix.m11 = y_scale;
-		projectionMatrix.m22 = -((FAR_PLANE + NEAR_PLANE) / frustum_length);
-		projectionMatrix.m23 = -1;
-		projectionMatrix.m32 = -((2 * NEAR_PLANE * FAR_PLANE) / frustum_length);
-		projectionMatrix.m33 = 0;
+		Matrix4f projectionMatrix = new Matrix4f();
+		projectionMatrix.identity();
+		projectionMatrix.m00(x_scale);
+		projectionMatrix.m11(y_scale);
+		projectionMatrix.m22(-((FAR_PLANE + NEAR_PLANE) / frustum_length));
+		projectionMatrix.m23(-1);
+		projectionMatrix.m32(-((2 * NEAR_PLANE * FAR_PLANE) / frustum_length));
+		projectionMatrix.m33(0);
 		ClientComponents.PROJECTION_MATRIX.get(this).setProjectionMatrix(projectionMatrix);
 	}
 

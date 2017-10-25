@@ -20,25 +20,26 @@
 
 package net.luxvacuos.lightengine.client.ecs.components;
 
+import org.joml.Matrix4f;
+
 import com.hackhalo2.nbt.exceptions.NBTException;
 import com.hackhalo2.nbt.tags.TagCompound;
 
-import net.luxvacuos.igl.vector.Matrix4d;
 import net.luxvacuos.lightengine.universal.ecs.components.LEComponent;
 
 public class ViewMatrix implements LEComponent {
-	
-	private Matrix4d viewMatrix;
 
-	public ViewMatrix(Matrix4d viewMatrix) {
+	private Matrix4f viewMatrix;
+
+	public ViewMatrix(Matrix4f viewMatrix) {
 		this.viewMatrix = viewMatrix;
 	}
-	
-	public Matrix4d getViewMatrix() {
+
+	public Matrix4f getViewMatrix() {
 		return this.viewMatrix;
 	}
-	
-	public void setViewMatrix(Matrix4d viewMatrix) {
+
+	public void setViewMatrix(Matrix4f viewMatrix) {
 		this.viewMatrix = viewMatrix;
 	}
 

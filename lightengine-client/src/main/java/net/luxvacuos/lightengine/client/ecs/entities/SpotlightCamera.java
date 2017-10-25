@@ -20,15 +20,16 @@
 
 package net.luxvacuos.lightengine.client.ecs.entities;
 
-import net.luxvacuos.igl.vector.Matrix4d;
-import net.luxvacuos.igl.vector.Vector3d;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+
 import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
 import net.luxvacuos.lightengine.client.util.Maths;
 
 public class SpotlightCamera extends CameraEntity {
 	
-	private Vector3d direction = new Vector3d();
+	private Vector3f direction = new Vector3f();
 
 	public SpotlightCamera(float radius, int width, int height) {
 		super("spotlight");
@@ -39,19 +40,19 @@ public class SpotlightCamera extends CameraEntity {
 	@Override
 	public void update(float delta) {
 		ClientComponents.VIEW_MATRIX.get(this).setViewMatrix(Maths.createViewMatrix(this));
-		Matrix4d proj = getProjectionMatrix();
-		Vector3d v = new Vector3d();
-		v.x = (((2.0f * 8) / 16) - 1) / proj.m00;
-		v.y = -(((2.0f * 8) / 16) - 1) / proj.m11;
+		Matrix4f proj = getProjectionMatrix();
+		Vector3f v = new Vector3f();
+		v.x = (((2.0f * 8) / 16) - 1) / proj.m00();
+		v.y = -(((2.0f * 8) / 16) - 1) / proj.m11();
 		v.z = 1.0f;
-		Matrix4d invertView = Matrix4d.invert(getViewMatrix(), null);
-		direction.x = v.x * invertView.m00 + v.y * invertView.m10 + v.z * invertView.m20;
-		direction.y = v.x * invertView.m01 + v.y * invertView.m11 + v.z * invertView.m21;
-		direction.z = v.x * invertView.m02 + v.y * invertView.m12 + v.z * invertView.m22;
+		Matrix4f invertView = getViewMatrix().invert(new Matrix4f());
+		direction.x = v.x * invertView.m00() + v.y * invertView.m10() + v.z * invertView.m20();
+		direction.y = v.x * invertView.m01() + v.y * invertView.m11() + v.z * invertView.m21();
+		direction.z = v.x * invertView.m02() + v.y * invertView.m12() + v.z * invertView.m22();
 	}
 	
-	public Vector3d getDirection() {
-		return direction.negate(null);
+	public Vector3f getDirection() {
+		return direction.negate(new Vector3f());
 	}
 
 }

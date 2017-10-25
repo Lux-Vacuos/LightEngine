@@ -38,8 +38,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import net.luxvacuos.igl.vector.Matrix4d;
-import net.luxvacuos.igl.vector.Vector3d;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.ParticleTexture;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.RawModel;
@@ -110,42 +111,43 @@ public class ParticleRenderer {
 		vboData[pointer++] = particle.getBlend();
 	}
 
-	private void updateModelViewMatrix(Vector3d position, float rotation, float scale, Matrix4d viewMatrix,
+	private void updateModelViewMatrix(Vector3f position, float rotation, float scale, Matrix4f viewMatrix,
 			float[] vboData) {
-		Matrix4d modelMatrix = new Matrix4d();
-		Matrix4d.translate(position, modelMatrix, modelMatrix);
-		modelMatrix.m00 = viewMatrix.m00;
-		modelMatrix.m01 = viewMatrix.m10;
-		modelMatrix.m02 = viewMatrix.m20;
-		modelMatrix.m10 = viewMatrix.m01;
-		modelMatrix.m11 = viewMatrix.m11;
-		modelMatrix.m12 = viewMatrix.m21;
-		modelMatrix.m20 = viewMatrix.m02;
-		modelMatrix.m21 = viewMatrix.m12;
-		modelMatrix.m22 = viewMatrix.m22;
-		Matrix4d modelViewMatrix = Matrix4d.mul(viewMatrix, modelMatrix, null);
-		Matrix4d.rotate((float) Math.toRadians(rotation), new Vector3d(0, 0, 1), modelMatrix, modelMatrix);
-		Matrix4d.scale(new Vector3d(scale, scale, scale), modelMatrix, modelMatrix);
+		Matrix4f modelMatrix = new Matrix4f();
+		modelMatrix.identity();
+		modelMatrix.translate(position);
+		modelMatrix.m00(viewMatrix.m00());
+		modelMatrix.m01(viewMatrix.m10());
+		modelMatrix.m02(viewMatrix.m20());
+		modelMatrix.m10(viewMatrix.m01());
+		modelMatrix.m11(viewMatrix.m11());
+		modelMatrix.m12(viewMatrix.m21());
+		modelMatrix.m20(viewMatrix.m02());
+		modelMatrix.m21(viewMatrix.m12());
+		modelMatrix.m22(viewMatrix.m22());
+		Matrix4f modelViewMatrix = viewMatrix.mul(modelMatrix, new Matrix4f());
+		modelMatrix.rotate((float) Math.toRadians(rotation), new Vector3f(0, 0, 1));
+		modelMatrix.scale(scale);
 		storeMatrixData(modelViewMatrix, vboData);
 	}
 
-	private void storeMatrixData(Matrix4d matrix, float[] vboData) {
-		vboData[pointer++] = (float) matrix.m00;
-		vboData[pointer++] = (float) matrix.m01;
-		vboData[pointer++] = (float) matrix.m02;
-		vboData[pointer++] = (float) matrix.m03;
-		vboData[pointer++] = (float) matrix.m10;
-		vboData[pointer++] = (float) matrix.m11;
-		vboData[pointer++] = (float) matrix.m12;
-		vboData[pointer++] = (float) matrix.m13;
-		vboData[pointer++] = (float) matrix.m20;
-		vboData[pointer++] = (float) matrix.m21;
-		vboData[pointer++] = (float) matrix.m22;
-		vboData[pointer++] = (float) matrix.m23;
-		vboData[pointer++] = (float) matrix.m30;
-		vboData[pointer++] = (float) matrix.m31;
-		vboData[pointer++] = (float) matrix.m32;
-		vboData[pointer++] = (float) matrix.m33;
+	private void storeMatrixData(Matrix4f matrix, float[] vboData) {
+		vboData[pointer++] = (float) matrix.m00();
+		vboData[pointer++] = (float) matrix.m01();
+		vboData[pointer++] = (float) matrix.m02();
+		vboData[pointer++] = (float) matrix.m03();
+		vboData[pointer++] = (float) matrix.m10();
+		vboData[pointer++] = (float) matrix.m11();
+		vboData[pointer++] = (float) matrix.m12();
+		vboData[pointer++] = (float) matrix.m13();
+		vboData[pointer++] = (float) matrix.m20();
+		vboData[pointer++] = (float) matrix.m21();
+		vboData[pointer++] = (float) matrix.m22();
+		vboData[pointer++] = (float) matrix.m23();
+		vboData[pointer++] = (float) matrix.m30();
+		vboData[pointer++] = (float) matrix.m31();
+		vboData[pointer++] = (float) matrix.m32();
+		vboData[pointer++] = (float) matrix.m33();
 	}
 
 	private void prepare() {

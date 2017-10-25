@@ -20,8 +20,9 @@
 
 package net.luxvacuos.lightengine.client.ecs.entities;
 
-import net.luxvacuos.igl.vector.Matrix4d;
-import net.luxvacuos.igl.vector.Vector3d;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+
 import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.ecs.components.ProjectionMatrix;
 import net.luxvacuos.lightengine.client.ecs.components.ViewMatrix;
@@ -41,51 +42,51 @@ public class CameraEntity extends PlayerEntity {
 
 	public CameraEntity(String name) {
 		super(name);
-		this.add(new ViewMatrix(new Matrix4d()));
-		this.add(new ProjectionMatrix(new Matrix4d()));
+		this.add(new ViewMatrix(new Matrix4f()));
+		this.add(new ProjectionMatrix(new Matrix4f()));
 	}
 
 	public CameraEntity(String name, String uuid) {
 		super(name, uuid);
-		this.add(new ViewMatrix(new Matrix4d()));
-		this.add(new ProjectionMatrix(new Matrix4d()));
+		this.add(new ViewMatrix(new Matrix4f()));
+		this.add(new ProjectionMatrix(new Matrix4f()));
 	}
-	
+
 	@Override
 	public void afterUpdate(float delta) {
 		super.afterUpdate(delta);
 		setViewMatrix(Maths.createViewMatrix(this));
 	}
 
-	public Vector3d getPosition() {
+	public Vector3f getPosition() {
 		return Components.POSITION.get(this).getPosition();
 	}
 
-	public void setPosition(Vector3d position) {
+	public void setPosition(Vector3f position) {
 		Components.POSITION.get(this).set(position);
 	}
 
-	public Vector3d getRotation() {
+	public Vector3f getRotation() {
 		return Components.ROTATION.get(this).getRotation();
 	}
 
-	public void setRotation(Vector3d rotation) {
+	public void setRotation(Vector3f rotation) {
 		Components.ROTATION.get(this).set(rotation);
 	}
 
-	public Matrix4d getProjectionMatrix() {
+	public Matrix4f getProjectionMatrix() {
 		return ClientComponents.PROJECTION_MATRIX.get(this).getProjectionMatrix();
 	}
 
-	public Matrix4d getViewMatrix() {
+	public Matrix4f getViewMatrix() {
 		return ClientComponents.VIEW_MATRIX.get(this).getViewMatrix();
 	}
 
-	public void setProjectionMatrix(Matrix4d projectionMatrix) {
+	public void setProjectionMatrix(Matrix4f projectionMatrix) {
 		ClientComponents.PROJECTION_MATRIX.get(this).setProjectionMatrix(projectionMatrix);
 	}
 
-	public void setViewMatrix(Matrix4d viewMatrix) {
+	public void setViewMatrix(Matrix4f viewMatrix) {
 		ClientComponents.VIEW_MATRIX.get(this).setViewMatrix(viewMatrix);
 	}
 

@@ -22,169 +22,63 @@ package net.luxvacuos.lightengine.client.util;
 
 import java.util.Random;
 
-import com.badlogic.gdx.math.Vector3;
+import org.joml.Matrix4f;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
-import net.luxvacuos.igl.vector.Matrix4d;
-import net.luxvacuos.igl.vector.Vector2d;
-import net.luxvacuos.igl.vector.Vector3d;
-import net.luxvacuos.igl.vector.Vector4d;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 
 public class Maths extends net.luxvacuos.lightengine.universal.util.Maths {
 
-	/**
-	 * Create a Transformation Matrixd 2D
-	 * 
-	 * @param translation
-	 *            Position
-	 * @param scale
-	 *            Scale
-	 * @return Transformation Matrixd 2D
-	 */
-	public static Matrix4d createTransformationMatrix(Vector2d translation, Vector2d scale) {
-		Matrix4d matrix = new Matrix4d();
-		matrix.setIdentity();
-		Matrix4d.translate(translation, matrix, matrix);
-		Matrix4d.scale(new Vector3d(scale.x, scale.y, 1f), matrix, matrix);
+	public static Matrix4f createTransformationMatrix(Vector3f translation, float rx, float ry, float rz, float scale) {
+		return createTransformationMatrix(translation, rx, ry, rz, scale, scale, scale);
+	}
+
+	public static Matrix4f createTransformationMatrix(Vector3f translation, float rx, float ry, float rz, float scaleX,
+			float scaleY, float scaleZ) {
+		Matrix4f matrix = new Matrix4f();
+		matrix.identity();
+		matrix.translate(translation);
+		matrix.rotate((float) Math.toRadians(rx), new Vector3f(1, 0, 0));
+		matrix.rotate((float) Math.toRadians(ry), new Vector3f(0, 1, 0));
+		matrix.rotate((float) Math.toRadians(rz), new Vector3f(0, 0, 1));
+		matrix.scale(scaleX, scaleY, scaleZ);
 		return matrix;
 	}
 
-	/**
-	 * Create a Transformation Matrixd 3D
-	 * 
-	 * @param translation
-	 *            Position
-	 * @param rx
-	 *            Rotation X
-	 * @param ry
-	 *            Rotation Y
-	 * @param rz
-	 *            Rotation Z
-	 * @param scale
-	 *            Scale
-	 * @return Transformation Matrixd 3D
-	 */
-	public static Matrix4d createTransformationMatrix(Vector3d translation, double rx, double ry, double rz,
-			double scale) {
-		Matrix4d matrix = new Matrix4d();
-		matrix.setIdentity();
-		Matrix4d.translate(translation, matrix, matrix);
-		Matrix4d.rotate(Math.toRadians(rx), new Vector3d(1, 0, 0), matrix, matrix);
-		Matrix4d.rotate(Math.toRadians(ry), new Vector3d(0, 1, 0), matrix, matrix);
-		Matrix4d.rotate(Math.toRadians(rz), new Vector3d(0, 0, 1), matrix, matrix);
-		Matrix4d.scale(new Vector3d(scale, scale, scale), matrix, matrix);
-		return matrix;
-	}
-
-	public static Matrix4d createTransformationMatrix(Vector3d translation, double rx, double ry, double rz,
-			double scaleX, double scaleY, double scaleZ) {
-		Matrix4d matrix = new Matrix4d();
-		matrix.setIdentity();
-		Matrix4d.translate(translation, matrix, matrix);
-		Matrix4d.rotate(Math.toRadians(rx), new Vector3d(1, 0, 0), matrix, matrix);
-		Matrix4d.rotate(Math.toRadians(ry), new Vector3d(0, 1, 0), matrix, matrix);
-		Matrix4d.rotate(Math.toRadians(rz), new Vector3d(0, 0, 1), matrix, matrix);
-		Matrix4d.scale(new Vector3d(scaleX, scaleY, scaleZ), matrix, matrix);
-		return matrix;
-	}
-
-	/**
-	 * Create a View Matrixd applying position and rotation
-	 * 
-	 * @param camera
-	 *            Camera
-	 * @return View Matrixd
-	 */
-	public static Matrix4d createViewMatrix(CameraEntity camera) {
-		Matrix4d viewMatrix = new Matrix4d();
-		viewMatrix.setIdentity();
-		createViewMatrixRot(camera.getRotation().getX(), camera.getRotation().getY(), camera.getRotation().getZ(),
-				viewMatrix);
+	public static Matrix4f createViewMatrix(CameraEntity camera) {
+		Matrix4f viewMatrix = new Matrix4f();
+		viewMatrix.identity();
+		createViewMatrixRot(camera.getRotation().x(), camera.getRotation().y(), camera.getRotation().z(), viewMatrix);
 		createViewMatrixPos(camera.getPosition(), viewMatrix);
 		return viewMatrix;
 	}
 
-	/**
-	 * Create a View Matrixd applying position
-	 * 
-	 * @param camera
-	 *            Camera
-	 * @param viewMatrix
-	 *            View Matrixd Pass an already created matrix or null for creating a
-	 *            new one
-	 * @return The composed matrix
-	 */
-	public static Matrix4d createViewMatrixPos(Vector3d pos, Matrix4d viewMatrix) {
-		if (viewMatrix == null)
-			viewMatrix = new Matrix4d();
-		Vector3d cameraPost = pos;
-		Vector3d negativeCameraPos = new Vector3d(-cameraPost.x, -cameraPost.y, -cameraPost.z);
-		Matrix4d.translate(negativeCameraPos, viewMatrix, viewMatrix);
+	public static Matrix4f createViewMatrixPos(Vector3f pos, Matrix4f viewMatrix) {
+		if (viewMatrix == null) {
+			viewMatrix = new Matrix4f();
+			viewMatrix.identity();
+		}
+		Vector3f cameraPost = pos;
+		Vector3f negativeCameraPos = new Vector3f(-cameraPost.x, -cameraPost.y, -cameraPost.z);
+		viewMatrix.translate(negativeCameraPos);
 		return viewMatrix;
 	}
 
-	/**
-	 * Create a View Matrixd applying rotation
-	 * 
-	 * @param camera
-	 *            Camera
-	 * @param viewMatrix
-	 *            View Matrixd Pass an already created matrix or null for creating a
-	 *            new one
-	 * @return The composed matrix
-	 */
-	public static Matrix4d createViewMatrixRot(double pitch, double yaw, double roll, Matrix4d viewMatrix) {
-		if (viewMatrix == null)
-			viewMatrix = new Matrix4d();
-		Matrix4d.rotate(Math.toRadians(pitch), new Vector3d(1, 0, 0), viewMatrix, viewMatrix);
-		Matrix4d.rotate(Math.toRadians(yaw), new Vector3d(0, 1, 0), viewMatrix, viewMatrix);
-		Matrix4d.rotate(Math.toRadians(roll), new Vector3d(0, 0, 1), viewMatrix, viewMatrix);
+	public static Matrix4f createViewMatrixRot(float pitch, float yaw, float roll, Matrix4f viewMatrix) {
+		if (viewMatrix == null) {
+			viewMatrix = new Matrix4f();
+			viewMatrix.identity();
+		}
+		viewMatrix.rotate((float) Math.toRadians(pitch), new Vector3f(1, 0, 0));
+		viewMatrix.rotate((float) Math.toRadians(yaw), new Vector3f(0, 1, 0));
+		viewMatrix.rotate((float) Math.toRadians(roll), new Vector3f(0, 0, 1));
 		return viewMatrix;
 	}
 
-	/**
-	 * Create orthographic matrix
-	 * 
-	 * @param left
-	 * @param right
-	 * @param bottom
-	 * @param top
-	 * @param near
-	 * @param far
-	 * @return Matrix4d
-	 */
-	public static Matrix4d orthographic(float left, float right, float bottom, float top, float zNear, float zFar,
-			boolean zZeroToOne) {
-		Matrix4d dest = new Matrix4d();
-		// calculate right matrix elements
-		float rm00 = 2.0f / (right - left);
-		float rm11 = 2.0f / (top - bottom);
-		float rm22 = (zZeroToOne ? 1.0f : 2.0f) / (zNear - zFar);
-		float rm30 = (left + right) / (left - right);
-		float rm31 = (top + bottom) / (bottom - top);
-		float rm32 = (zZeroToOne ? zNear : (zFar + zNear)) / (zNear - zFar);
-
-		// perform optimized multiplication
-		// compute the last column first, because other columns do not depend on
-		// it
-		dest.m30 = dest.m00 * rm30 + dest.m10 * rm31 + dest.m20 * rm32 + dest.m30;
-		dest.m31 = dest.m01 * rm30 + dest.m11 * rm31 + dest.m21 * rm32 + dest.m31;
-		dest.m32 = dest.m02 * rm30 + dest.m12 * rm31 + dest.m22 * rm32 + dest.m32;
-		dest.m33 = dest.m03 * rm30 + dest.m13 * rm31 + dest.m23 * rm32 + dest.m33;
-		dest.m00 = dest.m00 * rm00;
-		dest.m01 = dest.m01 * rm00;
-		dest.m02 = dest.m02 * rm00;
-		dest.m03 = dest.m03 * rm00;
-		dest.m10 = dest.m10 * rm11;
-		dest.m11 = dest.m11 * rm11;
-		dest.m12 = dest.m12 * rm11;
-		dest.m13 = dest.m13 * rm11;
-		dest.m20 = dest.m20 * rm22;
-		dest.m21 = dest.m21 * rm22;
-		dest.m22 = dest.m22 * rm22;
-		dest.m23 = dest.m23 * rm22;
-
-		return dest;
+	public static Matrix4f orthoSymmetric(float width, float height, float zNear, float zFar, boolean zZeroToOne) {
+		return new Matrix4f().setOrthoSymmetric(width, height, zNear, zFar, zZeroToOne);
 
 	}
 
@@ -214,8 +108,20 @@ public class Maths extends net.luxvacuos.lightengine.universal.util.Maths {
 		return randomNum;
 	}
 
-	public static Vector2d convertTo2F(Vector3d pos, Matrix4d projection, Matrix4d viewMatrix, int width, int height) {
-		return Matrix4d.Project(pos, projection, viewMatrix, new Vector4d(0, 0, width, height));
+	public static Vector2f convertTo2F(Vector3f pos, Matrix4f projection, Matrix4f viewMatrix, int width, int height) {
+		return project(pos, projection, viewMatrix, new Vector4f(0, 0, width, height));
+	}
+
+	public static Vector2f project(Vector3f pos, Matrix4f projection, Matrix4f view, Vector4f viewport) {
+		Vector4f winCoordsDest = new Vector4f();
+		winCoordsDest.set(pos.x, pos.y, pos.z, 1.0f);
+		view.transform(winCoordsDest);
+		view.transform(winCoordsDest);
+		winCoordsDest.div(winCoordsDest.w);
+		winCoordsDest.x = (winCoordsDest.x * 0.5f + 0.5f) * viewport.z + viewport.x;
+		winCoordsDest.y = (winCoordsDest.y * 0.5f + 0.5f) * viewport.w + viewport.y;
+		winCoordsDest.z = (1.0f + winCoordsDest.z) * 0.5f;
+		return new Vector2f(winCoordsDest.x, winCoordsDest.y);
 	}
 
 	public static float randFloat() {
@@ -228,7 +134,7 @@ public class Maths extends net.luxvacuos.lightengine.universal.util.Maths {
 		return new Random().nextInt(100) < chanceOfTrue;
 	}
 
-	public static float dti(double val) {
+	public static float dti(float val) {
 		return (float) Math.abs(val - Math.round(val));
 	}
 

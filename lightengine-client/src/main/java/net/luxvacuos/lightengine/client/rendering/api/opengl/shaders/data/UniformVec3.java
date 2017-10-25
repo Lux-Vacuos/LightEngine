@@ -22,8 +22,7 @@ package net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data;
 
 import static org.lwjgl.opengl.GL20.glUniform3f;
 
-import net.luxvacuos.igl.vector.Vector3d;
-import net.luxvacuos.igl.vector.Vector3f;
+import org.joml.Vector3f;
 
 public class UniformVec3 extends Uniform {
 	private float currentX;
@@ -33,10 +32,6 @@ public class UniformVec3 extends Uniform {
 
 	public UniformVec3(String name) {
 		super(name);
-	}
-
-	public void loadVec3(Vector3d vector) {
-		loadVec3((float) vector.x, (float) vector.y, (float) vector.z);
 	}
 
 	public void loadVec3(Vector3f vector) {

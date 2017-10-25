@@ -23,7 +23,7 @@ package net.luxvacuos.lightengine.client.rendering.api.opengl.objects;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.luxvacuos.igl.vector.Vector3f;
+import org.joml.Vector3f;
 
 public class VertexNM {
 
@@ -59,9 +59,9 @@ public class VertexNM {
 			return;
 		}
 		for (Vector3f tangent : tangents) {
-			Vector3f.add(averagedTangent, tangent, averagedTangent);
+			averagedTangent.add(tangent);
 		}
-		averagedTangent.normalise();
+		averagedTangent.normalize();
 	}
 
 	public Vector3f getAverageTangent() {

@@ -2,7 +2,8 @@ package net.luxvacuos.lightengine.demo.ecs.entities;
 
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 
-import net.luxvacuos.igl.vector.Vector3d;
+import org.joml.Vector3f;
+
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.ecs.ClientComponents;
@@ -30,7 +31,7 @@ public class TPSCamera extends CameraEntity {
 	@Override
 	public void update(float delta) {
 		MouseHandler mh = GraphicalSubsystem.getMainWindow().getMouseHandler();
-		Vector3d velocity = new Vector3d();
+		Vector3f velocity = new Vector3f();
 		int width = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
 		int height = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
 		if (mh.getX() > width - boundary) {

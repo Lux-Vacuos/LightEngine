@@ -20,7 +20,8 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.opengl.objects;
 
-import net.luxvacuos.igl.vector.Matrix4d;
+import org.joml.Matrix4f;
+
 import net.luxvacuos.lightengine.client.resources.animation.Joint;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
@@ -37,7 +38,7 @@ public class AnimatedModel implements IDisposable {
 		this.material = material;
 		this.rootJoint = rootJoint;
 		this.jointCount = jointCount;
-		rootJoint.calcInverseBindTransform(new Matrix4d());
+		rootJoint.calcInverseBindTransform(new Matrix4f());
 	}
 
 	public void doAnimation() {
@@ -48,13 +49,13 @@ public class AnimatedModel implements IDisposable {
 
 	}
 
-	public Matrix4d[] getJointTransform() {
-		Matrix4d[] jointMatrices = new Matrix4d[jointCount];
+	public Matrix4f[] getJointTransform() {
+		Matrix4f[] jointMatrices = new Matrix4f[jointCount];
 		addJointsToArray(rootJoint, jointMatrices);
 		return jointMatrices;
 	}
 
-	private void addJointsToArray(Joint headJoint, Matrix4d[] jointMatrices) {
+	private void addJointsToArray(Joint headJoint, Matrix4f[] jointMatrices) {
 		jointMatrices[headJoint.index] = headJoint.getAnimatedTransform();
 		for (Joint childJoint : headJoint.children) {
 			addJointsToArray(childJoint, jointMatrices);

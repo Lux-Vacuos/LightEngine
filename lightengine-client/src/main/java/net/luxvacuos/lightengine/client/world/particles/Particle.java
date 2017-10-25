@@ -20,16 +20,17 @@
 
 package net.luxvacuos.lightengine.client.world.particles;
 
-import net.luxvacuos.igl.vector.Vector2d;
-import net.luxvacuos.igl.vector.Vector3d;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
+
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.ParticleDomain;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.ParticleTexture;
 
 public class Particle {
 
-	private Vector3d position;
-	private Vector3d velocity;
+	private Vector3f position;
+	private Vector3f velocity;
 
 	private float gravityEffect;
 	private float lifeLeght;
@@ -39,12 +40,12 @@ public class Particle {
 
 	private ParticleTexture texture;
 
-	private Vector2d texOffset0 = new Vector2d();
-	private Vector2d texOffset1 = new Vector2d();
+	private Vector2f texOffset0 = new Vector2f();
+	private Vector2f texOffset1 = new Vector2f();
 	private float blend;
 	private float distance;
 
-	public Particle(ParticleTexture texture, Vector3d position, Vector3d velocity, float gravityEffect, float lifeLeght,
+	public Particle(ParticleTexture texture, Vector3f position, Vector3f velocity, float gravityEffect, float lifeLeght,
 			float rotation, float scale) {
 		this.texture = texture;
 		this.position = position;
@@ -58,11 +59,11 @@ public class Particle {
 
 	public boolean update(float delta, CameraEntity camera) {
 		velocity.y += -9.8 * gravityEffect * delta;
-		Vector3d change = new Vector3d(velocity);
-		change.scale(delta);
-		Vector3d.add(change, position, position);
+		Vector3f change = new Vector3f(velocity);
+		change.mul(delta);
+		position.add(change);
 
-		distance = (float) Vector3d.sub(camera.getPosition(), position, null).lengthSquared();
+		distance = (float) camera.getPosition().sub(position).lengthSquared();
 
 		updateTextureCoord();
 		elapsedTime += delta;
@@ -80,14 +81,14 @@ public class Particle {
 		setTextureOffset(texOffset1, index1);
 	}
 
-	private void setTextureOffset(Vector2d offset, int index) {
+	private void setTextureOffset(Vector2f offset, int index) {
 		int column = index % texture.getNumbreOfRows();
 		int row = index / texture.getNumbreOfRows();
 		offset.x = (float) column / texture.getNumbreOfRows();
 		offset.y = (float) row / texture.getNumbreOfRows();
 	}
 
-	public Vector3d getPosition() {
+	public Vector3f getPosition() {
 		return position;
 	}
 
@@ -103,11 +104,11 @@ public class Particle {
 		return texture;
 	}
 
-	public Vector2d getTexOffset0() {
+	public Vector2f getTexOffset0() {
 		return texOffset0;
 	}
 
-	public Vector2d getTexOffset1() {
+	public Vector2f getTexOffset1() {
 		return texOffset1;
 	}
 

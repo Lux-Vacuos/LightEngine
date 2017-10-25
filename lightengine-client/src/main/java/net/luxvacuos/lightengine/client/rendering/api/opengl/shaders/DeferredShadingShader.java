@@ -22,9 +22,10 @@ package net.luxvacuos.lightengine.client.rendering.api.opengl.shaders;
 
 import java.util.List;
 
-import net.luxvacuos.igl.vector.Matrix4d;
-import net.luxvacuos.igl.vector.Vector2d;
-import net.luxvacuos.igl.vector.Vector3d;
+import org.joml.Matrix4f;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
+
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Light;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.Attribute;
@@ -99,7 +100,6 @@ public class DeferredShadingShader extends ShaderProgram {
 	private boolean loadedShadowMatrix = false;
 
 	private static float tTime = 0;
-	private static Matrix4d iPM, iVM;
 
 	public DeferredShadingShader(String type) {
 		super("deferred/V_" + type + ".glsl", "deferred/F_" + type + ".glsl", new Attribute(0, "position"));
@@ -160,16 +160,16 @@ public class DeferredShadingShader extends ShaderProgram {
 		this.exposure.loadFloat(exposure);
 	}
 
-	public void loadSkyColor(Vector3d color) {
+	public void loadSkyColor(Vector3f color) {
 		skyColor.loadVec3(color);
 	}
 
-	public void loadLightPosition(Vector3d pos, Vector3d invertPos) {
+	public void loadLightPosition(Vector3f pos, Vector3f invertPos) {
 		lightPosition.loadVec3(pos);
 		invertedLightPosition.loadVec3(invertPos);
 	}
 
-	public void loadSunPosition(Vector2d pos) {
+	public void loadSunPosition(Vector2f pos) {
 		sunPositionInScreen.loadVec2(pos);
 	}
 
@@ -184,15 +184,15 @@ public class DeferredShadingShader extends ShaderProgram {
 		totalLights.loadInteger(lights.size());
 	}
 
-	public void loadBiasMatrix(Matrix4d[] shadowProjectionMatrix) {
+	public void loadBiasMatrix(Matrix4f[] shadowProjectionMatrix) {
 		if (!loadedShadowMatrix) {
-			Matrix4d biasMatrix = new Matrix4d();
-			biasMatrix.m00 = 0.5f;
-			biasMatrix.m11 = 0.5f;
-			biasMatrix.m22 = 0.5f;
-			biasMatrix.m30 = 0.5f;
-			biasMatrix.m31 = 0.5f;
-			biasMatrix.m32 = 0.5f;
+			Matrix4f biasMatrix = new Matrix4f();
+			biasMatrix.m00(0.5f);
+			biasMatrix.m11(0.5f);
+			biasMatrix.m22(0.5f);
+			biasMatrix.m30(0.5f);
+			biasMatrix.m31(0.5f);
+			biasMatrix.m32(0.5f);
 			this.biasMatrix.loadMatrix(biasMatrix);
 			for (int x = 0; x < 4; x++) {
 				this.projectionLightMatrix[x].loadMatrix(shadowProjectionMatrix[x]);
@@ -201,7 +201,7 @@ public class DeferredShadingShader extends ShaderProgram {
 		}
 	}
 
-	public void loadLightMatrix(Matrix4d sunCameraViewMatrix) {
+	public void loadLightMatrix(Matrix4f sunCameraViewMatrix) {
 		viewLightMatrix.loadMatrix(sunCameraViewMatrix);
 	}
 
@@ -209,9 +209,9 @@ public class DeferredShadingShader extends ShaderProgram {
 	 * Load Display Resolution
 	 * 
 	 * @param res
-	 *            Resolution as Vector2d
+	 *            Resolution as Vector2f
 	 */
-	public void loadResolution(Vector2d res) {
+	public void loadResolution(Vector2f res) {
 		resolution.loadVec2(res);
 	}
 
@@ -230,10 +230,10 @@ public class DeferredShadingShader extends ShaderProgram {
 		this.useShadows.loadBoolean(useShadows);
 	}
 
-	public void loadMotionBlurData(CameraEntity camera, Matrix4d previousViewMatrix, Vector3d previousCameraPosition) {
+	public void loadMotionBlurData(CameraEntity camera, Matrix4f previousViewMatrix, Vector3f previousCameraPosition) {
 		this.projectionMatrix.loadMatrix(camera.getProjectionMatrix());
-		this.inverseProjectionMatrix.loadMatrix(Matrix4d.invert(camera.getProjectionMatrix(), iPM));
-		this.inverseViewMatrix.loadMatrix(Matrix4d.invert(camera.getViewMatrix(), iVM));
+		this.inverseProjectionMatrix.loadMatrix(camera.getProjectionMatrix().invert(new Matrix4f()));
+		this.inverseViewMatrix.loadMatrix(camera.getViewMatrix().invert(new Matrix4f()));
 		this.previousViewMatrix.loadMatrix(previousViewMatrix);
 		this.cameraPosition.loadVec3(camera.getPosition());
 		this.previousCameraPosition.loadVec3(previousCameraPosition);

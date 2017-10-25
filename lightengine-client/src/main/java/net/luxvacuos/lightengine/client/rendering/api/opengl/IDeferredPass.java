@@ -22,8 +22,9 @@ package net.luxvacuos.lightengine.client.rendering.api.opengl;
 
 import java.util.List;
 
-import net.luxvacuos.igl.vector.Matrix4d;
-import net.luxvacuos.igl.vector.Vector3d;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.Sun;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CubeMapTexture;
@@ -37,7 +38,7 @@ public interface IDeferredPass extends IDisposable {
 
 	public void init();
 
-	public void process(CameraEntity camera, Sun sun, Matrix4d previousViewMatrix, Vector3d previousCameraPosition,
+	public void process(CameraEntity camera, Sun sun, Matrix4f previousViewMatrix, Vector3f previousCameraPosition,
 			IWorldSimulation clientWorldSimulation, List<Light> lights, FBO[] auxs, IDeferredPipeline pipe,
 			RawModel quad, CubeMapTexture irradianceCapture, CubeMapTexture environmentMap, Texture brdfLUT,
 			ShadowFBO shadowFBO, float exposure);

@@ -20,72 +20,48 @@
 
 package net.luxvacuos.lightengine.client.resources;
 
-import com.badlogic.gdx.math.collision.Ray;
-
-import net.luxvacuos.igl.vector.Matrix4d;
-import net.luxvacuos.igl.vector.Vector2d;
-import net.luxvacuos.igl.vector.Vector3d;
+import org.joml.Matrix4f;
+import org.joml.Rayf;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
 
 public class CastRay {
-	public Vector3d origin;
-	public Vector3d direction;
-	public Vector3d invDirection;
-	public Ray ray;
+	private Rayf ray;
 
-	public CastRay(Matrix4d proj, Matrix4d view, Vector2d mouse, int width, int height) {
-		Vector3d v = new Vector3d();
-		v.x = (((2.0f * mouse.x) / width) - 1) / proj.m00;
-		v.y = -(((2.0f * mouse.y) / height) - 1) / proj.m11;
+	public CastRay(Matrix4f proj, Matrix4f view, Vector2f mouse, int width, int height) {
+		Vector3f v = new Vector3f();
+		v.x = (((2.0f * mouse.x) / width) - 1) / proj.m00();
+		v.y = -(((2.0f * mouse.y) / height) - 1) / proj.m11();
 		v.z = 1.0f;
 
-		Matrix4d invertView = Matrix4d.invert(view, null);
+		Matrix4f invertView = view.invert(new Matrix4f());
 
-		Vector3d rayDirection = new Vector3d();
-		rayDirection.x = v.x * invertView.m00 + v.y * invertView.m10 + v.z * invertView.m20;
-		rayDirection.y = v.x * invertView.m01 + v.y * invertView.m11 + v.z * invertView.m21;
-		rayDirection.z = v.x * invertView.m02 + v.y * invertView.m12 + v.z * invertView.m22;
-
-		Vector3d ray_origin = new Vector3d(invertView.m30, invertView.m31, invertView.m32);
-		this.origin = new Vector3d(ray_origin.x, ray_origin.y, ray_origin.z);
-		this.direction = new Vector3d(rayDirection.x, rayDirection.y, rayDirection.z);
-		this.invDirection = new Vector3d(-rayDirection.x, -rayDirection.y, -rayDirection.z);
-		ray = new Ray(ray_origin.getAsVec3(), invDirection.getAsVec3());
+		Vector3f rayDirection = new Vector3f();
+		rayDirection.x = v.x * invertView.m00() + v.y * invertView.m10() + v.z * invertView.m20();
+		rayDirection.y = v.x * invertView.m01() + v.y * invertView.m11() + v.z * invertView.m21();
+		rayDirection.z = v.x * invertView.m02() + v.y * invertView.m12() + v.z * invertView.m22();
+		Vector3f rayOrigin = new Vector3f(invertView.m30(), invertView.m31(), invertView.m32());
+		ray = new Rayf(rayOrigin, new Vector3f(-rayDirection.x, -rayDirection.y, -rayDirection.z));
 	}
 
-	public void update(Matrix4d proj, Matrix4d view, Vector2d mouse, int width, int height) {
-		Vector3d v = new Vector3d();
-		v.x = (((2.0f * mouse.x) / width) - 1) / proj.m00;
-		v.y = -(((2.0f * mouse.y) / height) - 1) / proj.m11;
+	public void update(Matrix4f proj, Matrix4f view, Vector2f mouse, int width, int height) {
+		Vector3f v = new Vector3f();
+		v.x = (((2.0f * mouse.x) / width) - 1) / proj.m00();
+		v.y = -(((2.0f * mouse.y) / height) - 1) / proj.m11();
 		v.z = 1.0f;
 
-		Matrix4d invertView = Matrix4d.invert(view, null);
+		Matrix4f invertView = view.invert(new Matrix4f());
 
-		Vector3d rayDirection = new Vector3d();
-		rayDirection.x = v.x * invertView.m00 + v.y * invertView.m10 + v.z * invertView.m20;
-		rayDirection.y = v.x * invertView.m01 + v.y * invertView.m11 + v.z * invertView.m21;
-		rayDirection.z = v.x * invertView.m02 + v.y * invertView.m12 + v.z * invertView.m22;
-
-		Vector3d rayOrigin = new Vector3d(invertView.m30, invertView.m31, invertView.m32);
-		this.origin = new Vector3d(rayOrigin.x, rayOrigin.y, rayOrigin.z);
-		this.direction = new Vector3d(rayDirection.x, rayDirection.y, rayDirection.z);
-		this.invDirection = new Vector3d(-rayDirection.x, -rayDirection.y, -rayDirection.z);
-		ray.set(rayOrigin.getAsVec3(), invDirection.getAsVec3());
+		Vector3f rayDirection = new Vector3f();
+		rayDirection.x = v.x * invertView.m00() + v.y * invertView.m10() + v.z * invertView.m20();
+		rayDirection.y = v.x * invertView.m01() + v.y * invertView.m11() + v.z * invertView.m21();
+		rayDirection.z = v.x * invertView.m02() + v.y * invertView.m12() + v.z * invertView.m22();
+		Vector3f rayOrigin = new Vector3f(invertView.m30(), invertView.m31(), invertView.m32());
+		ray = new Rayf(rayOrigin, new Vector3f(-rayDirection.x, -rayDirection.y, -rayDirection.z));
 	}
 
-	public CastRay(Vector3d origin, Vector3d direction) {
-		this.direction = direction;
-		this.origin = origin;
-		this.invDirection = new Vector3d(-direction.x, -direction.y, -direction.z);
-		ray = new Ray(origin.getAsVec3(), invDirection.getAsVec3());
-	}
-
-	public Ray getRay() {
+	public Rayf getRay() {
 		return ray;
 	}
 
-	@Override
-	public String toString() {
-		return "origin: " + origin.x + ", " + origin.y + ", " + origin.z + ";\n direction: " + direction.x + ", "
-				+ direction.y + ", " + direction.z + "";
-	}
 }

@@ -23,17 +23,17 @@ package net.luxvacuos.lightengine.universal.network.packets;
 import java.io.Serializable;
 import java.util.UUID;
 
-import net.luxvacuos.igl.vector.Vector3d;
+import org.joml.Vector3f;
 
 public class UpdateBasicEntity implements Serializable {
 
 	private static final long serialVersionUID = 7936939795436298971L;
 
 	private UUID uuid;
-	private Vector3d position, rotation, velocity;
+	private Vector3f position, rotation, velocity;
 	private float scale;
 
-	public UpdateBasicEntity(UUID uuid, Vector3d position, Vector3d rotation, Vector3d velocity, float scale) {
+	public UpdateBasicEntity(UUID uuid, Vector3f position, Vector3f rotation, Vector3f velocity, float scale) {
 		this.uuid = uuid;
 		this.position = position;
 		this.rotation = rotation;
@@ -45,15 +45,15 @@ public class UpdateBasicEntity implements Serializable {
 		return uuid;
 	}
 
-	public Vector3d getPosition() {
+	public Vector3f getPosition() {
 		return position;
 	}
 
-	public Vector3d getRotation() {
+	public Vector3f getRotation() {
 		return rotation;
 	}
 
-	public Vector3d getVelocity() {
+	public Vector3f getVelocity() {
 		return velocity;
 	}
 

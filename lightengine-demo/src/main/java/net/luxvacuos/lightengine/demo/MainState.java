@@ -5,11 +5,10 @@ import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.
 import java.util.ArrayList;
 import java.util.List;
 
+import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
 import io.netty.channel.ChannelHandlerContext;
-import net.luxvacuos.igl.vector.Vector3d;
-import net.luxvacuos.igl.vector.Vector3f;
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.ecs.ClientComponents;
@@ -38,8 +37,6 @@ import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.core.states.StateNames;
 import net.luxvacuos.lightengine.universal.ecs.Components;
-import net.luxvacuos.lightengine.universal.ecs.components.Position;
-import net.luxvacuos.lightengine.universal.ecs.components.Scale;
 import net.luxvacuos.lightengine.universal.network.SharedChannelHandler;
 import net.luxvacuos.lightengine.universal.network.packets.ClientConnect;
 import net.luxvacuos.lightengine.universal.network.packets.ClientDisconnect;
@@ -50,7 +47,7 @@ public class MainState extends AbstractState {
 
 	private Sun sun;
 	private ParticleSystem particleSystem;
-	private Vector3d particlesPoint;
+	private Vector3f particlesPoint;
 	private GameWindow gameWindow;
 	private PauseWindow pauseWindow;
 	private LoadWindow loadWindow;
@@ -116,33 +113,33 @@ public class MainState extends AbstractState {
 		TaskManager.addTask(() -> {
 
 			/*
-			 * Light light0 = new Light(new Vector3d(0, 14, 0.05), new Vector3f(50, 50, 50),
-			 * new Vector3d(-60, 0, 0), 35, 30); light0.setShadow(true);
+			 * Light light0 = new Light(new Vector3f(0, 14, 0.05), new Vector3f(50, 50, 50),
+			 * new Vector3f(-60, 0, 0), 35, 30); light0.setShadow(true);
 			 * Renderer.getLightRenderer().addLight(light0); Light light1 = new Light(new
-			 * Vector3d(-0.05, 14, 0), new Vector3f(50, 50, 50), new Vector3d(-60, 90, 0),
+			 * Vector3f(-0.05, 14, 0), new Vector3f(50, 50, 50), new Vector3f(-60, 90, 0),
 			 * 35, 30); light1.setShadow(true);
 			 * Renderer.getLightRenderer().addLight(light1); Light light2 = new Light(new
-			 * Vector3d(0, 14, -0.05), new Vector3f(50, 50, 50), new Vector3d(-60, 180, 0),
+			 * Vector3f(0, 14, -0.05), new Vector3f(50, 50, 50), new Vector3f(-60, 180, 0),
 			 * 35, 30); light2.setShadow(true);
 			 * Renderer.getLightRenderer().addLight(light2); Light light3 = new Light(new
-			 * Vector3d(0.05, 14, 0), new Vector3f(50, 50, 50), new Vector3d(-60, -90, 0),
+			 * Vector3f(0.05, 14, 0), new Vector3f(50, 50, 50), new Vector3f(-60, -90, 0),
 			 * 35, 30); light3.setShadow(true);
-			 * Renderer.getLightRenderer().addLight(light3); Light light4 = new Light(new
-			 * Vector3d(0, 18, 0), new Vector3f(1000, 1000, 1000), new Vector3d(-90, 0, 0),
-			 * 60, 55); light4.setShadow(true);
-			 * Renderer.getLightRenderer().addLight(light4);
-			 */
+			 * Renderer.getLightRenderer().addLight(light3); */Light light4 = new Light(new
+			  Vector3f(0, 18, 0), new Vector3f(1000, 1000, 1000), new Vector3f(-90, 0, 0),
+			  60, 55); light4.setShadow(true);
+			  Renderer.getLightRenderer().addLight(light4);
+			 
 
 			Renderer.getLightRenderer()
-					.addLight(new Light(new Vector3d(-7.25883f, 1.6f, -2.17035f), new Vector3f(0.5f, 0.5f, 0.5f)));
+					.addLight(new Light(new Vector3f(-7.25883f, 1.6f, -2.17035f), new Vector3f(0.5f, 0.5f, 0.5f)));
 			Renderer.getLightRenderer()
-					.addLight(new Light(new Vector3d(-7.25883f, 1.6f, 2.17035f), new Vector3f(0.5f, 0.5f, 0.5f)));
+					.addLight(new Light(new Vector3f(-7.25883f, 1.6f, 2.17035f), new Vector3f(0.5f, 0.5f, 0.5f)));
 			Renderer.getLightRenderer()
-					.addLight(new Light(new Vector3d(5.71191, 1.6f, -2.17035f), new Vector3f(0.5f, 0.5f, 0.5f)));
+					.addLight(new Light(new Vector3f(5.71191f, 1.6f, -2.17035f), new Vector3f(0.5f, 0.5f, 0.5f)));
 			Renderer.getLightRenderer()
-					.addLight(new Light(new Vector3d(5.71191, 1.6f, 2.17035f), new Vector3f(0.5f, 0.5f, 0.5f)));
+					.addLight(new Light(new Vector3f(5.71191f, 1.6f, 2.17035f), new Vector3f(0.5f, 0.5f, 0.5f)));
 		});
-		RenderEntity plane = new RenderEntity("", "levels/test_state/models/sponza.blend");
+		RenderEntity plane = new RenderEntity("", "levels/test_state/models/level.blend");
 		/*
 		 * RenderEntity mat2 = new RenderEntity("",
 		 * "levels/test_state/models/sphere.blend");
@@ -157,8 +154,8 @@ public class MainState extends AbstractState {
 		nh.getEngine().addEntity(plane);
 		fire = CachedAssets.loadTexture("textures/particles/fire0.png");
 		particleSystem = new ParticleSystem(new ParticleTexture(fire.getID(), 4), 1000, 1, -1f, 3f, 6f);
-		particleSystem.setDirection(new Vector3d(0, -1, 0), 0.4f);
-		particlesPoint = new Vector3d(0, 1.7f, -5);
+		particleSystem.setDirection(new Vector3f(0, -1, 0), 0.4f);
+		particlesPoint = new Vector3f(0, 1.7f, -5);
 
 		client.sendPacket(new ClientConnect(Components.UUID.get(nh.getPlayer()).getUUID(),
 				Components.NAME.get(nh.getPlayer()).getName()));
@@ -205,7 +202,7 @@ public class MainState extends AbstractState {
 			nh.update(delta);
 			sun.update(nh.getPlayer().getPosition(), nh.getWorldSimulation().getRotation(), delta);
 			Renderer.getLightRenderer().update(delta);
-			// particleSystem.generateParticles(particlesPoint, delta);
+			particleSystem.generateParticles(particlesPoint, delta);
 			ParticleDomain.update(delta, nh.getPlayer());
 			if (kbh.isKeyPressed(GLFW.GLFW_KEY_ESCAPE)) {
 				kbh.ignoreKeyUntilRelease(GLFW.GLFW_KEY_ESCAPE);

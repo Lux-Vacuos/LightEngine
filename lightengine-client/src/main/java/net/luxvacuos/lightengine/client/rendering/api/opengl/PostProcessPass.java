@@ -28,9 +28,10 @@ import static org.lwjgl.opengl.GL11.GL_TRIANGLE_STRIP;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
 import static org.lwjgl.opengl.GL11.glDrawArrays;
 
-import net.luxvacuos.igl.vector.Matrix4d;
-import net.luxvacuos.igl.vector.Vector2d;
-import net.luxvacuos.igl.vector.Vector3d;
+import org.joml.Matrix4f;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
+
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.RawModel;
@@ -78,13 +79,13 @@ public abstract class PostProcessPass implements IPostProcessPass {
 		fbo = new FBO(width, height, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
 		shader = new DeferredShadingShader(name);
 		shader.start();
-		shader.loadResolution(new Vector2d(width, height));
+		shader.loadResolution(new Vector2f(width, height));
 		shader.loadSkyColor(ClientVariables.skyColor);
 		shader.stop();
 	}
 
 	@Override
-	public void process(CameraEntity camera, Matrix4d previousViewMatrix, Vector3d previousCameraPosition, FBO[] auxs,
+	public void process(CameraEntity camera, Matrix4f previousViewMatrix, Vector3f previousCameraPosition, FBO[] auxs,
 			RawModel quad) {
 		GPUProfiler.start(name);
 		fbo.begin();

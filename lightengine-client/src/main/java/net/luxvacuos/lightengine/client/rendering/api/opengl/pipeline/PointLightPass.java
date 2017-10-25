@@ -43,9 +43,10 @@ import static org.lwjgl.opengl.GL30.GL_RGBA16F;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.luxvacuos.igl.vector.Matrix4d;
-import net.luxvacuos.igl.vector.Vector2d;
-import net.luxvacuos.igl.vector.Vector3d;
+import org.joml.Matrix4f;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
+
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.Sun;
@@ -75,11 +76,11 @@ public class PointLightPass extends DeferredPass {
 	@Override
 	public void init() {
 		fbos = new FBO[2];
-		fbos[0] = new FBO(width, height, GL_RGBA16F,GL_RGBA ,GL_FLOAT);
-		fbos[1] = new FBO(width, height, GL_RGBA16F,GL_RGBA, GL_FLOAT);
+		fbos[0] = new FBO(width, height, GL_RGBA16F, GL_RGBA, GL_FLOAT);
+		fbos[1] = new FBO(width, height, GL_RGBA16F, GL_RGBA, GL_FLOAT);
 		shader = new DeferredShadingShader(name);
 		shader.start();
-		shader.loadResolution(new Vector2d(width, height));
+		shader.loadResolution(new Vector2f(width, height));
 		shader.loadSkyColor(ClientVariables.skyColor);
 		shader.stop();
 	}
@@ -115,7 +116,7 @@ public class PointLightPass extends DeferredPass {
 	}
 
 	@Override
-	public void process(CameraEntity camera, Sun sun, Matrix4d previousViewMatrix, Vector3d previousCameraPosition,
+	public void process(CameraEntity camera, Sun sun, Matrix4f previousViewMatrix, Vector3f previousCameraPosition,
 			IWorldSimulation clientWorldSimulation, List<Light> tLights, FBO[] auxs, IDeferredPipeline pipe,
 			RawModel quad, CubeMapTexture irradianceCapture, CubeMapTexture environmentMap, Texture brdfLUT,
 			ShadowFBO shadowFBO, float exposure) {
@@ -138,9 +139,9 @@ public class PointLightPass extends DeferredPass {
 					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/shadowsDrawDistance")),
 					false, (boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/lensFlares")),
 					(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/shadows")));
-			shader.loadSunPosition(Maths.convertTo2F(new Vector3d(sun.getSunPosition()),
-					camera.getProjectionMatrix(), Maths.createViewMatrixRot(camera.getRotation().getX(),
-							camera.getRotation().getY(), camera.getRotation().getZ(), DeferredPass.tmp),
+			shader.loadSunPosition(Maths.convertTo2F(new Vector3f(sun.getSunPosition()), camera.getProjectionMatrix(),
+					Maths.createViewMatrixRot(camera.getRotation().x(), camera.getRotation().y(),
+							camera.getRotation().z(), DeferredPass.tmp),
 					width, height));
 			shader.loadExposure(exposure);
 			shader.loadPointLightsPos(lights);

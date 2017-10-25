@@ -41,11 +41,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.joml.Vector3f;
 import org.lwjgl.nanovg.NVGLUFramebuffer;
 
 import com.badlogic.gdx.math.Interpolation;
 
-import net.luxvacuos.igl.vector.Vector3d;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.AnimationState;
@@ -279,7 +279,7 @@ public class Compositor {
 		glBindVertexArray(quad.getVaoID());
 		glEnableVertexAttribArray(0);
 		shader.loadTransformationMatrix(
-				Maths.createTransformationMatrix(new Vector3d(x - aspect + offsetX, y + offsetY, -2.414), offsetRotX,
+				Maths.createTransformationMatrix(new Vector3f(x - aspect + offsetX, y + offsetY, -2.414f), offsetRotX,
 						offsetRotY, offsetRotZ, scaleX, scaleY, 1));
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, window.getFBO().texture());

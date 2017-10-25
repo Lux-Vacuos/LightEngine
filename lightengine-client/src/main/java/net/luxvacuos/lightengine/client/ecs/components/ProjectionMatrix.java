@@ -20,25 +20,26 @@
 
 package net.luxvacuos.lightengine.client.ecs.components;
 
+import org.joml.Matrix4f;
+
 import com.hackhalo2.nbt.exceptions.NBTException;
 import com.hackhalo2.nbt.tags.TagCompound;
 
-import net.luxvacuos.igl.vector.Matrix4d;
 import net.luxvacuos.lightengine.universal.ecs.components.LEComponent;
 
 public class ProjectionMatrix implements LEComponent {
 
-	private Matrix4d projectionMatrix;
+	private Matrix4f projectionMatrix;
 
-	public ProjectionMatrix(Matrix4d projectionMatrix) {
+	public ProjectionMatrix(Matrix4f projectionMatrix) {
 		this.projectionMatrix = projectionMatrix;
 	}
-	
-	public Matrix4d getProjectionMatrix() {
+
+	public Matrix4f getProjectionMatrix() {
 		return this.projectionMatrix;
 	}
-	
-	public void setProjectionMatrix(Matrix4d projectionMatrix) {
+
+	public void setProjectionMatrix(Matrix4f projectionMatrix) {
 		this.projectionMatrix = projectionMatrix;
 	}
 

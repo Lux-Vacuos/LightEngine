@@ -20,7 +20,8 @@
 
 package net.luxvacuos.lightengine.client.core;
 
-import net.luxvacuos.igl.vector.Vector3d;
+import org.joml.Vector3f;
+
 import net.luxvacuos.lightengine.universal.core.GlobalVariables;
 
 public class ClientVariables extends GlobalVariables {
@@ -30,7 +31,7 @@ public class ClientVariables extends GlobalVariables {
 	public static float RED = 0.32f;
 	public static float GREEN = 0.8f;
 	public static float BLUE = 1f;
-	public static Vector3d skyColor = new Vector3d(ClientVariables.RED, ClientVariables.GREEN, ClientVariables.BLUE);
+	public static Vector3f skyColor = new Vector3f(ClientVariables.RED, ClientVariables.GREEN, ClientVariables.BLUE);
 	public static final boolean WSL = false;
 
 	/**
@@ -66,6 +67,6 @@ public class ClientVariables extends GlobalVariables {
 	public static final String FRAGMENT_WATER = "F_Water.glsl";
 	public static final String GEOMETRY_WATER = "G_Water.glsl";
 	public static final String FRAGMENT_WINDOW3D = "F_3DWindow.glsl";
-	public static final String VERTEX_WINDOW3D= "V_3DWindow.glsl";
+	public static final String VERTEX_WINDOW3D = "V_3DWindow.glsl";
 
 }

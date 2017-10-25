@@ -22,6 +22,7 @@ package net.luxvacuos.lightengine.client.rendering.api.opengl;
 
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 import static org.lwjgl.opengl.GL11.GL_BACK;
+import static org.lwjgl.opengl.GL11.GL_FRONT;
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
@@ -40,13 +41,13 @@ import static org.lwjgl.opengl.GL32.GL_TEXTURE_CUBE_MAP_SEAMLESS;
 import java.util.List;
 import java.util.Map;
 
+import org.joml.Matrix4f;
+
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.utils.Array;
 
 import net.luxvacuos.igl.Logger;
-import net.luxvacuos.igl.vector.Matrix4d;
-import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.Sun;
 import net.luxvacuos.lightengine.client.ecs.entities.SunCamera;
@@ -185,6 +186,7 @@ public class Renderer {
 			shadowFBO.end();
 			GPUProfiler.end();
 			GPUProfiler.start("Shadow lights");
+			glCullFace(GL_FRONT);
 			for (Light light : lightRenderer.getLights()) {
 				if (light.isShadow()) {
 					light.getShadowMap().begin();
@@ -195,6 +197,7 @@ public class Renderer {
 					light.getShadowMap().end();
 				}
 			}
+			glCullFace(GL_BACK);
 			GPUProfiler.end();
 		}
 		GPUProfiler.end();
@@ -208,8 +211,9 @@ public class Renderer {
 		deferredPipeline.begin();
 		clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		GPUProfiler.start("Skybox");
-		skyboxRenderer.render(ClientVariables.RED, ClientVariables.GREEN, ClientVariables.BLUE, camera, worldSimulation,
-				sun.getSunPosition());
+		// skyboxRenderer.render(ClientVariables.RED, ClientVariables.GREEN,
+		// ClientVariables.BLUE, camera, worldSimulation,
+		// sun.getSunPosition());
 		GPUProfiler.end();
 		GPUProfiler.start("External");
 		if (deferredPass != null)
@@ -357,25 +361,13 @@ public class Renderer {
 		glClear(values);
 	}
 
-	public static Matrix4d createProjectionMatrix(int width, int height, float fov, float nearPlane, float farPlane) {
-		return createProjectionMatrix(new Matrix4d(), width, height, fov, nearPlane, farPlane);
+	public static Matrix4f createProjectionMatrix(int width, int height, float fov, float nearPlane, float farPlane) {
+		return createProjectionMatrix(new Matrix4f(), width, height, fov, nearPlane, farPlane);
 	}
 
-	public static Matrix4d createProjectionMatrix(Matrix4d proj, int width, int height, float fov, float nearPlane,
+	public static Matrix4f createProjectionMatrix(Matrix4f proj, int width, int height, float fov, float nearPlane,
 			float farPlane) {
-		float aspectRatio = (float) width / (float) height;
-		float y_scale = (float) ((1f / Math.tan(Math.toRadians(fov / 2f))));
-		float x_scale = y_scale / aspectRatio;
-		float frustrum_length = farPlane - nearPlane;
-
-		proj.setIdentity();
-		proj.m00 = x_scale;
-		proj.m11 = y_scale;
-		proj.m22 = -((farPlane + nearPlane) / frustrum_length);
-		proj.m23 = -1;
-		proj.m32 = -((2 * nearPlane * farPlane) / frustrum_length);
-		proj.m33 = 0;
-		return proj;
+		return proj.setPerspective((float) Math.toRadians(fov), (float) width / (float) height, nearPlane, farPlane);
 	}
 
 }

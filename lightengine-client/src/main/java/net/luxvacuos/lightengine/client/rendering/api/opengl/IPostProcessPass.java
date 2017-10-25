@@ -20,8 +20,9 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.opengl;
 
-import net.luxvacuos.igl.vector.Matrix4d;
-import net.luxvacuos.igl.vector.Vector3d;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
@@ -30,11 +31,11 @@ public interface IPostProcessPass extends IDisposable {
 
 	public void init();
 
-	public void process(CameraEntity camera, Matrix4d previousViewMatrix, Vector3d previousCameraPosition, FBO[] auxs,
+	public void process(CameraEntity camera, Matrix4f previousViewMatrix, Vector3f previousCameraPosition, FBO[] auxs,
 			RawModel quad);
 
 	public void render(FBO[] auxs);
-	
+
 	public boolean isEnabled();
 
 }

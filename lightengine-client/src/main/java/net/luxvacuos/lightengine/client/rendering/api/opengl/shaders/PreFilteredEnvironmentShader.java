@@ -20,7 +20,8 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.opengl.shaders;
 
-import net.luxvacuos.igl.vector.Matrix4d;
+import org.joml.Matrix4f;
+
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.Attribute;
@@ -48,7 +49,7 @@ public class PreFilteredEnvironmentShader extends ShaderProgram {
 		viewMatrix.loadMatrix(camera.getViewMatrix());
 	}
 
-	public void loadProjectionMatrix(Matrix4d projection) {
+	public void loadProjectionMatrix(Matrix4f projection) {
 		projectionMatrix.loadMatrix(projection);
 	}
 
