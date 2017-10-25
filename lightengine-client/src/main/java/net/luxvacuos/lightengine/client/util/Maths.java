@@ -60,9 +60,7 @@ public class Maths extends net.luxvacuos.lightengine.universal.util.Maths {
 			viewMatrix = new Matrix4f();
 			viewMatrix.identity();
 		}
-		Vector3f cameraPost = pos;
-		Vector3f negativeCameraPos = new Vector3f(-cameraPost.x, -cameraPost.y, -cameraPost.z);
-		viewMatrix.translate(negativeCameraPos);
+		viewMatrix.translate(pos.negate(new Vector3f()));
 		return viewMatrix;
 	}
 

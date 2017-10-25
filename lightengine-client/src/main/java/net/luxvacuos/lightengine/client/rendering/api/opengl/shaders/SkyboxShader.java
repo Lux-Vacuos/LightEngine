@@ -37,14 +37,12 @@ public class SkyboxShader extends ShaderProgram {
 	private UniformMatrix transformationMatrix = new UniformMatrix("transformationMatrix");
 	private UniformMatrix viewMatrix = new UniformMatrix("viewMatrix");
 	private UniformFloat time = new UniformFloat("time");
-	private UniformVec3 fogColour = new UniformVec3("fogColour");
 	private UniformVec3 lightPosition = new UniformVec3("lightPosition");
 
 	public SkyboxShader() {
 		super(ClientVariables.VERTEX_FILE_SKYBOX, ClientVariables.FRAGMENT_FILE_SKYBOX, new Attribute(0, "position"),
 				new Attribute(1, "textureCoords"), new Attribute(2, "normal"));
-		super.storeAllUniformLocations(projectionMatrix, transformationMatrix, viewMatrix, time, fogColour,
-				lightPosition);
+		super.storeAllUniformLocations(projectionMatrix, transformationMatrix, viewMatrix, time, lightPosition);
 	}
 
 	public void loadProjectionMatrix(Matrix4f matrix) {
@@ -62,10 +60,6 @@ public class SkyboxShader extends ShaderProgram {
 
 	public void loadLightPosition(Vector3f pos) {
 		lightPosition.loadVec3(pos);
-	}
-
-	public void loadFog(float r, float g, float b) {
-		fogColour.loadVec3(new Vector3f(r, g, b));
 	}
 
 	public void loadTime(float time) {

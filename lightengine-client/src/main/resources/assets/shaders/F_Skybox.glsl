@@ -27,7 +27,6 @@ in vec3 pass_normal;
 out vec4 [5] out_Color;
 
 uniform float time;
-uniform vec3 fogColour;
 uniform vec3 lightPosition;
 
 #define SUN_LOWER_LIMIT 0.51

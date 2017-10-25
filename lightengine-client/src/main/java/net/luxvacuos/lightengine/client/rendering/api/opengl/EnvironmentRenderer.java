@@ -45,7 +45,6 @@ import static org.lwjgl.opengl.GL30.glRenderbufferStorage;
 
 import org.joml.Vector3f;
 
-import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.core.exception.FrameBufferException;
 import net.luxvacuos.lightengine.client.ecs.entities.CubeMapCamera;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
@@ -92,8 +91,7 @@ public class EnvironmentRenderer {
 					cubeMapTexture.getID(), 0);
 			camera.switchToFace(i);
 			Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			//skyboxRenderer.render(ClientVariables.RED, ClientVariables.GREEN, ClientVariables.BLUE, camera,
-			//		clientWorldSimulation, lightPosition);
+			skyboxRenderer.render(camera, clientWorldSimulation, lightPosition);
 		}
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		window.resetViewport();

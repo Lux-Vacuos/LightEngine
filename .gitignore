@@ -85,3 +85,9 @@ buildNumber.properties
 
 ### Blender ###
 *.blend1
+
+#### Thumbs ###
+Thumbs.db
+
+### Docs ###
+docs/_build

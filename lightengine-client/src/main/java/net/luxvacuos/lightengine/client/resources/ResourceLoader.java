@@ -477,18 +477,18 @@ public class ResourceLoader implements IDisposable {
 	}
 
 	private void calculateTangents(VertexNM v0, VertexNM v1, VertexNM v2, List<Vector2f> textures) {
-		Vector3f delatPos1 = v1.getPosition().sub(v0.getPosition());
-		Vector3f delatPos2 = v2.getPosition().sub(v0.getPosition());
+		Vector3f delatPos1 = v1.getPosition().sub(v0.getPosition(), new Vector3f());
+		Vector3f delatPos2 = v2.getPosition().sub(v0.getPosition(), new Vector3f());
 		Vector2f uv0 = textures.get(v0.getTextureIndex());
 		Vector2f uv1 = textures.get(v1.getTextureIndex());
 		Vector2f uv2 = textures.get(v2.getTextureIndex());
-		Vector2f deltaUv1 = uv1.sub(uv0);
-		Vector2f deltaUv2 = uv2.sub(uv0);
+		Vector2f deltaUv1 = uv1.sub(uv0, new Vector2f());
+		Vector2f deltaUv2 = uv2.sub(uv0, new Vector2f());
 
 		float r = 1.0f / (deltaUv1.x * deltaUv2.y - deltaUv1.y * deltaUv2.x);
 		delatPos1.mul(deltaUv2.y);
 		delatPos2.mul(deltaUv1.y);
-		Vector3f tangent = delatPos1.sub(delatPos2);
+		Vector3f tangent = delatPos1.sub(delatPos2, new Vector3f());
 		tangent.mul(r);
 		v0.addTangent(tangent);
 		v1.addTangent(tangent);

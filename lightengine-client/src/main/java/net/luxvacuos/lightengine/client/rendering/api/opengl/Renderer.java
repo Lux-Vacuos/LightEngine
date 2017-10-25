@@ -22,12 +22,12 @@ package net.luxvacuos.lightengine.client.rendering.api.opengl;
 
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 import static org.lwjgl.opengl.GL11.GL_BACK;
-import static org.lwjgl.opengl.GL11.GL_FRONT;
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
+import static org.lwjgl.opengl.GL11.GL_FRONT;
 import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
 import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
 import static org.lwjgl.opengl.GL11.glBlendFunc;
@@ -211,9 +211,7 @@ public class Renderer {
 		deferredPipeline.begin();
 		clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		GPUProfiler.start("Skybox");
-		// skyboxRenderer.render(ClientVariables.RED, ClientVariables.GREEN,
-		// ClientVariables.BLUE, camera, worldSimulation,
-		// sun.getSunPosition());
+		skyboxRenderer.render(camera, worldSimulation, sun.getSunPosition());
 		GPUProfiler.end();
 		GPUProfiler.start("External");
 		if (deferredPass != null)

@@ -23,12 +23,11 @@ package net.luxvacuos.lightengine.client.ecs.entities;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
 import net.luxvacuos.lightengine.client.util.Maths;
 
 public class SpotlightCamera extends CameraEntity {
-	
+
 	private Vector3f direction = new Vector3f();
 
 	public SpotlightCamera(float radius, int width, int height) {
@@ -39,7 +38,7 @@ public class SpotlightCamera extends CameraEntity {
 
 	@Override
 	public void update(float delta) {
-		ClientComponents.VIEW_MATRIX.get(this).setViewMatrix(Maths.createViewMatrix(this));
+		setViewMatrix(Maths.createViewMatrix(this));
 		Matrix4f proj = getProjectionMatrix();
 		Vector3f v = new Vector3f();
 		v.x = (((2.0f * 8) / 16) - 1) / proj.m00();
@@ -50,7 +49,7 @@ public class SpotlightCamera extends CameraEntity {
 		direction.y = v.x * invertView.m01() + v.y * invertView.m11() + v.z * invertView.m21();
 		direction.z = v.x * invertView.m02() + v.y * invertView.m12() + v.z * invertView.m22();
 	}
-	
+
 	public Vector3f getDirection() {
 		return direction.negate(new Vector3f());
 	}

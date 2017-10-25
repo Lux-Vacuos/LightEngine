@@ -66,7 +66,7 @@ public class Light {
 			break;
 		case aiLightSource_SPOT:
 			System.out.println("Spot");
-			this.rotation= new Vector3f(light.mDirection().x(),light.mDirection().y(),light.mDirection().z());
+			this.rotation = new Vector3f(light.mDirection().x(), light.mDirection().y(), light.mDirection().z());
 			System.out.println(rotation);
 			this.radius = light.mAngleOuterCone();
 			this.inRadius = light.mAngleInnerCone();
@@ -85,7 +85,7 @@ public class Light {
 	public void update(float delta) {
 		if (type == 1) {
 			camera.setPosition(position);
-			camera.setRotation(rotation.add(new Vector3f(180, 0, 0)));
+			camera.setRotation(rotation.add(new Vector3f(180, 0, 0), new Vector3f()));
 			camera.update(delta);
 		}
 	}

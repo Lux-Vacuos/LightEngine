@@ -53,15 +53,13 @@ public class SkyboxRenderer {
 		shader.stop();
 	}
 
-	public void render(float r, float g, float b, CameraEntity camera, IWorldSimulation clientWorldSimulation,
-			Vector3f lightPosition) {
+	public void render(CameraEntity camera, IWorldSimulation clientWorldSimulation, Vector3f lightPosition) {
 		glDepthMask(false);
 		glDisable(GL_CULL_FACE);
 		shader.start();
 		shader.loadTransformationMatrix(Maths.createTransformationMatrix(camera.getPosition(), 0, 0, 0, 400));
 		shader.loadProjectionMatrix(camera.getProjectionMatrix());
 		shader.loadViewMatrix(camera);
-		shader.loadFog(r, g, b);
 		shader.loadTime(clientWorldSimulation.getGlobalTime());
 		shader.loadLightPosition(lightPosition);
 		glBindVertexArray(dome.getVaoID());

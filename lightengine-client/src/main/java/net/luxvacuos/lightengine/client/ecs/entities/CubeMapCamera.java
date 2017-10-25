@@ -23,7 +23,6 @@ package net.luxvacuos.lightengine.client.ecs.entities;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.ecs.Components;
 import net.luxvacuos.lightengine.universal.ecs.components.Rotation;
@@ -85,11 +84,11 @@ public class CubeMapCamera extends CameraEntity {
 		projectionMatrix.m23(-1);
 		projectionMatrix.m32(-((2 * NEAR_PLANE * FAR_PLANE) / frustum_length));
 		projectionMatrix.m33(0);
-		ClientComponents.PROJECTION_MATRIX.get(this).setProjectionMatrix(projectionMatrix);
+		setProjectionMatrix(projectionMatrix);
 	}
 
 	private void updateViewMatrix() {
-		ClientComponents.VIEW_MATRIX.get(this).setViewMatrix(Maths.createViewMatrix(this));
+		setViewMatrix(Maths.createViewMatrix(this));
 	}
 
 }
