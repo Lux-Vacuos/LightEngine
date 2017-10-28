@@ -95,12 +95,12 @@ public class PreFilteredEnvironment implements IDisposable {
 	private RawModel cube, quad;
 	private Texture brdfLUT;
 
-	public PreFilteredEnvironment(Window window) {
+	public PreFilteredEnvironment(CubeMapTexture texCube, Window window) {
 		shader = new PreFilteredEnvironmentShader();
 		camera = new CubeMapCamera(new Vector3f());
 		cube = window.getResourceLoader().loadToVAO(CUBE, 3);
 		quad = window.getResourceLoader().loadToVAO(QUAD, 2);
-		cubeMapTexture = new CubeMapTexture(window.getResourceLoader().createEmptyCubeMap(128, true, true), 128);
+		cubeMapTexture = texCube;
 		fbo = glGenFramebuffers();
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
@@ -154,8 +154,8 @@ public class PreFilteredEnvironment implements IDisposable {
 		shader.loadProjectionMatrix(camera.getProjectionMatrix());
 		int maxMipLevels = 5;
 		for (int mip = 0; mip < maxMipLevels; mip++) {
-			int mipWidth = (int) (128 * Math.pow(0.5, mip));
-			int mipHeight = (int) (128 * Math.pow(0.5, mip));
+			int mipWidth = (int) ((float) cubeMapTexture.getSize() * Math.pow(0.5, mip));
+			int mipHeight = (int) ((float) cubeMapTexture.getSize() * Math.pow(0.5, mip));
 			window.setViewport(0, 0, mipWidth, mipHeight);
 
 			float roughness = (float) mip / (float) (maxMipLevels - 1);

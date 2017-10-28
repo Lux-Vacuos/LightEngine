@@ -23,6 +23,8 @@ package net.luxvacuos.lightengine.client.rendering.api.opengl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.joml.Vector3f;
+
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.utils.IntMap;
@@ -31,6 +33,8 @@ import com.esotericsoftware.kryonet.util.ObjectIntMap;
 
 import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CubeMapTexture;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Texture;
 import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
@@ -63,6 +67,18 @@ public class RenderingManager implements IDisposable {
 	public void render(CameraEntity camera) {
 		for (Entry<IRenderer> rendererEntry : renderers)
 			rendererEntry.value.render(camera);
+	}
+
+	public void renderReflections(CameraEntity camera, Vector3f lightPosition, CubeMapTexture irradiance,
+			CubeMapTexture environmentMap, Texture brdfLUT) {
+		for (Entry<IRenderer> rendererEntry : renderers)
+			rendererEntry.value.renderReflections(camera, lightPosition, irradiance, environmentMap, brdfLUT);
+	}
+
+	public void renderForward(CameraEntity camera, Vector3f lightPosition, CubeMapTexture irradiance,
+			CubeMapTexture environmentMap, Texture brdfLUT) {
+		for (Entry<IRenderer> rendererEntry : renderers)
+			rendererEntry.value.renderForward(camera, lightPosition, irradiance, environmentMap, brdfLUT);
 	}
 
 	public void renderShadow(CameraEntity sun) {

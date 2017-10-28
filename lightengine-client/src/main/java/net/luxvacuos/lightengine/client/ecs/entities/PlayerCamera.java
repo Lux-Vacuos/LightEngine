@@ -94,6 +94,8 @@ public class PlayerCamera extends CameraEntity {
 
 		Vector3f walkDirection = new Vector3f(0.0f, 0.0f, 0.0f);
 		float walkVelocity = 1.1f * 2.0f;
+		if (kbh.isCtrlPressed())
+			walkVelocity *= 3f;
 		float walkSpeed = walkVelocity * delta * p.characterScale;
 
 		if (kbh.isKeyPressed(GLFW.GLFW_KEY_W)) {

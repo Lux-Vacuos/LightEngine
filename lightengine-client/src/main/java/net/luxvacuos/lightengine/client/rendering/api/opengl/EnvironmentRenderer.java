@@ -49,6 +49,7 @@ import net.luxvacuos.lightengine.client.core.exception.FrameBufferException;
 import net.luxvacuos.lightengine.client.ecs.entities.CubeMapCamera;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CubeMapTexture;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Texture;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
 
 public class EnvironmentRenderer {
@@ -91,11 +92,28 @@ public class EnvironmentRenderer {
 					cubeMapTexture.getID(), 0);
 			camera.switchToFace(i);
 			Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			skyboxRenderer.render(camera, clientWorldSimulation, lightPosition);
+			skyboxRenderer.render(camera, clientWorldSimulation, lightPosition, false);
 		}
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		window.resetViewport();
+	}
 
+	public void renderEnvironmentMap(Vector3f center, SkyboxRenderer skyboxRenderer, RenderingManager renderingManager,
+			IWorldSimulation clientWorldSimulation, Vector3f lightPosition, CubeMapTexture irradiance,
+			CubeMapTexture environmentMap, Texture brdfLUT, Window window) {
+		camera.setPosition(center);
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+		window.setViewport(0, 0, cubeMapTexture.getSize(), cubeMapTexture.getSize());
+		for (int i = 0; i < 6; i++) {
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+					cubeMapTexture.getID(), 0);
+			camera.switchToFace(i);
+			Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			skyboxRenderer.render(camera, clientWorldSimulation, lightPosition, false);
+			renderingManager.renderReflections(camera, lightPosition, irradiance, environmentMap, brdfLUT);
+		}
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		window.resetViewport();
 	}
 
 	public void cleanUp() {

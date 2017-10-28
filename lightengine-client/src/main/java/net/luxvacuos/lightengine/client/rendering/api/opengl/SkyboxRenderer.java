@@ -53,7 +53,7 @@ public class SkyboxRenderer {
 		shader.stop();
 	}
 
-	public void render(CameraEntity camera, IWorldSimulation clientWorldSimulation, Vector3f lightPosition) {
+	public void render(CameraEntity camera, IWorldSimulation clientWorldSimulation, Vector3f lightPosition, boolean renderSun) {
 		glDepthMask(false);
 		glDisable(GL_CULL_FACE);
 		shader.start();
@@ -62,6 +62,7 @@ public class SkyboxRenderer {
 		shader.loadViewMatrix(camera);
 		shader.loadTime(clientWorldSimulation.getGlobalTime());
 		shader.loadLightPosition(lightPosition);
+		shader.renderSun(renderSun);
 		glBindVertexArray(dome.getVaoID());
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);

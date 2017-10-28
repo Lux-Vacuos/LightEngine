@@ -81,7 +81,7 @@ public class IrradianceCapture implements IDisposable {
 		shader = new IrradianceCaptureShader();
 		camera = new CubeMapCamera(new Vector3f());
 		cube = loader.loadToVAO(VERTICES, 3);
-		cubeMapTexture = new CubeMapTexture(loader.createEmptyCubeMap(32, true, false), 32);
+		cubeMapTexture = loader.createEmptyCubeMap(32, true, false);
 		fbo = glGenFramebuffers();
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 

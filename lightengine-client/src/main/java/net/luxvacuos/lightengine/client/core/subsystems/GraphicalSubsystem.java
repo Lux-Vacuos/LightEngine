@@ -107,6 +107,7 @@ public class GraphicalSubsystem implements ISubsystem {
 		TaskManager.addTaskAsync(() -> ShaderIncludes.processIncludeFile("common.isl"));
 		TaskManager.addTaskAsync(() -> ShaderIncludes.processIncludeFile("lighting.isl"));
 		TaskManager.addTaskAsync(() -> ShaderIncludes.processIncludeFile("materials.isl"));
+		TaskManager.addTaskAsync(() -> ShaderIncludes.processIncludeFile("global.isl"));
 		TaskManager.addTask(() -> DefaultData.init(loader));
 		StateMachine.registerState(new SplashScreenState());
 		REGISTRY.register(new Key("/Light Engine/System/lwjgl"), Version.getVersion());

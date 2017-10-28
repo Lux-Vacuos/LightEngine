@@ -35,15 +35,15 @@ import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.Unifor
  * @author Guerra24 <pablo230699@hotmail.com>
  * @category Rendering
  */
-public class EntityShader extends ShaderProgram {
+public class EntityDeferredShader extends ShaderProgram {
 
 	private UniformMatrix transformationMatrix = new UniformMatrix("transformationMatrix");
 	private UniformMatrix projectionMatrix = new UniformMatrix("projectionMatrix");
 	private UniformMatrix viewMatrix = new UniformMatrix("viewMatrix");
 	private UniformMaterial material = new UniformMaterial("material");
 
-	public EntityShader() {
-		super(ClientVariables.VERTEX_FILE_ENTITY, ClientVariables.FRAGMENT_FILE_ENTITY, new Attribute(0, "position"),
+	public EntityDeferredShader() {
+		super(ClientVariables.VERTEX_FILE_ENTITY_DEFERRED, ClientVariables.FRAGMENT_FILE_ENTITY_DEFERRED, new Attribute(0, "position"),
 				new Attribute(1, "textureCoords"), new Attribute(2, "normals"), new Attribute(3, "tangent"));
 		super.storeAllUniformLocations(transformationMatrix, projectionMatrix, viewMatrix, material);
 	}
@@ -53,14 +53,11 @@ public class EntityShader extends ShaderProgram {
 	}
 
 	public void loadMaterial(Material mat) {
-		this.material.loadMaterial(mat);
+		material.loadMaterial(mat);
 	}
 
-	public void loadViewMatrix(CameraEntity camera) {
+	public void loadCamera(CameraEntity camera) {
+		projectionMatrix.loadMatrix(camera.getProjectionMatrix());
 		viewMatrix.loadMatrix(camera.getViewMatrix());
-	}
-
-	public void loadProjectionMatrix(Matrix4f projection) {
-		projectionMatrix.loadMatrix(projection);
 	}
 }

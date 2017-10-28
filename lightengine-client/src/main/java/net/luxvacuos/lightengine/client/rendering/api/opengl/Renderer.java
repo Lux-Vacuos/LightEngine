@@ -52,12 +52,12 @@ import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.Sun;
 import net.luxvacuos.lightengine.client.ecs.entities.SunCamera;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CubeMapTexture;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Light;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.ParticleTexture;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.WaterTile;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.pipeline.MultiPass;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.pipeline.PostProcess;
+import net.luxvacuos.lightengine.client.resources.ResourceLoader;
 import net.luxvacuos.lightengine.client.ui.OnAction;
 import net.luxvacuos.lightengine.client.world.particles.Particle;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
@@ -69,7 +69,8 @@ public class Renderer {
 	private static SkyboxRenderer skyboxRenderer;
 	private static IDeferredPipeline deferredPipeline;
 	private static IPostProcessPipeline postProcessPipeline;
-	private static EnvironmentRenderer environmentRenderer;
+	private static EnvironmentRenderer envRenderer;
+	private static EnvironmentRenderer envRendererEntities;
 	private static ParticleRenderer particleRenderer;
 	private static IrradianceCapture irradianceCapture;
 	private static PreFilteredEnvironment preFilteredEnvironment;
@@ -99,6 +100,7 @@ public class Renderer {
 			Renderer.window = window;
 			shadowResolution = (int) REGISTRY
 					.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/shadowsResolution"));
+			ResourceLoader loader = window.getResourceLoader();
 
 			if (shadowResolution > GLUtil.GL_MAX_TEXTURE_SIZE)
 				shadowResolution = GLUtil.GL_MAX_TEXTURE_SIZE;
@@ -106,16 +108,19 @@ public class Renderer {
 			TaskManager.addTask(() -> frustum = new Frustum());
 			TaskManager.addTask(() -> shadowFBO = new ShadowFBO(shadowResolution, shadowResolution));
 
-			TaskManager.addTask(() -> skyboxRenderer = new SkyboxRenderer(window.getResourceLoader()));
+			TaskManager.addTask(() -> skyboxRenderer = new SkyboxRenderer(loader));
 			TaskManager.addTask(() -> deferredPipeline = new MultiPass());
 			TaskManager.addTask(() -> postProcessPipeline = new PostProcess(window));
-			TaskManager.addTask(() -> particleRenderer = new ParticleRenderer(window.getResourceLoader()));
-			TaskManager.addTask(() -> irradianceCapture = new IrradianceCapture(window.getResourceLoader()));
-			TaskManager.addTask(() -> environmentRenderer = new EnvironmentRenderer(
-					new CubeMapTexture(window.getResourceLoader().createEmptyCubeMap(128, true, false), 128)));
-			TaskManager.addTask(() -> preFilteredEnvironment = new PreFilteredEnvironment(window));
-			TaskManager.addTask(() -> waterRenderer = new WaterRenderer(window.getResourceLoader()));
-			TaskManager.addTask(() -> renderingManager.addRenderer(new EntityRenderer(window.getResourceLoader())));
+			TaskManager.addTask(() -> particleRenderer = new ParticleRenderer(loader));
+			TaskManager
+					.addTask(() -> envRenderer = new EnvironmentRenderer(loader.createEmptyCubeMap(32, true, false)));
+			TaskManager.addTask(
+					() -> envRendererEntities = new EnvironmentRenderer(loader.createEmptyCubeMap(256, true, false)));
+			TaskManager.addTask(() -> preFilteredEnvironment = new PreFilteredEnvironment(
+					loader.createEmptyCubeMap(256, true, true), window));
+			TaskManager.addTask(() -> irradianceCapture = new IrradianceCapture(loader));
+			TaskManager.addTask(() -> waterRenderer = new WaterRenderer(loader));
+			TaskManager.addTask(() -> renderingManager.addRenderer(new EntityRenderer(loader)));
 			lightRenderer = new LightRenderer();
 			enabled = true;
 		}
@@ -133,15 +138,18 @@ public class Renderer {
 		resetState();
 		renderingManager.preProcess(entities);
 		GPUProfiler.start("Main Renderer");
-		GPUProfiler.start("EnvMap");
-		environmentRenderer.renderEnvironmentMap(camera.getPosition(), skyboxRenderer, worldSimulation,
-				sun.getSunPosition(), window);
+		GPUProfiler.start("IrradianceMap");
+		envRenderer.renderEnvironmentMap(camera.getPosition(), skyboxRenderer, worldSimulation, sun.getSunPosition(),
+				window);
+		irradianceCapture.render(window, envRenderer.getCubeMapTexture().getID());
 		GPUProfiler.end();
-		GPUProfiler.start("IrrMap");
-		irradianceCapture.render(window, environmentRenderer.getCubeMapTexture().getID());
+		GPUProfiler.start("EnvironmentMap");
+		envRendererEntities.renderEnvironmentMap(camera.getPosition(), skyboxRenderer, renderingManager,
+				worldSimulation, sun.getSunPosition(), irradianceCapture.getCubeMapTexture(),
+				preFilteredEnvironment.getCubeMapTexture(), preFilteredEnvironment.getBRDFLUT(), window);
+		GPUProfiler.start("PreFilteredEnvironment");
+		preFilteredEnvironment.render(window, envRendererEntities.getCubeMapTexture().getID());
 		GPUProfiler.end();
-		GPUProfiler.start("PreFilEnv");
-		preFilteredEnvironment.render(window, environmentRenderer.getCubeMapTexture().getID());
 		GPUProfiler.end();
 		GPUProfiler.start("Shadows");
 		SunCamera sunCamera = (SunCamera) sun.getCamera();
@@ -211,7 +219,7 @@ public class Renderer {
 		deferredPipeline.begin();
 		clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		GPUProfiler.start("Skybox");
-		skyboxRenderer.render(camera, worldSimulation, sun.getSunPosition());
+		skyboxRenderer.render(camera, worldSimulation, sun.getSunPosition(), true);
 		GPUProfiler.end();
 		GPUProfiler.start("External");
 		if (deferredPass != null)
@@ -234,10 +242,12 @@ public class Renderer {
 		GPUProfiler.start("Forward");
 		if (forwardPass != null)
 			forwardPass.render(camera, sunCamera, frustum, shadowFBO);
-		waterRenderer.render(waterTiles, camera, environmentRenderer.getCubeMapTexture(),
+		particleRenderer.render(particles, camera);
+		renderingManager.renderForward(camera, sun.getSunPosition(), irradianceCapture.getCubeMapTexture(),
+				preFilteredEnvironment.getCubeMapTexture(), preFilteredEnvironment.getBRDFLUT());
+		waterRenderer.render(waterTiles, camera, envRendererEntities.getCubeMapTexture(),
 				deferredPipeline.getLastTexture(), deferredPipeline.getMainFBO().getDepthTex(),
 				worldSimulation.getGlobalTime(), frustum);
-		particleRenderer.render(particles, camera);
 		GPUProfiler.end();
 		postProcessPipeline.end();
 		GPUProfiler.end();
@@ -251,8 +261,10 @@ public class Renderer {
 	public static void cleanUp() {
 		if (enabled) {
 			enabled = false;
-			if (environmentRenderer != null)
-				TaskManager.addTask(() -> environmentRenderer.cleanUp());
+			if (envRenderer != null)
+				TaskManager.addTask(() -> envRenderer.cleanUp());
+			if (envRendererEntities != null)
+				TaskManager.addTask(() -> envRendererEntities.cleanUp());
 			if (shadowFBO != null)
 				TaskManager.addTask(() -> shadowFBO.dispose());
 			if (deferredPipeline != null)

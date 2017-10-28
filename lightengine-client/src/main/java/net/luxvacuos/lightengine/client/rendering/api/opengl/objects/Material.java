@@ -97,14 +97,14 @@ public class Material implements IDisposable {
 
 		AIColor4D diffuse = AIColor4D.create();
 		AIColor4D emissive = AIColor4D.create();
-		AIColor4D data = AIColor4D.create();
+		AIColor4D pbr = AIColor4D.create();
 		if (aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, aiTextureType_NONE, 0, diffuse) == aiReturn_SUCCESS)
 			this.diffuse.set(diffuse.r(), diffuse.g(), diffuse.b(), diffuse.a());
 		if (aiGetMaterialColor(material, AI_MATKEY_COLOR_EMISSIVE, aiTextureType_NONE, 0, emissive) == aiReturn_SUCCESS)
 			this.emissive.set(emissive.r(), emissive.g(), emissive.b(), emissive.a());
-		if (aiGetMaterialColor(material, AI_MATKEY_COLOR_SPECULAR, aiTextureType_NONE, 0, data) == aiReturn_SUCCESS) {
-			this.roughness = data.r();
-			this.metallic = data.g();
+		if (aiGetMaterialColor(material, AI_MATKEY_COLOR_SPECULAR, aiTextureType_NONE, 0, pbr) == aiReturn_SUCCESS) {
+			this.roughness = pbr.r();
+			this.metallic = pbr.g();
 		}
 		if (aiGetMaterialTextureCount(material, aiTextureType_DIFFUSE) > 0) {
 			AIString path = AIString.create();

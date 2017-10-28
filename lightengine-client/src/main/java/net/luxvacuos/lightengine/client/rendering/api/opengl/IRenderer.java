@@ -22,7 +22,11 @@ package net.luxvacuos.lightengine.client.rendering.api.opengl;
 
 import java.util.List;
 
+import org.joml.Vector3f;
+
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CubeMapTexture;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Texture;
 import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
@@ -31,6 +35,12 @@ public interface IRenderer extends IDisposable {
 	public void preProcess(List<BasicEntity> entities);
 
 	public void render(CameraEntity camera);
+
+	public void renderReflections(CameraEntity camera, Vector3f lightPosition, CubeMapTexture irradiance,
+			CubeMapTexture environmentMap, Texture brdfLUT);
+
+	public void renderForward(CameraEntity camera, Vector3f lightPosition, CubeMapTexture irradiance,
+			CubeMapTexture environmentMap, Texture brdfLUT);
 
 	public void renderShadow(CameraEntity sun);
 

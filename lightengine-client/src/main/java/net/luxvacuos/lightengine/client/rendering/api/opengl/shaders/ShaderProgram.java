@@ -56,14 +56,11 @@ import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.IUnifo
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
 public abstract class ShaderProgram implements IDisposable {
-	/**
-	 * Program ID
-	 */
 	private int programID;
-
 	private boolean loaded;
-	private static boolean bound = false;
 	private List<IUniform> uniforms = new ArrayList<>();
+	
+	private static boolean bound = false;
 
 	public ShaderProgram(String vertexFile, String fragmentFile, Attribute... inVariables) {
 		int vertexShaderID = loadShader(vertexFile, GL_VERTEX_SHADER);

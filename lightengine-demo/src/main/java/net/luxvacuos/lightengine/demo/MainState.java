@@ -124,11 +124,11 @@ public class MainState extends AbstractState {
 			 * Renderer.getLightRenderer().addLight(light2); Light light3 = new Light(new
 			 * Vector3f(0.05, 14, 0), new Vector3f(50, 50, 50), new Vector3f(-60, -90, 0),
 			 * 35, 30); light3.setShadow(true);
-			 * Renderer.getLightRenderer().addLight(light3); */Light light4 = new Light(new
-			  Vector3f(0, 18, 0), new Vector3f(1000, 1000, 1000), new Vector3f(-90, 0, 0),
-			  60, 55); light4.setShadow(true);
-			  Renderer.getLightRenderer().addLight(light4);
-			 
+			 * Renderer.getLightRenderer().addLight(light3); Light light4 = new Light(new
+			 * Vector3f(0, 18, 0), new Vector3f(1000, 1000, 1000), new Vector3f(-90, 0, 0),
+			 * 60, 55); light4.setShadow(true);
+			 * Renderer.getLightRenderer().addLight(light4);
+			 */
 
 			Renderer.getLightRenderer()
 					.addLight(new Light(new Vector3f(-7.25883f, 1.6f, -2.17035f), new Vector3f(0.5f, 0.5f, 0.5f)));
@@ -139,7 +139,7 @@ public class MainState extends AbstractState {
 			Renderer.getLightRenderer()
 					.addLight(new Light(new Vector3f(5.71191f, 1.6f, 2.17035f), new Vector3f(0.5f, 0.5f, 0.5f)));
 		});
-		RenderEntity plane = new RenderEntity("", "levels/test_state/models/level.blend");
+		RenderEntity plane = new RenderEntity("", "levels/test_state/models/sponza.blend");
 		/*
 		 * RenderEntity mat2 = new RenderEntity("",
 		 * "levels/test_state/models/sphere.blend");
@@ -202,7 +202,7 @@ public class MainState extends AbstractState {
 			nh.update(delta);
 			sun.update(nh.getPlayer().getPosition(), nh.getWorldSimulation().getRotation(), delta);
 			Renderer.getLightRenderer().update(delta);
-			particleSystem.generateParticles(particlesPoint, delta);
+			//particleSystem.generateParticles(particlesPoint, delta);
 			ParticleDomain.update(delta, nh.getPlayer());
 			if (kbh.isKeyPressed(GLFW.GLFW_KEY_ESCAPE)) {
 				kbh.ignoreKeyUntilRelease(GLFW.GLFW_KEY_ESCAPE);

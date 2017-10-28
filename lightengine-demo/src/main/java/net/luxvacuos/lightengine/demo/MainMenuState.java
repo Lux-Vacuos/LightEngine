@@ -63,7 +63,7 @@ public class MainMenuState extends AbstractState {
 		int y = wh / 2 - 300;
 		GraphicalSubsystem.getWindowManager().addWindow(new MainWindow(x, wh - y, 1024, 600));
 		/*if (!GraphicalSubsystem.getWindowManager().existWindow(profiler)) {
-			profiler = new Profiler();e
+			profiler = new Profiler();
 			GraphicalSubsystem.getWindowManager().addWindow(profiler);
 		}*/
 		super.start();

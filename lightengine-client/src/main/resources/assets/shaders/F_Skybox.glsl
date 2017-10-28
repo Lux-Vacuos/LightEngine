@@ -26,6 +26,7 @@ in vec3 pass_normal;
 
 out vec4 [5] out_Color;
 
+uniform int renderSun;
 uniform float time;
 uniform vec3 lightPosition;
 
@@ -158,12 +159,13 @@ void main(){
 
 	color = 1.0 - exp(-1.0 * color);
 
-    float vl = dot(V, L);
-    float factorSun = clamp((pass_textureCoords.y - SUN_LOWER_LIMIT) / (SUN_UPPER_LIMIT - SUN_LOWER_LIMIT), 0.0, 1.0);
-
-	if(vl > 0.999) 
-        color = mix(color, mix(color, vec3(1.0), (0.999 - vl) / (0.999 - 0.9991)), factorSun);
-
+    if(renderSun == 1) {
+        float vl = dot(V, L);
+        float factorSun = clamp((pass_textureCoords.y - SUN_LOWER_LIMIT) / (SUN_UPPER_LIMIT - SUN_LOWER_LIMIT), 0.0, 1.0);
+    	if(vl > 0.999) 
+            color = mix(color, mix(color, vec3(1.0), (0.999 - vl) / (0.999 - 0.9991)), factorSun);
+    }
+    
     out_Color[0].rgb = color;
     out_Color[0].a = 1;
     out_Color[1] = vec4(pass_position.xyz * 10, 0);

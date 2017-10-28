@@ -43,10 +43,12 @@ public class ClientVariables extends GlobalVariables {
 	/**
 	 * Shader Files
 	 */
-	public static final String VERTEX_FILE_ENTITY = "V_Entity.glsl";
-	public static final String FRAGMENT_FILE_ENTITY = "F_Entity.glsl";
-	public static final String VERTEX_FILE_ENTITY_BASIC = "V_EntityBasic.glsl";
-	public static final String FRAGMENT_FILE_ENTITY_BASIC = "F_EntityBasic.glsl";
+	public static final String VERTEX_FILE_ENTITY_DEFERRED = "EntityDeferred.vs";
+	public static final String FRAGMENT_FILE_ENTITY_DEFERRED = "EntityDeferred.fs";
+	public static final String VERTEX_FILE_ENTITY_BASIC = "EntityBasic.vs";
+	public static final String FRAGMENT_FILE_ENTITY_BASIC = "EntityBasic.fs";
+	public static final String VERTEX_FILE_ENTITY_FORWARD = "EntityForward.vs";
+	public static final String FRAGMENT_FILE_ENTITY_FORWARD = "EntityForward.fs";
 	public static final String VERTEX_FILE_SKYBOX = "V_Skybox.glsl";
 	public static final String FRAGMENT_FILE_SKYBOX = "F_Skybox.glsl";
 	public static final String VERTEX_FILE_PARTICLE = "V_Particle.glsl";

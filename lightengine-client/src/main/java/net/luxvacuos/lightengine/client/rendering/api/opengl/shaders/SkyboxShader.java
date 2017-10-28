@@ -26,6 +26,7 @@ import org.joml.Vector3f;
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.Attribute;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.UniformBoolean;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.UniformFloat;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.UniformMatrix;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.UniformVec3;
@@ -38,11 +39,13 @@ public class SkyboxShader extends ShaderProgram {
 	private UniformMatrix viewMatrix = new UniformMatrix("viewMatrix");
 	private UniformFloat time = new UniformFloat("time");
 	private UniformVec3 lightPosition = new UniformVec3("lightPosition");
+	private UniformBoolean renderSun = new UniformBoolean("renderSun");
 
 	public SkyboxShader() {
 		super(ClientVariables.VERTEX_FILE_SKYBOX, ClientVariables.FRAGMENT_FILE_SKYBOX, new Attribute(0, "position"),
 				new Attribute(1, "textureCoords"), new Attribute(2, "normal"));
-		super.storeAllUniformLocations(projectionMatrix, transformationMatrix, viewMatrix, time, lightPosition);
+		super.storeAllUniformLocations(projectionMatrix, transformationMatrix, viewMatrix, time, lightPosition,
+				renderSun);
 	}
 
 	public void loadProjectionMatrix(Matrix4f matrix) {
@@ -60,6 +63,10 @@ public class SkyboxShader extends ShaderProgram {
 
 	public void loadLightPosition(Vector3f pos) {
 		lightPosition.loadVec3(pos);
+	}
+
+	public void renderSun(boolean val) {
+		renderSun.loadBoolean(val);
 	}
 
 	public void loadTime(float time) {

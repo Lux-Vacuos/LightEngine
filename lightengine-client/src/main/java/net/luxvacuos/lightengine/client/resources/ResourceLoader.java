@@ -98,6 +98,7 @@ import net.luxvacuos.lightengine.client.core.exception.DecodeTextureException;
 import net.luxvacuos.lightengine.client.core.exception.LoadOBJModelException;
 import net.luxvacuos.lightengine.client.core.exception.LoadTextureException;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.WindowManager;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CubeMapTexture;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.RawTexture;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Texture;
@@ -345,7 +346,7 @@ public class ResourceLoader implements IDisposable {
 		return texID;
 	}
 
-	public int createEmptyCubeMap(int size, boolean hdr, boolean mipmap) {
+	public CubeMapTexture createEmptyCubeMap(int size, boolean hdr, boolean mipmap) {
 		int texID = glGenTextures();
 		glBindTexture(GL_TEXTURE_CUBE_MAP, texID);
 		if (hdr)
@@ -369,7 +370,7 @@ public class ResourceLoader implements IDisposable {
 			glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 		}
 		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-		return texID;
+		return new CubeMapTexture(texID, size);
 	}
 
 	private RawTexture decodeTextureFile(String file) {

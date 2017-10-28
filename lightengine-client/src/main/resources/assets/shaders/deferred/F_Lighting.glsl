@@ -45,7 +45,6 @@ uniform mat4 viewLightMatrix;
 uniform mat4 biasMatrix;
 uniform sampler2DShadow shadowMap[4];
 
-const float MAX_REFLECTION_LOD = 5.0;
 const float distanceThreshold = 2;
 const int sample_count = 16;
 const vec2 poisson16[] = vec2[](
@@ -67,7 +66,7 @@ const vec2 poisson16[] = vec2[](
                                 vec2(  0.14383161,  -0.14100790 )
                                );
 
-#define TRANSITION_DISTANCE 2.5
+##include variable GLOBAL
 
 ##include variable pi
 
@@ -130,7 +129,7 @@ void main() {
 
 		vec3 emissive = texture(gMask, vec2(textureCoords)).rgb;
 
-		vec3 ambient = (kD * diffuse + specular + emissive) * computeAmbientOcclusion(position, N);
+		vec3 ambient = (kD * diffuse + max(specular, 0.0) + emissive) * computeAmbientOcclusion(position, N);
     	vec3 color = ambient + Lo;
 		image.rgb = color;
 	}

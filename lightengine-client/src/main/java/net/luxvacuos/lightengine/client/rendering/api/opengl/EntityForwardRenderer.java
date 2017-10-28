@@ -29,97 +29,55 @@ import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE1;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE2;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE3;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE7;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE8;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE9;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE_CUBE_MAP;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-import com.badlogic.ashley.core.Entity;
-
-import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CubeMapTexture;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Material;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Mesh;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Model;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Texture;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.EntityDeferredShader;
-import net.luxvacuos.lightengine.client.resources.ResourceLoader;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.EntityFowardShader;
 import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.ecs.Components;
 import net.luxvacuos.lightengine.universal.ecs.components.Position;
 import net.luxvacuos.lightengine.universal.ecs.components.Rotation;
 import net.luxvacuos.lightengine.universal.ecs.components.Scale;
 import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
+import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
-public class EntityRenderer implements IRenderer {
+public class EntityForwardRenderer implements IDisposable {
 
-	public static final int ENTITY_RENDERER_ID = 10;
-	/**
-	 * Entity Shader
-	 */
-	private EntityDeferredShader shader;
-	private Map<Model, List<BasicEntity>> entities = new HashMap<>();
-	private EntityShadowRenderer shadowRenderer;
-	private EntityForwardRenderer forwardRenderer;
+	private EntityFowardShader shader;
 
-	public EntityRenderer(ResourceLoader loader) {
-		shader = new EntityDeferredShader();
-		shadowRenderer = new EntityShadowRenderer();
-		forwardRenderer = new EntityForwardRenderer();
+	public EntityForwardRenderer() {
+		shader = new EntityFowardShader();
 	}
 
-	@Override
-	public void preProcess(List<BasicEntity> entities) {
-		for (Entity entity : entities) {
-			processEntity((BasicEntity) entity);
-		}
-	}
-
-	@Override
-	public void render(CameraEntity camera) {
+	public void render(Map<Model, List<BasicEntity>> entities, CameraEntity camera, Vector3f lightPosition,
+			CubeMapTexture irradiance, CubeMapTexture environmentMap, Texture brdfLUT, boolean colorCorrect) {
 		shader.start();
 		shader.loadCamera(camera);
+		shader.loadLightPosition(lightPosition);
+		shader.colorCorrect(colorCorrect);
+		glActiveTexture(GL_TEXTURE7);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, irradiance.getID());
+		glActiveTexture(GL_TEXTURE8);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, environmentMap.getID());
+		glActiveTexture(GL_TEXTURE9);
+		glBindTexture(GL_TEXTURE_2D, brdfLUT.getID());
 		renderEntity(entities);
 		shader.stop();
-	}
-
-	@Override
-	public void renderReflections(CameraEntity camera, Vector3f lightPosition, CubeMapTexture irradiance,
-			CubeMapTexture environmentMap, Texture brdfLUT) {
-		forwardRenderer.render(entities, camera, lightPosition, irradiance, environmentMap, brdfLUT, false);
-	}
-
-	@Override
-	public void renderForward(CameraEntity camera, Vector3f lightPosition, CubeMapTexture irradiance,
-			CubeMapTexture environmentMap, Texture brdfLUT) {
-	}
-
-	@Override
-	public void renderShadow(CameraEntity sun) {
-		shadowRenderer.renderShadow(entities, sun);
-	}
-
-	@Override
-	public void end() {
-		entities.clear();
-	}
-
-	private void processEntity(BasicEntity entity) {
-		Model entityModel = ClientComponents.RENDERABLE.get(entity).getModel();
-		List<BasicEntity> batch = entities.get(entityModel);
-		if (batch != null)
-			batch.add(entity);
-		else {
-			List<BasicEntity> newBatch = new ArrayList<BasicEntity>();
-			newBatch.add(entity);
-			entities.put(entityModel, newBatch);
-		}
 	}
 
 	private void renderEntity(Map<Model, List<BasicEntity>> entities) {
@@ -167,13 +125,6 @@ public class EntityRenderer implements IRenderer {
 	@Override
 	public void dispose() {
 		shader.dispose();
-		shadowRenderer.dispose();
-		forwardRenderer.dispose();
-	}
-
-	@Override
-	public int getID() {
-		return ENTITY_RENDERER_ID;
 	}
 
 }
