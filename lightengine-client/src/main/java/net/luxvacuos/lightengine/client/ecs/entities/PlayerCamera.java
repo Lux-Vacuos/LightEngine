@@ -114,12 +114,11 @@ public class PlayerCamera extends CameraEntity {
 			walkDirection.x += (float) -Math.cos(Math.toRadians(rotation.getY()));
 		}
 
-		walkDirection.scale(walkSpeed);
-		p.character.setWalkDirection(walkDirection);
-
 		if (kbh.isKeyPressed(GLFW.GLFW_KEY_SPACE)) {
 			p.character.jump();
 		}
+		walkDirection.scale(walkSpeed);
+		p.character.setWalkDirection(walkDirection);
 	}
 
 }

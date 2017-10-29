@@ -34,11 +34,11 @@ uniform float time;
 
 #define PI 3.14159265359
 
-const float A = 0.2;	// amplitude
+const float A = 0.1;	// amplitude
 const float L = 8;	// wavelength
 const float w = 2*PI/L;
 const float Q = 1;
-const float tiling = 2.0;
+const float tiling = 1.0;
 
 void main() {
 	vec4 worldPosition = transformationMatrix * vec4(position, 1.0);
@@ -56,5 +56,5 @@ void main() {
 	vec4 positionRelativeToCam = viewMatrix * worldPosition;
 	clipSpace = projectionMatrix * positionRelativeToCam;
 	gl_Position = clipSpace;
-	passTextureCoords = textureCoords * tiling;
+	passTextureCoords = passPosition.xz * tiling;
 }

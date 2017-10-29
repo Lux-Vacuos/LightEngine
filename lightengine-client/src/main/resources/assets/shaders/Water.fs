@@ -38,11 +38,11 @@ uniform float time;
 const float near = 0.1;
 const float far = 1000.0;
 
-#define GAMMA 2.2
-
 float fresnelSchlickRoughness(float cosTheta, float F0, float roughness) {
     return F0 + (max(1.0 - roughness, F0) - F0) * pow(1.0 - cosTheta, 5.0);
 }
+
+##include variable GLOBAL
 
 void main() {
 
@@ -62,11 +62,10 @@ void main() {
 	vec2 distortion2 = (texture(dudv, vec2(textureCoordsOut.x + time / 20, textureCoordsOut.y + time / 30)).rg * 2.0 - 1.0) * 0.02;
 	vec2 distortion = distortion1 + distortion2;
 
-
 	float channelA = texture(foamMask, textureCoordsOut - vec2(time / 40, cos(textureCoordsOut.x))).r; 
 	float channelB = texture(foamMask, textureCoordsOut * 0.5 + vec2(sin(textureCoordsOut.y), time / 40)).b; 
 		
-	float mask = (channelA + channelB) * 0.95;
+	float mask = (channelA + channelB) * 0.8;
 	mask = pow(mask, 2);
 	mask = clamp(mask, 0, 1);
 	

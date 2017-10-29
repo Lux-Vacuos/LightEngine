@@ -37,7 +37,7 @@ public class WindowManagerShader extends ShaderProgram {
 	private UniformBoolean blurBehind = new UniformBoolean("blurBehind");
 
 	public WindowManagerShader(String type) {
-		super("wm/V_" + type + ".glsl", "wm/F_" + type + ".glsl", new Attribute(0, "position"));
+		super("wm/" + type + ".vs", "wm/" + type + ".fs", new Attribute(0, "position"));
 		super.storeAllUniformLocations(image, window, resolution, blurBehind, windowPosition);
 		connectTextureUnits();
 	}

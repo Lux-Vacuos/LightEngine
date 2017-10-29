@@ -115,9 +115,9 @@ public class Renderer {
 			TaskManager
 					.addTask(() -> envRenderer = new EnvironmentRenderer(loader.createEmptyCubeMap(32, true, false)));
 			TaskManager.addTask(
-					() -> envRendererEntities = new EnvironmentRenderer(loader.createEmptyCubeMap(256, true, false)));
+					() -> envRendererEntities = new EnvironmentRenderer(loader.createEmptyCubeMap(128, true, false)));
 			TaskManager.addTask(() -> preFilteredEnvironment = new PreFilteredEnvironment(
-					loader.createEmptyCubeMap(256, true, true), window));
+					loader.createEmptyCubeMap(128, true, true), window));
 			TaskManager.addTask(() -> irradianceCapture = new IrradianceCapture(loader));
 			TaskManager.addTask(() -> waterRenderer = new WaterRenderer(loader));
 			TaskManager.addTask(() -> renderingManager.addRenderer(new EntityRenderer(loader)));

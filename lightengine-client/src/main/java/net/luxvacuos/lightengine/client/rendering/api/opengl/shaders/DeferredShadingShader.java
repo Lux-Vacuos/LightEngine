@@ -102,7 +102,7 @@ public class DeferredShadingShader extends ShaderProgram {
 	private static float tTime = 0;
 
 	public DeferredShadingShader(String type) {
-		super("deferred/V_" + type + ".glsl", "deferred/F_" + type + ".glsl", new Attribute(0, "position"));
+		super("deferred/" + type + ".vs", "deferred/" + type + ".fs", new Attribute(0, "position"));
 		lights = new UniformLight[18];
 		for (int x = 0; x < 18; x++) {
 			lights[x] = new UniformLight("lights[" + x + "]");

@@ -37,6 +37,7 @@ import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.core.states.StateNames;
 import net.luxvacuos.lightengine.universal.ecs.Components;
+import net.luxvacuos.lightengine.universal.ecs.components.Position;
 import net.luxvacuos.lightengine.universal.network.SharedChannelHandler;
 import net.luxvacuos.lightengine.universal.network.packets.ClientConnect;
 import net.luxvacuos.lightengine.universal.network.packets.ClientDisconnect;
@@ -74,10 +75,9 @@ public class MainState extends AbstractState {
 		MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), true);
 
 		waterTiles = new ArrayList<>();
-		// for (int x = -128; x <= 128; x++)
-		// for (int z = -128; z <= 128; z++)
-		// waterTiles.add(new WaterTile(x * WaterTile.TILE_SIZE, -0.5f, z *
-		// WaterTile.TILE_SIZE));
+		//for (int x = -128; x <= 128; x++)
+		//	for (int z = -128; z <= 128; z++)
+		//		waterTiles.add(new WaterTile(x * WaterTile.TILE_SIZE, 1, z * WaterTile.TILE_SIZE));
 		sun = new Sun();
 
 		client = new Client();
@@ -128,23 +128,23 @@ public class MainState extends AbstractState {
 			 * Vector3f(0, 18, 0), new Vector3f(1000, 1000, 1000), new Vector3f(-90, 0, 0),
 			 * 60, 55); light4.setShadow(true);
 			 * Renderer.getLightRenderer().addLight(light4);
+			 *
+			 * 
+			 * Renderer.getLightRenderer() .addLight(new Light(new Vector3f(-7.25883f, 1.6f,
+			 * -2.17035f), new Vector3f(0.5f, 0.5f, 0.5f))); Renderer.getLightRenderer()
+			 * .addLight(new Light(new Vector3f(-7.25883f, 1.6f, 2.17035f), new
+			 * Vector3f(0.5f, 0.5f, 0.5f))); Renderer.getLightRenderer() .addLight(new
+			 * Light(new Vector3f(5.71191f, 1.6f, -2.17035f), new Vector3f(0.5f, 0.5f,
+			 * 0.5f))); Renderer.getLightRenderer() .addLight(new Light(new
+			 * Vector3f(5.71191f, 1.6f, 2.17035f), new Vector3f(0.5f, 0.5f, 0.5f)));
 			 */
-
-			Renderer.getLightRenderer()
-					.addLight(new Light(new Vector3f(-7.25883f, 1.6f, -2.17035f), new Vector3f(0.5f, 0.5f, 0.5f)));
-			Renderer.getLightRenderer()
-					.addLight(new Light(new Vector3f(-7.25883f, 1.6f, 2.17035f), new Vector3f(0.5f, 0.5f, 0.5f)));
-			Renderer.getLightRenderer()
-					.addLight(new Light(new Vector3f(5.71191f, 1.6f, -2.17035f), new Vector3f(0.5f, 0.5f, 0.5f)));
-			Renderer.getLightRenderer()
-					.addLight(new Light(new Vector3f(5.71191f, 1.6f, 2.17035f), new Vector3f(0.5f, 0.5f, 0.5f)));
 		});
-		RenderEntity plane = new RenderEntity("", "levels/test_state/models/sponza.blend");
+		RenderEntity plane = new RenderEntity("", "levels/test_state/models/level.blend");
+
+		RenderEntity mat2 = new RenderEntity("", "levels/test_state/models/sphere.blend");
+		mat2.getComponent(Position.class).set(3, 1, 0);
+
 		/*
-		 * RenderEntity mat2 = new RenderEntity("",
-		 * "levels/test_state/models/sphere.blend");
-		 * mat2.getComponent(Position.class).set(3, 1, 0);
-		 * 
 		 * RenderEntity character = new RenderEntity("",
 		 * "levels/test_state/models/tigre_sumatra.blend");
 		 * character.getComponent(Position.class).set(-3, 0.67335f, 0);
@@ -202,7 +202,7 @@ public class MainState extends AbstractState {
 			nh.update(delta);
 			sun.update(nh.getPlayer().getPosition(), nh.getWorldSimulation().getRotation(), delta);
 			Renderer.getLightRenderer().update(delta);
-			//particleSystem.generateParticles(particlesPoint, delta);
+			// particleSystem.generateParticles(particlesPoint, delta);
 			ParticleDomain.update(delta, nh.getPlayer());
 			if (kbh.isKeyPressed(GLFW.GLFW_KEY_ESCAPE)) {
 				kbh.ignoreKeyUntilRelease(GLFW.GLFW_KEY_ESCAPE);
