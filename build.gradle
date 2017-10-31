@@ -28,37 +28,36 @@ project(":lightengine-client") {
 		compile "org.lwjgl:lwjgl:${lwjglVersion}"
 		compile "org.lwjgl:lwjgl-glfw:${lwjglVersion}"
 		compile "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}"
-		compile "org.lwjgl:lwjgl-nanovg:${lwjglVersion}"
-		compile "org.lwjgl:lwjgl-openal:${lwjglVersion}"
 		compile "org.lwjgl:lwjgl-opengl:${lwjglVersion}"
+		compile "org.lwjgl:lwjgl-openal:${lwjglVersion}"
+		compile "org.lwjgl:lwjgl-nanovg:${lwjglVersion}"
 		compile "org.lwjgl:lwjgl-stb:${lwjglVersion}"
-		compile "org.lwjgl:lwjgl-vulkan:${lwjglVersion}"
 		compile "org.lwjgl:lwjgl-assimp:${lwjglVersion}"
 		// LWJGL natives Windows
 		runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-windows"
-		runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-windows"
 		runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-windows"
 		runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-windows"
-		runtime "org.lwjgl:lwjgl-nanovg:${lwjglVersion}:natives-windows"
+		runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-windows"
 		runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-windows"
+		runtime "org.lwjgl:lwjgl-nanovg:${lwjglVersion}:natives-windows"
 		runtime "org.lwjgl:lwjgl-stb:${lwjglVersion}:natives-windows"
 		runtime "org.lwjgl:lwjgl-assimp:${lwjglVersion}:natives-windows"
 		// LWJGL Natives Linux
 		runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-linux"
-		runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-linux"
 		runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-linux"
 		runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-linux"
-		runtime "org.lwjgl:lwjgl-nanovg:${lwjglVersion}:natives-linux"
+		runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-linux"
 		runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-linux"
+		runtime "org.lwjgl:lwjgl-nanovg:${lwjglVersion}:natives-linux"
 		runtime "org.lwjgl:lwjgl-stb:${lwjglVersion}:natives-linux"
 		runtime "org.lwjgl:lwjgl-assimp:${lwjglVersion}:natives-linux"
 		// LWJGL Natives OSX
 		runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-macos"
-		runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-macos"
 		runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-macos"
 		runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-macos"
-		runtime "org.lwjgl:lwjgl-nanovg:${lwjglVersion}:natives-macos"
+		runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-macos"
 		runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-macos"
+		runtime "org.lwjgl:lwjgl-nanovg:${lwjglVersion}:natives-macos"
 		runtime "org.lwjgl:lwjgl-stb:${lwjglVersion}:natives-macos"
 		runtime "org.lwjgl:lwjgl-assimp:${lwjglVersion}:natives-macos"
 
@@ -86,14 +85,17 @@ project(":lightengine-universal") {
 	project.ext.jomlVersion = "1.9.4"
 
 	dependencies {
+		compile project(':external:jbullet')
+		compile project(':lightengine-utils')
+		
 		compile 'org.codehaus.groovy:groovy:2.4.7'
 		compile 'org.codehaus.groovy:groovy-jsr223:2.4.7'
 		compile 'io.netty:netty-all:4.1.15.Final'
 		compile 'com.google.code.gson:gson:2.8.0'
 		compile 'org.apache.commons:commons-vfs2:2.1'
-		compile project(':external:jbullet')
-		compile project(':lightengine-utils')
+		
 		compile "org.joml:joml:${jomlVersion}"
+		
 		testCompile group: 'junit', name: 'junit', version: '4.12'
 	}
 }
@@ -102,6 +104,7 @@ project(":lightengine-utils") {
 	dependencies {
 		compile 'log4j:log4j:1.2.17'
 		compile 'com.google.code.findbugs:jsr305:3.0.1'
+		
 		testCompile group: 'junit', name: 'junit', version: '4.12'
 	}
 }
@@ -110,6 +113,7 @@ project(":lightengine-demo") {
 	dependencies {
 		compile project(':lightengine-client')
 		compile project(':lightengine-server')
+		
 		testCompile group: 'junit', name: 'junit', version: '4.12'
 	}
 }
