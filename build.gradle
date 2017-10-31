@@ -33,6 +33,8 @@ project(":lightengine-client") {
 		compile "org.lwjgl:lwjgl-nanovg:${lwjglVersion}"
 		compile "org.lwjgl:lwjgl-stb:${lwjglVersion}"
 		compile "org.lwjgl:lwjgl-assimp:${lwjglVersion}"
+		compile "org.lwjgl:lwjgl-vulkan:${lwjglVersion}"
+		
 		// LWJGL natives Windows
 		runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-windows"
 		runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-windows"
