@@ -23,6 +23,8 @@ package net.luxvacuos.lightengine.client.rendering.api.opengles;
 import static org.lwjgl.opengles.GLES20.glGetInteger;
 import static org.lwjgl.opengles.GLES20.glGetString;
 
+import org.lwjgl.opengles.GLES20;
+
 public class GLUtil {
 
 	public static int GL_MAX_TEXTURE_SIZE;
@@ -31,9 +33,7 @@ public class GLUtil {
 	}
 
 	public static void init() {
-		GL_MAX_TEXTURE_SIZE = glGetInteger(GL_MAX_TEXTURE_SIZE);
-		if (GL_MAX_TEXTURE_SIZE == 0)
-			GL_MAX_TEXTURE_SIZE = 4096; // Dirty fix because it keeps returning 0
+		GL_MAX_TEXTURE_SIZE = glGetInteger(GLES20.GL_MAX_TEXTURE_SIZE);
 	}
 
 	public static String getString(int name) {

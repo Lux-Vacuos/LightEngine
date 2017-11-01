@@ -22,7 +22,6 @@ package net.luxvacuos.lightengine.client.resources;
 
 import static org.lwjgl.nanovg.NanoVG.nvgCreateFontMem;
 import static org.lwjgl.nanovg.NanoVG.nvgCreateImageMem;
-import static org.lwjgl.opengles.EXTSRGB.GL_SRGB_ALPHA_EXT;
 import static org.lwjgl.opengles.GLES20.GL_ARRAY_BUFFER;
 import static org.lwjgl.opengles.GLES20.GL_CLAMP_TO_EDGE;
 import static org.lwjgl.opengles.GLES20.GL_ELEMENT_ARRAY_BUFFER;
@@ -89,6 +88,7 @@ import java.util.List;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.lwjgl.opengles.EXTSRGB;
 import org.lwjgl.opengles.EXTTextureFilterAnisotropic;
 import org.lwjgl.system.MemoryStack;
 
@@ -96,6 +96,7 @@ import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.client.core.exception.DecodeTextureException;
 import net.luxvacuos.lightengine.client.core.exception.LoadOBJModelException;
 import net.luxvacuos.lightengine.client.core.exception.LoadTextureException;
+import net.luxvacuos.lightengine.client.rendering.api.glfw.DisplayUtils;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.WindowManager;
 import net.luxvacuos.lightengine.client.rendering.api.opengles.objects.CubeMapTexture;
 import net.luxvacuos.lightengine.client.rendering.api.opengles.objects.RawModel;
@@ -227,7 +228,11 @@ public class ResourceLoader implements IDisposable {
 		int texture = 0;
 		try {
 			Logger.log("Loading Texture: " + fileName);
-			texture = loadTexture("assets/" + fileName, filter, GL_REPEAT, GL_SRGB_ALPHA_EXT, textureMipMapAF);
+			if (WindowManager.getWindow(windowID).getCapabilities().GL_EXT_sRGB)
+				texture = loadTexture("assets/" + fileName, filter, GL_REPEAT, EXTSRGB.GL_SRGB_ALPHA_EXT,
+						textureMipMapAF);
+			else
+				texture = loadTexture("assets/" + fileName, filter, GL_REPEAT, GL_RGBA, textureMipMapAF);
 		} catch (Exception e) {
 			throw new LoadTextureException(fileName, e);
 		}
@@ -283,10 +288,11 @@ public class ResourceLoader implements IDisposable {
 		else
 			glTexImage2D(GL_TEXTURE_2D, 0, format, data.getWidth(), data.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE,
 					data.getBuffer());
+		DisplayUtils.checkErrors();
 
 		if (textureMipMapAF) {
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0);
+			// glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0);
 			glGenerateMipmap(GL_TEXTURE_2D);
 
 			if (WindowManager.getWindow(windowID).getCapabilities().GL_EXT_texture_filter_anisotropic) {
@@ -365,7 +371,7 @@ public class ResourceLoader implements IDisposable {
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 		if (mipmap) {
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			//TODO: glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_LOD_BIAS, 0);
+			// TODO: glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_LOD_BIAS, 0);
 			glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 		}
 		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
