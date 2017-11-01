@@ -22,3 +22,7 @@
 #define MAX_REFLECTION_LOD 5.0
 #define GAMMA 2.2
 ##end
+
+##variable GLES
+precision highp float;
+##end

@@ -24,10 +24,10 @@ import org.joml.Matrix4f;
 
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.ShaderProgram;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.Attribute;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.UniformMatrix;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.UniformSampler;
+import net.luxvacuos.lightengine.client.rendering.api.opengles.shaders.ShaderProgram;
+import net.luxvacuos.lightengine.client.rendering.api.opengles.shaders.data.Attribute;
+import net.luxvacuos.lightengine.client.rendering.api.opengles.shaders.data.UniformMatrix;
+import net.luxvacuos.lightengine.client.rendering.api.opengles.shaders.data.UniformSampler;
 
 public class Window3DShader extends ShaderProgram {
 

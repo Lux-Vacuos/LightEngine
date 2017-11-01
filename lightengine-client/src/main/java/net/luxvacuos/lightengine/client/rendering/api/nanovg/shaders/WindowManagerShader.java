@@ -22,11 +22,11 @@ package net.luxvacuos.lightengine.client.rendering.api.nanovg.shaders;
 
 import org.joml.Vector2f;
 
-import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.ShaderProgram;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.Attribute;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.UniformBoolean;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.UniformSampler;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.data.UniformVec2;
+import net.luxvacuos.lightengine.client.rendering.api.opengles.shaders.ShaderProgram;
+import net.luxvacuos.lightengine.client.rendering.api.opengles.shaders.data.Attribute;
+import net.luxvacuos.lightengine.client.rendering.api.opengles.shaders.data.UniformBoolean;
+import net.luxvacuos.lightengine.client.rendering.api.opengles.shaders.data.UniformSampler;
+import net.luxvacuos.lightengine.client.rendering.api.opengles.shaders.data.UniformVec2;
 
 public class WindowManagerShader extends ShaderProgram {
 

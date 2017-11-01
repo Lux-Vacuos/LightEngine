@@ -38,14 +38,14 @@ import static org.lwjgl.nanovg.NanoVG.nvgMoveTo;
 import static org.lwjgl.nanovg.NanoVG.nvgRect;
 import static org.lwjgl.nanovg.NanoVG.nvgText;
 import static org.lwjgl.nanovg.NanoVG.nvgTextAlign;
-import static org.lwjgl.opengl.ARBTimerQuery.GL_TIME_ELAPSED;
-import static org.lwjgl.opengl.ARBTimerQuery.glGetQueryObjectui64v;
-import static org.lwjgl.opengl.GL15.GL_QUERY_RESULT;
-import static org.lwjgl.opengl.GL15.GL_QUERY_RESULT_AVAILABLE;
-import static org.lwjgl.opengl.GL15.glBeginQuery;
-import static org.lwjgl.opengl.GL15.glEndQuery;
-import static org.lwjgl.opengl.GL15.glGenQueries;
-import static org.lwjgl.opengl.GL15.glGetQueryObjectiv;
+import static org.lwjgl.opengles.EXTDisjointTimerQuery.GL_TIME_ELAPSED_EXT;
+import static org.lwjgl.opengles.EXTDisjointTimerQuery.glGetQueryObjectivEXT;
+import static org.lwjgl.opengles.EXTDisjointTimerQuery.glGetQueryObjectui64vEXT;
+import static org.lwjgl.opengles.GLES30.GL_QUERY_RESULT;
+import static org.lwjgl.opengles.GLES30.GL_QUERY_RESULT_AVAILABLE;
+import static org.lwjgl.opengles.GLES30.glBeginQuery;
+import static org.lwjgl.opengles.GLES30.glEndQuery;
+import static org.lwjgl.opengles.GLES30.glGenQueries;
 import static org.lwjgl.system.MemoryUtil.memAllocInt;
 import static org.lwjgl.system.MemoryUtil.memAllocLong;
 import static org.lwjgl.system.MemoryUtil.memFree;
@@ -58,7 +58,6 @@ import java.nio.LongBuffer;
 import java.util.Arrays;
 
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 
@@ -76,7 +75,7 @@ public class Timers {
 
 	private static final int GRAPH_HISTORY_COUNT = 200;
 	private static final int GPU_QUERY_COUNT = 5;
-	
+
 	private static final boolean ENABLED = false;
 
 	public static void initDebugDisplay() {
@@ -99,7 +98,7 @@ public class Timers {
 	}
 
 	public static void renderDebugDisplay(float x, float y, float w, float h) {
-		if(!ENABLED)
+		if (!ENABLED)
 			return;
 		renderGraph(vg, x, y, w, h, fps);
 		renderGraph(vg, x + w + 5, y, w, h, cpuGraph);
@@ -113,7 +112,7 @@ public class Timers {
 	}
 
 	public static void startCPUTimer() {
-		if(!ENABLED)
+		if (!ENABLED)
 			return;
 		t = glfwGetTime();
 		dt = t - prevt;
@@ -121,20 +120,20 @@ public class Timers {
 	}
 
 	public static void stopCPUTimer() {
-		if(!ENABLED)
+		if (!ENABLED)
 			return;
 		double cpuTime = glfwGetTime() - t;
 		updateGraph(cpuGraph, (float) cpuTime);
 	}
 
 	public static void startGPUTimer() {
-		if(!ENABLED)
+		if (!ENABLED)
 			return;
 		startGPUTimer(gpuTimer);
 	}
 
 	public static void stopGPUTimer() {
-		if(!ENABLED)
+		if (!ENABLED)
 			return;
 		int n = stopGPUTimer(gpuTimer, gpuTimes, 3);
 		for (int i = 0; i < n; i++)
@@ -142,7 +141,7 @@ public class Timers {
 	}
 
 	public static void update() {
-		if(!ENABLED)
+		if (!ENABLED)
 			return;
 		updateDebugDisplay();
 	}
@@ -162,7 +161,8 @@ public class Timers {
 
 	private static void initGPUTimer(GPUtimer timer) {
 		// memset(timer, 0, sizeof(*timer))2
-		timer.supported = GL.getCapabilities().GL_ARB_timer_query;
+		// TODO: timer.supported = GL.getCapabilities().GL_ARB_timer_query;
+		timer.supported = true;
 		timer.cur = 0;
 		timer.ret = 0;
 		BufferUtils.zeroBuffer(timer.queries);
@@ -174,7 +174,7 @@ public class Timers {
 	private static void startGPUTimer(GPUtimer timer) {
 		if (!timer.supported)
 			return;
-		glBeginQuery(GL_TIME_ELAPSED, timer.queries.get(timer.cur % GPU_QUERY_COUNT));
+		glBeginQuery(GL_TIME_ELAPSED_EXT, timer.queries.get(timer.cur % GPU_QUERY_COUNT));
 		timer.cur++;
 	}
 
@@ -183,16 +183,16 @@ public class Timers {
 		if (!timer.supported)
 			return 0;
 
-		glEndQuery(GL_TIME_ELAPSED);
+		glEndQuery(GL_TIME_ELAPSED_EXT);
 
 		IntBuffer available = memAllocInt(1);
 		available.put(0, 1);
 		while (available.get(0) != 0 && timer.ret <= timer.cur) {
 			// check for results if there are any
-			glGetQueryObjectiv(timer.queries.get(timer.ret % GPU_QUERY_COUNT), GL_QUERY_RESULT_AVAILABLE, available);
+			glGetQueryObjectivEXT(timer.queries.get(timer.ret % GPU_QUERY_COUNT), GL_QUERY_RESULT_AVAILABLE, available);
 			if (available.get(0) != 0) {
 				LongBuffer timeElapsed = memAllocLong(1);
-				glGetQueryObjectui64v(timer.queries.get(timer.ret % GPU_QUERY_COUNT), GL_QUERY_RESULT, timeElapsed);
+				glGetQueryObjectui64vEXT(timer.queries.get(timer.ret % GPU_QUERY_COUNT), GL_QUERY_RESULT, timeElapsed);
 				timer.ret++;
 				if (n < maxTimes) {
 					times.put(n, (float) ((double) timeElapsed.get(0) * 1e-9));

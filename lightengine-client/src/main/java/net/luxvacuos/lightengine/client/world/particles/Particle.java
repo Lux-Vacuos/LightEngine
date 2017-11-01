@@ -24,8 +24,8 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.ParticleDomain;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.ParticleTexture;
+import net.luxvacuos.lightengine.client.rendering.api.opengles.ParticleDomain;
+import net.luxvacuos.lightengine.client.rendering.api.opengles.objects.ParticleTexture;
 
 public class Particle {
 

@@ -18,7 +18,7 @@
 // 
 //
 
-#version 330 core
+
 
 layout(location = 0) in vec2 position;
 
@@ -34,6 +34,6 @@ void main(){
 	vec2 pixelSize = 1.0 / resolution;
 	
 	for(int i = -9; i <= 9; i++){
-		blurTexCoords[i+9] = textureCoords + vec2(0.0, pixelSize.y * i);
+		blurTexCoords[i+9] = textureCoords + vec2(0.0, pixelSize.y * float(i));
 	}
 }

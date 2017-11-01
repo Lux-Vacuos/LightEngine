@@ -18,7 +18,7 @@
 // 
 //
 
-#version 330 core
+
 
 in vec2 textureCoords0;
 in vec2 textureCoords1;

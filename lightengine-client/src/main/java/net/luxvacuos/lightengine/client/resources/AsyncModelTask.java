@@ -42,7 +42,7 @@ import org.lwjgl.assimp.AIScene;
 import com.badlogic.gdx.utils.async.AsyncTask;
 
 import net.luxvacuos.igl.Logger;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Model;
+import net.luxvacuos.lightengine.client.rendering.api.opengles.objects.Model;
 
 public class AsyncModelTask implements AsyncTask<Model> {
 	private String filePath;

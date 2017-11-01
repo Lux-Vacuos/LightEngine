@@ -20,17 +20,17 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.nanovg.compositor;
 
-import static org.lwjgl.nanovg.NanoVGGL3.nvgluBindFramebuffer;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLE_STRIP;
-import static org.lwjgl.opengl.GL11.glBindTexture;
-import static org.lwjgl.opengl.GL11.glDrawArrays;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE1;
-import static org.lwjgl.opengl.GL13.glActiveTexture;
-import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
+import static org.lwjgl.nanovg.NanoVGGLES3.nvgluBindFramebuffer;
+import static org.lwjgl.opengles.GLES20.GL_TEXTURE0;
+import static org.lwjgl.opengles.GLES20.GL_TEXTURE1;
+import static org.lwjgl.opengles.GLES20.GL_TEXTURE_2D;
+import static org.lwjgl.opengles.GLES20.GL_TRIANGLE_STRIP;
+import static org.lwjgl.opengles.GLES20.glActiveTexture;
+import static org.lwjgl.opengles.GLES20.glBindTexture;
+import static org.lwjgl.opengles.GLES20.glDisableVertexAttribArray;
+import static org.lwjgl.opengles.GLES20.glDrawArrays;
+import static org.lwjgl.opengles.GLES20.glEnableVertexAttribArray;
+import static org.lwjgl.opengles.GLES30.glBindVertexArray;
 
 import org.joml.Vector2f;
 import org.lwjgl.nanovg.NVGLUFramebuffer;
@@ -38,8 +38,8 @@ import org.lwjgl.nanovg.NVGLUFramebuffer;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.IWindow;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.shaders.WindowManagerShader;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.GPUProfiler;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.RawModel;
+import net.luxvacuos.lightengine.client.rendering.api.opengles.GPUProfiler;
+import net.luxvacuos.lightengine.client.rendering.api.opengles.objects.RawModel;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
 public abstract class CompositorEffect implements IDisposable {

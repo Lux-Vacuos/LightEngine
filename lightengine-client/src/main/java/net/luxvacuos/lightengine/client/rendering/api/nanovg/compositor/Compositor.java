@@ -20,21 +20,21 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.nanovg.compositor;
 
-import static org.lwjgl.nanovg.NanoVGGL3.nvgluBindFramebuffer;
-import static org.lwjgl.nanovg.NanoVGGL3.nvgluCreateFramebuffer;
-import static org.lwjgl.nanovg.NanoVGGL3.nvgluDeleteFramebuffer;
-import static org.lwjgl.opengl.GL11.GL_BLEND;
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLE_STRIP;
-import static org.lwjgl.opengl.GL11.glBindTexture;
-import static org.lwjgl.opengl.GL11.glDisable;
-import static org.lwjgl.opengl.GL11.glDrawArrays;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
-import static org.lwjgl.opengl.GL13.glActiveTexture;
-import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
+import static org.lwjgl.nanovg.NanoVGGLES3.nvgluBindFramebuffer;
+import static org.lwjgl.nanovg.NanoVGGLES3.nvgluCreateFramebuffer;
+import static org.lwjgl.nanovg.NanoVGGLES3.nvgluDeleteFramebuffer;
+import static org.lwjgl.opengles.GLES20.GL_BLEND;
+import static org.lwjgl.opengles.GLES20.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengles.GLES20.GL_TEXTURE0;
+import static org.lwjgl.opengles.GLES20.GL_TEXTURE_2D;
+import static org.lwjgl.opengles.GLES20.GL_TRIANGLE_STRIP;
+import static org.lwjgl.opengles.GLES20.glActiveTexture;
+import static org.lwjgl.opengles.GLES20.glBindTexture;
+import static org.lwjgl.opengles.GLES20.glDisable;
+import static org.lwjgl.opengles.GLES20.glDisableVertexAttribArray;
+import static org.lwjgl.opengles.GLES20.glDrawArrays;
+import static org.lwjgl.opengles.GLES20.glEnableVertexAttribArray;
+import static org.lwjgl.opengles.GLES30.glBindVertexArray;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,9 +51,9 @@ import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.AnimationState;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.IWindow;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.shaders.Window3DShader;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.GPUProfiler;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.RawModel;
+import net.luxvacuos.lightengine.client.rendering.api.opengles.GPUProfiler;
+import net.luxvacuos.lightengine.client.rendering.api.opengles.Renderer;
+import net.luxvacuos.lightengine.client.rendering.api.opengles.objects.RawModel;
 import net.luxvacuos.lightengine.client.util.Maths;
 
 public class Compositor {

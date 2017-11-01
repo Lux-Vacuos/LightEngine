@@ -24,6 +24,7 @@ import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.
 
 import net.luxvacuos.lightengine.client.bootstrap.Bootstrap;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
+import net.luxvacuos.lightengine.client.rendering.api.glfw.DisplayUtils;
 import net.luxvacuos.lightengine.client.ui.windows.BackgroundWindow;
 import net.luxvacuos.lightengine.client.ui.windows.Profiler;
 import net.luxvacuos.lightengine.demo.ui.MainWindow;

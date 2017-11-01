@@ -37,7 +37,7 @@ import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 import static org.lwjgl.nanovg.NanoVG.nvgBeginFrame;
 import static org.lwjgl.nanovg.NanoVG.nvgEndFrame;
 import static org.lwjgl.nanovg.NanoVGGL3.nvgDelete;
-import static org.lwjgl.opengl.GL11.glViewport;
+import static org.lwjgl.opengles.GLES20.glViewport;
 
 import org.lwjgl.glfw.Callbacks;
 import org.lwjgl.glfw.GLFW;
@@ -49,7 +49,7 @@ import org.lwjgl.glfw.GLFWWindowMaximizeCallback;
 import org.lwjgl.glfw.GLFWWindowPosCallback;
 import org.lwjgl.glfw.GLFWWindowRefreshCallback;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
-import org.lwjgl.opengl.GLCapabilities;
+import org.lwjgl.opengles.GLESCapabilities;
 
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
 import net.luxvacuos.lightengine.client.input.MouseHandler;
@@ -65,7 +65,7 @@ public abstract class AbstractWindow implements IWindow {
 
 	protected DisplayUtils displayUtils;
 
-	protected GLCapabilities capabilities;
+	protected GLESCapabilities capabilities;
 
 	protected boolean created = false;
 	protected boolean dirty = false;
@@ -328,7 +328,7 @@ public abstract class AbstractWindow implements IWindow {
 		return (GLFW.glfwGetWindowAttrib(this.windowID, attribute) == GLFW.GLFW_TRUE ? true : false);
 	}
 
-	public GLCapabilities getCapabilities() {
+	public GLESCapabilities getCapabilities() {
 		return this.capabilities;
 	}
 

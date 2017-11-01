@@ -20,7 +20,7 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.nanovg.themes;
 
-import static org.lwjgl.nanovg.NanoVGGL3.nvglCreateImageFromHandle;
+import static org.lwjgl.nanovg.NanoVGGLES3.nvglCreateImageFromHandle;
 
 import org.lwjgl.nanovg.NVGColor;
 import org.lwjgl.nanovg.NVGPaint;

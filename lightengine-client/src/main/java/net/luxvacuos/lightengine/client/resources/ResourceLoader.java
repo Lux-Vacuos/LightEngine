@@ -22,49 +22,48 @@ package net.luxvacuos.lightengine.client.resources;
 
 import static org.lwjgl.nanovg.NanoVG.nvgCreateFontMem;
 import static org.lwjgl.nanovg.NanoVG.nvgCreateImageMem;
-import static org.lwjgl.opengl.GL11.GL_FLOAT;
-import static org.lwjgl.opengl.GL11.GL_LINEAR;
-import static org.lwjgl.opengl.GL11.GL_LINEAR_MIPMAP_LINEAR;
-import static org.lwjgl.opengl.GL11.GL_RED;
-import static org.lwjgl.opengl.GL11.GL_REPEAT;
-import static org.lwjgl.opengl.GL11.GL_RGB;
-import static org.lwjgl.opengl.GL11.GL_RGBA;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_S;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_T;
-import static org.lwjgl.opengl.GL11.GL_UNPACK_ALIGNMENT;
-import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
-import static org.lwjgl.opengl.GL11.glBindTexture;
-import static org.lwjgl.opengl.GL11.glGenTextures;
-import static org.lwjgl.opengl.GL11.glPixelStorei;
-import static org.lwjgl.opengl.GL11.glTexImage2D;
-import static org.lwjgl.opengl.GL11.glTexParameterf;
-import static org.lwjgl.opengl.GL11.glTexParameteri;
-import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
-import static org.lwjgl.opengl.GL12.GL_TEXTURE_WRAP_R;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE_CUBE_MAP;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE_CUBE_MAP_POSITIVE_X;
-import static org.lwjgl.opengl.GL14.GL_TEXTURE_LOD_BIAS;
-import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.GL_ELEMENT_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
-import static org.lwjgl.opengl.GL15.GL_STREAM_DRAW;
-import static org.lwjgl.opengl.GL15.glBindBuffer;
-import static org.lwjgl.opengl.GL15.glBufferData;
-import static org.lwjgl.opengl.GL15.glBufferSubData;
-import static org.lwjgl.opengl.GL15.glDeleteBuffers;
-import static org.lwjgl.opengl.GL15.glGenBuffers;
-import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
-import static org.lwjgl.opengl.GL21.GL_SRGB_ALPHA;
-import static org.lwjgl.opengl.GL30.GL_RG;
-import static org.lwjgl.opengl.GL30.GL_RGB16F;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
-import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
-import static org.lwjgl.opengl.GL30.glGenVertexArrays;
-import static org.lwjgl.opengl.GL30.glGenerateMipmap;
-import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
+import static org.lwjgl.opengles.EXTSRGB.GL_SRGB_ALPHA_EXT;
+import static org.lwjgl.opengles.GLES20.GL_ARRAY_BUFFER;
+import static org.lwjgl.opengles.GLES20.GL_CLAMP_TO_EDGE;
+import static org.lwjgl.opengles.GLES20.GL_ELEMENT_ARRAY_BUFFER;
+import static org.lwjgl.opengles.GLES20.GL_FLOAT;
+import static org.lwjgl.opengles.GLES20.GL_LINEAR;
+import static org.lwjgl.opengles.GLES20.GL_LINEAR_MIPMAP_LINEAR;
+import static org.lwjgl.opengles.GLES20.GL_REPEAT;
+import static org.lwjgl.opengles.GLES20.GL_RGB;
+import static org.lwjgl.opengles.GLES20.GL_RGBA;
+import static org.lwjgl.opengles.GLES20.GL_STATIC_DRAW;
+import static org.lwjgl.opengles.GLES20.GL_STREAM_DRAW;
+import static org.lwjgl.opengles.GLES20.GL_TEXTURE_2D;
+import static org.lwjgl.opengles.GLES20.GL_TEXTURE_CUBE_MAP;
+import static org.lwjgl.opengles.GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+import static org.lwjgl.opengles.GLES20.GL_TEXTURE_MAG_FILTER;
+import static org.lwjgl.opengles.GLES20.GL_TEXTURE_MIN_FILTER;
+import static org.lwjgl.opengles.GLES20.GL_TEXTURE_WRAP_S;
+import static org.lwjgl.opengles.GLES20.GL_TEXTURE_WRAP_T;
+import static org.lwjgl.opengles.GLES20.GL_UNPACK_ALIGNMENT;
+import static org.lwjgl.opengles.GLES20.GL_UNSIGNED_BYTE;
+import static org.lwjgl.opengles.GLES20.glBindBuffer;
+import static org.lwjgl.opengles.GLES20.glBindTexture;
+import static org.lwjgl.opengles.GLES20.glBufferData;
+import static org.lwjgl.opengles.GLES20.glBufferSubData;
+import static org.lwjgl.opengles.GLES20.glDeleteBuffers;
+import static org.lwjgl.opengles.GLES20.glGenBuffers;
+import static org.lwjgl.opengles.GLES20.glGenTextures;
+import static org.lwjgl.opengles.GLES20.glGenerateMipmap;
+import static org.lwjgl.opengles.GLES20.glPixelStorei;
+import static org.lwjgl.opengles.GLES20.glTexImage2D;
+import static org.lwjgl.opengles.GLES20.glTexParameterf;
+import static org.lwjgl.opengles.GLES20.glTexParameteri;
+import static org.lwjgl.opengles.GLES20.glVertexAttribPointer;
+import static org.lwjgl.opengles.GLES30.GL_RED;
+import static org.lwjgl.opengles.GLES30.GL_RG;
+import static org.lwjgl.opengles.GLES30.GL_RGB16F;
+import static org.lwjgl.opengles.GLES30.GL_TEXTURE_WRAP_R;
+import static org.lwjgl.opengles.GLES30.glBindVertexArray;
+import static org.lwjgl.opengles.GLES30.glDeleteVertexArrays;
+import static org.lwjgl.opengles.GLES30.glGenVertexArrays;
+import static org.lwjgl.opengles.GLES30.glVertexAttribDivisor;
 import static org.lwjgl.stb.STBImage.stbi_failure_reason;
 import static org.lwjgl.stb.STBImage.stbi_info_from_memory;
 import static org.lwjgl.stb.STBImage.stbi_is_hdr_from_memory;
@@ -90,7 +89,7 @@ import java.util.List;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.lwjgl.opengl.EXTTextureFilterAnisotropic;
+import org.lwjgl.opengles.EXTTextureFilterAnisotropic;
 import org.lwjgl.system.MemoryStack;
 
 import net.luxvacuos.igl.Logger;
@@ -98,11 +97,11 @@ import net.luxvacuos.lightengine.client.core.exception.DecodeTextureException;
 import net.luxvacuos.lightengine.client.core.exception.LoadOBJModelException;
 import net.luxvacuos.lightengine.client.core.exception.LoadTextureException;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.WindowManager;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CubeMapTexture;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.RawModel;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.RawTexture;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Texture;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.VertexNM;
+import net.luxvacuos.lightengine.client.rendering.api.opengles.objects.CubeMapTexture;
+import net.luxvacuos.lightengine.client.rendering.api.opengles.objects.RawModel;
+import net.luxvacuos.lightengine.client.rendering.api.opengles.objects.RawTexture;
+import net.luxvacuos.lightengine.client.rendering.api.opengles.objects.Texture;
+import net.luxvacuos.lightengine.client.rendering.api.opengles.objects.VertexNM;
 import net.luxvacuos.lightengine.client.ui.Font;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
@@ -228,7 +227,7 @@ public class ResourceLoader implements IDisposable {
 		int texture = 0;
 		try {
 			Logger.log("Loading Texture: " + fileName);
-			texture = loadTexture("assets/" + fileName, filter, GL_REPEAT, GL_SRGB_ALPHA, textureMipMapAF);
+			texture = loadTexture("assets/" + fileName, filter, GL_REPEAT, GL_SRGB_ALPHA_EXT, textureMipMapAF);
 		} catch (Exception e) {
 			throw new LoadTextureException(fileName, e);
 		}
@@ -287,7 +286,7 @@ public class ResourceLoader implements IDisposable {
 
 		if (textureMipMapAF) {
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0);
+			//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0);
 			glGenerateMipmap(GL_TEXTURE_2D);
 
 			if (WindowManager.getWindow(windowID).getCapabilities().GL_EXT_texture_filter_anisotropic) {
@@ -366,7 +365,7 @@ public class ResourceLoader implements IDisposable {
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 		if (mipmap) {
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_LOD_BIAS, 0);
+			//TODO: glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_LOD_BIAS, 0);
 			glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 		}
 		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);

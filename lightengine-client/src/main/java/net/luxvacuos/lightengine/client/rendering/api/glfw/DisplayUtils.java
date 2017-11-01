@@ -20,16 +20,16 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.glfw;
 
-import static org.lwjgl.opengl.GL11.GL_INVALID_ENUM;
-import static org.lwjgl.opengl.GL11.GL_INVALID_OPERATION;
-import static org.lwjgl.opengl.GL11.GL_INVALID_VALUE;
-import static org.lwjgl.opengl.GL11.GL_NO_ERROR;
-import static org.lwjgl.opengl.GL11.GL_OUT_OF_MEMORY;
-import static org.lwjgl.opengl.GL11.GL_STACK_OVERFLOW;
-import static org.lwjgl.opengl.GL11.GL_STACK_UNDERFLOW;
-import static org.lwjgl.opengl.GL11.glGetError;
-import static org.lwjgl.opengl.GL30.GL_INVALID_FRAMEBUFFER_OPERATION;
-import static org.lwjgl.opengl.GL45.GL_CONTEXT_LOST;
+import static org.lwjgl.opengles.GLES20.GL_INVALID_ENUM;
+import static org.lwjgl.opengles.GLES20.GL_INVALID_FRAMEBUFFER_OPERATION;
+import static org.lwjgl.opengles.GLES20.GL_INVALID_OPERATION;
+import static org.lwjgl.opengles.GLES20.GL_INVALID_VALUE;
+import static org.lwjgl.opengles.GLES20.GL_NO_ERROR;
+import static org.lwjgl.opengles.GLES20.GL_OUT_OF_MEMORY;
+import static org.lwjgl.opengles.GLES20.glGetError;
+import static org.lwjgl.opengles.GLES32.GL_CONTEXT_LOST;
+import static org.lwjgl.opengles.GLES32.GL_STACK_OVERFLOW;
+import static org.lwjgl.opengles.GLES32.GL_STACK_UNDERFLOW;
 
 import net.luxvacuos.lightengine.client.core.exception.OpenGLException;
 

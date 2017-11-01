@@ -20,11 +20,26 @@
 
 package net.luxvacuos.lightengine.client.rendering.api.glfw;
 
+import static org.lwjgl.egl.EGL10.eglGetError;
+import static org.lwjgl.egl.EGL10.eglInitialize;
+import static org.lwjgl.glfw.GLFW.glfwCreateCursor;
+import static org.lwjgl.glfw.GLFW.glfwCreateWindow;
+import static org.lwjgl.glfw.GLFW.glfwGetCurrentContext;
+import static org.lwjgl.glfw.GLFW.glfwGetFramebufferSize;
+import static org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor;
+import static org.lwjgl.glfw.GLFW.glfwGetTime;
+import static org.lwjgl.glfw.GLFW.glfwGetVideoMode;
+import static org.lwjgl.glfw.GLFW.glfwGetWindowSize;
+import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
 import static org.lwjgl.glfw.GLFW.glfwPollEvents;
+import static org.lwjgl.glfw.GLFW.glfwSetCursor;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowIcon;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
+import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
+import static org.lwjgl.glfw.GLFWNativeEGL.glfwGetEGLDisplay;
 import static org.lwjgl.glfw.GLFWVulkan.glfwVulkanSupported;
-import static org.lwjgl.opengl.GL11.GL_VENDOR;
-import static org.lwjgl.opengl.GL11.glGetIntegerv;
-import static org.lwjgl.opengl.GL11.glGetString;
+import static org.lwjgl.opengles.GLES20.GL_VENDOR;
+import static org.lwjgl.opengles.GLES20.glGetString;
 import static org.lwjgl.stb.STBImage.stbi_failure_reason;
 import static org.lwjgl.stb.STBImage.stbi_image_free;
 import static org.lwjgl.stb.STBImage.stbi_info_from_memory;
@@ -36,13 +51,12 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
-import org.lwjgl.glfw.GLFW;
+import org.lwjgl.egl.EGL;
+import org.lwjgl.egl.EGLCapabilities;
 import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.glfw.GLFWVidMode;
-import org.lwjgl.nanovg.NanoVGGL3;
-import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.NVXGPUMemoryInfo;
-import org.lwjgl.opengl.WGLAMDGPUAssociation;
+import org.lwjgl.nanovg.NanoVGGLES3;
+import org.lwjgl.opengles.GLES;
 import org.lwjgl.system.MemoryStack;
 
 import com.badlogic.gdx.utils.Array;
@@ -70,16 +84,16 @@ public final class WindowManager {
 			// TODO: Implement Vulkan
 		}
 
-		long windowID = GLFW.glfwCreateWindow(handle.width, handle.height, handle.title, NULL, NULL);
+		long windowID = glfwCreateWindow(handle.width, handle.height, handle.title, NULL, NULL);
 		if (windowID == NULL)
 			throw new GLFWException("Failed to create GLFW Window '" + handle.title + "'");
 
 		Window window = new Window(windowID, handle.width, handle.height);
 
-		GLFWVidMode vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
-		GLFW.glfwSetWindowPos(windowID, (vidmode.width() - window.width) / 2, (vidmode.height() - window.height) / 2);
-		GLFW.glfwMakeContextCurrent(windowID);
-		GLFW.glfwSwapInterval(vsync ? 1 : 0);
+		GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+		glfwSetWindowPos(windowID, (vidmode.width() - window.width) / 2, (vidmode.height() - window.height) / 2);
+		glfwMakeContextCurrent(windowID);
+		glfwSwapInterval(vsync ? 1 : 0);
 		try (MemoryStack stack = stackPush()) {
 			IntBuffer w = stack.callocInt(1);
 			IntBuffer h = stack.callocInt(1);
@@ -103,7 +117,7 @@ public final class WindowManager {
 					throw new DecodeTextureException("Failed to load image: " + stbi_failure_reason());
 
 				GLFWImage img = GLFWImage.malloc().set(w.get(0), h.get(0), image);
-				GLFW.glfwSetCursor(windowID, GLFW.glfwCreateCursor(img, 0, 0));
+				glfwSetCursor(windowID, glfwCreateCursor(img, 0, 0));
 
 				stbi_image_free(image);
 			}
@@ -132,7 +146,7 @@ public final class WindowManager {
 					i++;
 				}
 				iconsbuff.position(0);
-				GLFW.glfwSetWindowIcon(windowID, iconsbuff);
+				glfwSetWindowIcon(windowID, iconsbuff);
 				iconsbuff.free();
 				for (Icon icon : handle.icons) {
 					stbi_image_free(icon.image);
@@ -140,14 +154,26 @@ public final class WindowManager {
 
 			}
 		}
+		long dpy = glfwGetEGLDisplay();
 
-		boolean forwardCompat = GLFW.glfwGetWindowAttrib(windowID, GLFW.GLFW_OPENGL_FORWARD_COMPAT) == GLFW.GLFW_TRUE;
-		window.capabilities = GL.createCapabilities(forwardCompat);
+		EGLCapabilities egl;
+		try (MemoryStack stack = stackPush()) {
+			IntBuffer major = stack.mallocInt(1);
+			IntBuffer minor = stack.mallocInt(1);
 
-		int nvgFlags = NanoVGGL3.NVG_ANTIALIAS | NanoVGGL3.NVG_STENCIL_STROKES;
+			if (!eglInitialize(dpy, major, minor)) {
+				throw new IllegalStateException(String.format("Failed to initialize EGL [0x%X]", eglGetError()));
+			}
+
+			egl = EGL.createDisplayCapabilities(dpy, major.get(0), minor.get(0));
+		}
+
+		window.capabilities = GLES.createCapabilities();
+
+		int nvgFlags = NanoVGGLES3.NVG_ANTIALIAS | NanoVGGLES3.NVG_STENCIL_STROKES;
 		if (ClientVariables.debug)
-			nvgFlags = (nvgFlags | NanoVGGL3.NVG_DEBUG);
-		window.nvgID = NanoVGGL3.nvgCreate(nvgFlags);
+			nvgFlags = (nvgFlags | NanoVGGLES3.NVG_DEBUG);
+		window.nvgID = NanoVGGLES3.nvgCreate(nvgFlags);
 
 		if (window.nvgID == NULL)
 			throw new GLFWException("Fail to create NanoVG context for Window '" + handle.title + "'");
@@ -157,10 +183,10 @@ public final class WindowManager {
 		int[] h = new int[1];
 		int[] w = new int[1];
 
-		GLFW.glfwGetFramebufferSize(windowID, w, h);
+		glfwGetFramebufferSize(windowID, w, h);
 		window.framebufferHeight = h[0];
 		window.framebufferWidth = w[0];
-		GLFW.glfwGetWindowSize(windowID, w, h);
+		glfwGetWindowSize(windowID, w, h);
 		window.height = h[0];
 		window.width = w[0];
 		window.pixelRatio = (float) window.framebufferWidth / (float) window.width;
@@ -181,8 +207,8 @@ public final class WindowManager {
 					windows.swap(0, index); // Swap the window to the front of
 											// the array to speed up future
 											// recurring searches
-				if (GLFW.glfwGetCurrentContext() != windowID)
-					GLFW.glfwMakeContextCurrent(windowID);
+				if (glfwGetCurrentContext() != windowID)
+					glfwMakeContextCurrent(windowID);
 				return window;
 			}
 
@@ -210,7 +236,7 @@ public final class WindowManager {
 	}
 
 	public static double getTime() {
-		return GLFW.glfwGetTime();
+		return glfwGetTime();
 	}
 
 	public static long getNanoTime() {
@@ -227,8 +253,10 @@ public final class WindowManager {
 		if (!detected)
 			detectGraphicsCard();
 
-		if (nvidia)
-			glGetIntegerv(NVXGPUMemoryInfo.GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, usedVram);
+		// if (nvidia)
+		// TODO:
+		// glGetIntegerv(NVXGPUMemoryInfo.GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX,
+		// usedVram);
 		return maxVram[0] - usedVram[0];
 	}
 
@@ -247,11 +275,12 @@ public final class WindowManager {
 	private static void detectGraphicsCard() {
 		if (glGetString(GL_VENDOR).contains("NVIDIA")) {
 			nvidia = true;
-			glGetIntegerv(NVXGPUMemoryInfo.GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, maxVram);
+			// TODO: glGetIntegerv(NVXGPUMemoryInfo.GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX,
+			// maxVram);
 			Logger.log("Max VRam: " + maxVram[0] + "KB");
 		} else if (glGetString(GL_VENDOR).contains("AMD")) {
 			amd = true;
-			glGetIntegerv(WGLAMDGPUAssociation.WGL_GPU_RAM_AMD, maxVram);
+			// TODO: glGetIntegerv(WGLAMDGPUAssociation.WGL_GPU_RAM_AMD, maxVram);
 			Logger.log("Max VRam: " + maxVram[0] + "MB");
 		}
 

@@ -35,7 +35,7 @@ import net.luxvacuos.lightengine.client.core.subsystems.SoundSubsystem;
 import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.Timers;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.GPUProfiler;
+import net.luxvacuos.lightengine.client.rendering.api.opengles.GPUProfiler;
 import net.luxvacuos.lightengine.universal.core.AbstractEngine;
 import net.luxvacuos.lightengine.universal.core.EngineType;
 import net.luxvacuos.lightengine.universal.core.Sync;
