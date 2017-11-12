@@ -24,7 +24,6 @@ layout(location = 0) in vec3 position;
 layout(location = 1) in vec2 textureCoords;
 
 out vec3 passPosition;
-out vec4 clipSpace;
 out vec2 passTextureCoords;
 
 uniform mat4 transformationMatrix;
@@ -54,7 +53,6 @@ void main() {
 
 	passPosition = worldPosition.xyz;
 	vec4 positionRelativeToCam = viewMatrix * worldPosition;
-	clipSpace = projectionMatrix * positionRelativeToCam;
-	gl_Position = clipSpace;
+	gl_Position = projectionMatrix * positionRelativeToCam;
 	passTextureCoords = passPosition.xz * tiling;
 }

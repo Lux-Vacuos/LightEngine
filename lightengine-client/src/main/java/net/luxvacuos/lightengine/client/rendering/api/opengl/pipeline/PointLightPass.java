@@ -47,7 +47,6 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.Sun;
 import net.luxvacuos.lightengine.client.ecs.entities.SunCamera;
@@ -81,7 +80,6 @@ public class PointLightPass extends DeferredPass {
 		shader = new DeferredShadingShader(name);
 		shader.start();
 		shader.loadResolution(new Vector2f(width, height));
-		shader.loadSkyColor(ClientVariables.skyColor);
 		shader.stop();
 	}
 

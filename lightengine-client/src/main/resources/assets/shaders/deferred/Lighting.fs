@@ -129,8 +129,8 @@ void main() {
 
 		vec3 emissive = texture(gMask, vec2(textureCoords)).rgb;
 
-		vec3 ambient = (kD * diffuse + max(specular, 0.0) + emissive) * computeAmbientOcclusion(position, N);
-    	vec3 color = ambient + Lo;
+		vec3 ambient = (kD * diffuse) * computeAmbientOcclusion(position, N);
+    	vec3 color = ambient + emissive + Lo + max(specular, 0.0);
 		image.rgb = color;
 	}
     image += texture(composite0, textureCoords);

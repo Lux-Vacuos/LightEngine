@@ -6,6 +6,7 @@
 	"lightengine.mpwindow.name":"Multiplayer",
 	"lightengine.mpwindow.btnplay":"Connect",
 	"lightengine.mpwindow.txtadd":"Server Address",
+	"lightengine.mpwindow.txtlvl":"Select Level",
 	"lightengine.optionswindow.name":"Options",
 	"lightengine.optionswindow.btngraphics":"Graphics",
 	"lightengine.optionswindow.graphics.volumetriclight":"Volumetric Light",

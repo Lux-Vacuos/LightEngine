@@ -26,7 +26,7 @@ import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.WaterTile;
 import net.luxvacuos.lightengine.client.resources.AssimpResourceLoader;
 import net.luxvacuos.lightengine.client.ui.windows.GameWindow;
 import net.luxvacuos.lightengine.client.world.ClientPhysicsSystem;
-import net.luxvacuos.lightengine.demo.ecs.entities.TPSCamera;
+import net.luxvacuos.lightengine.demo.ecs.entities.FreeCamera;
 import net.luxvacuos.lightengine.demo.ui.PauseWindow;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
@@ -61,7 +61,7 @@ public class GameState extends AbstractState {
 			Window window = GraphicalSubsystem.getMainWindow();
 
 			// camera = new PlayerCamera("player", UUID.randomUUID().toString());
-			camera = new TPSCamera("player", UUID.randomUUID().toString());
+			camera = new FreeCamera("player", UUID.randomUUID().toString());
 			camera.setRotation(new Vector3f(50, 45, 0));
 			camera.setPosition(new Vector3f(0, 10, 0));
 			sun = new Sun();

@@ -36,10 +36,7 @@ public class WaterShader extends ShaderProgram {
 	private UniformMatrix transformationMatrix = new UniformMatrix("transformationMatrix");
 	private UniformMatrix projectionMatrix = new UniformMatrix("projectionMatrix");
 	private UniformMatrix viewMatrix = new UniformMatrix("viewMatrix");
-	private UniformSampler reflection = new UniformSampler("reflection");
-	private UniformSampler refraction = new UniformSampler("refraction");
 	private UniformSampler dudv = new UniformSampler("dudv");
-	private UniformSampler depth = new UniformSampler("depth");
 	private UniformSampler foamMask = new UniformSampler("foamMask");
 	private UniformVec3 cameraPosition = new UniformVec3("cameraPosition");
 	private UniformFloat time = new UniformFloat("time");
@@ -47,17 +44,14 @@ public class WaterShader extends ShaderProgram {
 	public WaterShader() {
 		super(ClientVariables.VERTEX_WATER, ClientVariables.FRAGMENT_WATER, ClientVariables.GEOMETRY_WATER,
 				new Attribute(0, "position"), new Attribute(1, "textureCoords"));
-		super.storeAllUniformLocations(transformationMatrix, projectionMatrix, viewMatrix, reflection, refraction,
-				cameraPosition, time, dudv, depth, foamMask);
+		super.storeAllUniformLocations(transformationMatrix, projectionMatrix, viewMatrix,
+				cameraPosition, time, dudv, foamMask);
 		connectTextureUnits();
 	}
 
 	private void connectTextureUnits() {
 		super.start();
-		reflection.loadTexUnit(0);
-		refraction.loadTexUnit(1);
 		dudv.loadTexUnit(2);
-		depth.loadTexUnit(3);
 		foamMask.loadTexUnit(4);
 		super.stop();
 	}

@@ -105,7 +105,7 @@ public class Renderer {
 			if (shadowResolution > GLUtil.GL_MAX_TEXTURE_SIZE)
 				shadowResolution = GLUtil.GL_MAX_TEXTURE_SIZE;
 
-			TaskManager.addTask(() -> frustum = new Frustum());
+			frustum = new Frustum();
 			TaskManager.addTask(() -> shadowFBO = new ShadowFBO(shadowResolution, shadowResolution));
 
 			TaskManager.addTask(() -> skyboxRenderer = new SkyboxRenderer(loader));
@@ -127,13 +127,11 @@ public class Renderer {
 	}
 
 	public static void render(ImmutableArray<Entity> entitiesT, Map<ParticleTexture, List<Particle>> particles,
-			List<WaterTile> waterTiles, CameraEntity cameraT, IWorldSimulation worldSimulation, Sun sunT, float delta) {
+			List<WaterTile> waterTiles, CameraEntity camera, IWorldSimulation worldSimulation, Sun sun, float delta) {
 		if (!enabled)
 			return;
 		Array<Entity> entitiesR = new Array<>(entitiesT.toArray(Entity.class));
 		ImmutableArray<Entity> entities = new ImmutableArray<>(entitiesR);
-		CameraEntity camera = cameraT;
-		Sun sun = sunT;
 		lightRenderer.update(delta);
 		resetState();
 		renderingManager.preProcess(entities);
@@ -228,6 +226,7 @@ public class Renderer {
 		GPUProfiler.start("RenderingManager");
 		renderingManager.render(camera);
 		GPUProfiler.end();
+		waterRenderer.render(waterTiles, camera, worldSimulation.getGlobalTime(), frustum);
 		deferredPipeline.end();
 		GPUProfiler.end();
 		GPUProfiler.start("Deferred Rendering");
@@ -235,7 +234,7 @@ public class Renderer {
 				irradianceCapture.getCubeMapTexture(), preFilteredEnvironment.getCubeMapTexture(),
 				preFilteredEnvironment.getBRDFLUT(), shadowFBO, exposure);
 		GPUProfiler.end();
-		GPUProfiler.start("Post process pre-pass");
+		GPUProfiler.start("PostFX Pre-Pass");
 		postProcessPipeline.begin();
 		clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		deferredPipeline.render(postProcessPipeline.getFBO());
@@ -245,14 +244,11 @@ public class Renderer {
 		particleRenderer.render(particles, camera);
 		renderingManager.renderForward(camera, sun.getSunPosition(), irradianceCapture.getCubeMapTexture(),
 				preFilteredEnvironment.getCubeMapTexture(), preFilteredEnvironment.getBRDFLUT());
-		waterRenderer.render(waterTiles, camera, envRendererEntities.getCubeMapTexture(),
-				deferredPipeline.getLastTexture(), deferredPipeline.getMainFBO().getDepthTex(),
-				worldSimulation.getGlobalTime(), frustum);
 		GPUProfiler.end();
 		postProcessPipeline.end();
 		GPUProfiler.end();
-		GPUProfiler.start("Post process effects");
-		postProcessPipeline.preRender(window.getNVGID(), camera);
+		GPUProfiler.start("PostFX");
+		postProcessPipeline.preRender(camera);
 		GPUProfiler.end();
 		GPUProfiler.end();
 		renderingManager.end();
@@ -286,8 +282,8 @@ public class Renderer {
 		}
 	}
 
-	public static int getResultTexture() {
-		return postProcessPipeline.getResultTexture();
+	public static int getNVGImage() {
+		return postProcessPipeline.getNVGImage();
 	}
 
 	public static void setShadowPass(IRenderPass shadowPass) {

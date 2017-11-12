@@ -29,15 +29,15 @@ import static org.lwjgl.opengl.GL13.GL_TEXTURE3;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE4;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE5;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE6;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE7;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE8;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE9;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE_CUBE_MAP;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
 
-import net.luxvacuos.lightengine.client.rendering.api.opengl.IDeferredPipeline;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.ShadowFBO;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.DeferredPass;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.FBO;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.IDeferredPipeline;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.ShadowFBO;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.CubeMapTexture;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Texture;
 
@@ -64,10 +64,10 @@ public class Reflections extends DeferredPass {
 		glBindTexture(GL_TEXTURE_2D, pipe.getMainFBO().getMaskTex());
 		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, auxs[0].getTexture());
-		glActiveTexture(GL_TEXTURE7);
-		glBindTexture(GL_TEXTURE_2D, brdfLUT.getID());
 		glActiveTexture(GL_TEXTURE8);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, environmentMap.getID());
+		glActiveTexture(GL_TEXTURE9);
+		glBindTexture(GL_TEXTURE_2D, brdfLUT.getID());
 	}
 
 }

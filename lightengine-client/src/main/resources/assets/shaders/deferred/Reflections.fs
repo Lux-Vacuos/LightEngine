@@ -33,15 +33,15 @@ uniform sampler2D gMask;
 uniform sampler2D gPBR;
 uniform sampler2D gDiffuse;
 uniform sampler2D composite0;
-uniform sampler2D composite1;
 uniform samplerCube composite2;
-uniform sampler2DShadow gDepth;
+uniform sampler2D composite3;
+uniform sampler2D gDepth;
 
 uniform int useReflections;
 
-##include function fresnelSchlickRoughness
+##include variable GLOBAL
 
-const float MAX_REFLECTION_LOD = 5.0;
+##include function fresnelSchlickRoughness
 
 void main(void){
 	vec2 texcoord = textureCoords;
@@ -49,22 +49,39 @@ void main(void){
 	vec4 mask = texture(gMask, texcoord);
 	if(mask.a != 1) {
    		if(useReflections == 1) {
-	    	vec3 position = texture(gPosition,texcoord).rgb;
-			vec4 pbr = texture(gPBR, texcoord);
-    		vec3 normal = texture(gNormal, texcoord).rgb;
-    		float depth = texture(gDepth, vec3(texcoord.xy, 0.0), 0);
+			vec4 diffuse = texture(gDiffuse, textureCoords);
+	    	vec2 pbr = texture(gPBR, textureCoords).rg;
+    		vec3 position = texture(gPosition, textureCoords).rgb;
+    		vec3 normal = texture(gNormal, textureCoords).rgb;
+
+			vec3 N = normalize(normal);
+	    	vec3 V = normalize(cameraPosition - position);
+			vec3 R = reflect(-V, N);
+
+			float roughness = pbr.r;
+			float metallic = pbr.g;
+
+	    	vec3 F0 = vec3(0.04);
+	    	F0 = mix(F0, diffuse.rgb, metallic);
+		    vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+
+			vec3 prefilteredColor = textureLod(composite2, R, roughness * MAX_REFLECTION_LOD).rgb; 
+			vec2 envBRDF = texture(composite3, vec2(max(dot(N, V), 0.0), roughness)).rg;
+			vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
+
+    		float depth = texture(gDepth, texcoord).r;
     		vec3 cameraToWorld = position - cameraPosition.xyz;
     		float cameraToWorldDist = length(cameraToWorld);
     		vec3 cameraToWorldNorm = normalize(cameraToWorld);
-    		vec3 refl = normalize(reflect(cameraToWorldNorm, normal));	
-    		/*vec3 newPos;
+    		vec3 refl = normalize(reflect(cameraToWorldNorm, N));	
+    		vec3 newPos;
     		vec4 newScreen;
     		vec3 rayTrace = position;
     		float currentWorldDist, rayDist;
-    		float incr = 0.4;
+    		float incr = 0.1;
 			do {
 				rayTrace += refl*incr;
-				incr *= 1.3;
+				incr *= 1.05;
         		newScreen = projectionMatrix * viewMatrix * vec4(rayTrace, 1);
         		newScreen /= newScreen.w;
        			newPos = texture(gPosition, newScreen.xy/2.0+0.5).xyz;
@@ -73,30 +90,25 @@ void main(void){
        			if (newScreen.x > 1 || newScreen.x < -1 || newScreen.y > 1 || newScreen.y < -1 || newScreen.z > 1 || newScreen.z < -1 || cameraToWorldDist > currentWorldDist || dot(refl, cameraToWorldNorm) < 0)
 	       			break;
    			} while(rayDist < currentWorldDist);
-*/
-			vec3 N = normalize(normal);
-	    	vec3 V = normalize(cameraPosition - position);
-			vec3 R = reflect(-V, N);
-			vec3 F0 = vec3(0.04); 
-			F0 = mix(F0, texture(gDiffuse, texcoord).rgb, pbr.g);
 
-    		vec3 prefilteredColor = textureLod(composite2, R,  pbr.r * MAX_REFLECTION_LOD).rgb; 
-
-			vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0,  pbr.r);
-			vec2 envBRDF = texture(composite1, vec2(max(dot(N, V), 0.0), pbr.r)).rg;
-			vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
-
-			//vec4 newColor = texture(composite0, newScreen.xy/2.0 + 0.5);
- 			float fact = 1.0;
-    		/*if (dot(refl, cameraToWorldNorm) < 0)
+			vec4 newColor = texture(composite0, newScreen.xy/2.0 + 0.5);
+			for (int i = -4; i < 4; i++) {
+				for (int j = -4; j < 4; j++) {
+					newColor += texture(composite0, newScreen.xy/2.0 + 0.5 + vec2(j, i) * roughness * 0.05);
+				}
+			}
+			newColor /= 65.0;
+			float fact = 1.0;
+    		if (dot(refl, cameraToWorldNorm) < 0)
 	    		fact = 0.0;
     		else if (newScreen.x > 1 || newScreen.x < -1 || newScreen.y > 1 || newScreen.y < -1)
 		       	fact = 0.0;
     		else if (cameraToWorldDist > currentWorldDist)
 		       	fact = 0.0;
 			else if(newScreen.z < -1)
-					fact = 0.0;*/
-			image.rgb += specular;
+					fact = 0.0;
+			image.rgb -= max(specular, 0.0);
+			image.rgb += mix(max(specular, 0.0), max(newColor.rgb * (F * envBRDF.x + envBRDF.y), 0.0), fact);
 		}
 	}
 	out_Color = image;

@@ -49,7 +49,7 @@ public class DropDown<E> extends Button {
 		super.setOnButtonPress(() -> {
 			TaskManager.addTask(() -> GraphicalSubsystem.getWindowManager()
 					.addWindow(new ComponentWindow((int) (rootComponent.rootX + alignedX),
-							(int) (rootComponent.rootY - alignedY), (int) w, 300, "test") {
+							(int) (rootComponent.rootY + alignedY), (int) w, 300, "Dropdown") {
 
 						@Override
 						public void initApp() {

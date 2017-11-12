@@ -26,7 +26,7 @@ import net.luxvacuos.lightengine.client.rendering.api.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.Button;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
-import net.luxvacuos.lightengine.demo.MainState;
+import net.luxvacuos.lightengine.demo.Global;
 
 public class PauseWindow extends ComponentWindow {
 
@@ -44,7 +44,7 @@ public class PauseWindow extends ComponentWindow {
 		backButton.setWindowAlignment(Alignment.BOTTOM);
 		backButton.setOnButtonPress(() -> {
 			super.notifyWindow(WindowMessage.WM_CLOSE, WindowClose.DO_NOTHING);
-			MainState.exitWorld = true;
+			Global.exitWorld = true;
 		});
 
 		Button optionsButton = new Button(0, 100, 200, 40, "Options");
@@ -62,7 +62,7 @@ public class PauseWindow extends ComponentWindow {
 	@Override
 	public void processWindowMessage(int message, Object param) {
 		if (message == WindowMessage.WM_CLOSE && ((WindowClose) param) == WindowClose.DISPOSE) {
-			MainState.paused = false;
+			Global.paused = false;
 			MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), true);
 			GraphicalSubsystem.getWindowManager().toggleShell();
 			super.processWindowMessage(message, param);

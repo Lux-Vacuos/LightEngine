@@ -30,8 +30,10 @@ import com.badlogic.ashley.core.Engine;
 
 import io.netty.channel.ChannelHandlerContext;
 import net.luxvacuos.lightengine.client.core.ClientWorldSimulation;
+import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.PlayerCamera;
 import net.luxvacuos.lightengine.client.ecs.entities.RenderPlayerEntity;
+import net.luxvacuos.lightengine.client.ecs.entities.Sun;
 import net.luxvacuos.lightengine.client.world.ClientPhysicsSystem;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
 import net.luxvacuos.lightengine.universal.ecs.Components;
@@ -44,16 +46,21 @@ import net.luxvacuos.lightengine.universal.network.packets.UpdateBasicEntity;
 
 public class ClientNetworkHandler extends AbstractNetworkHandler {
 
-	private PlayerCamera player;
+	private CameraEntity player;
 	private Client client;
+	private Sun sun;
 
-	public ClientNetworkHandler(Client client) {
+	public ClientNetworkHandler(Client client, CameraEntity player) {
 		this.client = client;
 		worldSimulation = new ClientWorldSimulation(10000);
 		engine = new Engine();
 		engine.addSystem(new ClientPhysicsSystem());
-		player = new PlayerCamera("player" + new Random().nextInt(1000), UUID.randomUUID().toString());
-		engine.addEntity(player);
+		if(player == null)
+			this.player = new PlayerCamera("player" + new Random().nextInt(1000), UUID.randomUUID().toString());
+		else
+			this.player = player;
+		engine.addEntity(this.player);
+		sun = new Sun();
 	}
 
 	@Override
@@ -74,6 +81,7 @@ public class ClientNetworkHandler extends AbstractNetworkHandler {
 	public void update(float delta) {
 		engine.update(delta);
 		worldSimulation.update(delta);
+		sun.update(player.getPosition(), worldSimulation.getRotation(), delta);
 		client.sendPacket(new UpdateBasicEntity(Components.UUID.get(player).getUUID(), player.getPosition(),
 				player.getRotation(), new Vector3f(), Components.SCALE.get(player).getScale()));
 	}
@@ -119,8 +127,12 @@ public class ClientNetworkHandler extends AbstractNetworkHandler {
 		return worldSimulation;
 	}
 
-	public PlayerCamera getPlayer() {
+	public CameraEntity getPlayer() {
 		return player;
+	}
+	
+	public Sun getSun() {
+		return sun;
 	}
 
 }

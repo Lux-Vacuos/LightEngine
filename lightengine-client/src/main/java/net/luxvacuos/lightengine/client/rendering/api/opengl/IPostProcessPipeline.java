@@ -31,9 +31,9 @@ public interface IPostProcessPipeline extends IDisposable {
 
 	public void end();
 
-	public void preRender(long nvg, CameraEntity camera);
+	public void preRender(CameraEntity camera);
 
 	public FBO getFBO();
 
-	public int getResultTexture();
+	public int getNVGImage();
 }

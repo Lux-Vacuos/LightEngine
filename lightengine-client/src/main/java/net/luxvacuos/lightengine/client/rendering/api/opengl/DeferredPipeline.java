@@ -43,7 +43,6 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.Sun;
@@ -90,7 +89,6 @@ public abstract class DeferredPipeline implements IDeferredPipeline {
 		finalShader = new DeferredShadingShader("Final");
 		finalShader.start();
 		finalShader.loadResolution(new Vector2f(window.getWidth(), window.getHeight()));
-		finalShader.loadSkyColor(ClientVariables.skyColor);
 		finalShader.stop();
 		init();
 		for (IDeferredPass deferredPass : imagePasses) {
@@ -149,7 +147,7 @@ public abstract class DeferredPipeline implements IDeferredPipeline {
 
 	@Override
 	public void dispose() {
-		mainFBO.cleanUp();
+		mainFBO.dispose();
 		for (IDeferredPass deferredPass : imagePasses) {
 			deferredPass.dispose();
 		}

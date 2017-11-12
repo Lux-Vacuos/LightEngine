@@ -28,95 +28,77 @@ import com.hackhalo2.nbt.tags.TagCompound;
 
 public class Position implements LEComponent {
 
-	private float x, y, z;
+	private Vector3f position;
 
 	public Position() {
-		this.x = 0;
-		this.y = 0;
-		this.z = 0;
+		position = new Vector3f();
 	}
 
 	public Position(float x, float y, float z) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
+		position = new Vector3f(x, y, z);
 	}
 
 	public Position(Vector3f vec) {
-		this.x = vec.x;
-		this.y = vec.y;
-		this.z = vec.z;
+		position = new Vector3f(vec);
 	}
 
 	public Vector3f getPosition() {
-		return new Vector3f(this.x, this.y, this.z);
+		return position;
 	}
 
 	public float getX() {
-		return this.x;
+		return position.x();
 	}
 
 	public float getY() {
-		return this.y;
+		return position.y();
 	}
 
 	public float getZ() {
-		return this.z;
+		return position.z();
 	}
 
 	public Position setX(float x) {
-		this.x = x;
-
+		position.x = x;
 		return this;
 	}
 
 	public Position setY(float y) {
-		this.y = y;
-
+		position.y = y;
 		return this;
 	}
 
 	public Position setZ(float z) {
-		this.z = z;
-
+		position.z = z;
 		return this;
 	}
 
 	public Position set(float x, float y, float z) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
-
+		position.set(x, y, z);
 		return this;
 	}
 
 	public Position set(Vector3f vec) {
-		this.x = vec.x;
-		this.y = vec.y;
-		this.z = vec.z;
-
+		position.set(vec);
 		return this;
 	}
 
 	@Override
 	public String toString() {
-		return "[x:" + this.x + "]" + "[y:" + this.y + "]" + "[z:" + this.z + "]";
+		return "[x:" + this.position.x() + "]" + "[y:" + this.position.y() + "]" + "[z:" + this.position.z() + "]";
 	}
 
 	@Override
 	public void load(TagCompound compound) throws NBTException {
-		this.x = compound.getFloat("PosX");
-		this.y = compound.getFloat("PosY");
-		this.z = compound.getFloat("PosZ");
-
+		this.position.x = compound.getFloat("PosX");
+		this.position.y = compound.getFloat("PosY");
+		this.position.z = compound.getFloat("PosZ");
 	}
 
 	@Override
 	public TagCompound save() {
 		CompoundBuilder builder = new CompoundBuilder().start("PositionComponent");
-
-		builder.addDouble("PosX", this.x).addDouble("PosY", this.y).addDouble("PosZ", this.z);
-
+		builder.addDouble("PosX", this.position.x()).addDouble("PosY", this.position.y()).addDouble("PosZ", this.position.z());
 		return builder.build();
 	}
 }

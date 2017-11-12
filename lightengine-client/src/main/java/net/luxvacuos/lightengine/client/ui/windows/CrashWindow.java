@@ -24,12 +24,16 @@ import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_CENTER;
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_MIDDLE;
 
+import org.lwjgl.glfw.GLFW;
+
+import net.luxvacuos.lightengine.client.input.KeyboardHandler;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.Box;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.Text;
 import net.luxvacuos.lightengine.client.ui.TextArea;
+import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
@@ -65,7 +69,7 @@ public class CrashWindow extends ComponentWindow {
 		title.setWindowAlignment(Alignment.TOP);
 
 		TextArea text = new TextArea(
-				"An error has ocurred and unfortunately Light Engine is unable to recover from it and continue. Some information might have been lost.",
+				"An error has ocurred and unfortunately Light Engine is unable to recover from it and continue. Some information might have been lost. \n\nPress \"Enter\" to exit.",
 				-400, -100, 800);
 		text.setAlign(NVG_ALIGN_MIDDLE);
 		text.setFont("Px437_IBM_VGA8");
@@ -87,6 +91,14 @@ public class CrashWindow extends ComponentWindow {
 		super.addComponent(error);
 		super.addComponent(errorMessage);
 		super.initApp();
+	}
+	
+	@Override
+	public void updateApp(float delta) {
+		super.updateApp(delta);
+		KeyboardHandler kb = window.getKeyboardHandler();
+		if(kb.isKeyPressed(GLFW.GLFW_KEY_ENTER))
+			StateMachine.stop();
 	}
 
 	@Override

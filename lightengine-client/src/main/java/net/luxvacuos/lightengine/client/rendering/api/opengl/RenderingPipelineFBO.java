@@ -60,7 +60,7 @@ import static org.lwjgl.opengl.GL32.glFramebufferTexture;
 import net.luxvacuos.lightengine.client.core.exception.FrameBufferException;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 
-public class RenderingPipelineFBO {
+public class RenderingPipelineFBO implements IFBO {
 
 	private int fbo;
 
@@ -71,14 +71,10 @@ public class RenderingPipelineFBO {
 	public RenderingPipelineFBO(int width, int height) {
 		this.width = width;
 		this.height = height;
-		init(width, height);
+		init(width, height, 0, 0, 0);
 	}
 
-	private void init(int width, int height) {
-
-		fbo = glGenFramebuffers();
-		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
+	public void init(int width, int height, int internalFormat, int format, int type) {
 		diffuseTex = glGenTextures();
 		glBindTexture(GL_TEXTURE_2D, diffuseTex);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, 0);
@@ -86,7 +82,6 @@ public class RenderingPipelineFBO {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, diffuseTex, 0);
 
 		positionTex = glGenTextures();
 		glBindTexture(GL_TEXTURE_2D, positionTex);
@@ -95,7 +90,6 @@ public class RenderingPipelineFBO {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, positionTex, 0);
 
 		normalTex = glGenTextures();
 		glBindTexture(GL_TEXTURE_2D, normalTex);
@@ -104,7 +98,6 @@ public class RenderingPipelineFBO {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, normalTex, 0);
 
 		pbrTex = glGenTextures();
 		glBindTexture(GL_TEXTURE_2D, pbrTex);
@@ -113,7 +106,6 @@ public class RenderingPipelineFBO {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, pbrTex, 0);
 
 		maskTex = glGenTextures();
 		glBindTexture(GL_TEXTURE_2D, maskTex);
@@ -122,7 +114,6 @@ public class RenderingPipelineFBO {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, maskTex, 0);
 
 		depthTex = glGenTextures();
 		glBindTexture(GL_TEXTURE_2D, depthTex);
@@ -131,20 +122,30 @@ public class RenderingPipelineFBO {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTex, 0);
 
-		int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-		if (status != GL_FRAMEBUFFER_COMPLETE)
-			throw new FrameBufferException("Incomplete FrameBuffer ");
+		fbo = glGenFramebuffers();
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, diffuseTex, 0);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, positionTex, 0);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, normalTex, 0);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, pbrTex, 0);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, maskTex, 0);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTex, 0);
 
 		int buffer[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3,
 				GL_COLOR_ATTACHMENT4 };
 		glDrawBuffers(buffer);
 
+		int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		if (status != GL_FRAMEBUFFER_COMPLETE)
+			throw new FrameBufferException("Incomplete FrameBuffer ");
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
-	public void cleanUp() {
+	@Override
+	public void dispose() {
 		glDeleteTextures(diffuseTex);
 		glDeleteTextures(positionTex);
 		glDeleteTextures(normalTex);
@@ -154,11 +155,13 @@ public class RenderingPipelineFBO {
 		glDeleteFramebuffers(fbo);
 	}
 
+	@Override
 	public void begin() {
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 		glViewport(0, 0, width, height);
 	}
 
+	@Override
 	public void end() {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		GraphicalSubsystem.getMainWindow().resetViewport();
@@ -191,4 +194,5 @@ public class RenderingPipelineFBO {
 	public int getDepthTex() {
 		return depthTex;
 	}
+
 }

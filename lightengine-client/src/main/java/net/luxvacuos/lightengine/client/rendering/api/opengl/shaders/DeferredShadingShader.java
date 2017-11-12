@@ -160,10 +160,6 @@ public class DeferredShadingShader extends ShaderProgram {
 		this.exposure.loadFloat(exposure);
 	}
 
-	public void loadSkyColor(Vector3f color) {
-		skyColor.loadVec3(color);
-	}
-
 	public void loadLightPosition(Vector3f pos, Vector3f invertPos) {
 		lightPosition.loadVec3(pos);
 		invertedLightPosition.loadVec3(invertPos);

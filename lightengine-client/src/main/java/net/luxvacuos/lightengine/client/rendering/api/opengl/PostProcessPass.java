@@ -32,7 +32,6 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.DeferredShadingShader;
@@ -80,7 +79,6 @@ public abstract class PostProcessPass implements IPostProcessPass {
 		shader = new DeferredShadingShader(name);
 		shader.start();
 		shader.loadResolution(new Vector2f(width, height));
-		shader.loadSkyColor(ClientVariables.skyColor);
 		shader.stop();
 	}
 

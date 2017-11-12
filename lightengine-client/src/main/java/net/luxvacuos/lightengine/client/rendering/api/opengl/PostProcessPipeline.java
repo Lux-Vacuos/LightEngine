@@ -22,8 +22,16 @@ package net.luxvacuos.lightengine.client.rendering.api.opengl;
 
 import static org.lwjgl.nanovg.NanoVG.NVG_IMAGE_FLIPY;
 import static org.lwjgl.nanovg.NanoVG.nvgDeleteImage;
+import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_RGB;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.GL_TRIANGLE_STRIP;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
+import static org.lwjgl.opengl.GL11.glBindTexture;
+import static org.lwjgl.opengl.GL11.glDrawArrays;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE6;
+import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
@@ -32,12 +40,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.RawModel;
+import net.luxvacuos.lightengine.client.rendering.api.opengl.shaders.DeferredShadingShader;
 import net.luxvacuos.lightengine.client.util.Maths;
 
 public abstract class PostProcessPipeline implements IPostProcessPipeline {
@@ -51,6 +61,8 @@ public abstract class PostProcessPipeline implements IPostProcessPipeline {
 	private FBO[] auxs;
 	private String name;
 	private int texture = -1;
+	private DeferredShadingShader finalShader;
+	private FBO finalFBO;
 	private Window window;
 
 	public PostProcessPipeline(String name, Window window) {
@@ -66,15 +78,21 @@ public abstract class PostProcessPipeline implements IPostProcessPipeline {
 		float[] positions = { -1, 1, -1, -1, 1, 1, 1, -1 };
 		quad = window.getResourceLoader().loadToVAO(positions, 2);
 		fbo = new FBO(width, height, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
+		finalFBO = new FBO(width, height, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
 		imagePasses = new ArrayList<>();
 		auxs = new FBO[3];
 
 		previousCameraPosition = new Vector3f();
 		previousViewMatrix = new Matrix4f();
+		finalShader = new DeferredShadingShader("Final");
+		finalShader.start();
+		finalShader.loadResolution(new Vector2f(window.getWidth(), window.getHeight()));
+		finalShader.stop();
 		init();
 		for (IPostProcessPass deferredPass : imagePasses) {
 			deferredPass.init();
 		}
+		texture = Theme.generateImageFromTexture(window.getNVGID(), finalFBO.getTexture(), width, height, NVG_IMAGE_FLIPY);
 	}
 
 	@Override
@@ -88,19 +106,25 @@ public abstract class PostProcessPipeline implements IPostProcessPipeline {
 	}
 
 	@Override
-	public void preRender(long nvg, CameraEntity camera) {
+	public void preRender(CameraEntity camera) {
 		auxs[0] = fbo;
 		glBindVertexArray(quad.getVaoID());
 		glEnableVertexAttribArray(0);
 		for (IPostProcessPass deferredPass : imagePasses) {
 			deferredPass.process(camera, previousViewMatrix, previousCameraPosition, auxs, quad);
 		}
+		finalFBO.begin();
+		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		finalShader.start();
+		glActiveTexture(GL_TEXTURE6);
+		glBindTexture(GL_TEXTURE_2D, auxs[0].getTexture());
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, quad.getVertexCount());
+		finalShader.stop();
+		finalFBO.end();
 		glDisableVertexAttribArray(0);
 		glBindVertexArray(0);
 		previousViewMatrix = Maths.createViewMatrix(camera);
 		previousCameraPosition = camera.getPosition();
-		if (texture == -1)
-			texture = Theme.generateImageFromTexture(nvg, auxs[0].getTexture(), width, height, NVG_IMAGE_FLIPY);
 	}
 
 	@Override
@@ -108,6 +132,7 @@ public abstract class PostProcessPipeline implements IPostProcessPipeline {
 		if (texture != -1)
 			nvgDeleteImage(window.getNVGID(), texture);
 		fbo.dispose();
+		finalFBO.dispose();
 		for (IPostProcessPass deferredPass : imagePasses) {
 			deferredPass.dispose();
 		}
@@ -119,7 +144,7 @@ public abstract class PostProcessPipeline implements IPostProcessPipeline {
 	}
 
 	@Override
-	public int getResultTexture() {
+	public int getNVGImage() {
 		return texture;
 	}
 

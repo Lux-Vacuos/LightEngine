@@ -67,13 +67,12 @@ public class WaterRenderer implements IDisposable {
 		foamMask = CachedAssets.loadTextureMisc("textures/foamMask.png");
 	}
 
-	public void render(List<WaterTile> water, CameraEntity camera, CubeMapTexture reflection, int refraction, int depth,
-			float time, Frustum frustum) {
+	public void render(List<WaterTile> water, CameraEntity camera, float time, Frustum frustum) {
 		if (water == null)
 			return;
 		if (water.isEmpty())
 			return;
-		prepareRender(camera, reflection, refraction, depth, time);
+		prepareRender(camera, time);
 		for (WaterTile tile : water) {
 			float halfTileSize = WaterTile.TILE_SIZE * 2;
 			if (!frustum.cubeInFrustum(tile.getX() + halfTileSize, tile.getY(), tile.getZ() - halfTileSize,
@@ -86,8 +85,7 @@ public class WaterRenderer implements IDisposable {
 		unbind();
 	}
 
-	private void prepareRender(CameraEntity camera, CubeMapTexture reflection, int refraction, int depth, float time) {
-		glEnable(GL_BLEND);
+	private void prepareRender(CameraEntity camera, float time) {
 		shader.start();
 		shader.loadViewMatrix(camera);
 		shader.loadProjectionMatrix(camera.getProjectionMatrix());
@@ -96,14 +94,8 @@ public class WaterRenderer implements IDisposable {
 		glBindVertexArray(quad.getVaoID());
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, reflection.getID());
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, refraction);
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, dudv.getID());
-		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, depth);
 		glActiveTexture(GL_TEXTURE4);
 		glBindTexture(GL_TEXTURE_2D, foamMask.getID());
 	}
@@ -113,7 +105,6 @@ public class WaterRenderer implements IDisposable {
 		glDisableVertexAttribArray(1);
 		glBindVertexArray(0);
 		shader.stop();
-		glDisable(GL_BLEND);
 	}
 
 	@Override

@@ -230,11 +230,15 @@ public class Material implements IDisposable {
 		file = file.replace("\\", "/");
 		file = file.replace("//", "");
 		int count = file.split("\\.").length;
-		count--;
-		count /= 2;
-		for (int i = 0; i < count; i++)
-			rootPath = rootPath.substring(0, rootPath.lastIndexOf("/"));
-		file = file.substring(2);
+		if (count > 2) {
+			count--;
+			count /= 2;
+			for (int i = 0; i < count; i++)
+				rootPath = rootPath.substring(0, rootPath.lastIndexOf("/"));
+			file = file.substring(2);
+		} else
+			rootPath += "/";
+
 		return CachedAssets.loadTexture(rootPath + file);
 	}
 
@@ -243,11 +247,14 @@ public class Material implements IDisposable {
 		file = file.replace("\\", "/");
 		file = file.replace("//", "");
 		int count = file.split("\\.").length;
-		count--;
-		count /= 2;
-		for (int i = 0; i < count; i++)
-			rootPath = rootPath.substring(0, rootPath.lastIndexOf("/"));
-		file = file.substring(2);
+		if (count > 2) {
+			count--;
+			count /= 2;
+			for (int i = 0; i < count; i++)
+				rootPath = rootPath.substring(0, rootPath.lastIndexOf("/"));
+			file = file.substring(2);
+		} else
+			rootPath += "/";
 		return CachedAssets.loadTextureMisc(rootPath + file);
 	}
 

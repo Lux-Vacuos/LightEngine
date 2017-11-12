@@ -20,18 +20,12 @@
 
 package net.luxvacuos.lightengine.client.core;
 
-import org.joml.Vector3f;
-
 import net.luxvacuos.lightengine.universal.core.GlobalVariables;
 
 public class ClientVariables extends GlobalVariables {
 
 	public static final float NEAR_PLANE = 0.1f;
 	public static final float FAR_PLANE = 1000f;
-	public static float RED = 0.32f;
-	public static float GREEN = 0.8f;
-	public static float BLUE = 1f;
-	public static Vector3f skyColor = new Vector3f(ClientVariables.RED, ClientVariables.GREEN, ClientVariables.BLUE);
 	public static final boolean WSL = false;
 
 	/**

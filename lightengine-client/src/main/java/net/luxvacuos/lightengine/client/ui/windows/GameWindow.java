@@ -46,7 +46,7 @@ public class GameWindow extends ComponentWindow {
 		super.setBlurBehind(false);
 		super.toggleTitleBar();
 
-		game = new Image(0, 0, w, h, Renderer.getResultTexture(), false);
+		game = new Image(0, 0, w, h, Renderer.getNVGImage(), false);
 		game.setResizeH(true);
 		game.setResizeV(true);
 
@@ -60,7 +60,7 @@ public class GameWindow extends ComponentWindow {
 			y = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
 			w = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"));
 			h = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
-			TaskManager.addTask(() -> game.setImage(Renderer.getResultTexture()));
+			TaskManager.addTask(() -> game.setImage(Renderer.getNVGImage()));
 		}
 		super.processWindowMessage(message, param);
 	}

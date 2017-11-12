@@ -26,6 +26,9 @@ import net.luxvacuos.lightengine.client.bootstrap.Bootstrap;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.ui.windows.BackgroundWindow;
 import net.luxvacuos.lightengine.client.ui.windows.Profiler;
+import net.luxvacuos.lightengine.demo.levels.Level0;
+import net.luxvacuos.lightengine.demo.levels.Level1;
+import net.luxvacuos.lightengine.demo.levels.Level2;
 import net.luxvacuos.lightengine.demo.ui.MainWindow;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
@@ -45,7 +48,9 @@ public class MainMenuState extends AbstractState {
 	@Override
 	public void init() {
 		super.init();
-		TaskManager.addTask(() -> StateMachine.registerState(new MainState()));
+		TaskManager.addTask(() -> StateMachine.registerState(new Level0()));
+		TaskManager.addTask(() -> StateMachine.registerState(new Level1()));
+		TaskManager.addTask(() -> StateMachine.registerState(new Level2()));
 		// TaskManager.addTask(() -> StateMachine.registerState(new GameState()));
 	}
 
@@ -62,10 +67,11 @@ public class MainMenuState extends AbstractState {
 		int x = ww / 2 - 512;
 		int y = wh / 2 - 300;
 		GraphicalSubsystem.getWindowManager().addWindow(new MainWindow(x, wh - y, 1024, 600));
-		/*if (!GraphicalSubsystem.getWindowManager().existWindow(profiler)) {
-			profiler = new Profiler();
-			GraphicalSubsystem.getWindowManager().addWindow(profiler);
-		}*/
+		/*
+		 * if (!GraphicalSubsystem.getWindowManager().existWindow(profiler)) { profiler
+		 * = new Profiler(); GraphicalSubsystem.getWindowManager().addWindow(profiler);
+		 * }
+		 */
 		super.start();
 	}
 

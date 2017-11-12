@@ -26,6 +26,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
+import org.joml.Vector4i;
 
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 
@@ -107,18 +108,13 @@ public class Maths extends net.luxvacuos.lightengine.universal.util.Maths {
 	}
 
 	public static Vector2f convertTo2F(Vector3f pos, Matrix4f projection, Matrix4f viewMatrix, int width, int height) {
-		return project(pos, projection, viewMatrix, new Vector4f(0, 0, width, height));
+		return project(pos, projection, viewMatrix, new Vector4i(0, 0, width, height));
 	}
 
-	public static Vector2f project(Vector3f pos, Matrix4f projection, Matrix4f view, Vector4f viewport) {
+	public static Vector2f project(Vector3f pos, Matrix4f projection, Matrix4f view, Vector4i viewport) {
+		Matrix4f dest = projection.mul(view, new Matrix4f());
 		Vector4f winCoordsDest = new Vector4f();
-		winCoordsDest.set(pos.x, pos.y, pos.z, 1.0f);
-		view.transform(winCoordsDest);
-		view.transform(winCoordsDest);
-		winCoordsDest.div(winCoordsDest.w);
-		winCoordsDest.x = (winCoordsDest.x * 0.5f + 0.5f) * viewport.z + viewport.x;
-		winCoordsDest.y = (winCoordsDest.y * 0.5f + 0.5f) * viewport.w + viewport.y;
-		winCoordsDest.z = (1.0f + winCoordsDest.z) * 0.5f;
+		dest.project(pos, new int[] {viewport.x(), viewport.y(), viewport.z(), viewport.w()}, winCoordsDest);
 		return new Vector2f(winCoordsDest.x, winCoordsDest.y);
 	}
 
