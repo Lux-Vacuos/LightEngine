@@ -87,7 +87,7 @@ project(":lightengine-universal") {
 	project.ext.jomlVersion = "1.9.6"
 
 	dependencies {
-		compile project(':external:jbullet')
+		compile project(':lightengine-jbullet')
 		compile project(':lightengine-utils')
 		
 		compile 'org.codehaus.groovy:groovy:2.4.12'

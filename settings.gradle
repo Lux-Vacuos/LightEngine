@@ -1,2 +1,2 @@
 rootProject.name = 'LightEngine'
-include 'lightengine-utils', 'lightengine-client', 'lightengine-server', 'lightengine-universal', 'lightengine-tools', 'lightengine-assets', 'lightengine-demo', 'external:jbullet'
+include 'lightengine-utils', 'lightengine-client', 'lightengine-server', 'lightengine-universal', 'lightengine-tools', 'lightengine-assets', 'lightengine-demo', 'lightengine-jbullet'
