@@ -29,9 +29,9 @@ import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 
 public class Text extends Component {
-	protected String text, font = "Poppins-Medium";
+	protected String text, font = "Poppins-Regular";
 	protected int align = NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE;
-	protected float fontSize = 25;
+	protected float fontSize = 24;
 	protected NVGColor color = Theme.rgba(255, 255, 255, 255, NVGColor.create());
 
 	public Text(String text, float x, float y) {

@@ -66,9 +66,9 @@ public class GraphicalSubsystem implements ISubsystem {
 	private static IWindowManager windowManager;
 	private static Window window;
 
-	private Font robotoRegular, robotoBold, poppinsRegular, poppinsLight, poppinsMedium, poppinsBold, poppinsSemiBold,
+	private static Font robotoRegular, robotoBold, poppinsRegular, poppinsLight, poppinsMedium, poppinsBold, poppinsSemiBold,
 			entypo;
-
+	
 	@Override
 	public void init() {
 		REGISTRY.register(new Key("/Light Engine/Display/width"), ClientVariables.WIDTH);
@@ -87,8 +87,26 @@ public class GraphicalSubsystem implements ISubsystem {
 		handle.setPixelBuffer(pb);
 		long gameWindowID = WindowManager.createWindow(handle,
 				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/vsync")));
+		
 		window = WindowManager.getWindow(gameWindowID);
+		window.setOnRefresh(() -> {
+			Renderer.clearColors(0, 0, 0, 1);
+			Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			GraphicalSubsystem.getWindowManager().update(0);
+			GraphicalSubsystem.getWindowManager().render(0);
+		});
 		GLUtil.init();
+		
+		REGISTRY.register(new Key("/Light Engine/System/lwjgl"), Version.getVersion());
+		REGISTRY.register(new Key("/Light Engine/System/glfw"), GLFW.glfwGetVersionString());
+		REGISTRY.register(new Key("/Light Engine/System/opengl"), glGetString(GL_VERSION));
+		REGISTRY.register(new Key("/Light Engine/System/glsl"), glGetString(GL_SHADING_LANGUAGE_VERSION));
+		REGISTRY.register(new Key("/Light Engine/System/vendor"), glGetString(GL_VENDOR));
+		REGISTRY.register(new Key("/Light Engine/System/renderer"), glGetString(GL_RENDERER));
+		REGISTRY.register(new Key("/Light Engine/System/assimp"),
+				aiGetVersionMajor() + "." + aiGetVersionMinor() + "." + aiGetVersionRevision());
+		REGISTRY.register(new Key("/Light Engine/System/vk"), "Not Available");
+		
 		ThemeManager.addTheme(new NanoTheme());
 		ThemeManager.setTheme((String) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/theme")));
 
@@ -104,29 +122,14 @@ public class GraphicalSubsystem implements ISubsystem {
 		poppinsBold = loader.loadNVGFont("Poppins-Bold", "Poppins-Bold");
 		poppinsSemiBold = loader.loadNVGFont("Poppins-SemiBold", "Poppins-SemiBold");
 		entypo = loader.loadNVGFont("Entypo", "Entypo", 40);
+		
 		TaskManager.addTaskAsync(() -> ShaderIncludes.processIncludeFile("common.isl"));
 		TaskManager.addTaskAsync(() -> ShaderIncludes.processIncludeFile("lighting.isl"));
 		TaskManager.addTaskAsync(() -> ShaderIncludes.processIncludeFile("materials.isl"));
 		TaskManager.addTaskAsync(() -> ShaderIncludes.processIncludeFile("global.isl"));
 		TaskManager.addTaskAsync(() -> DefaultData.init(loader));
-		TaskManager.addTaskAsync(() -> Renderer.init(window));
 		StateMachine.registerState(new SplashScreenState());
-		REGISTRY.register(new Key("/Light Engine/System/lwjgl"), Version.getVersion());
-		REGISTRY.register(new Key("/Light Engine/System/glfw"), GLFW.glfwGetVersionString());
-		REGISTRY.register(new Key("/Light Engine/System/opengl"), glGetString(GL_VERSION));
-		REGISTRY.register(new Key("/Light Engine/System/glsl"), glGetString(GL_SHADING_LANGUAGE_VERSION));
-		REGISTRY.register(new Key("/Light Engine/System/vendor"), glGetString(GL_VENDOR));
-		REGISTRY.register(new Key("/Light Engine/System/renderer"), glGetString(GL_RENDERER));
-		REGISTRY.register(new Key("/Light Engine/System/assimp"),
-				aiGetVersionMajor() + "." + aiGetVersionMinor() + "." + aiGetVersionRevision());
-		REGISTRY.register(new Key("/Light Engine/System/vk"), "Not Available");
 		window.setVisible(true);
-		window.setOnRefresh(() -> {
-			Renderer.clearColors(0, 0, 0, 1);
-			Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			GraphicalSubsystem.getWindowManager().update(0);
-			GraphicalSubsystem.getWindowManager().render(0);
-		});
 	}
 
 	@Override

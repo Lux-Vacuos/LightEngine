@@ -20,11 +20,8 @@
 
 package net.luxvacuos.lightengine.client.core.subsystems;
 
-import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
-
 import net.luxvacuos.lightengine.client.util.LoggerSoundSystem;
 import net.luxvacuos.lightengine.universal.core.subsystems.ISubsystem;
-import net.luxvacuos.lightengine.universal.util.registry.Key;
 import paulscode.sound.SoundSystem;
 import paulscode.sound.SoundSystemConfig;
 import paulscode.sound.SoundSystemException;
@@ -43,8 +40,7 @@ public class SoundSubsystem implements ISubsystem {
 		} catch (SoundSystemException e) {
 			e.printStackTrace();
 		}
-		SoundSystemConfig.setSoundFilesPackage(
-				"assets/" + REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/assets")) + "/sounds/");
+		SoundSystemConfig.setSoundFilesPackage("assets/sounds/");
 		SoundSystemConfig.setLogger(new LoggerSoundSystem());
 		soundSystem = new SoundSystem();
 	}

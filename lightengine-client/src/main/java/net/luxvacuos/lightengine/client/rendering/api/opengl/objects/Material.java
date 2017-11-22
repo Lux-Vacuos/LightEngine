@@ -56,18 +56,10 @@ public class Material implements IDisposable {
 
 	/**
 	 * 
-	 * @param baseColor
-	 *            Color.
-	 * @param roughness
-	 *            Material Roughness.
-	 * @param metallic
-	 *            Material Metallic.
-	 * @param specular
-	 *            Material Specular.
-	 * @param diffuse
-	 *            Diffuse texutre.
-	 * @param normal
-	 *            Normal texture.
+	 * @param diffuse Diffuse color
+	 * @param emissive Emissive Color
+	 * @param roughness Roughness
+	 * @param metallic Metallic
 	 */
 	public Material(Vector4f diffuse, Vector4f emissive, float roughness, float metallic) {
 		this.diffuse = diffuse;
@@ -82,8 +74,8 @@ public class Material implements IDisposable {
 
 	/**
 	 * 
-	 * @param material
-	 *            Assimp Material
+	 * @param material Assimp Material
+	 * @param rootPath internal
 	 */
 	public Material(AIMaterial material, String rootPath) {
 		this.diffuse = new Vector4f(1, 1, 1, 1);

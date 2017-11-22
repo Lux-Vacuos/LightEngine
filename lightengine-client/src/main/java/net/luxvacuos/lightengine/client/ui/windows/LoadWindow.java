@@ -67,9 +67,7 @@ public class LoadWindow extends ComponentWindow {
 		message = new Text("Searching for package", 0, -220);
 		message.setWindowAlignment(Alignment.CENTER);
 		message.setAlign(NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
-		message.setFontSize(32);
 		message.setColor(0, 0, 0, 1f);
-		message.setFont("Poppins-Regular");
 		super.addComponent(message);
 		return this.searchForPackage();
 	}

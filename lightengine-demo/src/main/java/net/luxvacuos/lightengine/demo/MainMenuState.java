@@ -82,10 +82,6 @@ public class MainMenuState extends AbstractState {
 	}
 
 	@Override
-	public void render(float delta) {
-	}
-
-	@Override
 	public void update(float delta) {
 	}
 

@@ -26,10 +26,10 @@ import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
 
 public class Button extends Component {
 
-	protected String text = "missigno", font = "Poppins-Medium", entypo = "Entypo";
+	protected String text = "missigno", font = "Poppins-Regular", entypo = "Entypo";
 	protected String preicon;
 	protected OnAction onPress, rightPress;
-	protected float fontSize = 21;
+	protected float fontSize = 22;
 	protected boolean pressed = false, pressedRight = false, enabled = true;
 
 	public Button(float x, float y, float w, float h, String text) {
