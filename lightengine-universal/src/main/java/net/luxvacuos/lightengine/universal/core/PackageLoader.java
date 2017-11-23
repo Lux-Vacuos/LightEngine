@@ -45,7 +45,7 @@ public final class PackageLoader {
 				URLClassLoader child = new URLClassLoader(new URL[] { pak.toURI().toURL() },
 						PackageLoader.class.getClassLoader());
 				Class<?> classToLoad = Class.forName("EngineLoader", true, child);
-				loader = (IEngineLoader) classToLoad.newInstance();
+				loader = (IEngineLoader) classToLoad.getDeclaredConstructor().newInstance();
 				return true;
 			} catch (Exception e) {
 				e.printStackTrace();

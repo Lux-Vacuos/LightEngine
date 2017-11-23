@@ -720,7 +720,8 @@ public class SoundSystemConfig
  * @param extension File extension to be associated with the specified codec.
  * @param iCodecClass Codec type to use for files with the specified extension.
  */
-    public static synchronized void setCodec( String extension,
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public static synchronized void setCodec( String extension,
                                               Class iCodecClass )
                                                      throws SoundSystemException
     {
@@ -881,7 +882,7 @@ public class SoundSystemConfig
 
     // We don't know what Class parameter 'c' is, so we will ignore the 
     // warning message "unchecked call to getMethod".
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
 /**
  * Returns the results of calling the specified method from the specified 
  * class using the specified parameters.
@@ -1030,7 +1031,7 @@ public class SoundSystemConfig
             Object o = null;
             try
             {
-                o = iCodecClass.newInstance();
+                o = iCodecClass.getDeclaredConstructor().newInstance();
             }
             catch( InstantiationException ie )
             {
@@ -1051,7 +1052,16 @@ public class SoundSystemConfig
             {
                 instantiationErrorMessage();
                 return null;
-            }
+            } catch (IllegalArgumentException e) {
+            	instantiationErrorMessage();
+                return null;
+			} catch (InvocationTargetException e) {
+				instantiationErrorMessage();
+                return null;
+			} catch (NoSuchMethodException e) {
+				instantiationErrorMessage();
+                return null;
+			}
 
 
             if( o == null )
