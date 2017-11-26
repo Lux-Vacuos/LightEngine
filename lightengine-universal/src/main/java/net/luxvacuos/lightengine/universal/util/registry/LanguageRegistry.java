@@ -22,7 +22,6 @@ package net.luxvacuos.lightengine.universal.util.registry;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
@@ -36,21 +35,12 @@ import com.google.gson.reflect.TypeToken;
 public class LanguageRegistry extends PersistentRegistry<String, String> {
 
 	public void load(String filename) {
-		BufferedReader reader = null;
-		try {
-			InputStream file = getClass().getClassLoader().getResourceAsStream(filename);
-			reader = new BufferedReader(new InputStreamReader(file));
+		InputStream file = getClass().getClassLoader().getResourceAsStream(filename);
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(file));) {
 			Type type = new TypeToken<HashMap<String, String>>() {
 			}.getType();
 			registry = gson.fromJson(reader, type);
-		} finally {
-			if (reader != null) {
-				try {
-					reader.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+		} catch (Exception e) {
 		}
 	}
 

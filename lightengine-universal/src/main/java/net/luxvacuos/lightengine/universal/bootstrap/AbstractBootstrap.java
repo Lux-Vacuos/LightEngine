@@ -36,18 +36,18 @@ public abstract class AbstractBootstrap implements IBootstrap {
 		try (BufferedReader br = new BufferedReader(new FileReader("project"))) {
 			GlobalVariables.PROJECT = br.readLine();
 		} catch (IOException e1) {
-			BufferedReader br = new BufferedReader(new InputStreamReader(
-					getClass().getClassLoader().getResourceAsStream("project")));
-			GlobalVariables.PROJECT = br.lines().reduce("", String::concat);
+			try (BufferedReader br = new BufferedReader(new InputStreamReader(
+					getClass().getClassLoader().getResourceAsStream("project")))) {
+				GlobalVariables.PROJECT = br.lines().reduce("", String::concat);
+			} catch (Exception e) {
+			}
 		}
 		try {
 			parseArgs(args);
 		} catch (ArrayIndexOutOfBoundsException aioe) {
 			Logger.error("Error: Arguments were wrong", aioe);
-			System.exit(1);
 		} catch (Exception ex) {
 			Logger.error(ex);
-			System.exit(1);
 		}
 		init();
 	}

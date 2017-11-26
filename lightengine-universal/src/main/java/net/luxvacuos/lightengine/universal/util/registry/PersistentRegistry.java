@@ -23,7 +23,6 @@ package net.luxvacuos.lightengine.universal.util.registry;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Type;
@@ -52,42 +51,20 @@ public class PersistentRegistry<K extends Comparable<K>, V> implements IRegistry
 	}
 
 	public void save() {
-		Writer writer = null;
-		try {
-			writer = new FileWriter(this.database);
+		try (Writer writer = new FileWriter(this.database)) {
 			gson.toJson(registry, writer);
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			if (writer != null) {
-				try {
-					writer.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+		} catch (Exception e) {
 		}
 	}
 
 	public void load(File database) {
 		this.database = database;
 		if (this.database.exists()) {
-			Reader reader = null;
-			try {
-				reader = new FileReader(this.database);
+			try (Reader reader = new FileReader(this.database);) {
 				Type type = new TypeToken<HashMap<K, V>>() {
 				}.getType();
 				registry = gson.fromJson(reader, type);
-			} catch (IOException e) {
-				e.printStackTrace();
-			} finally {
-				if (reader != null) {
-					try {
-						reader.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
+			} catch (Exception e) {
 			}
 		} else {
 			String absolutePath = this.database.getAbsolutePath();
