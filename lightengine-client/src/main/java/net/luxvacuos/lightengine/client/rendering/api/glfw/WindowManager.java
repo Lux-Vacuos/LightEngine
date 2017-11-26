@@ -70,7 +70,8 @@ public final class WindowManager {
 			// TODO: Implement Vulkan
 		}
 
-		long windowID = GLFW.glfwCreateWindow(handle.width, handle.height, handle.title, NULL, NULL);
+		long windowID = GLFW.glfwCreateWindow(handle.width, handle.height, (handle.title == null ? "" : handle.title),
+				NULL, NULL);
 		if (windowID == NULL)
 			throw new GLFWException("Failed to create GLFW Window '" + handle.title + "'");
 
