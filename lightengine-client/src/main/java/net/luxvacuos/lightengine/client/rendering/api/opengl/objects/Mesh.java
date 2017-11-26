@@ -54,18 +54,28 @@ public class Mesh implements IDisposable {
 		List<Vector3f> tan = new ArrayList<>();
 		for (int i = 0; i < aiMesh.mNumVertices(); i++) {
 			AIVector3D position = aiMesh.mVertices().get(i);
-			AIVector3D texcoord = null;
-			if (aiMesh.mTextureCoords(0) != null)
-				texcoord = aiMesh.mTextureCoords(0).get(i);
-			AIVector3D normal = aiMesh.mNormals().get(i);
-			AIVector3D tangent = aiMesh.mTangents().get(i);
 			pos.add(new Vector3f(position.x(), position.y(), position.z()));
-			if (aiMesh.mTextureCoords(0).get(i) != null)
+
+			AIVector3D texcoord = null;
+			if (aiMesh.mTextureCoords(0) != null) {
+				texcoord = aiMesh.mTextureCoords(0).get(i);
 				tex.add(new Vector2f(texcoord.x(), texcoord.y()));
-			else
+			} else
 				tex.add(new Vector2f(0, 0));
-			nor.add(new Vector3f(normal.x(), normal.y(), normal.z()));
-			tan.add(new Vector3f(tangent.x(), tangent.y(), tangent.z()));
+
+			AIVector3D normal = null;
+			if (aiMesh.mNormals() != null) {
+				normal = aiMesh.mNormals().get(i);
+				nor.add(new Vector3f(normal.x(), normal.y(), normal.z()));
+			} else
+				nor.add(new Vector3f(0, 1, 0));
+
+			AIVector3D tangent = null;
+			if (aiMesh.mTangents() != null) {
+				tangent = aiMesh.mTangents().get(i);
+				tan.add(new Vector3f(tangent.x(), tangent.y(), tangent.z()));
+			} else
+				tan.add(new Vector3f(0, 0, 0));
 		}
 		int faceCount = aiMesh.mNumFaces();
 		int elementCount = faceCount * 3;

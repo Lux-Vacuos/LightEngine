@@ -1,17 +1,5 @@
 plugins { id 'net.nemerosa.versioning' version '2.0.0' }
 
-
-sourceSets {
-	main {
-		java.srcDir("${projectDir}/src/main/java/")
-		resources.srcDir("${projectDir}/src/main/resources")
-	}
-	
-	test {
-		java.srcDirs = ["${projectDir}/src/test/java/"]
-	}
-}
-
 jar {
 	version = project.ext.globalVersion + "-" + versioning.info.branchId + "-" + 'git rev-list --count HEAD'.execute().text.trim()
 	manifest {

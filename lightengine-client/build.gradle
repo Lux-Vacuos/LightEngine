@@ -9,17 +9,6 @@ if (System.getProperty("os.name").toLowerCase().contains("mac")) {
 	applicationDefaultJvmArgs = ["-XstartOnFirstThread"]
 }
 
-sourceSets {
-	main {
-		java.srcDir("${projectDir}/src/main/java/")
-		resources.srcDir("${projectDir}/src/main/resources")
-	}
-	
-	test {
-		java.srcDirs = ["${projectDir}/src/test/java/"]
-	}
-}
-
 jar {
 	version = project.ext.globalVersion + "-" + versioning.info.branchId + "-" + 'git rev-list --count HEAD'.execute().text.trim()
 	manifest {

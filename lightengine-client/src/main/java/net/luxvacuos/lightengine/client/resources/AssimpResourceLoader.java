@@ -24,7 +24,7 @@ import static org.lwjgl.assimp.Assimp.AI_CONFIG_PP_CT_MAX_SMOOTHING_ANGLE;
 import static org.lwjgl.assimp.Assimp.AI_SCENE_FLAGS_INCOMPLETE;
 import static org.lwjgl.assimp.Assimp.aiCreatePropertyStore;
 import static org.lwjgl.assimp.Assimp.aiGetErrorString;
-import static org.lwjgl.assimp.Assimp.aiImportFileFromMemory;
+import static org.lwjgl.assimp.Assimp.aiImportFileFromMemoryWithProperties;
 import static org.lwjgl.assimp.Assimp.aiProcess_CalcTangentSpace;
 import static org.lwjgl.assimp.Assimp.aiProcess_FindInvalidData;
 import static org.lwjgl.assimp.Assimp.aiProcess_FlipUVs;
@@ -53,12 +53,16 @@ import net.luxvacuos.lightengine.universal.core.TaskManager;
 
 public class AssimpResourceLoader {
 
-	private AIPropertyStore propertyStore;
+	public static final AIPropertyStore propertyStore;
+
+	static {
+		propertyStore = aiCreatePropertyStore();
+		aiSetImportPropertyFloat(propertyStore, AI_CONFIG_PP_CT_MAX_SMOOTHING_ANGLE, 30f);
+	}
+
 	private List<AsyncResult<Model>> tasks = new ArrayList<>();
 
 	public AssimpResourceLoader() {
-		propertyStore = aiCreatePropertyStore();
-		aiSetImportPropertyFloat(propertyStore, AI_CONFIG_PP_CT_MAX_SMOOTHING_ANGLE, 60f);
 	}
 
 	public Model loadModel(String filePath) {
@@ -71,11 +75,11 @@ public class AssimpResourceLoader {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		AIScene scene = aiImportFileFromMemory(bFile,
+		AIScene scene = aiImportFileFromMemoryWithProperties(bFile,
 				aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_SplitLargeMeshes | aiProcess_OptimizeMeshes
 						| aiProcess_ValidateDataStructure | aiProcess_FindInvalidData | aiProcess_JoinIdenticalVertices
 						| aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_ImproveCacheLocality,
-				ext);
+				ext, propertyStore);
 		if (scene == null || scene.mFlags() == AI_SCENE_FLAGS_INCOMPLETE || scene.mRootNode() == null) {
 			Logger.error(aiGetErrorString());
 		}

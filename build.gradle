@@ -13,6 +13,16 @@ subprojects {
 		maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
 		maven { url "http://maven.geotoolkit.org/" }
 	}
+	sourceSets {
+		main {
+			java.srcDir("${projectDir}/src/main/java/")
+			resources.srcDir("${projectDir}/src/main/resources")
+		}
+	
+		test {
+			java.srcDirs = ["${projectDir}/src/test/java/"]
+		}
+	}
 }
 
 project(":lightengine-client") {
@@ -21,7 +31,6 @@ project(":lightengine-client") {
 
 	dependencies {
 		compile project(':lightengine-universal')
-		compile project(':lightengine-assets')
 		compile 'de.jarnbjo:j-ogg-all:1.0.0'
 
 		// LWJGL dependencies
@@ -78,7 +87,6 @@ project(":lightengine-tools") {
 project(":lightengine-server") {
 	dependencies {
 		compile project(':lightengine-universal')
-		compile project(':lightengine-assets')
 		testCompile group: 'junit', name: 'junit', version: '4.12'
 	}
 }
@@ -106,15 +114,6 @@ project(":lightengine-utils") {
 	dependencies {
 		compile 'log4j:log4j:1.2.17'
 		compile 'com.google.code.findbugs:jsr305:3.0.1'
-		
-		testCompile group: 'junit', name: 'junit', version: '4.12'
-	}
-}
-
-project(":lightengine-demo") {
-	dependencies {
-		compile project(':lightengine-client')
-		compile project(':lightengine-server')
 		
 		testCompile group: 'junit', name: 'junit', version: '4.12'
 	}
