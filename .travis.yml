@@ -30,7 +30,7 @@ before_install:
   - export DEBIAN_FRONTEND=noninteractive
   - sudo apt-get -yq --force-yes install libgl1-mesa-dev libgl1-mesa-glx mesa-common-dev libglapi-mesa libgbm1 libgl1-mesa-dri libxatracker-dev xvfb
   
-install: gradle assemble
+install: ./gradlew assemble
   
 before_script:
   - export DISPLAY=:99
@@ -42,4 +42,4 @@ before_script:
   - cat ${HOME}/.xpra/xorg.log
   
 script:
-- LIBGL_ALWAYS_SOFTWARE=1 gradle test
+- LIBGL_ALWAYS_SOFTWARE=1 ./gradlew test
