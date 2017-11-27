@@ -1,5 +1,11 @@
-plugins { id 'net.nemerosa.versioning' version '2.0.0' }
+plugins {
+	id 'net.nemerosa.versioning' version '2.0.0'
+	id 'eclipse'
+	id 'idea'
+	id 'java'
+}
 
+sourceCompatibility = '9'
 project.ext.jomlVersion = "1.9.6"
 
 sourceSets {

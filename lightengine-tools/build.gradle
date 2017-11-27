@@ -1,9 +1,13 @@
 plugins {
-	id 'application'
 	id 'net.nemerosa.versioning' version '2.0.0'
+	id 'eclipse'
+	id 'idea'
+	id 'java'
+	id 'application'
 }
 
 mainClassName = 'net.luxvacuos.lightengine.tools.Main'
+sourceCompatibility = '9'
 
 sourceSets {
 	main {

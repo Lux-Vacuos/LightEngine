@@ -1,10 +1,4 @@
 subprojects {
-	apply plugin: "eclipse"
-	apply plugin: "idea"
-	apply plugin: "java"
-
-	sourceCompatibility = '9'
-	
 	project.ext.globalVersion = "0.0.10"
 	
 	repositories {
