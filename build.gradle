@@ -4,7 +4,6 @@ subprojects {
 	repositories {
 		mavenCentral()
 		maven { url "https://oss.sonatype.org/content/repositories/releases/" }
-		maven { url "http://maven.geotoolkit.org/" }
 	}
 }
 
