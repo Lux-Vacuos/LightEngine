@@ -5,8 +5,64 @@ plugins {
 
 mainClassName = 'net.luxvacuos.lightengine.client.bootstrap.Bootstrap'
 
-if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-	applicationDefaultJvmArgs = ["-XstartOnFirstThread"]
+project.ext.lwjglVersion = "3.1.5"
+
+sourceSets {
+	main {
+		java.srcDir("${projectDir}/src/main/java/")
+		resources.srcDir("${projectDir}/src/main/resources/")
+	}
+
+	test {
+		java.srcDirs = ["${projectDir}/src/test/java/"]
+		resources.srcDir("${projectDir}/src/test/resources/")
+	}	
+}
+
+dependencies {
+	compile project(':lightengine-universal')
+	compile 'de.jarnbjo:j-ogg-all:1.0.0'
+
+	// LWJGL dependencies
+	compile "org.lwjgl:lwjgl:${lwjglVersion}"
+	compile "org.lwjgl:lwjgl-glfw:${lwjglVersion}"
+	compile "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}"
+	compile "org.lwjgl:lwjgl-opengl:${lwjglVersion}"
+	compile "org.lwjgl:lwjgl-openal:${lwjglVersion}"
+	compile "org.lwjgl:lwjgl-nanovg:${lwjglVersion}"
+	compile "org.lwjgl:lwjgl-stb:${lwjglVersion}"
+	compile "org.lwjgl:lwjgl-assimp:${lwjglVersion}"
+	compile "org.lwjgl:lwjgl-vulkan:${lwjglVersion}"
+	
+	// LWJGL natives Windows
+	runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-windows"
+	runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-windows"
+	runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-windows"
+	runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-windows"
+	runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-windows"
+	runtime "org.lwjgl:lwjgl-nanovg:${lwjglVersion}:natives-windows"
+	runtime "org.lwjgl:lwjgl-stb:${lwjglVersion}:natives-windows"
+	runtime "org.lwjgl:lwjgl-assimp:${lwjglVersion}:natives-windows"
+	// LWJGL Natives Linux
+	runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-linux"
+	runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-linux"
+	runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-linux"
+	runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-linux"
+	runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-linux"
+	runtime "org.lwjgl:lwjgl-nanovg:${lwjglVersion}:natives-linux"
+	runtime "org.lwjgl:lwjgl-stb:${lwjglVersion}:natives-linux"
+	runtime "org.lwjgl:lwjgl-assimp:${lwjglVersion}:natives-linux"
+	// LWJGL Natives OSX
+	runtime "org.lwjgl:lwjgl:${lwjglVersion}:natives-macos"
+	runtime "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-macos"
+	runtime "org.lwjgl:lwjgl-jemalloc:${lwjglVersion}:natives-macos"
+	runtime "org.lwjgl:lwjgl-opengl:${lwjglVersion}:natives-macos"
+	runtime "org.lwjgl:lwjgl-openal:${lwjglVersion}:natives-macos"
+	runtime "org.lwjgl:lwjgl-nanovg:${lwjglVersion}:natives-macos"
+	runtime "org.lwjgl:lwjgl-stb:${lwjglVersion}:natives-macos"
+	runtime "org.lwjgl:lwjgl-assimp:${lwjglVersion}:natives-macos"
+
+	testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
 jar {
@@ -25,4 +81,6 @@ jar {
 	from "$buildDir/" + project.name + "-version.mf"
 }
 
-
+if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+	applicationDefaultJvmArgs = ["-XstartOnFirstThread"]
+}

@@ -5,6 +5,23 @@ plugins {
 
 mainClassName = 'net.luxvacuos.lightengine.server.bootstrap.Bootstrap'
 
+sourceSets {
+	main {
+		java.srcDir("${projectDir}/src/main/java/")
+		resources.srcDir("${projectDir}/src/main/resources/")
+	}
+
+	test {
+		java.srcDirs = ["${projectDir}/src/test/java/"]
+		resources.srcDir("${projectDir}/src/test/resources/")
+	}	
+}
+
+dependencies {
+	compile project(':lightengine-universal')
+	testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
 jar {
 	version = project.ext.globalVersion + "-" + versioning.info.branchId + "-" + 'git rev-list --count HEAD'.execute().text.trim()
 	manifest {

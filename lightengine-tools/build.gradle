@@ -5,8 +5,22 @@ plugins {
 
 mainClassName = 'net.luxvacuos.lightengine.tools.Main'
 
-if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-	applicationDefaultJvmArgs = ["-XstartOnFirstThread"]
+sourceSets {
+	main {
+		java.srcDir("${projectDir}/src/main/java/")
+		resources.srcDir("${projectDir}/src/main/resources/")
+	}
+
+	test {
+		java.srcDirs = ["${projectDir}/src/test/java/"]
+		resources.srcDir("${projectDir}/src/test/resources/")
+	}	
+}
+
+dependencies {
+	compile project(':lightengine-client')
+	compile project(':lightengine-server')
+	testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
 jar {
@@ -23,4 +37,6 @@ jar {
 	}
 }
 
-
+if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+	applicationDefaultJvmArgs = ["-XstartOnFirstThread"]
+}
