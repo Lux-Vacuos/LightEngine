@@ -20,7 +20,7 @@
 
 package net.luxvacuos.lightengine.client.ui.windows;
 
-import static net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme.colorA;
+import static net.luxvacuos.lightengine.client.rendering.nanovg.themes.Theme.colorA;
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 import static org.lwjgl.nanovg.NanoVG.nvgBeginPath;
 import static org.lwjgl.nanovg.NanoVG.nvgLineTo;
@@ -31,8 +31,8 @@ import static org.lwjgl.nanovg.NanoVG.nvgStroke;
 import static org.lwjgl.nanovg.NanoVG.nvgStrokeColor;
 import static org.lwjgl.nanovg.NanoVG.nvgStrokeWidth;
 
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.WindowMessage;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
+import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
+import net.luxvacuos.lightengine.client.rendering.nanovg.themes.Theme;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.RenderArea;
 import net.luxvacuos.lightengine.universal.util.registry.KeyCache;

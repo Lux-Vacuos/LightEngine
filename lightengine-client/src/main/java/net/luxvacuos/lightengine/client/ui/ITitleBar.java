@@ -20,8 +20,8 @@
 
 package net.luxvacuos.lightengine.client.ui;
 
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.Event;
+import net.luxvacuos.lightengine.client.rendering.glfw.Window;
+import net.luxvacuos.lightengine.client.rendering.nanovg.Event;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
 public interface ITitleBar extends IDisposable {

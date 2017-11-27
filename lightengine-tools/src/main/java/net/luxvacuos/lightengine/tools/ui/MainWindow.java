@@ -23,7 +23,7 @@ package net.luxvacuos.lightengine.tools.ui;
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.LANG;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.WindowMessage;
+import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.Button;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;

@@ -25,9 +25,9 @@ import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.
 import java.util.List;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme.BackgroundStyle;
+import net.luxvacuos.lightengine.client.rendering.glfw.Window;
+import net.luxvacuos.lightengine.client.rendering.nanovg.themes.Theme;
+import net.luxvacuos.lightengine.client.rendering.nanovg.themes.Theme.BackgroundStyle;
 import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.util.registry.Key;

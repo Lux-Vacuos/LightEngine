@@ -48,7 +48,7 @@ import org.lwjgl.assimp.AIScene;
 import com.badlogic.gdx.utils.async.AsyncResult;
 
 import net.luxvacuos.igl.Logger;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Model;
+import net.luxvacuos.lightengine.client.rendering.opengl.objects.Model;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 
 public class AssimpResourceLoader {

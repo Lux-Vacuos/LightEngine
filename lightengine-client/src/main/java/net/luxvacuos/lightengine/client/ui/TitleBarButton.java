@@ -20,9 +20,9 @@
 
 package net.luxvacuos.lightengine.client.ui;
 
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme.ButtonStyle;
+import net.luxvacuos.lightengine.client.rendering.glfw.Window;
+import net.luxvacuos.lightengine.client.rendering.nanovg.themes.Theme;
+import net.luxvacuos.lightengine.client.rendering.nanovg.themes.Theme.ButtonStyle;
 
 public class TitleBarButton extends Button {
 

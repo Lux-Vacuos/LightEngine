@@ -23,9 +23,9 @@ package net.luxvacuos.lightengine.client.ui.windows;
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.WindowMessage;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.GPUProfiler;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.GPUTaskProfile;
+import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
+import net.luxvacuos.lightengine.client.rendering.opengl.GPUProfiler;
+import net.luxvacuos.lightengine.client.rendering.opengl.GPUTaskProfile;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.TextArea;

@@ -22,7 +22,7 @@ package net.luxvacuos.lightengine.client.ui;
 
 import java.util.List;
 
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.NanoWindow;
+import net.luxvacuos.lightengine.client.rendering.nanovg.NanoWindow;
 
 public class ComponentWindow extends NanoWindow {
 

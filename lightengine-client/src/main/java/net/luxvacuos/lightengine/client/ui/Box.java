@@ -22,8 +22,8 @@ package net.luxvacuos.lightengine.client.ui;
 
 import org.lwjgl.nanovg.NVGColor;
 
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
+import net.luxvacuos.lightengine.client.rendering.glfw.Window;
+import net.luxvacuos.lightengine.client.rendering.nanovg.themes.Theme;
 
 public class Box extends Component {
 

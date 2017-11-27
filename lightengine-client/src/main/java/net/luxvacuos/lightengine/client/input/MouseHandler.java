@@ -26,7 +26,7 @@ import net.luxvacuos.lightengine.client.input.callbacks.MouseButtonCallback;
 import net.luxvacuos.lightengine.client.input.callbacks.MouseEnterCallback;
 import net.luxvacuos.lightengine.client.input.callbacks.MousePosCallback;
 import net.luxvacuos.lightengine.client.input.callbacks.MouseScrollCallback;
-import net.luxvacuos.lightengine.client.rendering.api.glfw.AbstractWindow;
+import net.luxvacuos.lightengine.client.rendering.glfw.AbstractWindow;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 
 public class MouseHandler {

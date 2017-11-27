@@ -20,7 +20,7 @@
 
 package net.luxvacuos.lightengine.client.ui;
 
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
+import net.luxvacuos.lightengine.client.rendering.glfw.Window;
 
 public abstract class Component implements IComponent {
 

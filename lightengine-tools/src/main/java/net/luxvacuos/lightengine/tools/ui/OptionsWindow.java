@@ -26,9 +26,9 @@ import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.
 import java.util.Arrays;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.WindowMessage;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme.ButtonStyle;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
+import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
+import net.luxvacuos.lightengine.client.rendering.nanovg.themes.Theme.ButtonStyle;
+import net.luxvacuos.lightengine.client.rendering.opengl.Renderer;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.Button;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;

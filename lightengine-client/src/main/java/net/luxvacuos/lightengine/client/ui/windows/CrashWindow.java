@@ -27,7 +27,7 @@ import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_MIDDLE;
 import org.lwjgl.glfw.GLFW;
 
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.WindowMessage;
+import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.Box;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;

@@ -23,7 +23,7 @@ package net.luxvacuos.lightengine.client.ecs.entities;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-import net.luxvacuos.lightengine.client.rendering.api.opengl.Renderer;
+import net.luxvacuos.lightengine.client.rendering.opengl.Renderer;
 import net.luxvacuos.lightengine.client.util.Maths;
 
 public class SpotlightCamera extends CameraEntity {

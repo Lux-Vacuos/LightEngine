@@ -31,8 +31,8 @@ import static org.lwjgl.nanovg.NanoVG.nvgStrokeWidth;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.luxvacuos.lightengine.client.rendering.api.glfw.Window;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.themes.Theme;
+import net.luxvacuos.lightengine.client.rendering.glfw.Window;
+import net.luxvacuos.lightengine.client.rendering.nanovg.themes.Theme;
 
 public class RootComponent {
 

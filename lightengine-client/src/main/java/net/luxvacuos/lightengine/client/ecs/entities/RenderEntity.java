@@ -24,7 +24,7 @@ import com.bulletphysics.linearmath.Transform;
 
 import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.ecs.components.Renderable;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Model;
+import net.luxvacuos.lightengine.client.rendering.opengl.objects.Model;
 import net.luxvacuos.lightengine.universal.ecs.Components;
 import net.luxvacuos.lightengine.universal.ecs.components.Collision;
 import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;

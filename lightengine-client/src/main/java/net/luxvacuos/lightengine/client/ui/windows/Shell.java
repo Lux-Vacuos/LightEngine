@@ -29,9 +29,9 @@ import org.lwjgl.glfw.GLFW;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.IShell;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.IWindow;
-import net.luxvacuos.lightengine.client.rendering.api.nanovg.WindowMessage;
+import net.luxvacuos.lightengine.client.rendering.nanovg.IShell;
+import net.luxvacuos.lightengine.client.rendering.nanovg.IWindow;
+import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.Container;
 import net.luxvacuos.lightengine.client.ui.Direction;

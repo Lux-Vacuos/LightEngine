@@ -25,8 +25,8 @@ import com.hackhalo2.nbt.exceptions.NBTException;
 import com.hackhalo2.nbt.tags.TagCompound;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.EntityRenderer;
-import net.luxvacuos.lightengine.client.rendering.api.opengl.objects.Model;
+import net.luxvacuos.lightengine.client.rendering.opengl.EntityRenderer;
+import net.luxvacuos.lightengine.client.rendering.opengl.objects.Model;
 import net.luxvacuos.lightengine.universal.ecs.components.LEComponent;
 
 public class Renderable implements LEComponent {
