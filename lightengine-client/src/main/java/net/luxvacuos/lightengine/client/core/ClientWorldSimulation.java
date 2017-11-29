@@ -31,11 +31,10 @@ import net.luxvacuos.lightengine.universal.core.WorldSimulation;
  */
 public final class ClientWorldSimulation extends WorldSimulation {
 
-	private float moveFactor = 0;
 	private float rotation = 0;
 
 	public ClientWorldSimulation(final float time) {
-		super(time); //10000
+		super(time); // 10000
 	}
 
 	/**
@@ -47,9 +46,6 @@ public final class ClientWorldSimulation extends WorldSimulation {
 	 */
 	@Override
 	public void update(float delta) {
-		// Set move factor for waves
-		this.moveFactor += ClientVariables.WAVE_SPEED * delta;
-		this.moveFactor %= 6.3f;
 		// Set time
 		this.time += delta * TIME_MULTIPLIER;
 		this.time %= 24000;
@@ -58,13 +54,9 @@ public final class ClientWorldSimulation extends WorldSimulation {
 		float res = time * 0.015f;
 		this.rotation = res - 90;
 	}
-	
+
 	public float getRotation() {
 		return this.rotation;
-	}
-
-	public float getMoveFactor() {
-		return moveFactor;
 	}
 
 }

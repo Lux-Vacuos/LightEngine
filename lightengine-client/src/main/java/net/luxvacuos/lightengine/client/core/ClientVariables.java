@@ -33,7 +33,6 @@ public class ClientVariables extends GlobalVariables {
 	 */
 	public static int WIDTH = 1280;
 	public static int HEIGHT = 720;
-	public static final float WAVE_SPEED = 4f;
 	/**
 	 * Shader Files
 	 */

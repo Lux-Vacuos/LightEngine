@@ -132,6 +132,8 @@ void main() {
     	vec3 color = ambient + emissive + Lo + max(specular, 0.0);
 		image.rgb = color;
 	}
-    image += texture(composite0, textureCoords);
+	vec4 vol = texture(composite0, textureCoords);
+    image = mix(image, vec4(vol.g), vol.g);
+	image += vec4(vol.r);
 	out_Color = image;
 }

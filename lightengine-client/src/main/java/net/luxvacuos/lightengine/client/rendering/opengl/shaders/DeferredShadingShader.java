@@ -62,7 +62,6 @@ public class DeferredShadingShader extends ShaderProgram {
 	private UniformInteger totalLights = new UniformInteger("totalLights");
 
 	private UniformVec2 resolution = new UniformVec2("resolution");
-	private UniformVec2 sunPositionInScreen = new UniformVec2("sunPositionInScreen");
 
 	private UniformFloat exposure = new UniformFloat("exposure");
 	private UniformFloat time = new UniformFloat("time");
@@ -120,10 +119,10 @@ public class DeferredShadingShader extends ShaderProgram {
 		super.storeUniformArray(shadowMap);
 		super.storeAllUniformLocations(projectionMatrix, viewMatrix, inverseProjectionMatrix, inverseViewMatrix,
 				previousViewMatrix, cameraPosition, previousCameraPosition, lightPosition, invertedLightPosition,
-				skyColor, resolution, sunPositionInScreen, exposure, time, camUnderWaterOffset, shadowDrawDistance,
-				camUnderWater, useFXAA, useDOF, useMotionBlur, useReflections, useVolumetricLight, useAmbientOcclusion,
-				gDiffuse, gPosition, gNormal, gDepth, gPBR, gMask, composite0, composite1, composite2, totalLights,
-				useChromaticAberration, composite3, useLensFlares, biasMatrix, viewLightMatrix, useShadows);
+				skyColor, resolution, exposure, time, camUnderWaterOffset, shadowDrawDistance, camUnderWater, useFXAA,
+				useDOF, useMotionBlur, useReflections, useVolumetricLight, useAmbientOcclusion, gDiffuse, gPosition,
+				gNormal, gDepth, gPBR, gMask, composite0, composite1, composite2, totalLights, useChromaticAberration,
+				composite3, useLensFlares, biasMatrix, viewLightMatrix, useShadows);
 		connectTextureUnits();
 	}
 
@@ -163,10 +162,6 @@ public class DeferredShadingShader extends ShaderProgram {
 	public void loadLightPosition(Vector3f pos, Vector3f invertPos) {
 		lightPosition.loadVec3(pos);
 		invertedLightPosition.loadVec3(invertPos);
-	}
-
-	public void loadSunPosition(Vector2f pos) {
-		sunPositionInScreen.loadVec2(pos);
 	}
 
 	public void loadTime(float time) {

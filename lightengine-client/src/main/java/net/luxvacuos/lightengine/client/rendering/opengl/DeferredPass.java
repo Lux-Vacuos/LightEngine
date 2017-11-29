@@ -43,7 +43,6 @@ import net.luxvacuos.lightengine.client.rendering.opengl.objects.Light;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.DeferredShadingShader;
-import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
 import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
@@ -114,11 +113,8 @@ public abstract class DeferredPass implements IDeferredPass {
 				false,
 				(boolean) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/lensFlares")),
 				(boolean) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/shadows")));
-		shader.loadSunPosition(Maths.convertTo2F(new Vector3f(sun.getSunPosition()), camera.getProjectionMatrix(), Maths
-				.createViewMatrixRot(camera.getRotation().x(), camera.getRotation().y(), camera.getRotation().z(), tmp),
-				width, height));
 		shader.loadExposure(exposure);
-		shader.loadTime(clientWorldSimulation.getTime());
+		shader.loadTime(clientWorldSimulation.getGlobalTime());
 		shader.loadLightMatrix(sun.getCamera().getViewMatrix());
 		shader.loadBiasMatrix(((SunCamera) sun.getCamera()).getProjectionArray());
 		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
