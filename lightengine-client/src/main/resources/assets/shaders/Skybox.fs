@@ -163,7 +163,7 @@ void main(){
         float vl = dot(V, L);
         float factorSun = clamp((pass_textureCoords.y - SUN_LOWER_LIMIT) / (SUN_UPPER_LIMIT - SUN_LOWER_LIMIT), 0.0, 1.0);
     	if(vl > 0.999) 
-            color = mix(color, mix(color, vec3(1.0), (0.999 - vl) / (0.999 - 0.9991)), factorSun);
+            color = mix(color, mix(color, vec3(100.0), smoothstep(0.9998, 0.9999, vl)), factorSun);
     }
     
     out_Color[0].rgb = color;

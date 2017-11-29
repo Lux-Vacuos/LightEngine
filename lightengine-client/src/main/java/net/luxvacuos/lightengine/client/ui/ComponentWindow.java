@@ -36,6 +36,14 @@ public class ComponentWindow extends NanoWindow {
 			rootComponent = new RootComponent(x, y, w, h);
 	}
 
+	public ComponentWindow(String title) {
+		super(title);
+		if (super.compositor)
+			rootComponent = new RootComponent(0, 0, w, h);
+		else
+			rootComponent = new RootComponent(x, y, w, h);
+	}
+
 	@Override
 	public void initApp() {
 		rootComponent.init(super.window);

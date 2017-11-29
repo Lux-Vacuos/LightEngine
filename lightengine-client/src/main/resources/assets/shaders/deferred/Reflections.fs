@@ -82,7 +82,8 @@ void main(void){
 			do {
 				rayTrace += refl*incr;
 				incr *= 1.2;
-        		newScreen = projectionMatrix * viewMatrix * vec4(rayTrace, 1);
+        		newScreen = viewMatrix * vec4(rayTrace, 1);
+				newScreen = projectionMatrix * newScreen;
         		newScreen /= newScreen.w;
        			newPos = texture(gPosition, newScreen.xy/2.0+0.5).xyz;
        			currentWorldDist = length(newPos.xyz - cameraPosition);

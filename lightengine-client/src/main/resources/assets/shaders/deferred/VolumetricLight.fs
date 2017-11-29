@@ -24,54 +24,55 @@ in vec2 textureCoords;
 
 out vec4 out_Color;
 
-uniform vec2 resolution;
-uniform vec2 sunPositionInScreen;
 uniform vec3 cameraPosition;
-uniform vec3 invertedLightPosition;
+uniform mat4 projectionMatrix;
+uniform mat4 viewMatrix;
+uniform sampler2D gDiffuse;
 uniform sampler2D gPosition;
-uniform sampler2D composite0;
+uniform sampler2D gNormal;
+uniform sampler2D gDepth;
+uniform int useShadows;
+uniform mat4 projectionLightMatrix[4];
+uniform mat4 viewLightMatrix;
+uniform mat4 biasMatrix;
+uniform vec3 lightPosition;
+uniform sampler2DShadow shadowMap[4];
 
 uniform int useVolumetricLight;
 
-const int NUM_SAMPLES = 50;
+##include function computeShadow
 
-const float exposure = 0.1 / NUM_SAMPLES;
-const float decay = 0.95;
-const float density	= 1.0;
-const float weight = 8.0;
-float illuminationDecay = 2.0;
+#define VOLUMETRIC_MULT 0.05
+#define VOLUMETRIC_SUN 0.8
 
-void main(){
+void main() {
 	if(useVolumetricLight == 1) {
-		vec2 texcoord = textureCoords;
-		vec4 position = texture(gPosition, texcoord);
-		vec4 positionCenter = texture(gPosition, vec2(0.5, 0.5));
-		vec3 eyeDir = normalize(cameraPosition-position.xyz);
-    	vec3 eyeDirCenter = normalize(cameraPosition-positionCenter.xyz);
-    	vec3 invertedlightDir = invertedLightPosition;
-    	invertedlightDir = normalize(invertedlightDir);
-    	float lightDirDOTviewDir = dot(invertedlightDir,eyeDir);
-    	float lightDirCenter = dot(invertedlightDir,eyeDirCenter);
-		vec4 raysColor = texture(composite0, texcoord);
-		vec4 image = vec4(0.0);
-		if (lightDirDOTviewDir > 0.0){
-			vec2 pos = vec2(0.0);
-			pos.x = (sunPositionInScreen.x) / resolution.x;
-			pos.y = (sunPositionInScreen.y) / resolution.y;
-			vec2 deltaTextCoord = vec2( texcoord - pos);
-			vec2 textCoo = texcoord;
-			deltaTextCoord *= 1.0 / float(NUM_SAMPLES) * density;
-			for(int i = 0; i < NUM_SAMPLES ; i++) {
-				textCoo -= deltaTextCoord;
-				vec4 tsample = texture(composite0, textCoo);
-				tsample *= illuminationDecay * weight;
-				raysColor += tsample;
-				illuminationDecay *= decay;
-			}
-			raysColor *= exposure * lightDirDOTviewDir;
-			image += raysColor * lightDirCenter;
-		}
-		out_Color = image;
+		vec4 position = texture(gPosition, textureCoords);
+		vec3 normal = texture(gNormal, textureCoords).rgb;
+
+		vec3 cameraToWorld = position.xyz - cameraPosition;
+    	float cameraToWorldDist = length(cameraToWorld);
+		vec3 cameraToWorldNorm = normalize(cameraToWorld);
+		vec3 L = normalize(lightPosition);
+		vec3 N = normalize(normal);
+
+		vec4 image;
+    	vec3 rayTrace = cameraPosition;
+    	float rayDist;
+    	float incr = 0.1;
+		float bias = max(0.1 * (1.0 - dot(N, L)), 0.005);
+		int itr;
+		do {
+			rayTrace += cameraToWorldNorm * incr;
+			incr *= 1.1;
+       		rayDist = length(rayTrace - cameraPosition);
+			if(rayDist > cameraToWorldDist - bias)
+				break;
+			itr++;
+			image += vec4(computeShadow(rayTrace));
+   		} while(rayDist < cameraToWorldDist);
+		image /= itr;
+		out_Color = max(image * VOLUMETRIC_MULT, 0.0) * (1 + smoothstep(0, 0.5, dot(cameraToWorldNorm, L) - 0.5) * VOLUMETRIC_SUN);
 	} else {
 		out_Color = vec4(0.0);
 	}

@@ -35,6 +35,11 @@ public class WindowMessage {
 	public static final int WM_MINIMIZE = 2;
 	public static final int WM_RESTORE = 3;
 	public static final int WM_RESIZE = 4;
+	public static final int WM_EXTEND_FRAME = 5;
+	public static final int WM_HIDDEN_WINDOW = 6;
+	public static final int WM_ALWAYS_ON_TOP = 7;
+	public static final int WM_BACKGROUND_WINDOW = 8;
+	public static final int WM_BLUR_BEHIND = 9;
 	public static final int WM_COMPOSITOR_DISABLED = 20;
 	public static final int WM_COMPOSITOR_ENABLED = 21;
 	public static final int WM_COMPOSITOR_RELOAD = 22;

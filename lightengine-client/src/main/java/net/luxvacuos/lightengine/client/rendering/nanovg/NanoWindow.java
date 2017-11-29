@@ -43,6 +43,7 @@ import org.lwjgl.nanovg.NVGLUFramebuffer;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
+import net.luxvacuos.lightengine.client.rendering.nanovg.objects.Frame;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.Theme;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.Theme.BackgroundStyle;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.Theme.ButtonStyle;
@@ -60,9 +61,10 @@ import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
 public abstract class NanoWindow implements IWindow {
 
-	private boolean draggable = true, decorations = true, resizable = true, maximized, hidden, exit, alwaysOnTop,
-			background, blurBehind = true, minimized, closeButton = true, afterResize, exiting, transparentInput;
-	private boolean resizingRight, resizingRightBottom, resizingBottom, resizingTop, resizingLeft;
+	private boolean draggable = true, decorations = true, resizable = true, maximized, hidden, exit, alwaysOnTop;
+	private boolean background, blurBehind = true, minimized, closeButton = true, afterResize, exiting;
+	private boolean transparentInput, resizingRight, resizingRightBottom, resizingBottom, resizingTop, resizingLeft;
+	private boolean fullScreen;
 	private int ft, fb, fr, fl;
 	private BackgroundStyle backgroundStyle = BackgroundStyle.SOLID;
 	private NVGColor backgroundColor = Theme.rgba(0, 0, 0, 255);
@@ -90,6 +92,16 @@ public abstract class NanoWindow implements IWindow {
 		titleBar = new TitleBar(this);
 	}
 
+	public NanoWindow(String title) {
+		this.x = 0;
+		this.y = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
+		this.w = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"));
+		this.h = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
+		this.title = title;
+		titleBar = new TitleBar(this);
+		fullScreen = true;
+	}
+
 	@Override
 	public void init(Window wind) {
 		this.window = wind;
@@ -97,10 +109,6 @@ public abstract class NanoWindow implements IWindow {
 		initApp();
 		compositor = (boolean) REGISTRY
 				.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/compositor"));
-		if (compositor) {
-			updateRenderSize();
-			fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
-		}
 		titleBar.getLeft().setLayout(new FlowLayout(Direction.RIGHT, 1, 0));
 		titleBar.getRight().setLayout(new FlowLayout(Direction.LEFT, 1, 0));
 		TitleBarButton closeBtn = new TitleBarButton(0, 0, 28, 28);
@@ -144,8 +152,14 @@ public abstract class NanoWindow implements IWindow {
 				this.y += window.getMouseHandler().getDY();
 			}
 		});
+		if (fullScreen)
+			decorations = false;
 		if (decorations && compositor)
 			animationState = AnimationState.OPEN;
+		if (compositor) {
+			updateRenderSize();
+			fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
+		}
 	}
 
 	@Override
@@ -342,7 +356,7 @@ public abstract class NanoWindow implements IWindow {
 			break;
 		case WindowMessage.WM_RESIZE:
 			updateRenderSize();
-			if (maximized) {
+			if (maximized && !fullScreen) {
 				int height = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
 				this.x = 0;
 				this.y = height - (int) REGISTRY
@@ -358,7 +372,31 @@ public abstract class NanoWindow implements IWindow {
 						nvgluDeleteFramebuffer(window.getNVGID(), fbo);
 						fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
 					});
+			} else if (!maximized && fullScreen) {
+				x = 0;
+				y = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
+				w = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"));
+				h = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
 			}
+			break;
+		case WindowMessage.WM_EXTEND_FRAME:
+			Frame f = (Frame) param;
+			ft = f.ft;
+			fb = f.fb;
+			fr = f.fr;
+			fl = f.fl;
+			break;
+		case WindowMessage.WM_HIDDEN_WINDOW:
+			hidden = (boolean) param;
+			break;
+		case WindowMessage.WM_ALWAYS_ON_TOP:
+			alwaysOnTop = (boolean) param;
+			break;
+		case WindowMessage.WM_BACKGROUND_WINDOW:
+			background = (boolean) param;
+			break;
+		case WindowMessage.WM_BLUR_BEHIND:
+			blurBehind = (boolean) param;
 			break;
 		case WindowMessage.WM_COMPOSITOR_DISABLED:
 			compositor = false;
@@ -485,22 +523,22 @@ public abstract class NanoWindow implements IWindow {
 
 	@Override
 	public void setHidden(boolean hidden) {
-		this.hidden = hidden;
+		this.notifyWindow(WindowMessage.WM_HIDDEN_WINDOW, hidden);
 	}
 
 	@Override
 	public void setAlwaysOnTop(boolean alwaysOnTop) {
-		this.alwaysOnTop = alwaysOnTop;
+		this.notifyWindow(WindowMessage.WM_ALWAYS_ON_TOP, alwaysOnTop);
 	}
 
 	@Override
 	public void setAsBackground(boolean background) {
-		this.background = background;
+		this.notifyWindow(WindowMessage.WM_BACKGROUND_WINDOW, background);
 	}
 
 	@Override
 	public void setBlurBehind(boolean blur) {
-		blurBehind = blur;
+		this.notifyWindow(WindowMessage.WM_BLUR_BEHIND, blur);
 	}
 
 	@Override
@@ -528,10 +566,7 @@ public abstract class NanoWindow implements IWindow {
 
 	@Override
 	public void extendFrame(int t, int b, int r, int l) {
-		this.ft = t;
-		this.fb = b;
-		this.fr = r;
-		this.fl = l;
+		this.notifyWindow(WindowMessage.WM_EXTEND_FRAME, new Frame(t, b, r, l));
 	}
 
 	@Override

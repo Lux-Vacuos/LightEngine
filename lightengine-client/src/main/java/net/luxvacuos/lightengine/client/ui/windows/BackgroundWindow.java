@@ -21,7 +21,6 @@
 package net.luxvacuos.lightengine.client.ui.windows;
 
 import static net.luxvacuos.lightengine.client.rendering.nanovg.themes.Theme.colorA;
-import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 import static org.lwjgl.nanovg.NanoVG.nvgBeginPath;
 import static org.lwjgl.nanovg.NanoVG.nvgLineTo;
 import static org.lwjgl.nanovg.NanoVG.nvgMoveTo;
@@ -31,24 +30,21 @@ import static org.lwjgl.nanovg.NanoVG.nvgStroke;
 import static org.lwjgl.nanovg.NanoVG.nvgStrokeColor;
 import static org.lwjgl.nanovg.NanoVG.nvgStrokeWidth;
 
-import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.Theme;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.RenderArea;
-import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
 public class BackgroundWindow extends ComponentWindow {
 
 	private float time1, time2, time3, time4, time5;
 
-	public BackgroundWindow(int x, int y, int w, int h) {
-		super(x, y, w, h, "background");
+	public BackgroundWindow() {
+		super("background");
 	}
 
 	@Override
 	public void initApp() {
 		super.setAsBackground(true);
-		super.setDecorations(false);
 		super.setBlurBehind(false);
 		super.setBackgroundColor("#FFFFFFFF");
 		RenderArea area = new RenderArea(0, 0, w, h);
@@ -58,25 +54,25 @@ public class BackgroundWindow extends ComponentWindow {
 			nvgSave(vg);
 			nvgBeginPath(vg);
 			nvgMoveTo(vg, x, (float) Math.sin(time5 * 0.003f) * h / 2.02f + h / 2);
-			for (int s = 0; s <= w; s++) {
+			for (int s = 0; s <= w; s++)
 				nvgLineTo(vg, s, (float) Math.sin((time5 + s) * 0.003f) * h / 2.02f + h / 2);
-			}
+
 			nvgMoveTo(vg, x, (float) Math.sin(time4 * 0.0025f) * h / 2.02f + h / 2);
-			for (int s = 0; s <= w; s++) {
+			for (int s = 0; s <= w; s++)
 				nvgLineTo(vg, s, (float) Math.sin((time4 + s) * 0.0025f) * h / 2.02f + h / 2);
-			}
+
 			nvgMoveTo(vg, x, (float) Math.sin(time3 * 0.002f) * h / 2.02f + h / 2);
-			for (int s = 0; s <= w; s++) {
+			for (int s = 0; s <= w; s++)
 				nvgLineTo(vg, s, (float) Math.sin((time3 + s) * 0.002f) * h / 2.02f + h / 2);
-			}
+
 			nvgMoveTo(vg, x, (float) Math.sin(time2 * 0.0015f) * h / 2.02f + h / 2);
-			for (int s = 0; s <= w; s++) {
+			for (int s = 0; s <= w; s++)
 				nvgLineTo(vg, s, (float) Math.sin((time2 + s) * 0.0015f) * h / 2.02f + h / 2);
-			}
+
 			nvgMoveTo(vg, x, (float) Math.sin(time1 * 0.001f) * h / 2.02f + h / 2);
-			for (int s = 0; s <= w; s++) {
+			for (int s = 0; s <= w; s++)
 				nvgLineTo(vg, s, (float) Math.sin((time1 + s) * 0.001f) * h / 2.02f + h / 2);
-			}
+
 			nvgStrokeWidth(vg, 2f);
 			nvgStrokeColor(vg, Theme.rgba(0, 0, 0, 255, colorA));
 			nvgStroke(vg);
@@ -91,15 +87,5 @@ public class BackgroundWindow extends ComponentWindow {
 		});
 		super.addComponent(area);
 		super.initApp();
-	}
-
-	@Override
-	public void processWindowMessage(int message, Object param) {
-		if (message == WindowMessage.WM_RESIZE) {
-			y = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
-			w = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"));
-			h = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
-		}
-		super.processWindowMessage(message, param);
 	}
 }
