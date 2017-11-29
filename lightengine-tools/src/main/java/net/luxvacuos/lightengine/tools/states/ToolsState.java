@@ -46,10 +46,7 @@ public class ToolsState extends AbstractState {
 	@Override
 	public void start() {
 		if (background == null)
-			background = new BackgroundWindow(0,
-					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
-					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
-					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")));
+			background = new BackgroundWindow();
 		if (!GraphicalSubsystem.getWindowManager().existWindow(background))
 			GraphicalSubsystem.getWindowManager().addWindow(0, background);
 		int ww = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));

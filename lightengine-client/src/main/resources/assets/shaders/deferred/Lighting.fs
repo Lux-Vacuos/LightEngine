@@ -36,7 +36,6 @@ uniform sampler2D composite0;
 uniform samplerCube composite1;
 uniform samplerCube composite2;
 uniform sampler2D composite3;
-uniform int shadowDrawDistance;
 uniform int useAmbientOcclusion;
 uniform int useShadows;
 uniform vec2 resolution;
