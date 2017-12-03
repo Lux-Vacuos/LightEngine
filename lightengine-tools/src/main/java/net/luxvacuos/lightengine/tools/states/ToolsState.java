@@ -26,7 +26,6 @@ import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.ui.windows.BackgroundWindow;
 import net.luxvacuos.lightengine.tools.ui.MainWindow;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
-import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.core.states.StateNames;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
@@ -41,7 +40,6 @@ public class ToolsState extends AbstractState {
 	@Override
 	public void init() {
 		super.init();
-		StateMachine.registerState(new EntityEditor());
 	}
 
 	@Override

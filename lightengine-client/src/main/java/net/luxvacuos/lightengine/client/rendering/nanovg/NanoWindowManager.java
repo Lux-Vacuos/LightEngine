@@ -291,6 +291,15 @@ public class NanoWindowManager implements IWindowManager {
 			window.notifyWindow(message, param);
 		}
 	}
+	
+	@Override
+	public IWindow getWindowByClass(String clazz) {
+		for (IWindow window : windows) {
+			if(window.getClass().getSimpleName().equals(clazz))
+				return window;
+		}
+		return null;
+	}
 
 	@Override
 	public int getTotalWindows() {

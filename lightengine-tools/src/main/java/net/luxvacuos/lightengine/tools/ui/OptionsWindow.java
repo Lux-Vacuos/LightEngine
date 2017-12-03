@@ -23,10 +23,12 @@ package net.luxvacuos.lightengine.tools.ui;
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.LANG;
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
+import net.luxvacuos.lightengine.client.rendering.nanovg.themes.ThemeManager;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.Theme.ButtonStyle;
 import net.luxvacuos.lightengine.client.rendering.opengl.Renderer;
 import net.luxvacuos.lightengine.client.ui.Alignment;
@@ -37,6 +39,7 @@ import net.luxvacuos.lightengine.client.ui.Direction;
 import net.luxvacuos.lightengine.client.ui.DropDown;
 import net.luxvacuos.lightengine.client.ui.EditBox;
 import net.luxvacuos.lightengine.client.ui.FlowLayout;
+import net.luxvacuos.lightengine.client.ui.Notification;
 import net.luxvacuos.lightengine.client.ui.ScrollArea;
 import net.luxvacuos.lightengine.client.ui.Slider;
 import net.luxvacuos.lightengine.client.ui.Text;
@@ -322,15 +325,15 @@ public class OptionsWindow extends ComponentWindow {
 	}
 
 	private void wmOptions() {
-		float border = (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/borderSize"));
+		int border = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/borderSize"));
 		Text wmBorderText = new Text(LANG.getRegistryItem("lightengine.optionswindow.wm.border") + ": " + border, 20,
 				0);
 		wmBorderText.setWindowAlignment(Alignment.LEFT);
-		float scroll = (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/scrollBarSize"));
+		int scroll = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/scrollBarSize"));
 		Text wmScrollText = new Text(LANG.getRegistryItem("lightengine.optionswindow.wm.scrollsize") + ": " + scroll,
 				20, 0);
 		wmScrollText.setWindowAlignment(Alignment.LEFT);
-		float title = (float) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
+		int title = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"));
 		Text wmTitleText = new Text(LANG.getRegistryItem("lightengine.optionswindow.wm.titlebarsize") + ": " + title,
 				20, 0);
 		wmTitleText.setWindowAlignment(Alignment.LEFT);
@@ -338,6 +341,8 @@ public class OptionsWindow extends ComponentWindow {
 		titleBorderText.setWindowAlignment(Alignment.LEFT);
 		Text compositorText = new Text(LANG.getRegistryItem("lightengine.optionswindow.wm.compositor"), 20, 0);
 		compositorText.setWindowAlignment(Alignment.LEFT);
+		Text themeText = new Text(LANG.getRegistryItem("lightengine.optionswindow.wm.theme"), 20, 0);
+		themeText.setWindowAlignment(Alignment.LEFT);
 
 		Slider wmBorder = new Slider(-56, 0, 200, 20, border / 40f);
 		wmBorder.setPrecision(40f);
@@ -348,6 +353,13 @@ public class OptionsWindow extends ComponentWindow {
 		Slider wmTitle = new Slider(-56, 0, 200, 20, title / 40f);
 		wmTitle.setPrecision(40f);
 		wmTitle.useCustomPrecision(true);
+		ToggleButton titleBorderButton = new ToggleButton(-50, 0, 80, 30,
+				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarBorder")));
+		ToggleButton compositorButton = new ToggleButton(-50, 0, 80, 30,
+				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/compositor")));
+		DropDown<String> themeDropdown = new DropDown<String>(-50, 0, 180, 30,
+				(String) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/theme")),
+				new ArrayList<>(ThemeManager.getThemes().keySet()));
 
 		wmBorder.setAlignment(Alignment.RIGHT);
 		wmBorder.setWindowAlignment(Alignment.RIGHT);
@@ -355,42 +367,46 @@ public class OptionsWindow extends ComponentWindow {
 		wmScroll.setWindowAlignment(Alignment.RIGHT);
 		wmTitle.setAlignment(Alignment.RIGHT);
 		wmTitle.setWindowAlignment(Alignment.RIGHT);
+		titleBorderButton.setWindowAlignment(Alignment.RIGHT);
+		titleBorderButton.setAlignment(Alignment.RIGHT);
+		compositorButton.setWindowAlignment(Alignment.RIGHT);
+		compositorButton.setAlignment(Alignment.RIGHT);
+		themeDropdown.setWindowAlignment(Alignment.RIGHT);
+		themeDropdown.setAlignment(Alignment.RIGHT);
 
 		wmBorder.setOnPress(() -> {
-			float val = wmBorder.getPosition() * 40f;
+			int val = (int) (wmBorder.getPosition() * 40f);
 			REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/borderSize"), val);
 			wmBorderText.setText(LANG.getRegistryItem("lightengine.optionswindow.wm.border") + ": " + val);
+			GraphicalSubsystem.getWindowManager().notifyAllWindows(WindowMessage.WM_COMPOSITOR_RELOAD, null);
 		});
 		wmScroll.setOnPress(() -> {
-			float val = wmScroll.getPosition() * 40f;
+			int val = (int) (wmScroll.getPosition() * 40f);
 			REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/scrollBarSize"), val);
 			wmScrollText.setText(LANG.getRegistryItem("lightengine.optionswindow.wm.scrollsize") + ": " + val);
+			GraphicalSubsystem.getWindowManager().notifyAllWindows(WindowMessage.WM_COMPOSITOR_RELOAD, null);
 		});
 		wmTitle.setOnPress(() -> {
-			float val = wmTitle.getPosition() * 40f;
+			int val = (int) (wmTitle.getPosition() * 40f);
 			REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/titleBarHeight"), val);
 			wmTitleText.setText(LANG.getRegistryItem("lightengine.optionswindow.wm.titlebarsize") + ": " + val);
+			GraphicalSubsystem.getWindowManager().notifyAllWindows(WindowMessage.WM_COMPOSITOR_RELOAD, null);
 		});
-
-		ToggleButton titleBorderButton = new ToggleButton(-50, 0, 80, 30,
-				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/titleBarBorder")));
-		ToggleButton compositorButton = new ToggleButton(-50, 0, 80, 30,
-				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/compositor")));
-
-		titleBorderButton.setOnButtonPress(() -> REGISTRY.register(
-				new Key("/Light Engine/Settings/WindowManager/titleBarBorder"), titleBorderButton.getStatus()));
+		titleBorderButton.setOnButtonPress(() -> {
+			REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/titleBarBorder"),
+					titleBorderButton.getStatus());
+			GraphicalSubsystem.getWindowManager().notifyAllWindows(WindowMessage.WM_COMPOSITOR_RELOAD, null);
+		});
 		compositorButton.setOnButtonPress(() -> {
-			REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/compositor"), compositorButton.getStatus());
 			if (compositorButton.getStatus())
 				GraphicalSubsystem.getWindowManager().enableCompositor();
 			else
 				GraphicalSubsystem.getWindowManager().disableCompositor();
 		});
-
-		titleBorderButton.setWindowAlignment(Alignment.RIGHT);
-		titleBorderButton.setAlignment(Alignment.RIGHT);
-		compositorButton.setWindowAlignment(Alignment.RIGHT);
-		compositorButton.setAlignment(Alignment.RIGHT);
+		themeDropdown.setOnButtonPress(() -> {
+			REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/theme"), themeDropdown.getValue());
+			ThemeManager.setTheme(themeDropdown.getValue());
+		});
 
 		ScrollArea area = new ScrollArea(0, 0, w, h, 0, 0);
 		area.setLayout(new FlowLayout(Direction.DOWN, 10, 10));
@@ -410,6 +426,9 @@ public class OptionsWindow extends ComponentWindow {
 		Container compositor = new Container(0, 0, w, 30);
 		compositor.setWindowAlignment(Alignment.LEFT_TOP);
 		compositor.setAlignment(Alignment.RIGHT_BOTTOM);
+		Container theme = new Container(0, 0, w, 30);
+		theme.setWindowAlignment(Alignment.LEFT_TOP);
+		theme.setAlignment(Alignment.RIGHT_BOTTOM);
 
 		borderC.addComponent(wmBorderText);
 		borderC.addComponent(wmBorder);
@@ -421,18 +440,22 @@ public class OptionsWindow extends ComponentWindow {
 		titleBorder.addComponent(titleBorderText);
 		compositor.addComponent(compositorButton);
 		compositor.addComponent(compositorText);
+		theme.addComponent(themeDropdown);
+		theme.addComponent(themeText);
 
 		borderC.setResizeH(true);
 		scrollC.setResizeH(true);
 		titleC.setResizeH(true);
 		titleBorder.setResizeH(true);
 		compositor.setResizeH(true);
+		theme.setResizeH(true);
 
 		area.addComponent(borderC);
 		area.addComponent(scrollC);
 		area.addComponent(titleC);
 		area.addComponent(titleBorder);
 		area.addComponent(compositor);
+		area.addComponent(theme);
 
 		super.addComponent(area);
 
@@ -441,8 +464,12 @@ public class OptionsWindow extends ComponentWindow {
 
 	@Override
 	public void processWindowMessage(int message, Object param) {
-		if (message == WindowMessage.WM_CLOSE)
+		if (message == WindowMessage.WM_CLOSE) {
 			CoreSubsystem.REGISTRY.save();
+			GraphicalSubsystem.getWindowManager().getShell().getNotificationsWindow().notifyWindow(
+					WindowMessage.WM_SHELL_NOTIFICATION_ADD,
+					new Notification("Settings Saved", "Settings has been saved correctly."));
+		}
 		super.processWindowMessage(message, param);
 	}
 

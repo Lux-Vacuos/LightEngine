@@ -21,6 +21,7 @@
 package net.luxvacuos.lightengine.tools.ui;
 
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.LANG;
+import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
@@ -28,36 +29,40 @@ import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.Button;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.ModalWindow;
-import net.luxvacuos.lightengine.tools.states.StateNames;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
+import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class MainWindow extends ComponentWindow {
 
 	public MainWindow(int x, int y, int w, int h) {
-		super(x, y, w, h, LANG.getRegistryItem("lightengine.tools.mainwindow.name"));
+		super(x, y, w, h, LANG.getRegistryItem("lightengine.mainwindow.name"));
 	}
 
 	@Override
 	public void initApp() {
 		super.setBackgroundColor(0.4f, 0.4f, 0.4f, 1f);
 
-		Button entityEditorButton = new Button(0, 120, 200, 40,
-				LANG.getRegistryItem("lightengine.tools.mainwindow.btnentityeditor"));
-		Button optionsButton = new Button(0, 0, 200, 40,
-				LANG.getRegistryItem("lightengine.tools.mainwindow.btnoptions"));
-		Button exitButton = new Button(0, -120, 200, 40, LANG.getRegistryItem("lightengine.tools.mainwindow.btnexit"));
+		Button entityEditorButton = new Button(0, 0, 200, 40,
+				LANG.getRegistryItem("lightengine.mainwindow.btnentityeditor"));
+		Button optionsButton = new Button(0, -50, 200, 40,
+				LANG.getRegistryItem("lightengine.mainwindow.btnoptions"));
+		Button exitButton = new Button(0, 0, 200, 40, LANG.getRegistryItem("lightengine.mainwindow.btnexit"));
 
-		entityEditorButton.setAlignment(Alignment.CENTER);
-		entityEditorButton.setWindowAlignment(Alignment.CENTER);
-		optionsButton.setAlignment(Alignment.CENTER);
-		optionsButton.setWindowAlignment(Alignment.CENTER);
-		exitButton.setAlignment(Alignment.CENTER);
-		exitButton.setWindowAlignment(Alignment.CENTER);
+		entityEditorButton.setAlignment(Alignment.RIGHT_BOTTOM);
+		entityEditorButton.setWindowAlignment(Alignment.LEFT_TOP);
+		optionsButton.setAlignment(Alignment.RIGHT_BOTTOM);
+		optionsButton.setWindowAlignment(Alignment.LEFT_TOP);
+		exitButton.setAlignment(Alignment.RIGHT_TOP);
+		exitButton.setWindowAlignment(Alignment.LEFT_BOTTOM);
 
 		entityEditorButton.setOnButtonPress(() -> {
 			super.toggleMinimize();
-			StateMachine.setCurrentState(StateNames.ENTITY_EDITOR);
+			int ww = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
+			int wh = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
+			int x = ww / 2 - 512;
+			int y = wh / 2 - 300;
+			GraphicalSubsystem.getWindowManager().addWindow(new EntityEditorWindow(x, wh - y, 1024, 600));
 		});
 
 		optionsButton.setOnButtonPress(() -> {
@@ -85,7 +90,7 @@ public class MainWindow extends ComponentWindow {
 			case DISPOSE:
 				break;
 			case DO_NOTHING:
-				ModalWindow window = new ModalWindow(340, 200, "", "Exit Demo");
+				ModalWindow window = new ModalWindow(340, 200, "", "Exit Dev Tools");
 				GraphicalSubsystem.getWindowManager().addWindow(window);
 				TaskManager.addTask(() -> {
 					window.setOnAccept(() -> {

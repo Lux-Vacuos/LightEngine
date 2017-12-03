@@ -248,6 +248,7 @@ public abstract class NanoWindow implements IWindow {
 			if (!isResizing() && afterResize)
 				notifyWindow(WindowMessage.WM_COMPOSITOR_RELOAD, null);
 			afterResize = isResizing();
+			notifyWindow(WindowMessage.WM_COMPOSITOR_RELOAD, null);
 		}
 		if (!isResizing() && !minimized && !titleBar.isDragging() && !isAnimating())
 			updateApp(delta);

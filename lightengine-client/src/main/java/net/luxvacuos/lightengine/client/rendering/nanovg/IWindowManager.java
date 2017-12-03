@@ -63,5 +63,7 @@ public interface IWindowManager extends IDisposable {
 	public void closeAllWindows();
 
 	public void notifyAllWindows(int message, Object param);
+	
+	public IWindow getWindowByClass(String clazz);
 
 }

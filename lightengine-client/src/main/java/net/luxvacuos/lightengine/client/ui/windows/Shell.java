@@ -83,18 +83,18 @@ public class Shell extends ComponentWindow implements IShell {
 		if (fadeIn) {
 			y += 100f * delta;
 			if (y >= h) {
-				CoreSubsystem.REGISTRY.register(KeyCache.getKey("/Light Engine/Settings/WindowManager/shellHeight"), y);
-				fadeIn = false;
 				y = h;
+				fadeIn = false;
+				CoreSubsystem.REGISTRY.register(KeyCache.getKey("/Light Engine/Settings/WindowManager/shellHeight"), y);
 			}
 		}
 		if (fadeOut) {
 			y -= 100f * delta;
 			if (y <= 0) {
-				CoreSubsystem.REGISTRY.register(KeyCache.getKey("/Light Engine/Settings/WindowManager/shellHeight"), 0);
 				super.setHidden(!enabled);
 				fadeOut = false;
 				y = 0;
+				CoreSubsystem.REGISTRY.register(KeyCache.getKey("/Light Engine/Settings/WindowManager/shellHeight"), 0);
 			}
 		}
 		KeyboardHandler kb = window.getKeyboardHandler();

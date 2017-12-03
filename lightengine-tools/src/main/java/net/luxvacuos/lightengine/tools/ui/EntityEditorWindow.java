@@ -22,20 +22,29 @@ package net.luxvacuos.lightengine.tools.ui;
 
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.LANG;
 
+import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
+import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 
 public class EntityEditorWindow extends ComponentWindow {
 
 	public EntityEditorWindow(int x, int y, int w, int h) {
-		super(x, y, w, h, LANG.getRegistryItem("lightengine.tools.entityeditor.name"));
+		super(x, y, w, h, LANG.getRegistryItem("lightengine.entityeditor.name"));
 	}
 	
 	@Override
 	public void initApp() {
 		super.setBackgroundColor(0.4f, 0.4f, 0.4f, 1f);
 		
-		super.setWindowClose(WindowClose.DO_NOTHING);
 		super.initApp();
+	}
+	
+	@Override
+	public void processWindowMessage(int message, Object param) {
+		if(message == WindowMessage.WM_CLOSE) {
+			GraphicalSubsystem.getWindowManager().getWindowByClass("MainWindow").notifyWindow(WindowMessage.WM_RESTORE, null);
+		}
+		super.processWindowMessage(message, param);
 	}
 
 }
