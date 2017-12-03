@@ -25,8 +25,5 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 
 public interface INettyNetworkHandler {
 	
-	public void run(ChannelInboundHandlerAdapter... channels);
-	
-	public void end();
 
 }

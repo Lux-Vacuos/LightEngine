@@ -30,6 +30,7 @@ import com.badlogic.ashley.core.Engine;
 
 import io.netty.channel.ChannelHandlerContext;
 import net.luxvacuos.lightengine.client.core.ClientWorldSimulation;
+import net.luxvacuos.lightengine.client.core.subsystems.NetworkSubsystem;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.PlayerCamera;
 import net.luxvacuos.lightengine.client.ecs.entities.RenderPlayerEntity;
@@ -38,20 +39,18 @@ import net.luxvacuos.lightengine.client.world.ClientPhysicsSystem;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
 import net.luxvacuos.lightengine.universal.ecs.Components;
 import net.luxvacuos.lightengine.universal.ecs.entities.PlayerEntity;
-import net.luxvacuos.lightengine.universal.network.AbstractNetworkHandler;
+import net.luxvacuos.lightengine.universal.network.AbstractChannelHandler;
 import net.luxvacuos.lightengine.universal.network.packets.ClientConnect;
 import net.luxvacuos.lightengine.universal.network.packets.ClientDisconnect;
 import net.luxvacuos.lightengine.universal.network.packets.Time;
 import net.luxvacuos.lightengine.universal.network.packets.UpdateBasicEntity;
 
-public class ClientNetworkHandler extends AbstractNetworkHandler {
+public class ClientNetworkHandler extends AbstractChannelHandler {
 
 	private CameraEntity player;
-	private Client client;
 	private Sun sun;
 
-	public ClientNetworkHandler(Client client, CameraEntity player) {
-		this.client = client;
+	public ClientNetworkHandler(CameraEntity player) {
 		worldSimulation = new ClientWorldSimulation(10000);
 		engine = new Engine();
 		engine.addSystem(new ClientPhysicsSystem());
@@ -82,7 +81,7 @@ public class ClientNetworkHandler extends AbstractNetworkHandler {
 		engine.update(delta);
 		worldSimulation.update(delta);
 		sun.update(player.getPosition(), worldSimulation.getRotation(), delta);
-		client.sendPacket(new UpdateBasicEntity(Components.UUID.get(player).getUUID(), player.getPosition(),
+		NetworkSubsystem.sendPacket(new UpdateBasicEntity(Components.UUID.get(player).getUUID(), player.getPosition(),
 				player.getRotation(), new Vector3f(), Components.SCALE.get(player).getScale()));
 	}
 

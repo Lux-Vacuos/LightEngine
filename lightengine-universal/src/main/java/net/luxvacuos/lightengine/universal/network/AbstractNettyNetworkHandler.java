@@ -19,26 +19,15 @@
  */
 
 package net.luxvacuos.lightengine.universal.network;
+
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 
 public abstract class AbstractNettyNetworkHandler implements INettyNetworkHandler {
-	protected ChannelFuture future;
-	protected EventLoopGroup workGroup;
-	
+	protected static ChannelFuture future;
+	protected static EventLoopGroup workGroup;
 
 	public AbstractNettyNetworkHandler() {
-		// TODO Auto-generated constructor stub
-	}
-	
-	@Override
-	public void end() {
-		workGroup.shutdownGracefully();
-		try {
-			future.channel().closeFuture().sync();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 	}
 
 }

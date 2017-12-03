@@ -7,12 +7,12 @@ public class RenderPlayerEntity extends PlayerEntity {
 
 	public RenderPlayerEntity(String name) {
 		super(name);
-		//add(new Renderable("models/player.blend"));
+		add(new Renderable("models/player.blend"));
 	}
 	
 	public RenderPlayerEntity(String name, String uuid) {
 		super(name, uuid);
-		//add(new Renderable("models/player.blend"));
+		add(new Renderable("models/player.blend"));
 	}
 
 }

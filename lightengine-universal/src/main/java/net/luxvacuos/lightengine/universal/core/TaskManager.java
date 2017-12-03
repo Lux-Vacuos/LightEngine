@@ -67,15 +67,18 @@ public final class TaskManager {
 	}
 
 	public static void addTask(Runnable task) {
-		tasks.add(task);
+		if (task != null)
+			tasks.add(task);
 	}
 
 	public static void addTaskAsync(Runnable task) {
-		tasksAsync.add(task);
+		if (task != null)
+			tasksAsync.add(task);
 	}
 
 	public static void addTaskUpdate(Runnable task) {
-		updateThreadTasks.add(task);
+		if (task != null)
+			updateThreadTasks.add(task);
 	}
 
 	public static boolean isEmpty() {

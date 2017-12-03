@@ -24,6 +24,7 @@ import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.
 
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.server.bootstrap.Bootstrap;
+import net.luxvacuos.lightengine.server.core.subsystems.NetworkSubsystem;
 import net.luxvacuos.lightengine.server.core.subsystems.ServerCoreSubsystem;
 import net.luxvacuos.lightengine.universal.core.AbstractEngine;
 import net.luxvacuos.lightengine.universal.core.EngineType;
@@ -51,6 +52,7 @@ public class LightEngineServer extends AbstractEngine {
 		Logger.log("Starting Server");
 
 		super.addSubsystem(new ServerCoreSubsystem());
+		super.addSubsystem(new NetworkSubsystem());
 
 		super.initSubsystems();
 

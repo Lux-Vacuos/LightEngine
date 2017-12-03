@@ -30,14 +30,14 @@ import net.luxvacuos.lightengine.server.core.ServerWorldSimulation;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
 import net.luxvacuos.lightengine.universal.ecs.Components;
 import net.luxvacuos.lightengine.universal.ecs.entities.PlayerEntity;
-import net.luxvacuos.lightengine.universal.network.AbstractNetworkHandler;
+import net.luxvacuos.lightengine.universal.network.AbstractChannelHandler;
 import net.luxvacuos.lightengine.universal.network.packets.ClientConnect;
 import net.luxvacuos.lightengine.universal.network.packets.ClientDisconnect;
 import net.luxvacuos.lightengine.universal.network.packets.Time;
 import net.luxvacuos.lightengine.universal.network.packets.UpdateBasicEntity;
 import net.luxvacuos.lightengine.universal.world.PhysicsSystem;
 
-public class ServerNetworkHandler extends AbstractNetworkHandler {
+public class ServerNetworkHandler extends AbstractChannelHandler {
 
 	public ServerNetworkHandler() {
 		worldSimulation = new ServerWorldSimulation();

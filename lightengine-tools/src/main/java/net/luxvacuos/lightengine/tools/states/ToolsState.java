@@ -27,6 +27,7 @@ import net.luxvacuos.lightengine.client.ui.windows.BackgroundWindow;
 import net.luxvacuos.lightengine.tools.ui.MainWindow;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
+import net.luxvacuos.lightengine.universal.core.states.StateNames;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class ToolsState extends AbstractState {
@@ -34,7 +35,7 @@ public class ToolsState extends AbstractState {
 	private BackgroundWindow background;
 
 	public ToolsState() {
-		super("_main");
+		super(StateNames.MAIN);
 	}
 
 	@Override
@@ -45,16 +46,22 @@ public class ToolsState extends AbstractState {
 
 	@Override
 	public void start() {
-		if (background == null)
-			background = new BackgroundWindow();
-		if (!GraphicalSubsystem.getWindowManager().existWindow(background))
-			GraphicalSubsystem.getWindowManager().addWindow(0, background);
+		if (!GraphicalSubsystem.getWindowManager().isShellEnabled())
+			GraphicalSubsystem.getWindowManager().toggleShell();
+		background = new BackgroundWindow();
+		GraphicalSubsystem.getWindowManager().addWindow(0, background);
 		int ww = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width"));
 		int wh = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height"));
 		int x = ww / 2 - 512;
 		int y = wh / 2 - 300;
 		GraphicalSubsystem.getWindowManager().addWindow(new MainWindow(x, wh - y, 1024, 600));
 		super.start();
+	}
+	
+	@Override
+	public void end() {
+		background.closeWindow();
+		super.end();
 	}
 
 	@Override

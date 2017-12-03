@@ -22,6 +22,6 @@ package net.luxvacuos.lightengine.tools.states;
 
 public final class StateNames {
 	
-	public static final String ENTITY_EDITOR = "entityEditor";
+	public static final String ENTITY_EDITOR = "ENTITY_EDITOR";
 
 }

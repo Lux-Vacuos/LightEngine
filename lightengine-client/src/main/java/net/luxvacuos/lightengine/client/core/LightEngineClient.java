@@ -31,6 +31,7 @@ import net.luxvacuos.lightengine.client.core.exception.UpdateThreadException;
 import net.luxvacuos.lightengine.client.core.states.CrashState;
 import net.luxvacuos.lightengine.client.core.subsystems.ClientCoreSubsystem;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
+import net.luxvacuos.lightengine.client.core.subsystems.NetworkSubsystem;
 import net.luxvacuos.lightengine.client.core.subsystems.SoundSubsystem;
 import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
@@ -68,7 +69,8 @@ public class LightEngineClient extends AbstractEngine {
 		super.addSubsystem(new GraphicalSubsystem());
 		if (!ClientVariables.WSL)
 			super.addSubsystem(new SoundSubsystem());
-
+		super.addSubsystem(new NetworkSubsystem());
+		
 		super.initSubsystems();
 
 		Logger.log("Light Engine Client Version: " + REGISTRY.getRegistryItem(new Key("/Light Engine/version")));

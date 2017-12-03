@@ -29,7 +29,7 @@ import com.badlogic.ashley.core.Engine;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
 import net.luxvacuos.lightengine.universal.ecs.entities.PlayerEntity;
 
-public abstract class AbstractNetworkHandler extends SharedChannelHandler implements INetworkHandler {
+public abstract class AbstractChannelHandler extends SharedChannelHandler implements INetworkHandler {
 	
 	protected IWorldSimulation worldSimulation;
 	protected Engine engine;

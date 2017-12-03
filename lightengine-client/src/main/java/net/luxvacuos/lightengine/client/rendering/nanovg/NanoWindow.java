@@ -355,7 +355,6 @@ public abstract class NanoWindow implements IWindow {
 			}
 			break;
 		case WindowMessage.WM_RESIZE:
-			updateRenderSize();
 			if (maximized && !fullScreen) {
 				int height = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
 				this.x = 0;
@@ -367,6 +366,7 @@ public abstract class NanoWindow implements IWindow {
 								.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/titleBarHeight"))
 						- (int) REGISTRY
 								.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/shellHeight"));
+				updateRenderSize();
 				if (compositor)
 					TaskManager.addTask(() -> {
 						nvgluDeleteFramebuffer(window.getNVGID(), fbo);
@@ -377,6 +377,12 @@ public abstract class NanoWindow implements IWindow {
 				y = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
 				w = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"));
 				h = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
+				updateRenderSize();
+				if (compositor)
+					TaskManager.addTask(() -> {
+						nvgluDeleteFramebuffer(window.getNVGID(), fbo);
+						fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
+					});
 			}
 			break;
 		case WindowMessage.WM_EXTEND_FRAME:
