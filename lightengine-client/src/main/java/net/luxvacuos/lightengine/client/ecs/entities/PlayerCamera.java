@@ -90,7 +90,7 @@ public class PlayerCamera extends CameraEntity {
 
 		Player p = Components.PLAYER.get(this);
 		Transform characterWorldTrans = p.ghostObject.getWorldTransform(new Transform());
-		setPosition(VectoVec.toVec3(characterWorldTrans.origin));
+		setPosition(VectoVec.toVec3(characterWorldTrans.origin).add(new org.joml.Vector3f(0, 0.875f, 0)));
 
 		Vector3f walkDirection = new Vector3f(0.0f, 0.0f, 0.0f);
 		float walkVelocity = 1.1f * 2.0f;

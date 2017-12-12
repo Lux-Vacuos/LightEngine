@@ -43,10 +43,10 @@ public class NetworkSubsystem extends AbstractNettyNetworkHandler implements ISu
 
 	@Override
 	public void init() {
-		workGroup = new NioEventLoopGroup();
+		bossGroup = new NioEventLoopGroup();
 		mch = new ManagerChannelHandler();
 		b = new Bootstrap();
-		b.group(workGroup);
+		b.group(bossGroup);
 		b.channel(NioSocketChannel.class);
 		b.option(ChannelOption.SO_KEEPALIVE, true);
 		b.handler(new ChannelInitializer<SocketChannel>() {
@@ -77,7 +77,7 @@ public class NetworkSubsystem extends AbstractNettyNetworkHandler implements ISu
 
 	@Override
 	public void dispose() {
-		workGroup.shutdownGracefully();
+		bossGroup.shutdownGracefully();
 	}
 
 	public static void connect(String host, int port) throws InterruptedException {

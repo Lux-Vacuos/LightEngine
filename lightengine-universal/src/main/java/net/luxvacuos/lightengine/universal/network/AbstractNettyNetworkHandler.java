@@ -25,7 +25,7 @@ import io.netty.channel.EventLoopGroup;
 
 public abstract class AbstractNettyNetworkHandler implements INettyNetworkHandler {
 	protected static ChannelFuture future;
-	protected static EventLoopGroup workGroup;
+	protected static EventLoopGroup bossGroup;
 
 	public AbstractNettyNetworkHandler() {
 	}

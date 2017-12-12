@@ -24,6 +24,7 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -40,13 +41,15 @@ public class NetworkSubsystem extends AbstractNettyNetworkHandler implements ISu
 	
 	private static ManagerChannelHandler mch;
 	private static ServerBootstrap b;
+	private static EventLoopGroup workerGroup;
 
 	@Override
 	public void init() {
-		workGroup = new NioEventLoopGroup();
+		bossGroup = new NioEventLoopGroup();
+		workerGroup = new NioEventLoopGroup();
 		mch = new ManagerChannelHandler();
 		b = new ServerBootstrap();
-		b.group(workGroup);
+		b.group(bossGroup, workerGroup);
 		b.option(ChannelOption.SO_BACKLOG, 128);
 		b.childOption(ChannelOption.SO_KEEPALIVE, true);
 		b.channel(NioServerSocketChannel.class);
@@ -78,7 +81,8 @@ public class NetworkSubsystem extends AbstractNettyNetworkHandler implements ISu
 
 	@Override
 	public void dispose() {
-		workGroup.shutdownGracefully();
+        workerGroup.shutdownGracefully();
+        bossGroup.shutdownGracefully();
 	}
 
 	public static void bind(int port) throws InterruptedException {
@@ -86,7 +90,7 @@ public class NetworkSubsystem extends AbstractNettyNetworkHandler implements ISu
 	}
 
 	public static void disconnect() throws InterruptedException {
-		future.channel().close().sync();
+		future.channel().closeFuture().sync();
 	}
 
 	public static void sendPacket(Object obj) {

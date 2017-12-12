@@ -100,7 +100,7 @@ void main() {
 	vec2 envBRDF = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
 	vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
 
-	vec3 emissive = material.emissive.rgb;
+	vec3 emissive = material.emissive.rgb * diffuseF.rgb;
 
 	vec3 ambient = kD * diffuse + max(specular, 0.0) + emissive;
     vec3 color = ambient + Lo;

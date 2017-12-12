@@ -40,7 +40,7 @@ public class Player implements LEComponent {
 		ghostObject = new PairCachingGhostObject();
 		ghostObject.setWorldTransform(initialTransform);
 		float characterHeight = 1.75f * characterScale;
-		float characterWidth = 0.75f * characterScale;
+		float characterWidth = 0.4f * characterScale;
 		ConvexShape capsule = new CapsuleShape(characterWidth, characterHeight);
 		ghostObject.setCollisionShape(capsule);
 		ghostObject.setCollisionFlags(CollisionFlags.CHARACTER_OBJECT);

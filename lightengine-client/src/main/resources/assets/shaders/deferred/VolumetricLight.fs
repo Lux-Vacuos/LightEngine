@@ -90,13 +90,13 @@ void main() {
 		vec3 N = normalize(normal);
 
 		vec3 rayTrace = cameraPosition;
-    	float rayDist, perl, incr = 0.1;
+    	float rayDist, perl, incr = 0.2;
 		float rays, clouds;
 		float bias = max(0.1 * (1.0 - dot(N, L)), 0.005);
 		int itr;
 		do {
 			rayTrace += cameraToWorldNorm * incr;
-			incr *= 1.1;
+			incr *= 1.05;
        		rayDist = length(rayTrace - cameraPosition);
 			if(rayDist > cameraToWorldDist - bias)
 				break;
@@ -109,7 +109,7 @@ void main() {
 		rays /= itr;
 		clouds /= itr;
 		rays = max(rays * VOLUMETRIC_MULT, 0.0) * (1.0 + smoothstep(0, 0.5, dot(cameraToWorldNorm, L) - 0.5) * VOLUMETRIC_SUN);
-		out_Color = vec4(rays, clouds, 0, 0);
+		out_Color = vec4(rays, max(clouds, 0.0), 0, 0);
 	} else {
 		out_Color = vec4(0.0);
 	}

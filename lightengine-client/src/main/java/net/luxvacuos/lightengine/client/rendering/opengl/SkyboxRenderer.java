@@ -33,6 +33,7 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 
 import org.joml.Vector3f;
 
+import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.SkyboxShader;
@@ -49,7 +50,7 @@ public class SkyboxRenderer {
 		dome = loader.loadObjModel("SkyDome");
 		shader = new SkyboxShader();
 		shader.start();
-		shader.loadTransformationMatrix(Maths.createTransformationMatrix(new Vector3f(), 0, 0, 0, 2000));
+		shader.loadTransformationMatrix(Maths.createTransformationMatrix(new Vector3f(), 0, 0, 0, ClientVariables.FAR_PLANE));
 		shader.stop();
 	}
 
@@ -57,7 +58,7 @@ public class SkyboxRenderer {
 		glDepthMask(false);
 		glDisable(GL_CULL_FACE);
 		shader.start();
-		shader.loadTransformationMatrix(Maths.createTransformationMatrix(camera.getPosition(), 0, 0, 0, 2000));
+		shader.loadTransformationMatrix(Maths.createTransformationMatrix(camera.getPosition(), 0, 0, 0, ClientVariables.FAR_PLANE));
 		shader.loadProjectionMatrix(camera.getProjectionMatrix());
 		shader.loadViewMatrix(camera);
 		shader.loadTime(clientWorldSimulation.getGlobalTime());

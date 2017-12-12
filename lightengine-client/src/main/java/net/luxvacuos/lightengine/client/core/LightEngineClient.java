@@ -70,7 +70,7 @@ public class LightEngineClient extends AbstractEngine {
 		if (!ClientVariables.WSL)
 			super.addSubsystem(new SoundSubsystem());
 		super.addSubsystem(new NetworkSubsystem());
-		
+
 		super.initSubsystems();
 
 		Logger.log("Light Engine Client Version: " + REGISTRY.getRegistryItem(new Key("/Light Engine/version")));
@@ -164,7 +164,7 @@ public class LightEngineClient extends AbstractEngine {
 			Timers.update();
 			window.updateDisplay(fps);
 			if (window.isCloseRequested())
-				StateMachine.stop();
+				TaskManager.addTaskUpdate(() -> StateMachine.dispose());
 		}
 	}
 
