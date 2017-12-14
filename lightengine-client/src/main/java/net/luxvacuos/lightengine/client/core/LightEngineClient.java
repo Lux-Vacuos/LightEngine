@@ -44,6 +44,8 @@ import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.core.states.StateNames;
 import net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem;
+import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
+import net.luxvacuos.lightengine.universal.core.subsystems.ScriptSubsystem;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class LightEngineClient extends AbstractEngine {
@@ -57,9 +59,6 @@ public class LightEngineClient extends AbstractEngine {
 		init();
 	}
 
-	/**
-	 * Init function
-	 */
 	@Override
 	public void init() {
 		Logger.init();
@@ -67,9 +66,10 @@ public class LightEngineClient extends AbstractEngine {
 
 		super.addSubsystem(new ClientCoreSubsystem());
 		super.addSubsystem(new GraphicalSubsystem());
-		if (!ClientVariables.WSL)
-			super.addSubsystem(new SoundSubsystem());
+		super.addSubsystem(new SoundSubsystem());
 		super.addSubsystem(new NetworkSubsystem());
+		super.addSubsystem(new ScriptSubsystem());
+		super.addSubsystem(new EventSubsystem());
 
 		super.initSubsystems();
 
@@ -96,9 +96,6 @@ public class LightEngineClient extends AbstractEngine {
 		}
 	}
 
-	/**
-	 * Main Loop
-	 */
 	@Override
 	public void update() {
 		int fps = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/fps"));
@@ -168,12 +165,6 @@ public class LightEngineClient extends AbstractEngine {
 		}
 	}
 
-	/**
-	 * Handle all errors
-	 * 
-	 * @param e
-	 *            Throwable
-	 */
 	@Override
 	public void handleError(Throwable e) {
 		CrashState.t = e;

@@ -47,7 +47,6 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.utils.Array;
 
-import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.Sun;
 import net.luxvacuos.lightengine.client.ecs.entities.SunCamera;
@@ -58,10 +57,11 @@ import net.luxvacuos.lightengine.client.rendering.opengl.objects.WaterTile;
 import net.luxvacuos.lightengine.client.rendering.opengl.pipeline.MultiPass;
 import net.luxvacuos.lightengine.client.rendering.opengl.pipeline.PostProcess;
 import net.luxvacuos.lightengine.client.resources.ResourceLoader;
-import net.luxvacuos.lightengine.client.ui.OnAction;
 import net.luxvacuos.lightengine.client.world.particles.Particle;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
+import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
+import net.luxvacuos.lightengine.universal.util.IEvent;
 import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
 public class Renderer {
@@ -84,8 +84,6 @@ public class Renderer {
 
 	private static IRenderPass shadowPass, deferredPass, forwardPass, occlusionPass;
 
-	private static OnAction onResize;
-
 	private static float exposure = 1;
 
 	private static int shadowResolution;
@@ -93,6 +91,8 @@ public class Renderer {
 	private static boolean reloading, enabled;
 
 	private static RenderingManager renderingManager;
+
+	private static IEvent shadowMap, reload;
 
 	public static void init(Window window) {
 		if (!enabled) {
@@ -122,13 +122,37 @@ public class Renderer {
 			TaskManager.addTask(() -> waterRenderer = new WaterRenderer(loader));
 			TaskManager.addTask(() -> renderingManager.addRenderer(new EntityRenderer(loader)));
 			lightRenderer = new LightRenderer();
-			enabled = true;
+
+			shadowMap = EventSubsystem.addEvent("lightengine.renderer.resetshadowmap", () -> {
+				shadowResolution = (int) REGISTRY
+						.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/shadowsResolution"));
+				if (shadowResolution > GLUtil.GL_MAX_TEXTURE_SIZE)
+					shadowResolution = GLUtil.GL_MAX_TEXTURE_SIZE;
+				TaskManager.addTask(() -> {
+					shadowFBO.dispose();
+					shadowFBO = new ShadowFBO(shadowResolution, shadowResolution);
+				});
+			});
+			reload = EventSubsystem.addEvent("lightengine.renderer.resize", () -> {
+				reloading = true;
+				TaskManager.addTask(() -> {
+					deferredPipeline.resize();
+					postProcessPipeline.resize();
+					reloading = false;
+					EventSubsystem.triggerEvent("lightengine.renderer.postresize");
+				});
+			});
+			TaskManager.addTask(() -> {
+				enabled = true;
+				EventSubsystem.triggerEvent("lightengine.renderer.initialized");
+			});
+
 		}
 	}
 
 	public static void render(ImmutableArray<Entity> entitiesT, Map<ParticleTexture, List<Particle>> particles,
 			List<WaterTile> waterTiles, CameraEntity camera, IWorldSimulation worldSimulation, Sun sun, float delta) {
-		if (!enabled)
+		if (!enabled || reloading)
 			return;
 		Array<Entity> entitiesR = new Array<>(entitiesT.toArray(Entity.class));
 		ImmutableArray<Entity> entities = new ImmutableArray<>(entitiesR);
@@ -279,6 +303,8 @@ public class Renderer {
 				TaskManager.addTask(() -> renderingManager.dispose());
 			if (lightRenderer != null)
 				TaskManager.addTask(() -> lightRenderer.dispose());
+			EventSubsystem.removeEvent("lightengine.renderer.resetshadowmap", shadowMap);
+			EventSubsystem.removeEvent("lightengine.renderer.resize", reload);
 		}
 	}
 
@@ -302,43 +328,12 @@ public class Renderer {
 		Renderer.occlusionPass = occlusionPass;
 	}
 
-	public static void setOnResize(OnAction onResize) {
-		Renderer.onResize = onResize;
-	}
-
 	public static Frustum getFrustum() {
 		return frustum;
 	}
 
 	public static LightRenderer getLightRenderer() {
 		return lightRenderer;
-	}
-
-	public static void reloadShadowMaps() {
-		if (!enabled)
-			return;
-		Logger.log("Reloading Shadow Maps");
-		shadowFBO.dispose();
-		shadowResolution = (int) REGISTRY
-				.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/shadowsResolution"));
-
-		if (shadowResolution > GLUtil.GL_MAX_TEXTURE_SIZE)
-			shadowResolution = GLUtil.GL_MAX_TEXTURE_SIZE;
-		shadowFBO = new ShadowFBO(shadowResolution, shadowResolution);
-	}
-
-	public static void reloadDeferred() {
-		if (!enabled)
-			return;
-		if (!reloading) {
-			reloading = true;
-			if (onResize != null)
-				onResize.onAction();
-			Logger.log("Reloading Deferred");
-			deferredPipeline.resize();
-			postProcessPipeline.resize();
-			reloading = false;
-		}
 	}
 
 	public static void init() {

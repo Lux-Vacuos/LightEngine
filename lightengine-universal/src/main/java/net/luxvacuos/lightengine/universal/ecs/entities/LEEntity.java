@@ -20,52 +20,135 @@
 
 package net.luxvacuos.lightengine.universal.ecs.entities;
 
+import org.joml.Vector3f;
+
 import com.badlogic.ashley.core.Entity;
 import com.hackhalo2.nbt.stream.NBTOutputStream;
-import com.hackhalo2.nbt.tags.TagCompound;
 
-import net.luxvacuos.lightengine.universal.ecs.components.NBTComponent;
-import net.luxvacuos.lightengine.universal.ecs.components.Name;
-import net.luxvacuos.lightengine.universal.ecs.components.UUIDComponent;
+import net.luxvacuos.lightengine.universal.resources.IDisposable;
 import net.luxvacuos.lightengine.universal.util.IUpdatable;
 
-public class LEEntity extends Entity implements IUpdatable {
+public class LEEntity extends Entity implements IUpdatable, IDisposable {
 
-	public LEEntity(String name) {
-		this.add(new Name(name));
-		this.add(new UUIDComponent());
-		this.add(new NBTComponent());
-	}
-	
-	public LEEntity(String name, String uuid) {
-		this.add(new Name(name));
-		this.add(new UUIDComponent(uuid));
-		this.add(new NBTComponent());
-	}
-	
-	public LEEntity(TagCompound in) {
-		this.add(new NBTComponent(in));
-	}
-	
+	protected Vector3f position = new Vector3f();
+	protected Vector3f rotation = new Vector3f();
+	protected float scale = 1;
+
+	@Override
 	public void beforeUpdate(float delta) {
-		
 	}
 
 	@Override
 	public void update(float delta) {
 
 	}
-	
+
+	@Override
 	public void afterUpdate(float delta) {
-		
+
 	}
-	
+
+	@Override
+	public void dispose() {
+
+	}
+
 	public void quickSave() {
-		
+
 	}
-	
+
 	public void save(NBTOutputStream out) {
-		
+
+	}
+
+	public Vector3f getPosition() {
+		return position;
+	}
+
+	public float getX() {
+		return position.x();
+	}
+
+	public float getY() {
+		return position.y();
+	}
+
+	public float getZ() {
+		return position.z();
+	}
+
+	public LEEntity setX(float x) {
+		position.x = x;
+		return this;
+	}
+
+	public LEEntity setY(float y) {
+		position.y = y;
+		return this;
+	}
+
+	public LEEntity setZ(float z) {
+		position.z = z;
+		return this;
+	}
+
+	public LEEntity setPosition(float x, float y, float z) {
+		position.set(x, y, z);
+		return this;
+	}
+
+	public LEEntity setPosition(Vector3f vec) {
+		position.set(vec);
+		return this;
+	}
+
+	public Vector3f getRotation() {
+		return rotation;
+	}
+
+	public float getRX() {
+		return rotation.x();
+	}
+
+	public float getRY() {
+		return rotation.y();
+	}
+
+	public float getRZ() {
+		return rotation.z();
+	}
+
+	public LEEntity setRX(float x) {
+		rotation.x = x;
+		return this;
+	}
+
+	public LEEntity setRY(float y) {
+		rotation.y = y;
+		return this;
+	}
+
+	public LEEntity setRZ(float z) {
+		rotation.z = z;
+		return this;
+	}
+
+	public LEEntity setRotation(float x, float y, float z) {
+		rotation.set(x, y, z);
+		return this;
+	}
+
+	public LEEntity setRotation(Vector3f vec) {
+		rotation.set(vec);
+		return this;
+	}
+
+	public float getScale() {
+		return scale;
+	}
+
+	public void setScale(float scale) {
+		this.scale = scale;
 	}
 
 }

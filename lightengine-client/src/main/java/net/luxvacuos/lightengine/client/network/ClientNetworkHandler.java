@@ -38,6 +38,7 @@ import net.luxvacuos.lightengine.client.ecs.entities.Sun;
 import net.luxvacuos.lightengine.client.world.ClientPhysicsSystem;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
 import net.luxvacuos.lightengine.universal.ecs.Components;
+import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
 import net.luxvacuos.lightengine.universal.ecs.entities.PlayerEntity;
 import net.luxvacuos.lightengine.universal.network.AbstractChannelHandler;
 import net.luxvacuos.lightengine.universal.network.packets.ClientConnect;
@@ -47,14 +48,15 @@ import net.luxvacuos.lightengine.universal.network.packets.UpdateBasicEntity;
 
 public class ClientNetworkHandler extends AbstractChannelHandler {
 
-	private CameraEntity player;
+	private BasicEntity player;
+	private CameraEntity camera;
 	private Sun sun;
 
-	public ClientNetworkHandler(CameraEntity player) {
+	public ClientNetworkHandler(BasicEntity player) {
 		worldSimulation = new ClientWorldSimulation(10000);
 		engine = new Engine();
 		engine.addSystem(new ClientPhysicsSystem());
-		if(player == null)
+		if (player == null)
 			this.player = new PlayerCamera("player" + new Random().nextInt(1000), UUID.randomUUID().toString());
 		else
 			this.player = player;
@@ -82,7 +84,7 @@ public class ClientNetworkHandler extends AbstractChannelHandler {
 		worldSimulation.update(delta);
 		sun.update(player.getPosition(), worldSimulation.getRotation(), delta);
 		NetworkSubsystem.sendPacket(new UpdateBasicEntity(Components.UUID.get(player).getUUID(), player.getPosition(),
-				player.getRotation(), new Vector3f(), Components.SCALE.get(player).getScale()));
+				player.getRotation(), new Vector3f(), player.getScale()));
 	}
 
 	@Override
@@ -95,20 +97,27 @@ public class ClientNetworkHandler extends AbstractChannelHandler {
 	}
 
 	private void handleConnect(ClientConnect con) {
+		if (con.getUUID() == Components.UUID.get(player).getUUID())
+			return;
 		PlayerEntity p = new RenderPlayerEntity(con.getName(), con.getUUID().toString());
-		Components.POSITION.get(p).set(0, 2, 0);
+		p.setPosition(0, 2, 0);
 		engine.addEntity(p);
 		players.put(con.getUUID(), p);
 	}
 
 	private void handleDisconnect(ClientDisconnect con) {
+		if (con.getUUID() == Components.UUID.get(player).getUUID())
+			return;
 		PlayerEntity p = players.remove(con.getUUID());
 		engine.removeEntity(p);
 	}
 
 	private void handleUpdateBasicEntity(UpdateBasicEntity ube) {
+		if (ube.getUUID() == Components.UUID.get(player).getUUID())
+			return;
 		PlayerEntity e = players.get(ube.getUUID());
-		Components.POSITION.get(e).set(ube.getPosition());
+		e.setPosition(ube.getPosition());
+		e.setRotation(ube.getRotation());
 	}
 
 	@Override
@@ -126,10 +135,21 @@ public class ClientNetworkHandler extends AbstractChannelHandler {
 		return worldSimulation;
 	}
 
-	public CameraEntity getPlayer() {
+	public BasicEntity getPlayer() {
 		return player;
 	}
-	
+
+	public CameraEntity getCamera() {
+		return camera;
+	}
+
+	public void setCamera(CameraEntity camera) {
+		if (this.camera != null)
+			engine.removeEntity(this.camera);
+		this.camera = camera;
+		engine.addEntity(this.camera);
+	}
+
 	public Sun getSun() {
 		return sun;
 	}

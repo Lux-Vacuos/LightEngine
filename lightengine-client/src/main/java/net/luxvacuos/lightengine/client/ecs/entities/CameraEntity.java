@@ -21,22 +21,20 @@
 package net.luxvacuos.lightengine.client.ecs.entities;
 
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
 
 import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.ecs.components.ProjectionMatrix;
 import net.luxvacuos.lightengine.client.ecs.components.ViewMatrix;
 import net.luxvacuos.lightengine.client.resources.CastRay;
 import net.luxvacuos.lightengine.client.util.Maths;
-import net.luxvacuos.lightengine.universal.ecs.Components;
-import net.luxvacuos.lightengine.universal.ecs.entities.PlayerEntity;
+import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
 
 /**
  * Camera
  * 
  * @author Guerra24 <pablo230699@hotmail.com>
  */
-public class CameraEntity extends PlayerEntity {
+public class CameraEntity extends BasicEntity {
 
 	protected CastRay castRay;
 
@@ -56,22 +54,6 @@ public class CameraEntity extends PlayerEntity {
 	public void afterUpdate(float delta) {
 		super.afterUpdate(delta);
 		setViewMatrix(Maths.createViewMatrix(this));
-	}
-
-	public Vector3f getPosition() {
-		return Components.POSITION.get(this).getPosition();
-	}
-
-	public void setPosition(Vector3f position) {
-		Components.POSITION.get(this).set(position);
-	}
-
-	public Vector3f getRotation() {
-		return Components.ROTATION.get(this).getRotation();
-	}
-
-	public void setRotation(Vector3f rotation) {
-		Components.ROTATION.get(this).set(rotation);
 	}
 
 	public Matrix4f getProjectionMatrix() {

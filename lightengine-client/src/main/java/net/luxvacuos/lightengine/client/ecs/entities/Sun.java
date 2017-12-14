@@ -26,6 +26,8 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import net.luxvacuos.lightengine.client.util.Maths;
+import net.luxvacuos.lightengine.universal.core.TaskManager;
+import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class Sun {
@@ -36,6 +38,22 @@ public class Sun {
 	private SunCamera camera;
 
 	public Sun() {
+		EventSubsystem.addEvent("lightengine.renderer.resetshadowmatrix", () -> {
+			Matrix4f[] shadowProjectionMatrix = new Matrix4f[4];
+
+			int shadowDrawDistance = (int) REGISTRY
+					.getRegistryItem(new Key("/Light Engine/Settings/Graphics/shadowsDrawDistance"));
+			shadowDrawDistance *= 2;
+			shadowProjectionMatrix[0] = Maths.orthoSymmetric(-shadowDrawDistance / 25, shadowDrawDistance / 25,
+					-shadowDrawDistance, shadowDrawDistance, false);
+			shadowProjectionMatrix[1] = Maths.orthoSymmetric(-shadowDrawDistance / 10, shadowDrawDistance / 10,
+					-shadowDrawDistance, shadowDrawDistance, false);
+			shadowProjectionMatrix[2] = Maths.orthoSymmetric(-shadowDrawDistance / 4, shadowDrawDistance / 4,
+					-shadowDrawDistance, shadowDrawDistance, false);
+			shadowProjectionMatrix[3] = Maths.orthoSymmetric(-shadowDrawDistance, shadowDrawDistance,
+					-shadowDrawDistance, shadowDrawDistance, false);
+			TaskManager.addTask(() -> camera.setProjectionArray(shadowProjectionMatrix));
+		});
 		Matrix4f[] shadowProjectionMatrix = new Matrix4f[4];
 
 		int shadowDrawDistance = (int) REGISTRY

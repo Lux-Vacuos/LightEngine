@@ -75,7 +75,7 @@ public class ServerNetworkHandler extends AbstractChannelHandler {
 					new ClientConnect(Components.UUID.get(pl).getUUID(), Components.NAME.get(pl).getName()));
 		}
 		PlayerEntity p = new PlayerEntity(con.getName(), con.getUUID().toString());
-		Components.POSITION.get(p).set(0, 2, 0);
+		p.setPosition(0, 2, 0);
 		engine.addEntity(p);
 		players.put(con.getUUID(), p);
 		ServerHandler.channels.writeAndFlush(con);
@@ -88,7 +88,8 @@ public class ServerNetworkHandler extends AbstractChannelHandler {
 
 	private void handleUpdateBasicEntity(UpdateBasicEntity ube) {
 		PlayerEntity e = players.get(ube.getUUID());
-		Components.POSITION.get(e).set(ube.getPosition());
+		e.setPosition(ube.getPosition());
+		e.setRotation(ube.getRotation());
 		ServerHandler.channels.writeAndFlush(ube);
 	}
 

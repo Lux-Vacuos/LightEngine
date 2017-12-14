@@ -20,24 +20,28 @@
 
 package net.luxvacuos.lightengine.universal.ecs.entities;
 
-import net.luxvacuos.lightengine.universal.ecs.components.Position;
-import net.luxvacuos.lightengine.universal.ecs.components.Rotation;
-import net.luxvacuos.lightengine.universal.ecs.components.Scale;
+import com.hackhalo2.nbt.tags.TagCompound;
+
+import net.luxvacuos.lightengine.universal.ecs.components.NBTComponent;
+import net.luxvacuos.lightengine.universal.ecs.components.Name;
+import net.luxvacuos.lightengine.universal.ecs.components.UUIDComponent;
 
 public class BasicEntity extends LEEntity {
 
 	public BasicEntity(String name) {
-		super(name);
-		add(new Position());
-		add(new Rotation());
-		add(new Scale());
+		this.add(new Name(name));
+		this.add(new UUIDComponent());
+		this.add(new NBTComponent());
 	}
-	
+
 	public BasicEntity(String name, String uuid) {
-		super(name, uuid);
-		add(new Position());
-		add(new Rotation());
-		add(new Scale());
+		this.add(new Name(name));
+		this.add(new UUIDComponent(uuid));
+		this.add(new NBTComponent());
+	}
+
+	public BasicEntity(TagCompound in) {
+		this.add(new NBTComponent(in));
 	}
 
 }

@@ -40,7 +40,7 @@ public class SoundSubsystem implements ISubsystem {
 		} catch (SoundSystemException e) {
 			e.printStackTrace();
 		}
-		SoundSystemConfig.setSoundFilesPackage("assets/sounds/");
+		SoundSystemConfig.setSoundFilesPackage("assets/");
 		SoundSystemConfig.setLogger(new LoggerSoundSystem());
 		soundSystem = new SoundSystem();
 	}

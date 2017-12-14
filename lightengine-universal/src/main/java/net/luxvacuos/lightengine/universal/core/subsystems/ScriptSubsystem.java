@@ -18,7 +18,7 @@
  * 
  */
 
-package net.luxvacuos.lightengine.universal.core;
+package net.luxvacuos.lightengine.universal.core.subsystems;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -33,20 +33,14 @@ import javax.script.ScriptException;
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.universal.core.exception.CompileGroovyException;
 
-/**
- * 
- * Groovy scripting system
- * 
- * @author Guerra24 <pablo230699@hotmail.com>
- *
- */
-public class Scripting {
+public class ScriptSubsystem implements ISubsystem {
 
-	private ScriptEngineManager scriptEngineManager;
-	private ScriptEngine scriptEngine;
-	private Compilable compilableEngine;
+	private static ScriptEngineManager scriptEngineManager;
+	private static ScriptEngine scriptEngine;
+	private static Compilable compilableEngine;
 
-	public Scripting() {
+	@Override
+	public void init() {
 		scriptEngineManager = new ScriptEngineManager();
 		scriptEngine = scriptEngineManager.getEngineByName("groovy");
 		if (scriptEngine == null)
@@ -56,9 +50,25 @@ public class Scripting {
 		}
 	}
 
-	public CompiledScript compile(String file) {
+	@Override
+	public void restart() {
+	}
+
+	@Override
+	public void update(float delta) {
+	}
+
+	@Override
+	public void render(float delta) {
+	}
+
+	@Override
+	public void dispose() {
+	}
+
+	public static CompiledScript compile(String file) {
 		Logger.log("Compiling: " + file);
-		InputStream filet = getClass().getClassLoader().getResourceAsStream("assets/lightengine/scripts/" + file + ".groovy");
+		InputStream filet = ScriptSubsystem.class.getClassLoader().getResourceAsStream("assets/" + file);
 		BufferedReader reader = new BufferedReader(new InputStreamReader(filet));
 		try {
 			return compilableEngine.compile(reader);
@@ -66,9 +76,8 @@ public class Scripting {
 			throw new CompileGroovyException("Unable to compile: " + file, e);
 		}
 	}
-	
-	public ScriptEngine getScriptEngine() {
+
+	public static ScriptEngine getScriptEngine() {
 		return scriptEngine;
 	}
-
 }

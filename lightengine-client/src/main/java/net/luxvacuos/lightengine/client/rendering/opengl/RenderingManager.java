@@ -20,6 +20,10 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl;
 
+import static org.lwjgl.opengl.GL11.GL_BLEND;
+import static org.lwjgl.opengl.GL11.glDisable;
+import static org.lwjgl.opengl.GL11.glEnable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,9 +56,10 @@ public class RenderingManager implements IDisposable {
 
 	public void preProcess(ImmutableArray<Entity> entities) {
 		for (Entity entity : entities) {
-			if (ClientComponents.RENDERABLE.has(entity))
-				if (ClientComponents.RENDERABLE.get(entity).isLoaded())
-					process((BasicEntity) entity);
+			if (entity instanceof BasicEntity)
+				if (ClientComponents.RENDERABLE.has(entity))
+					if (ClientComponents.RENDERABLE.get(entity).isLoaded())
+						process((BasicEntity) entity);
 		}
 		for (Entry<IRenderer> rendererEntry : renderers) {
 			IRenderer renderer = rendererEntry.value;
@@ -77,8 +82,10 @@ public class RenderingManager implements IDisposable {
 
 	public void renderForward(CameraEntity camera, Vector3f lightPosition, CubeMapTexture irradiance,
 			CubeMapTexture environmentMap, Texture brdfLUT) {
+		glEnable(GL_BLEND);
 		for (Entry<IRenderer> rendererEntry : renderers)
 			rendererEntry.value.renderForward(camera, lightPosition, irradiance, environmentMap, brdfLUT);
+		glDisable(GL_BLEND);
 	}
 
 	public void renderShadow(CameraEntity sun) {

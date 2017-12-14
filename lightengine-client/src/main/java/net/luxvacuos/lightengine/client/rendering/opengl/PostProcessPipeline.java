@@ -135,13 +135,13 @@ public abstract class PostProcessPipeline implements IPostProcessPipeline {
 			nvgDeleteImage(window.getNVGID(), texture);
 		fbo.dispose();
 		fbo = new FBO(width, height, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
+		texture = Theme.generateImageFromTexture(window.getNVGID(), fbo.getTexture(), width, height, NVG_IMAGE_FLIPY);
 		finalShader.start();
 		finalShader.loadResolution(new Vector2f(width, height));
 		finalShader.stop();
 		for (IPostProcessPass deferredPass : imagePasses) {
 			deferredPass.resize(width, height);
 		}
-		texture = Theme.generateImageFromTexture(window.getNVGID(), fbo.getTexture(), width, height, NVG_IMAGE_FLIPY);
 	}
 
 	@Override

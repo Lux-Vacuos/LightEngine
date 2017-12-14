@@ -58,6 +58,7 @@ import net.luxvacuos.lightengine.client.ui.Font;
 import net.luxvacuos.lightengine.universal.core.GlobalVariables;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
+import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
 import net.luxvacuos.lightengine.universal.core.subsystems.ISubsystem;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
@@ -66,9 +67,9 @@ public class GraphicalSubsystem implements ISubsystem {
 	private static IWindowManager windowManager;
 	private static Window window;
 
-	private static Font robotoRegular, robotoBold, poppinsRegular, poppinsLight, poppinsMedium, poppinsBold, poppinsSemiBold,
-			entypo;
-	
+	private static Font robotoRegular, robotoBold, poppinsRegular, poppinsLight, poppinsMedium, poppinsBold,
+			poppinsSemiBold, entypo;
+
 	@Override
 	public void init() {
 		REGISTRY.register(new Key("/Light Engine/Display/width"), ClientVariables.WIDTH);
@@ -87,16 +88,16 @@ public class GraphicalSubsystem implements ISubsystem {
 		handle.setPixelBuffer(pb);
 		long gameWindowID = WindowManager.createWindow(handle,
 				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/vsync")));
-		
+
 		window = WindowManager.getWindow(gameWindowID);
 		window.setOnRefresh(() -> {
 			Renderer.clearColors(0, 0, 0, 1);
 			Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			GraphicalSubsystem.getWindowManager().update(0);
-			GraphicalSubsystem.getWindowManager().render(0);
+			GraphicalSubsystem.getWindowManager().update(window.getDelta());
+			GraphicalSubsystem.getWindowManager().render(window.getDelta());
 		});
 		GLUtil.init();
-		
+
 		REGISTRY.register(new Key("/Light Engine/System/lwjgl"), Version.getVersion());
 		REGISTRY.register(new Key("/Light Engine/System/glfw"), GLFW.glfwGetVersionString());
 		REGISTRY.register(new Key("/Light Engine/System/opengl"), glGetString(GL_VERSION));
@@ -106,7 +107,7 @@ public class GraphicalSubsystem implements ISubsystem {
 		REGISTRY.register(new Key("/Light Engine/System/assimp"),
 				aiGetVersionMajor() + "." + aiGetVersionMinor() + "." + aiGetVersionRevision());
 		REGISTRY.register(new Key("/Light Engine/System/vk"), "Not Available");
-		
+
 		ThemeManager.addTheme(new NanoTheme());
 		ThemeManager.setTheme((String) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/theme")));
 
@@ -122,7 +123,7 @@ public class GraphicalSubsystem implements ISubsystem {
 		poppinsBold = loader.loadNVGFont("Poppins-Bold", "Poppins-Bold");
 		poppinsSemiBold = loader.loadNVGFont("Poppins-SemiBold", "Poppins-SemiBold");
 		entypo = loader.loadNVGFont("Entypo", "Entypo", 40);
-		
+
 		TaskManager.addTaskAsync(() -> ShaderIncludes.processIncludeFile("common.isl"));
 		TaskManager.addTaskAsync(() -> ShaderIncludes.processIncludeFile("lighting.isl"));
 		TaskManager.addTaskAsync(() -> ShaderIncludes.processIncludeFile("materials.isl"));
@@ -146,7 +147,7 @@ public class GraphicalSubsystem implements ISubsystem {
 			if (window.wasResized()) {
 				REGISTRY.register(new Key("/Light Engine/Display/width"), window.getWidth());
 				REGISTRY.register(new Key("/Light Engine/Display/height"), window.getHeight());
-				Renderer.reloadDeferred();
+				EventSubsystem.triggerEvent("lightengine.renderer.resize");
 				windowManager.reloadCompositor();
 			}
 			CachedAssets.update(delta);

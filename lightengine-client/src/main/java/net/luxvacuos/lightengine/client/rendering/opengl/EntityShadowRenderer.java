@@ -36,13 +36,8 @@ import org.joml.Matrix4f;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Material;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Mesh;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.Model;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.EntityBasicShader;
 import net.luxvacuos.lightengine.client.util.Maths;
-import net.luxvacuos.lightengine.universal.ecs.Components;
-import net.luxvacuos.lightengine.universal.ecs.components.Position;
-import net.luxvacuos.lightengine.universal.ecs.components.Rotation;
-import net.luxvacuos.lightengine.universal.ecs.components.Scale;
 import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
@@ -54,7 +49,7 @@ public class EntityShadowRenderer implements IDisposable {
 		shader = new EntityBasicShader();
 	}
 
-	protected void renderShadow(Map<Model, List<BasicEntity>> entities, CameraEntity sunCamera) {
+	protected void renderShadow(Map<Material, List<EntityRendererObject>> entities, CameraEntity sunCamera) {
 		shader.start();
 		shader.loadviewMatrix(sunCamera);
 		shader.loadProjectionMatrix(sunCamera.getProjectionMatrix());
@@ -62,17 +57,14 @@ public class EntityShadowRenderer implements IDisposable {
 		shader.stop();
 	}
 
-	private void renderEntity(Map<Model, List<BasicEntity>> entities) {
-		for (Model model : entities.keySet()) {
-			List<BasicEntity> batch = entities.get(model);
-			for (BasicEntity entity : batch) {
-				prepareInstance(entity);
-				for (Mesh mesh : model.getMeshes()) {
-					Material mat = model.getMaterials().get(mesh.getAiMesh().mMaterialIndex());
-					prepareTexturedModel(mesh, mat);
-					glDrawElements(GL_TRIANGLES, mesh.getMesh().getIndexCount(), GL_UNSIGNED_INT, 0);
-					unbindTexturedModel(mesh);
-				}
+	private void renderEntity(Map<Material, List<EntityRendererObject>> entities) {
+		for (Material mat : entities.keySet()) {
+			List<EntityRendererObject> batch = entities.get(mat);
+			for (EntityRendererObject obj : batch) {
+				prepareInstance(obj.entity);
+				prepareTexturedModel(obj.mesh, mat);
+				glDrawElements(GL_TRIANGLES, obj.mesh.getMesh().getIndexCount(), GL_UNSIGNED_INT, 0);
+				unbindTexturedModel(obj.mesh);
 			}
 		}
 	}
@@ -88,11 +80,8 @@ public class EntityShadowRenderer implements IDisposable {
 	}
 
 	private void prepareInstance(BasicEntity entity) {
-		Position pos = Components.POSITION.get(entity);
-		Rotation rot = Components.ROTATION.get(entity);
-		Scale scale = Components.SCALE.get(entity);
-		Matrix4f transformationMatrix = Maths.createTransformationMatrix(pos.getPosition(), rot.getX(), rot.getY(),
-				rot.getZ(), scale.getScale());
+		Matrix4f transformationMatrix = Maths.createTransformationMatrix(entity.getPosition(), entity.getRX(),
+				entity.getRY(), entity.getRZ(), entity.getScale());
 		shader.loadTransformationMatrix(transformationMatrix);
 	}
 

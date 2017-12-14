@@ -50,16 +50,25 @@ import net.luxvacuos.lightengine.universal.resources.IDisposable;
  */
 public class Material implements IDisposable {
 
+	public enum MaterialType {
+		OPAQUE, TRANSPARENT;
+	}
+
 	private Vector4f diffuse, emissive;
 	private float roughness, metallic;
 	private Texture diffuseTexture, normalTexture, roughnessTexture, metallicTexture;
+	private MaterialType type = MaterialType.OPAQUE;
 
 	/**
 	 * 
-	 * @param diffuse Diffuse color
-	 * @param emissive Emissive Color
-	 * @param roughness Roughness
-	 * @param metallic Metallic
+	 * @param diffuse
+	 *            Diffuse color
+	 * @param emissive
+	 *            Emissive Color
+	 * @param roughness
+	 *            Roughness
+	 * @param metallic
+	 *            Metallic
 	 */
 	public Material(Vector4f diffuse, Vector4f emissive, float roughness, float metallic) {
 		this.diffuse = diffuse;
@@ -74,8 +83,10 @@ public class Material implements IDisposable {
 
 	/**
 	 * 
-	 * @param material Assimp Material
-	 * @param rootPath internal
+	 * @param material
+	 *            Assimp Material
+	 * @param rootPath
+	 *            internal
 	 */
 	public Material(AIMaterial material, String rootPath) {
 		this.diffuse = new Vector4f(1, 1, 1, 1);
@@ -179,6 +190,10 @@ public class Material implements IDisposable {
 
 	public Texture getRoughnessTexture() {
 		return roughnessTexture;
+	}
+
+	public MaterialType getType() {
+		return type;
 	}
 
 	@Override

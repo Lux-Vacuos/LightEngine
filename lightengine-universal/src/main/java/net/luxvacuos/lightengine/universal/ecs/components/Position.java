@@ -26,6 +26,7 @@ import com.hackhalo2.nbt.CompoundBuilder;
 import com.hackhalo2.nbt.exceptions.NBTException;
 import com.hackhalo2.nbt.tags.TagCompound;
 
+@Deprecated
 public class Position implements LEComponent {
 
 	private Vector3f position;
@@ -98,7 +99,8 @@ public class Position implements LEComponent {
 	@Override
 	public TagCompound save() {
 		CompoundBuilder builder = new CompoundBuilder().start("PositionComponent");
-		builder.addDouble("PosX", this.position.x()).addDouble("PosY", this.position.y()).addDouble("PosZ", this.position.z());
+		builder.addDouble("PosX", this.position.x()).addDouble("PosY", this.position.y()).addDouble("PosZ",
+				this.position.z());
 		return builder.build();
 	}
 }

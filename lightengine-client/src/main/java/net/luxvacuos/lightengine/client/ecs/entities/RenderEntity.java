@@ -25,7 +25,6 @@ import com.bulletphysics.linearmath.Transform;
 import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.ecs.components.Renderable;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Model;
-import net.luxvacuos.lightengine.universal.ecs.Components;
 import net.luxvacuos.lightengine.universal.ecs.components.Collision;
 import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
 import net.luxvacuos.lightengine.universal.util.VectoVec;
@@ -40,7 +39,7 @@ public class RenderEntity extends BasicEntity {
 		add(new Renderable(model));
 		Transform transform = new Transform();
 		transform.setIdentity();
-		transform.origin.set(VectoVec.toVec3(Components.POSITION.get(this).getPosition()));
+		transform.origin.set(VectoVec.toVec3(position));
 		add(new Collision(new DynamicObject(model.getShape(), transform, 0)));
 	}
 
@@ -49,7 +48,7 @@ public class RenderEntity extends BasicEntity {
 		add(new Renderable(model));
 		Transform transform = new Transform();
 		transform.setIdentity();
-		transform.origin.set(VectoVec.toVec3(Components.POSITION.get(this).getPosition()));
+		transform.origin.set(VectoVec.toVec3(position));
 		add(new Collision(new DynamicObject(model.getShape(), transform, 0)));
 	}
 
@@ -72,7 +71,7 @@ public class RenderEntity extends BasicEntity {
 				loadedColl = true;
 				Transform transform = new Transform();
 				transform.setIdentity();
-				transform.origin.set(VectoVec.toVec3(Components.POSITION.get(this).getPosition()));
+				transform.origin.set(VectoVec.toVec3(position));
 				add(new Collision(new DynamicObject(re.getModel().getShape(), transform, 0)));
 			}
 		}

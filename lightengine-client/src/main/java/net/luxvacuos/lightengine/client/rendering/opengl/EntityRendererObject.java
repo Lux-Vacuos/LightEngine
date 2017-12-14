@@ -18,14 +18,14 @@
  * 
  */
 
-package net.luxvacuos.lightengine.universal.util;
+package net.luxvacuos.lightengine.client.rendering.opengl;
 
-public interface IUpdatable {
+import net.luxvacuos.lightengine.client.rendering.opengl.objects.Mesh;
+import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
+
+public class EntityRendererObject {
 	
-	public void beforeUpdate(final float delta);
-	
-	public void update(final float delta);
-	
-	public void afterUpdate(final float delta);
+	protected Mesh mesh;
+	protected BasicEntity entity;
 
 }

@@ -84,9 +84,6 @@ const vec2 poisson16[] = vec2[](
 void main() {
 	vec4 mask = texture(gMask, textureCoords);
 	vec4 image = texture(gDiffuse, textureCoords);
-	if(mask.a == 2) {
-		image = mix(image, texture(gDiffuse, textureCoords + vec2(1.0 / resolution.x, 0.0)), image.a);
-	}
 	if (mask.a != 1) {
 		vec2 pbr = texture(gPBR, textureCoords).rg;
     	vec3 position = texture(gPosition, textureCoords).rgb;

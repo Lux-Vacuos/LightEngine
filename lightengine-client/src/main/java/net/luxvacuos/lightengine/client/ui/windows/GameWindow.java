@@ -20,21 +20,21 @@
 
 package net.luxvacuos.lightengine.client.ui.windows;
 
-import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
-
-import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.rendering.opengl.Renderer;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.Image;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
-import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
+import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
+import net.luxvacuos.lightengine.universal.util.IEvent;
 
 public class GameWindow extends ComponentWindow {
 
 	private Image game;
 
-	public GameWindow(int x, int y, int w, int h) {
-		super(x, y, w, h, "game");
+	private IEvent event;
+
+	public GameWindow() {
+		super("game");
 	}
 
 	@Override
@@ -50,19 +50,18 @@ public class GameWindow extends ComponentWindow {
 		game.setResizeH(true);
 		game.setResizeV(true);
 
+		event = EventSubsystem.addEvent("lightengine.renderer.postresize", () -> {
+			TaskManager.addTask(() -> game.setImage(Renderer.getNVGImage()));
+		});
+
 		super.addComponent(game);
 		super.initApp();
 	}
 
 	@Override
-	public void processWindowMessage(int message, Object param) {
-		if (message == WindowMessage.WM_RESIZE) {
-			y = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
-			w = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"));
-			h = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
-			TaskManager.addTask(() -> game.setImage(Renderer.getNVGImage()));
-		}
-		super.processWindowMessage(message, param);
+	public void disposeApp() {
+		EventSubsystem.removeEvent("lightengine.renderer.postresize", event);
+		super.disposeApp();
 	}
 
 }

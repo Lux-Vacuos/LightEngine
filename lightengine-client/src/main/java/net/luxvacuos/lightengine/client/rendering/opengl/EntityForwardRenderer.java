@@ -44,15 +44,11 @@ import org.joml.Vector3f;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CubeMapTexture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Material;
+import net.luxvacuos.lightengine.client.rendering.opengl.objects.Material.MaterialType;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Mesh;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.Model;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.EntityFowardShader;
 import net.luxvacuos.lightengine.client.util.Maths;
-import net.luxvacuos.lightengine.universal.ecs.Components;
-import net.luxvacuos.lightengine.universal.ecs.components.Position;
-import net.luxvacuos.lightengine.universal.ecs.components.Rotation;
-import net.luxvacuos.lightengine.universal.ecs.components.Scale;
 import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
@@ -64,8 +60,9 @@ public class EntityForwardRenderer implements IDisposable {
 		shader = new EntityFowardShader();
 	}
 
-	public void render(Map<Model, List<BasicEntity>> entities, CameraEntity camera, Vector3f lightPosition,
-			CubeMapTexture irradiance, CubeMapTexture environmentMap, Texture brdfLUT, boolean colorCorrect) {
+	public void render(Map<Material, List<EntityRendererObject>> entities, CameraEntity camera, Vector3f lightPosition,
+			CubeMapTexture irradiance, CubeMapTexture environmentMap, Texture brdfLUT, boolean colorCorrect,
+			boolean transparentOnly) {
 		shader.start();
 		shader.loadCamera(camera);
 		shader.loadLightPosition(lightPosition);
@@ -76,25 +73,24 @@ public class EntityForwardRenderer implements IDisposable {
 		glBindTexture(GL_TEXTURE_CUBE_MAP, environmentMap.getID());
 		glActiveTexture(GL_TEXTURE9);
 		glBindTexture(GL_TEXTURE_2D, brdfLUT.getID());
-		renderEntity(entities);
+		renderEntity(entities, transparentOnly);
 		shader.stop();
 	}
 
-	private void renderEntity(Map<Model, List<BasicEntity>> entities) {
-		for (Model model : entities.keySet()) {
-			List<BasicEntity> batch = entities.get(model);
-			for (BasicEntity entity : batch) {
-				prepareInstance(entity);
-				for (Mesh mesh : model.getMeshes()) {
-					Material mat = model.getMaterials().get(mesh.getAiMesh().mMaterialIndex());
-					prepareTexturedModel(mesh, mat);
-					shader.loadMaterial(mat);
-					glDrawElements(GL_TRIANGLES, mesh.getMesh().getIndexCount(), GL_UNSIGNED_INT, 0);
-					unbindTexturedModel(mesh);
-				}
+	private void renderEntity(Map<Material, List<EntityRendererObject>> entities, boolean transparentOnly) {
+		for (Material mat : entities.keySet()) {
+			if (transparentOnly)
+				if (mat.getType() != MaterialType.TRANSPARENT)
+					continue;
+			List<EntityRendererObject> batch = entities.get(mat);
+			for (EntityRendererObject obj : batch) {
+				prepareInstance(obj.entity);
+				prepareTexturedModel(obj.mesh, mat);
+				shader.loadMaterial(mat);
+				glDrawElements(GL_TRIANGLES, obj.mesh.getMesh().getIndexCount(), GL_UNSIGNED_INT, 0);
+				unbindTexturedModel(obj.mesh);
 			}
 		}
-
 	}
 
 	private void prepareTexturedModel(Mesh mesh, Material material) {
@@ -114,11 +110,8 @@ public class EntityForwardRenderer implements IDisposable {
 	}
 
 	private void prepareInstance(BasicEntity entity) {
-		Position pos = Components.POSITION.get(entity);
-		Rotation rot = Components.ROTATION.get(entity);
-		Scale scale = Components.SCALE.get(entity);
-		Matrix4f transformationMatrix = Maths.createTransformationMatrix(pos.getPosition(), rot.getX(), rot.getY(),
-				rot.getZ(), scale.getScale());
+		Matrix4f transformationMatrix = Maths.createTransformationMatrix(entity.getPosition(), entity.getRX(),
+				entity.getRY(), entity.getRZ(), entity.getScale());
 		shader.loadTransformationMatrix(transformationMatrix);
 	}
 

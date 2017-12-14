@@ -33,6 +33,8 @@ import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.core.states.StateNames;
 import net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem;
+import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
+import net.luxvacuos.lightengine.universal.core.subsystems.ScriptSubsystem;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class LightEngineServer extends AbstractEngine {
@@ -53,6 +55,8 @@ public class LightEngineServer extends AbstractEngine {
 
 		super.addSubsystem(new ServerCoreSubsystem());
 		super.addSubsystem(new NetworkSubsystem());
+		super.addSubsystem(new ScriptSubsystem());
+		super.addSubsystem(new EventSubsystem());
 
 		super.initSubsystems();
 
@@ -82,6 +86,7 @@ public class LightEngineServer extends AbstractEngine {
 		float interval = 1f / ups;
 		while (StateMachine.isRunning()) {
 			TaskManager.update();
+			TaskManager.updateThread();
 			if (timeCount > 1f) {
 				CoreSubsystem.ups = CoreSubsystem.upsCount;
 				CoreSubsystem.upsCount = 0;

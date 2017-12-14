@@ -40,15 +40,13 @@ void main() {
 	roughnessF *= material.roughness;
 	metallicF *= material.metallic;
 
-	int mask = 0;
-
-    if(diffuseF.a > 0.5 && diffuseF.a < 1.0) {
-		mask = 2;
-		if(int(gl_FragCoord.x + gl_FragCoord.y) % 2 == 1)
-			discard;
-	} else if(diffuseF.a <= 0.5) 
+    //if(diffuseF.a > 0.5 && diffuseF.a < 1.0) {
+	//	if(int(gl_FragCoord.x + gl_FragCoord.y) % 2 == 1)
+	//		discard;
+	//} else if(diffuseF.a <= 0.5) 
+	//	discard;
+	if(diffuseF.a < 1)
 		discard;
-	
 
 	vec3 normal = texture(material.normalTex, pass_textureCoords).rgb;
 	normal = normalize(normal * 2.0 - 1.0);
@@ -58,5 +56,5 @@ void main() {
 	out_Color[1] = vec4(pass_position.xyz, 0.0);
 	out_Color[2] = vec4(normal.xyz, 0.0);
 	out_Color[3] = vec4(roughnessF, metallicF, 0.0, 0.0);
-	out_Color[4] = vec4(material.emissive.rgb * diffuseF.rgb, mask);
+	out_Color[4] = vec4(material.emissive.rgb * diffuseF.rgb, 0.0);
 }

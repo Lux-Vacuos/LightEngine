@@ -42,7 +42,7 @@ public class Maths extends net.luxvacuos.lightengine.universal.util.Maths {
 		matrix.identity();
 		matrix.translate(translation);
 		matrix.rotate((float) Math.toRadians(rx), new Vector3f(1, 0, 0));
-		matrix.rotate((float) Math.toRadians(ry), new Vector3f(0, 1, 0));
+		matrix.rotate((float) Math.toRadians(ry), new Vector3f(0, -1, 0)); // For some reason it rotates counter-clockwise
 		matrix.rotate((float) Math.toRadians(rz), new Vector3f(0, 0, 1));
 		matrix.scale(scaleX, scaleY, scaleZ);
 		return matrix;

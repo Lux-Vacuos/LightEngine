@@ -45,16 +45,13 @@ import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CubeMapTexture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Material;
+import net.luxvacuos.lightengine.client.rendering.opengl.objects.Material.MaterialType;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Mesh;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Model;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.EntityDeferredShader;
 import net.luxvacuos.lightengine.client.resources.ResourceLoader;
 import net.luxvacuos.lightengine.client.util.Maths;
-import net.luxvacuos.lightengine.universal.ecs.Components;
-import net.luxvacuos.lightengine.universal.ecs.components.Position;
-import net.luxvacuos.lightengine.universal.ecs.components.Rotation;
-import net.luxvacuos.lightengine.universal.ecs.components.Scale;
 import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
 
 public class EntityRenderer implements IRenderer {
@@ -64,7 +61,7 @@ public class EntityRenderer implements IRenderer {
 	 * Entity Shader
 	 */
 	private EntityDeferredShader shader;
-	private Map<Model, List<BasicEntity>> entities = new HashMap<>();
+	private Map<Material, List<EntityRendererObject>> entities = new HashMap<>();
 	private EntityShadowRenderer shadowRenderer;
 	private EntityForwardRenderer forwardRenderer;
 
@@ -92,12 +89,13 @@ public class EntityRenderer implements IRenderer {
 	@Override
 	public void renderReflections(CameraEntity camera, Vector3f lightPosition, CubeMapTexture irradiance,
 			CubeMapTexture environmentMap, Texture brdfLUT) {
-		forwardRenderer.render(entities, camera, lightPosition, irradiance, environmentMap, brdfLUT, false);
+		forwardRenderer.render(entities, camera, lightPosition, irradiance, environmentMap, brdfLUT, false, false);
 	}
 
 	@Override
 	public void renderForward(CameraEntity camera, Vector3f lightPosition, CubeMapTexture irradiance,
 			CubeMapTexture environmentMap, Texture brdfLUT) {
+		forwardRenderer.render(entities, camera, lightPosition, irradiance, environmentMap, brdfLUT, false, true);
 	}
 
 	@Override
@@ -111,32 +109,37 @@ public class EntityRenderer implements IRenderer {
 	}
 
 	private void processEntity(BasicEntity entity) {
-		Model entityModel = ClientComponents.RENDERABLE.get(entity).getModel();
-		List<BasicEntity> batch = entities.get(entityModel);
-		if (batch != null)
-			batch.add(entity);
-		else {
-			List<BasicEntity> newBatch = new ArrayList<BasicEntity>();
-			newBatch.add(entity);
-			entities.put(entityModel, newBatch);
+		Model model = ClientComponents.RENDERABLE.get(entity).getModel();
+		for (Mesh mesh : model.getMeshes()) {
+			Material mat = model.getMaterials().get(mesh.getAiMesh().mMaterialIndex());
+
+			EntityRendererObject obj = new EntityRendererObject();
+			obj.entity = entity;
+			obj.mesh = mesh;
+			List<EntityRendererObject> batch = entities.get(mat);
+			if (batch != null)
+				batch.add(obj);
+			else {
+				List<EntityRendererObject> newBatch = new ArrayList<>();
+				newBatch.add(obj);
+				entities.put(mat, newBatch);
+			}
 		}
 	}
 
-	private void renderEntity(Map<Model, List<BasicEntity>> entities) {
-		for (Model model : entities.keySet()) {
-			List<BasicEntity> batch = entities.get(model);
-			for (BasicEntity entity : batch) {
-				prepareInstance(entity);
-				for (Mesh mesh : model.getMeshes()) {
-					Material mat = model.getMaterials().get(mesh.getAiMesh().mMaterialIndex());
-					prepareTexturedModel(mesh, mat);
-					shader.loadMaterial(mat);
-					glDrawElements(GL_TRIANGLES, mesh.getMesh().getIndexCount(), GL_UNSIGNED_INT, 0);
-					unbindTexturedModel(mesh);
-				}
+	private void renderEntity(Map<Material, List<EntityRendererObject>> entities) {
+		for (Material mat : entities.keySet()) {
+			if (mat.getType() != MaterialType.OPAQUE)
+				continue;
+			List<EntityRendererObject> batch = entities.get(mat);
+			for (EntityRendererObject obj : batch) {
+				prepareInstance(obj.entity);
+				prepareTexturedModel(obj.mesh, mat);
+				shader.loadMaterial(mat);
+				glDrawElements(GL_TRIANGLES, obj.mesh.getMesh().getIndexCount(), GL_UNSIGNED_INT, 0);
+				unbindTexturedModel(obj.mesh);
 			}
 		}
-
 	}
 
 	private void prepareTexturedModel(Mesh mesh, Material material) {
@@ -156,11 +159,8 @@ public class EntityRenderer implements IRenderer {
 	}
 
 	private void prepareInstance(BasicEntity entity) {
-		Position pos = Components.POSITION.get(entity);
-		Rotation rot = Components.ROTATION.get(entity);
-		Scale scale = Components.SCALE.get(entity);
-		Matrix4f transformationMatrix = Maths.createTransformationMatrix(pos.getPosition(), rot.getX(), rot.getY(),
-				rot.getZ(), scale.getScale());
+		Matrix4f transformationMatrix = Maths.createTransformationMatrix(entity.getPosition(), entity.getRX(),
+				entity.getRY(), entity.getRZ(), entity.getScale());
 		shader.loadTransformationMatrix(transformationMatrix);
 	}
 

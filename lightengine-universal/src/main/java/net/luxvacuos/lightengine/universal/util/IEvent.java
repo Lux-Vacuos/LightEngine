@@ -20,12 +20,8 @@
 
 package net.luxvacuos.lightengine.universal.util;
 
-public interface IUpdatable {
+public interface IEvent {
 	
-	public void beforeUpdate(final float delta);
-	
-	public void update(final float delta);
-	
-	public void afterUpdate(final float delta);
+	public void onTrigger();
 
 }

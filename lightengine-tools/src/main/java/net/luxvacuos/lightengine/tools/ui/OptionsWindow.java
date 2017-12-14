@@ -28,9 +28,8 @@ import java.util.Arrays;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
-import net.luxvacuos.lightengine.client.rendering.nanovg.themes.ThemeManager;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.Theme.ButtonStyle;
-import net.luxvacuos.lightengine.client.rendering.opengl.Renderer;
+import net.luxvacuos.lightengine.client.rendering.nanovg.themes.ThemeManager;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.Button;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
@@ -47,6 +46,7 @@ import net.luxvacuos.lightengine.client.ui.TitleBarButton;
 import net.luxvacuos.lightengine.client.ui.ToggleButton;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem;
+import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class OptionsWindow extends ComponentWindow {
@@ -195,11 +195,12 @@ public class OptionsWindow extends ComponentWindow {
 		shadowResDropdown.setOnButtonPress(() -> {
 			REGISTRY.register(new Key("/Light Engine/Settings/Graphics/shadowsResolution"),
 					shadowResDropdown.getValue().intValue());
-			TaskManager.addTask(() -> Renderer.reloadShadowMaps());
+			EventSubsystem.triggerEvent("lightengine.renderer.resetshadowmap");
 		});
 		shadowDistance.setOnUnselect(() -> {
 			REGISTRY.register(new Key("/Light Engine/Settings/Graphics/shadowsDrawDistance"),
 					Integer.parseInt(shadowDistance.getText()));
+			EventSubsystem.triggerEvent("lightengine.renderer.resetshadowmatrix");
 		});
 
 		Text godText = new Text(LANG.getRegistryItem("lightengine.optionswindow.graphics.volumetriclight"), 20, 0);

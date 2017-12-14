@@ -41,7 +41,6 @@ import com.bulletphysics.linearmath.Transform;
 import net.luxvacuos.lightengine.universal.ecs.Components;
 import net.luxvacuos.lightengine.universal.ecs.components.Collision;
 import net.luxvacuos.lightengine.universal.ecs.components.Player;
-import net.luxvacuos.lightengine.universal.ecs.components.Position;
 import net.luxvacuos.lightengine.universal.ecs.entities.LEEntity;
 import net.luxvacuos.lightengine.universal.util.VectoVec;
 
@@ -85,6 +84,9 @@ public class PhysicsSystem extends EntitySystem {
 
 			@Override
 			public void entityRemoved(Entity entity) {
+				if (entity instanceof LEEntity)
+					((LEEntity) entity).dispose();
+
 				if (Components.PLAYER.has(entity)) {
 					Player p = Components.PLAYER.get(entity);
 					dynamicsWorld.removeAction(p.character);
@@ -93,6 +95,7 @@ public class PhysicsSystem extends EntitySystem {
 				}
 				if (Components.COLLISION.has(entity))
 					dynamicsWorld.removeRigidBody(Components.COLLISION.get(entity).getDynamicObject().getBody());
+
 			}
 
 		});
@@ -103,17 +106,17 @@ public class PhysicsSystem extends EntitySystem {
 		dynamicsWorld.stepSimulation(delta);
 		for (Entity entity : entities) {
 			if (entity instanceof LEEntity) {
-				((LEEntity) entity).beforeUpdate(delta);
-				((LEEntity) entity).update(delta);
-			}
+				LEEntity leEntity = (LEEntity) entity;
+				leEntity.beforeUpdate(delta);
+				leEntity.update(delta);
 
-			if (Components.POSITION.has(entity) && Components.COLLISION.has(entity)) {
-				Position pos = Components.POSITION.get(entity);
-				Collision coll = Components.COLLISION.get(entity);
-				if (!Components.PLAYER.has(entity)) {
-					Transform trans = new Transform();
-					coll.getDynamicObject().getBody().getMotionState().getWorldTransform(trans);
-					pos.set(VectoVec.toVec3(trans.origin));
+				if (Components.COLLISION.has(entity)) {
+					Collision coll = Components.COLLISION.get(entity);
+					if (!Components.PLAYER.has(entity)) {
+						Transform trans = new Transform();
+						coll.getDynamicObject().getBody().getMotionState().getWorldTransform(trans);
+						leEntity.setPosition(VectoVec.toVec3(trans.origin));
+					}
 				}
 			}
 			update(delta, entity);

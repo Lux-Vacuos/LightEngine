@@ -44,8 +44,9 @@ public class SunCamera extends CameraEntity {
 	public void updateShadowRay(boolean inverted) {
 		setViewMatrix(Maths.createViewMatrix(this));
 		if (inverted)
-			castRay.update(this.getProjectionMatrix(), Maths.createViewMatrixPos(this.getPosition(), Maths
-					.createViewMatrixRot(getRotation().x() + 180, getRotation().y(), getRotation().z(), null)),
+			castRay.update(this.getProjectionMatrix(),
+					Maths.createViewMatrixPos(position,
+							Maths.createViewMatrixRot(rotation.x() + 180, rotation.y(), rotation.z(), null)),
 					center, 2048, 2048);
 		else
 			castRay.update(this.getProjectionMatrix(), getViewMatrix(), center, 2048, 2048);
@@ -53,6 +54,10 @@ public class SunCamera extends CameraEntity {
 
 	public void switchProjectionMatrix(int id) {
 		setProjectionMatrix(this.projectionArray[id]);
+	}
+	
+	public void setProjectionArray(Matrix4f[] projectionArray) {
+		this.projectionArray = projectionArray;
 	}
 
 	public Matrix4f[] getProjectionArray() {

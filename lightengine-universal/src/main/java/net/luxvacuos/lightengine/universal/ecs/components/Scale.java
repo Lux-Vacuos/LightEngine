@@ -3,7 +3,7 @@ package net.luxvacuos.lightengine.universal.ecs.components;
 import com.hackhalo2.nbt.CompoundBuilder;
 import com.hackhalo2.nbt.exceptions.NBTException;
 import com.hackhalo2.nbt.tags.TagCompound;
-
+@Deprecated
 public class Scale implements LEComponent {
 	
 	private float scale;

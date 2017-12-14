@@ -24,8 +24,6 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import net.luxvacuos.lightengine.client.util.Maths;
-import net.luxvacuos.lightengine.universal.ecs.Components;
-import net.luxvacuos.lightengine.universal.ecs.components.Rotation;
 
 public class CubeMapCamera extends CameraEntity {
 
@@ -36,39 +34,38 @@ public class CubeMapCamera extends CameraEntity {
 
 	public CubeMapCamera(Vector3f position) {
 		super("cubeCam");
-		Components.POSITION.get(this).set(position);
+		this.position = position;
 		createProjectionMatrix();
 	}
 
 	public void switchToFace(int faceIndex) {
-		Rotation rotation = Components.ROTATION.get(this);
 		switch (faceIndex) {
 		case 0:
-			rotation.setX(0);
-			rotation.setY(-90);
+			rotation.x = 0;
+			rotation.y = -90;
 			break;
 		case 1:
-			rotation.setX(0);
-			rotation.setY(90);
+			rotation.x = 0;
+			rotation.y = 90;
 			break;
 		case 2:
-			rotation.setX(90);
-			rotation.setY(180);
+			rotation.x = 90;
+			rotation.y = 180;
 			break;
 		case 3:
-			rotation.setX(-90);
-			rotation.setY(180);
+			rotation.x = -90;
+			rotation.y = 180;
 			break;
 		case 4:
-			rotation.setX(0);
-			rotation.setY(180);
+			rotation.x = 0;
+			rotation.y = 180;
 			break;
 		case 5:
-			rotation.setX(0);
-			rotation.setY(0);
+			rotation.x = 0;
+			rotation.y = 0;
 			break;
 		}
-		rotation.setZ(180);
+		rotation.z = 180;
 		updateViewMatrix();
 	}
 

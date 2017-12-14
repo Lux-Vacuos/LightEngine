@@ -30,7 +30,7 @@ import net.luxvacuos.lightengine.universal.resources.IDisposable;
 public final class StateMachine {
 
 	private static IState currentState, previousState;
-	
+
 	private static EngineType engineType;
 
 	private static InternalState internalState = InternalState.STOPPED;
@@ -50,7 +50,7 @@ public final class StateMachine {
 	}
 
 	public static boolean isRunning() {
-		return internalState == InternalState.RUNNING;
+		return internalState == InternalState.RUNNING || internalState == InternalState.LOADING;
 	}
 
 	public static boolean registerState(IState state) {
@@ -66,7 +66,8 @@ public final class StateMachine {
 	public static boolean update(float deltaTime) {
 		if (currentState == null)
 			return false;
-
+		if (internalState == InternalState.LOADING)
+			return false;
 		currentState.update(deltaTime);
 		return true;
 	}
@@ -74,12 +75,14 @@ public final class StateMachine {
 	public static boolean render(float alpha) {
 		if (currentState == null || engineType != EngineType.CLIENT)
 			return false;
-
+		if (internalState == InternalState.LOADING)
+			return false;
 		currentState.render(alpha);
 		return true;
 	}
 
 	public static boolean setCurrentState(String name) {
+		internalState = InternalState.LOADING;
 		if (name != null || registeredStates.containsKey(name)) {
 			IState state = registeredStates.get(name);
 			Logger.log("Setting current state to " + state.getName());
@@ -93,12 +96,15 @@ public final class StateMachine {
 
 			currentState = state;
 			currentState.start();
+			internalState = InternalState.RUNNING;
 			return true;
-		} else
+		} else {
+			internalState = InternalState.RUNNING;
 			return false;
+		}
 	}
-	
-	public static void setEngineType(EngineType type){
+
+	public static void setEngineType(EngineType type) {
 		engineType = type;
 	}
 
@@ -126,7 +132,7 @@ public final class StateMachine {
 	}
 
 	public enum InternalState {
-		STOPPED, RUNNING
+		STOPPED, RUNNING, LOADING
 	}
 
 }
