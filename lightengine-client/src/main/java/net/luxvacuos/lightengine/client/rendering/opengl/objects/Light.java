@@ -28,20 +28,22 @@ import org.lwjgl.assimp.AILight;
 
 import net.luxvacuos.lightengine.client.ecs.entities.SpotlightCamera;
 import net.luxvacuos.lightengine.client.rendering.opengl.LightShadowMap;
+import net.luxvacuos.lightengine.client.rendering.opengl.Renderer;
+import net.luxvacuos.lightengine.universal.core.TaskManager;
+import net.luxvacuos.lightengine.universal.ecs.entities.LEEntity;
 
-public class Light {
+public class Light extends LEEntity {
 
-	private Vector3f position;
 	private Vector3f color;
-	private Vector3f rotation;
 	private float radius, inRadius;
 	private int type;
 	private boolean shadow;
 	private LightShadowMap shadowMap;
+	private boolean shadowMapCreated;
 	private SpotlightCamera camera;
 
 	public Light(Vector3f position, Vector3f color, Vector3f rotation, float radius, float inRadius) {
-		this.position = position;
+		this.localPosition = position;
 		this.color = color;
 		this.rotation = rotation;
 		this.radius = radius;
@@ -50,15 +52,15 @@ public class Light {
 	}
 
 	public Light(Vector3f position, Vector3f color) {
-		this.position = position;
+		this.localPosition = position;
 		this.color = color;
 		type = 0;
 	}
 
 	public Light(AILight light) {
-		this.position = new Vector3f(light.mPosition().x(), light.mPosition().y(), light.mPosition().z());
+		this.localPosition = new Vector3f(light.mPosition().x(), light.mPosition().y(), light.mPosition().z());
 		this.color = new Vector3f(light.mColorDiffuse().r(), light.mColorDiffuse().g(), light.mColorDiffuse().b());
-		System.out.println(position);
+		System.out.println(localPosition);
 		switch (light.mType()) {
 		case aiLightSource_POINT:
 			type = 0;
@@ -75,31 +77,38 @@ public class Light {
 		}
 	}
 
+	@Override
 	public void init() {
-		if (shadow && type == 1) {
+		if (type == 1) {
 			camera = new SpotlightCamera(radius * 2f, 1024, 1024);
-			shadowMap = new LightShadowMap(1024, 1024);
+			super.addEntity(camera);
+			if (shadow)
+				TaskManager.addTask(() -> {
+					shadowMap = new LightShadowMap(1024, 1024);
+					shadowMapCreated = true;
+				});
 		}
+		Renderer.getLightRenderer().addLight(this);
+		super.init();
 	}
 
+	@Override
 	public void update(float delta) {
 		if (type == 1) {
-			camera.setPosition(position);
 			camera.setRotation(rotation.add(new Vector3f(180, 0, 0), new Vector3f()));
-			camera.update(delta);
 		}
+		super.update(delta);
 	}
 
-	public Vector3f getPosition() {
-		return position;
+	@Override
+	public void dispose() {
+		TaskManager.addTask(() -> shadowMap.dispose());
+		Renderer.getLightRenderer().removeLight(this);
+		super.dispose();
 	}
 
 	public Vector3f getColor() {
 		return color;
-	}
-
-	public Vector3f getRotation() {
-		return rotation;
 	}
 
 	public Vector3f getDirection() {
@@ -132,6 +141,10 @@ public class Light {
 
 	public void setShadow(boolean shadow) {
 		this.shadow = shadow;
+	}
+
+	public boolean isShadowMapCreated() {
+		return shadowMapCreated;
 	}
 
 }

@@ -34,6 +34,7 @@ public final class TaskManager {
 			updateThreadTasks = new LinkedList<>();
 	private static AsyncExecutor asyncExecutor;
 	private static Thread asyncThread;
+	private static boolean syncInterrupt;
 
 	public static void init() {
 		asyncExecutor = new AsyncExecutor(2);
@@ -43,7 +44,8 @@ public final class TaskManager {
 					tasksAsync.poll().run();
 				} else {
 					try {
-						Thread.sleep(500);
+						syncInterrupt = false;
+						Thread.sleep(1000000l);
 					} catch (InterruptedException e) {
 					}
 				}
@@ -72,8 +74,13 @@ public final class TaskManager {
 	}
 
 	public static void addTaskAsync(Runnable task) {
-		if (task != null)
+		if (task != null) {
 			tasksAsync.add(task);
+			if (!syncInterrupt) {
+				syncInterrupt = true;
+				asyncThread.interrupt();
+			}
+		}
 	}
 
 	public static void addTaskUpdate(Runnable task) {

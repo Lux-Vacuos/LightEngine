@@ -115,17 +115,21 @@ public class NotificationsArea extends ComponentWindow {
 					public void alwaysUpdateApp(float delta) {
 						if (fadeIn) {
 							x -= 500 * delta;
-							float xt = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"))
+							int xt = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"))
 									- 295;
-							if (x <= xt)
+							if (x <= xt) {
+								x = xt;
 								fadeIn = false;
+							}
 						}
 						if (fadeOut) {
 							x += 500 * delta;
-							float xt = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"))
+							int xt = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"))
 									+ 5;
-							if (x >= xt)
+							if (x >= xt) {
+								fadeOut = false;
 								super.closeWindow();
+							}
 						}
 						time += delta;
 						if (time > 5)

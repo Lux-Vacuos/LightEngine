@@ -42,12 +42,15 @@ import net.luxvacuos.lightengine.universal.ecs.Components;
 import net.luxvacuos.lightengine.universal.ecs.components.Collision;
 import net.luxvacuos.lightengine.universal.ecs.components.Player;
 import net.luxvacuos.lightengine.universal.ecs.entities.LEEntity;
+import net.luxvacuos.lightengine.universal.ecs.entities.RootEntity;
 import net.luxvacuos.lightengine.universal.util.VectoVec;
 
 public class PhysicsSystem extends EntitySystem {
 	protected ImmutableArray<Entity> entities;
 
 	protected DiscreteDynamicsWorld dynamicsWorld;
+
+	private RootEntity rootEntity;
 
 	public PhysicsSystem() {
 		CollisionConfiguration collisionConfiguration = new DefaultCollisionConfiguration();
@@ -61,6 +64,7 @@ public class PhysicsSystem extends EntitySystem {
 				collisionConfiguration);
 		dynamicsWorld.setGravity(new Vector3f(0, -9.8f, 0));
 		overlappingPairCache.getOverlappingPairCache().setInternalGhostPairCallback(new GhostPairCallback());
+		rootEntity = new RootEntity();
 	}
 
 	@Override
@@ -71,6 +75,12 @@ public class PhysicsSystem extends EntitySystem {
 
 			@Override
 			public void entityAdded(Entity entity) {
+				if (entity instanceof LEEntity) {
+					LEEntity ent = (LEEntity) entity;
+					ent.setRootEntity(rootEntity);
+					ent.init();
+				}
+
 				if (Components.PLAYER.has(entity)) {
 					Player p = Components.PLAYER.get(entity);
 					dynamicsWorld.addCollisionObject(p.ghostObject, CollisionFilterGroups.CHARACTER_FILTER,

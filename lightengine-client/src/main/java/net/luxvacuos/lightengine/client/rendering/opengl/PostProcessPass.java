@@ -89,7 +89,6 @@ public abstract class PostProcessPass implements IPostProcessPass {
 		fbo.begin();
 		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		shader.start();
-		shader.loadUnderWater(false);
 		shader.loadMotionBlurData(camera, previousViewMatrix, previousCameraPosition);
 		shader.loadviewMatrix(camera);
 		shader.loadSettings((boolean) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/dof")),

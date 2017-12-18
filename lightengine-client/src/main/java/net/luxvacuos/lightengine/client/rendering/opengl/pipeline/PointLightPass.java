@@ -106,6 +106,8 @@ public class PointLightPass extends DeferredPass {
 		for (int x = 0; x < lights.size(); x++) {
 			Light l = lights.get(x);
 			if (l.isShadow()) {
+				if (!l.isShadowMapCreated())
+					continue;
 				glActiveTexture(GL_TEXTURE14 + x);
 				glBindTexture(GL_TEXTURE_2D, l.getShadowMap().getShadowMap());
 			}
@@ -125,7 +127,6 @@ public class PointLightPass extends DeferredPass {
 
 			fbos[0].begin();
 			shader.start();
-			shader.loadUnderWater(false);
 			shader.loadMotionBlurData(camera, previousViewMatrix, previousCameraPosition);
 			shader.loadLightPosition(sun.getSunPosition(), sun.getInvertedSunPosition());
 			shader.loadviewMatrix(camera);

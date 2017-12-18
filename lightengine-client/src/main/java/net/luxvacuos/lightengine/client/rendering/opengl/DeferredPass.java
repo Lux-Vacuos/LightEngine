@@ -101,7 +101,6 @@ public abstract class DeferredPass implements IDeferredPass {
 		GPUProfiler.start(name);
 		fbo.begin();
 		shader.start();
-		shader.loadUnderWater(false);
 		shader.loadMotionBlurData(camera, previousViewMatrix, previousCameraPosition);
 		shader.loadLightPosition(sun.getSunPosition(), sun.getInvertedSunPosition());
 		shader.loadviewMatrix(camera);

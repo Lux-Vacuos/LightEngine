@@ -20,6 +20,10 @@
 
 package net.luxvacuos.lightengine.universal.ecs.entities;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import com.badlogic.ashley.core.Entity;
@@ -30,75 +34,110 @@ import net.luxvacuos.lightengine.universal.util.IUpdatable;
 
 public class LEEntity extends Entity implements IUpdatable, IDisposable {
 
-	protected Vector3f position = new Vector3f();
-	protected Vector3f rotation = new Vector3f();
+	protected Vector3f transformPosition = new Vector3f(), localPosition = new Vector3f(),
+			finalPosition = new Vector3f();
+	protected Vector3f rotation = new Vector3f(), localRotation = new Vector3f(), finalRotation = new Vector3f();
 	protected float scale = 1;
+	protected List<LEEntity> entities = new ArrayList<>();
+	protected LEEntity rootEntity;
+
+	private Matrix4f matrix = new Matrix4f();
+
+	public void init() {
+	}
 
 	@Override
 	public void beforeUpdate(float delta) {
+		for (LEEntity entity : entities) {
+			entity.beforeUpdate(delta);
+		}
 	}
 
 	@Override
 	public void update(float delta) {
+		matrix.identity();
+		matrix.rotate((float) Math.toRadians(rootEntity.getRotation().x()), new Vector3f(1, 0, 0));
+		matrix.rotate((float) Math.toRadians(rootEntity.getRotation().y()), new Vector3f(0, 1, 0));
+		matrix.rotate((float) Math.toRadians(rootEntity.getRotation().z()), new Vector3f(0, 0, 1));
 
+		localPosition.mulTransposeDirection(matrix, transformPosition);
+
+		for (LEEntity entity : entities) {
+			entity.update(delta);
+		}
 	}
 
 	@Override
 	public void afterUpdate(float delta) {
-
+		for (LEEntity entity : entities) {
+			entity.afterUpdate(delta);
+		}
 	}
 
 	@Override
 	public void dispose() {
-
+		for (LEEntity entity : entities) {
+			entity.dispose();
+		}
+		entities.clear();
 	}
 
 	public void quickSave() {
-
+		for (LEEntity entity : entities) {
+			entity.quickSave();
+		}
 	}
 
 	public void save(NBTOutputStream out) {
+		for (LEEntity entity : entities) {
+			entity.save(out);
+		}
+	}
 
+	public void addEntity(LEEntity entity) {
+		entity.rootEntity = this;
+		entity.init();
+		entities.add(entity);
 	}
 
 	public Vector3f getPosition() {
-		return position;
+		return rootEntity.getPosition().add(transformPosition, finalPosition);
 	}
 
 	public float getX() {
-		return position.x();
+		return localPosition.x();
 	}
 
 	public float getY() {
-		return position.y();
+		return localPosition.y();
 	}
 
 	public float getZ() {
-		return position.z();
+		return localPosition.z();
 	}
 
 	public LEEntity setX(float x) {
-		position.x = x;
+		localPosition.x = x;
 		return this;
 	}
 
 	public LEEntity setY(float y) {
-		position.y = y;
+		localPosition.y = y;
 		return this;
 	}
 
 	public LEEntity setZ(float z) {
-		position.z = z;
+		localPosition.z = z;
 		return this;
 	}
 
 	public LEEntity setPosition(float x, float y, float z) {
-		position.set(x, y, z);
+		localPosition.set(x, y, z);
 		return this;
 	}
 
 	public LEEntity setPosition(Vector3f vec) {
-		position.set(vec);
+		localPosition.set(vec);
 		return this;
 	}
 
@@ -149,6 +188,12 @@ public class LEEntity extends Entity implements IUpdatable, IDisposable {
 
 	public void setScale(float scale) {
 		this.scale = scale;
+	}
+	/**
+	 * <b>INTERNAL USE ONLY</b>
+	 */
+	public void setRootEntity(LEEntity rootEntity) {
+		this.rootEntity = rootEntity;
 	}
 
 }

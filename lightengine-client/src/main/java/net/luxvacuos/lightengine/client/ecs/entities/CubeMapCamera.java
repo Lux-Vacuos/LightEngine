@@ -34,7 +34,7 @@ public class CubeMapCamera extends CameraEntity {
 
 	public CubeMapCamera(Vector3f position) {
 		super("cubeCam");
-		this.position = position;
+		this.localPosition = position;
 		createProjectionMatrix();
 	}
 

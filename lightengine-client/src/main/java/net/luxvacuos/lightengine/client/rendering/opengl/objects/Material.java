@@ -20,7 +20,7 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl.objects;
 
-import static org.lwjgl.assimp.Assimp.AI_MATKEY_COLOR_DIFFUSE;
+import static org.lwjgl.assimp.Assimp.*;
 import static org.lwjgl.assimp.Assimp.AI_MATKEY_COLOR_EMISSIVE;
 import static org.lwjgl.assimp.Assimp.AI_MATKEY_COLOR_SPECULAR;
 import static org.lwjgl.assimp.Assimp.aiGetMaterialColor;
@@ -98,9 +98,9 @@ public class Material implements IDisposable {
 		this.roughnessTexture = DefaultData.roughness;
 		this.metallicTexture = DefaultData.metallic;
 
-		AIColor4D diffuse = AIColor4D.create();
-		AIColor4D emissive = AIColor4D.create();
-		AIColor4D pbr = AIColor4D.create();
+		AIColor4D diffuse = AIColor4D.malloc();
+		AIColor4D emissive = AIColor4D.malloc();
+		AIColor4D pbr = AIColor4D.malloc();
 		if (aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, aiTextureType_NONE, 0, diffuse) == aiReturn_SUCCESS)
 			this.diffuse.set(diffuse.r(), diffuse.g(), diffuse.b(), diffuse.a());
 		if (aiGetMaterialColor(material, AI_MATKEY_COLOR_EMISSIVE, aiTextureType_NONE, 0, emissive) == aiReturn_SUCCESS)
@@ -108,7 +108,12 @@ public class Material implements IDisposable {
 		if (aiGetMaterialColor(material, AI_MATKEY_COLOR_SPECULAR, aiTextureType_NONE, 0, pbr) == aiReturn_SUCCESS) {
 			this.roughness = pbr.r();
 			this.metallic = pbr.g();
+			if(pbr.b() > 0.5f)
+				this.type = MaterialType.TRANSPARENT;
 		}
+		diffuse.free();
+		emissive.free();
+		pbr.free();
 		if (aiGetMaterialTextureCount(material, aiTextureType_DIFFUSE) > 0) {
 			AIString path = AIString.create();
 			if (aiGetMaterialTexture(material, aiTextureType_DIFFUSE, 0, path, (IntBuffer) null, (IntBuffer) null,

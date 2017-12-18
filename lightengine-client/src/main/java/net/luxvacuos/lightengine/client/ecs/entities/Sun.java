@@ -20,15 +20,7 @@
 
 package net.luxvacuos.lightengine.client.ecs.entities;
 
-import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
-
-import org.joml.Matrix4f;
 import org.joml.Vector3f;
-
-import net.luxvacuos.lightengine.client.util.Maths;
-import net.luxvacuos.lightengine.universal.core.TaskManager;
-import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
-import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class Sun {
 
@@ -38,45 +30,15 @@ public class Sun {
 	private SunCamera camera;
 
 	public Sun() {
-		EventSubsystem.addEvent("lightengine.renderer.resetshadowmatrix", () -> {
-			Matrix4f[] shadowProjectionMatrix = new Matrix4f[4];
-
-			int shadowDrawDistance = (int) REGISTRY
-					.getRegistryItem(new Key("/Light Engine/Settings/Graphics/shadowsDrawDistance"));
-			shadowDrawDistance *= 2;
-			shadowProjectionMatrix[0] = Maths.orthoSymmetric(-shadowDrawDistance / 25, shadowDrawDistance / 25,
-					-shadowDrawDistance, shadowDrawDistance, false);
-			shadowProjectionMatrix[1] = Maths.orthoSymmetric(-shadowDrawDistance / 10, shadowDrawDistance / 10,
-					-shadowDrawDistance, shadowDrawDistance, false);
-			shadowProjectionMatrix[2] = Maths.orthoSymmetric(-shadowDrawDistance / 4, shadowDrawDistance / 4,
-					-shadowDrawDistance, shadowDrawDistance, false);
-			shadowProjectionMatrix[3] = Maths.orthoSymmetric(-shadowDrawDistance, shadowDrawDistance,
-					-shadowDrawDistance, shadowDrawDistance, false);
-			TaskManager.addTask(() -> camera.setProjectionArray(shadowProjectionMatrix));
-		});
-		Matrix4f[] shadowProjectionMatrix = new Matrix4f[4];
-
-		int shadowDrawDistance = (int) REGISTRY
-				.getRegistryItem(new Key("/Light Engine/Settings/Graphics/shadowsDrawDistance"));
-		shadowDrawDistance *= 2;
-		shadowProjectionMatrix[0] = Maths.orthoSymmetric(-shadowDrawDistance / 25, shadowDrawDistance / 25,
-				-shadowDrawDistance, shadowDrawDistance, false);
-		shadowProjectionMatrix[1] = Maths.orthoSymmetric(-shadowDrawDistance / 10, shadowDrawDistance / 10,
-				-shadowDrawDistance, shadowDrawDistance, false);
-		shadowProjectionMatrix[2] = Maths.orthoSymmetric(-shadowDrawDistance / 4, shadowDrawDistance / 4,
-				-shadowDrawDistance, shadowDrawDistance, false);
-		shadowProjectionMatrix[3] = Maths.orthoSymmetric(-shadowDrawDistance, shadowDrawDistance, -shadowDrawDistance,
-				shadowDrawDistance, false);
-		camera = new SunCamera(shadowProjectionMatrix);
+		camera = new SunCamera();
 	}
 
-	public Sun(Vector3f rotation, Matrix4f[] shadowProjectionMatrix) {
+	public Sun(Vector3f rotation) {
 		this.rotation = rotation;
-		camera = new SunCamera(shadowProjectionMatrix);
+		camera = new SunCamera();
 	}
 
-	public void update(Vector3f cameraPosition, float rot, float delta) {
-		camera.setPosition(cameraPosition);
+	public void update(float rot, float delta) {
 		rotation.y = rot;
 		camera.setRotation(new Vector3f(rotation.y, rotation.x, rotation.z));
 		camera.updateShadowRay(true);

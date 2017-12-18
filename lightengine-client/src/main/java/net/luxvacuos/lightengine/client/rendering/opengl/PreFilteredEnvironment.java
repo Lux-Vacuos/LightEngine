@@ -72,6 +72,7 @@ import net.luxvacuos.lightengine.client.rendering.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.BRDFIntegrationMapShader;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.PreFilteredEnvironmentShader;
+import net.luxvacuos.lightengine.universal.ecs.entities.RootEntity;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
 public class PreFilteredEnvironment implements IDisposable {
@@ -98,6 +99,8 @@ public class PreFilteredEnvironment implements IDisposable {
 	public PreFilteredEnvironment(CubeMapTexture texCube, Window window) {
 		shader = new PreFilteredEnvironmentShader();
 		camera = new CubeMapCamera(new Vector3f());
+		camera.setRootEntity(new RootEntity());
+		camera.init();
 		cube = window.getResourceLoader().loadToVAO(CUBE, 3);
 		quad = window.getResourceLoader().loadToVAO(QUAD, 2);
 		cubeMapTexture = texCube;

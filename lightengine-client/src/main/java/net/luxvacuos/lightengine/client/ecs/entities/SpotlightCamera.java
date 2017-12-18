@@ -29,11 +29,21 @@ import net.luxvacuos.lightengine.client.util.Maths;
 public class SpotlightCamera extends CameraEntity {
 
 	private Vector3f direction = new Vector3f();
+	private int width, height;
+	private float radius;
 
 	public SpotlightCamera(float radius, int width, int height) {
 		super("spotlight");
+		this.width = width;
+		this.height = height;
+		this.radius = radius;
+	}
+
+	@Override
+	public void init() {
 		setProjectionMatrix(Renderer.createProjectionMatrix(width, height, radius, 0.1f, 100f));
 		setViewMatrix(Maths.createViewMatrix(this));
+		super.init();
 	}
 
 	@Override

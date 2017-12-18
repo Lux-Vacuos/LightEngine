@@ -39,7 +39,7 @@ public class RenderEntity extends BasicEntity {
 		add(new Renderable(model));
 		Transform transform = new Transform();
 		transform.setIdentity();
-		transform.origin.set(VectoVec.toVec3(position));
+		transform.origin.set(VectoVec.toVec3(localPosition));
 		add(new Collision(new DynamicObject(model.getShape(), transform, 0)));
 	}
 
@@ -48,7 +48,7 @@ public class RenderEntity extends BasicEntity {
 		add(new Renderable(model));
 		Transform transform = new Transform();
 		transform.setIdentity();
-		transform.origin.set(VectoVec.toVec3(position));
+		transform.origin.set(VectoVec.toVec3(localPosition));
 		add(new Collision(new DynamicObject(model.getShape(), transform, 0)));
 	}
 
@@ -71,7 +71,7 @@ public class RenderEntity extends BasicEntity {
 				loadedColl = true;
 				Transform transform = new Transform();
 				transform.setIdentity();
-				transform.origin.set(VectoVec.toVec3(position));
+				transform.origin.set(VectoVec.toVec3(localPosition));
 				add(new Collision(new DynamicObject(re.getModel().getShape(), transform, 0)));
 			}
 		}

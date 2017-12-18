@@ -24,9 +24,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Light;
-import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
+/**
+ * <b>INTERNAL USE ONLY</b>
+ */
 public class LightRenderer implements IDisposable {
 
 	private List<Light> lights;
@@ -35,44 +37,39 @@ public class LightRenderer implements IDisposable {
 		lights = new ArrayList<>();
 	}
 
+	/**
+	 * <b>INTERNAL USE ONLY</b>
+	 */
 	public void addLight(Light light) {
-		light.init();
 		lights.add(light);
 	}
 
+	/**
+	 * <b>INTERNAL USE ONLY</b>
+	 */
 	public void addAllLights(List<Light> lights) {
-		TaskManager.addTask(() -> {
-			for (Light light : lights)
-				light.init();
-			this.lights.addAll(lights);
-		});
+		this.lights.addAll(lights);
 	}
 
+	/**
+	 * INTERNAL USE ONLY
+	 */
 	public void removeLight(Light light) {
 		lights.remove(light);
-		if (light.isShadow())
-			TaskManager.addTask(() -> light.getShadowMap().dispose());
 	}
 
+	/**
+	 * <b>INTERNAL USE ONLY</b>
+	 */
 	public void removeAllLights(List<Light> lights) {
 		this.lights.removeAll(lights);
-		for (Light light : lights)
-			if (light.isShadow())
-				TaskManager.addTask(() -> light.getShadowMap().dispose());
 	}
 
-	public void update(float delta) {
-		for (Light light : lights) {
-			light.update(delta);
-		}
-	}
-
+	/**
+	 * <b>INTERNAL USE ONLY</b>
+	 */
 	@Override
 	public void dispose() {
-		for (Light light : lights) {
-			if (light.isShadow())
-				light.getShadowMap().dispose();
-		}
 		lights.clear();
 	}
 

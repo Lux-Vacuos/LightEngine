@@ -60,8 +60,9 @@ public class ClientNetworkHandler extends AbstractChannelHandler {
 			this.player = new PlayerCamera("player" + new Random().nextInt(1000), UUID.randomUUID().toString());
 		else
 			this.player = player;
-		engine.addEntity(this.player);
 		sun = new Sun();
+		engine.addEntity(this.player); 
+		this.player.addEntity(sun.getCamera());
 	}
 
 	@Override
@@ -82,7 +83,7 @@ public class ClientNetworkHandler extends AbstractChannelHandler {
 	public void update(float delta) {
 		engine.update(delta);
 		worldSimulation.update(delta);
-		sun.update(player.getPosition(), worldSimulation.getRotation(), delta);
+		sun.update(worldSimulation.getRotation(), delta);
 		NetworkSubsystem.sendPacket(new UpdateBasicEntity(Components.UUID.get(player).getUUID(), player.getPosition(),
 				player.getRotation(), new Vector3f(), player.getScale()));
 	}
@@ -144,10 +145,7 @@ public class ClientNetworkHandler extends AbstractChannelHandler {
 	}
 
 	public void setCamera(CameraEntity camera) {
-		if (this.camera != null)
-			engine.removeEntity(this.camera);
 		this.camera = camera;
-		engine.addEntity(this.camera);
 	}
 
 	public Sun getSun() {

@@ -18,27 +18,59 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.opengl.shaders.data;
+package net.luxvacuos.lightengine.universal.ecs.entities;
 
-import static org.lwjgl.opengl.GL20.glUniformMatrix4fv;
+import org.joml.Vector3f;
 
-import org.joml.Matrix4f;
+public class RootEntity extends LEEntity {
 
-public class UniformMatrix extends Uniform {
-
-	private Matrix4f current;
-	private boolean used = false;
-	private float[] fm = new float[16];
-
-	public UniformMatrix(String name) {
-		super(name);
+	@Override
+	public void init() {
 	}
 
-	public void loadMatrix(Matrix4f matrix) {
-		if (!used || !matrix.equals(current)) {
-			matrix.get(fm);
-			glUniformMatrix4fv(super.getLocation(), false, fm);
-		}
+	@Override
+	public Vector3f getPosition() {
+		return localPosition;
+	}
+
+	@Override
+	public float getX() {
+		return localPosition.x();
+	}
+
+	@Override
+	public float getY() {
+		return localPosition.y();
+	}
+
+	@Override
+	public float getZ() {
+		return localPosition.z();
+	}
+
+	@Override
+	public Vector3f getRotation() {
+		return localRotation;
+	}
+
+	@Override
+	public float getRX() {
+		return localRotation.x();
+	}
+
+	@Override
+	public float getRY() {
+		return localRotation.y();
+	}
+
+	@Override
+	public float getRZ() {
+		return localRotation.z();
+	}
+
+	@Override
+	public float getScale() {
+		return scale;
 	}
 
 }

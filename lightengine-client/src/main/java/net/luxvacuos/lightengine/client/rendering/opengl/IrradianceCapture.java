@@ -57,6 +57,7 @@ import net.luxvacuos.lightengine.client.rendering.opengl.objects.CubeMapTexture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.IrradianceCaptureShader;
 import net.luxvacuos.lightengine.client.resources.ResourceLoader;
+import net.luxvacuos.lightengine.universal.ecs.entities.RootEntity;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
 public class IrradianceCapture implements IDisposable {
@@ -80,6 +81,8 @@ public class IrradianceCapture implements IDisposable {
 	public IrradianceCapture(ResourceLoader loader) {
 		shader = new IrradianceCaptureShader();
 		camera = new CubeMapCamera(new Vector3f());
+		camera.setRootEntity(new RootEntity());
+		camera.init();
 		cube = loader.loadToVAO(VERTICES, 3);
 		cubeMapTexture = loader.createEmptyCubeMap(32, true, false);
 		fbo = glGenFramebuffers();

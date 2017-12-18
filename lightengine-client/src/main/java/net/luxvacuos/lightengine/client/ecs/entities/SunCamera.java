@@ -20,11 +20,17 @@
 
 package net.luxvacuos.lightengine.client.ecs.entities;
 
+import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
+
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 
 import net.luxvacuos.lightengine.client.resources.CastRay;
 import net.luxvacuos.lightengine.client.util.Maths;
+import net.luxvacuos.lightengine.universal.core.TaskManager;
+import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
+import net.luxvacuos.lightengine.universal.util.IEvent;
+import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class SunCamera extends CameraEntity {
 
@@ -32,30 +38,72 @@ public class SunCamera extends CameraEntity {
 
 	private Matrix4f[] projectionArray;
 
-	public SunCamera(Matrix4f[] projectionArray) {
+	private IEvent shadowReset;
+
+	public SunCamera() {
 		super("sun");
-		this.projectionArray = projectionArray;
+	}
+
+	@Override
+	public void init() {
+		shadowReset = EventSubsystem.addEvent("lightengine.renderer.resetshadowmatrix", () -> {
+			Matrix4f[] shadowProjectionMatrix = new Matrix4f[4];
+
+			int shadowDrawDistance = (int) REGISTRY
+					.getRegistryItem(new Key("/Light Engine/Settings/Graphics/shadowsDrawDistance"));
+			shadowDrawDistance *= 2;
+			shadowProjectionMatrix[0] = Maths.orthoSymmetric(-shadowDrawDistance / 25, shadowDrawDistance / 25,
+					-shadowDrawDistance, shadowDrawDistance, false);
+			shadowProjectionMatrix[1] = Maths.orthoSymmetric(-shadowDrawDistance / 10, shadowDrawDistance / 10,
+					-shadowDrawDistance, shadowDrawDistance, false);
+			shadowProjectionMatrix[2] = Maths.orthoSymmetric(-shadowDrawDistance / 4, shadowDrawDistance / 4,
+					-shadowDrawDistance, shadowDrawDistance, false);
+			shadowProjectionMatrix[3] = Maths.orthoSymmetric(-shadowDrawDistance, shadowDrawDistance,
+					-shadowDrawDistance, shadowDrawDistance, false);
+			TaskManager.addTask(() -> setProjectionArray(shadowProjectionMatrix));
+		});
+
+		int shadowDrawDistance = (int) REGISTRY
+				.getRegistryItem(new Key("/Light Engine/Settings/Graphics/shadowsDrawDistance"));
+		shadowDrawDistance *= 2;
+		projectionArray = new Matrix4f[4];
+		projectionArray[0] = Maths.orthoSymmetric(-shadowDrawDistance / 25, shadowDrawDistance / 25,
+				-shadowDrawDistance, shadowDrawDistance, false);
+		projectionArray[1] = Maths.orthoSymmetric(-shadowDrawDistance / 10, shadowDrawDistance / 10,
+				-shadowDrawDistance, shadowDrawDistance, false);
+		projectionArray[2] = Maths.orthoSymmetric(-shadowDrawDistance / 4, shadowDrawDistance / 4, -shadowDrawDistance,
+				shadowDrawDistance, false);
+		projectionArray[3] = Maths.orthoSymmetric(-shadowDrawDistance, shadowDrawDistance, -shadowDrawDistance,
+				shadowDrawDistance, false);
+
 		center = new Vector2f(1024, 1024);
-		castRay = new CastRay(this.getProjectionMatrix(), Maths.createViewMatrix(this), center, 2048, 2048);
 		setProjectionMatrix(projectionArray[0]);
 		setViewMatrix(Maths.createViewMatrix(this));
+		castRay = new CastRay(getProjectionMatrix(), getViewMatrix(), center, 2048, 2048);
+		super.init();
+	}
+
+	@Override
+	public void dispose() {
+		super.dispose();
+		EventSubsystem.removeEvent("lightengine.renderer.resetshadowmatrix", shadowReset);
 	}
 
 	public void updateShadowRay(boolean inverted) {
 		setViewMatrix(Maths.createViewMatrix(this));
 		if (inverted)
-			castRay.update(this.getProjectionMatrix(),
-					Maths.createViewMatrixPos(position,
+			castRay.update(getProjectionMatrix(),
+					Maths.createViewMatrixPos(localPosition,
 							Maths.createViewMatrixRot(rotation.x() + 180, rotation.y(), rotation.z(), null)),
 					center, 2048, 2048);
 		else
-			castRay.update(this.getProjectionMatrix(), getViewMatrix(), center, 2048, 2048);
+			castRay.update(getProjectionMatrix(), getViewMatrix(), center, 2048, 2048);
 	}
 
 	public void switchProjectionMatrix(int id) {
 		setProjectionMatrix(this.projectionArray[id]);
 	}
-	
+
 	public void setProjectionArray(Matrix4f[] projectionArray) {
 		this.projectionArray = projectionArray;
 	}

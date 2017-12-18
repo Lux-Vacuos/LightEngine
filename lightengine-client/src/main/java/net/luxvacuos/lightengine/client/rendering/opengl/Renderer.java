@@ -156,7 +156,6 @@ public class Renderer {
 			return;
 		Array<Entity> entitiesR = new Array<>(entitiesT.toArray(Entity.class));
 		ImmutableArray<Entity> entities = new ImmutableArray<>(entitiesR);
-		lightRenderer.update(delta);
 		resetState();
 		renderingManager.preProcess(entities);
 		GPUProfiler.start("Main Renderer");
@@ -219,6 +218,8 @@ public class Renderer {
 			glCullFace(GL_FRONT);
 			for (Light light : lightRenderer.getLights()) {
 				if (light.isShadow()) {
+					if (!light.isShadowMapCreated())
+						continue;
 					light.getShadowMap().begin();
 					clearBuffer(GL_DEPTH_BUFFER_BIT);
 					if (shadowPass != null)

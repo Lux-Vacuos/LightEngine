@@ -65,11 +65,9 @@ public class DeferredShadingShader extends ShaderProgram {
 
 	private UniformFloat exposure = new UniformFloat("exposure");
 	private UniformFloat time = new UniformFloat("time");
-	private UniformFloat camUnderWaterOffset = new UniformFloat("camUnderWaterOffset");
 
 	private UniformInteger shadowDrawDistance = new UniformInteger("shadowDrawDistance");
 
-	private UniformBoolean camUnderWater = new UniformBoolean("camUnderWater");
 	private UniformBoolean useFXAA = new UniformBoolean("useFXAA");
 	private UniformBoolean useDOF = new UniformBoolean("useDOF");
 	private UniformBoolean useMotionBlur = new UniformBoolean("useMotionBlur");
@@ -96,9 +94,7 @@ public class DeferredShadingShader extends ShaderProgram {
 	private UniformMatrix biasMatrix = new UniformMatrix("biasMatrix");
 	private UniformSampler shadowMap[];
 
-	private boolean loadedShadowMatrix = false;
-
-	private static float tTime = 0;
+	private Matrix4f biasM;
 
 	public DeferredShadingShader(String type) {
 		super("deferred/" + type + ".vs", "deferred/" + type + ".fs", new Attribute(0, "position"));
@@ -119,11 +115,18 @@ public class DeferredShadingShader extends ShaderProgram {
 		super.storeUniformArray(shadowMap);
 		super.storeAllUniformLocations(projectionMatrix, viewMatrix, inverseProjectionMatrix, inverseViewMatrix,
 				previousViewMatrix, cameraPosition, previousCameraPosition, lightPosition, invertedLightPosition,
-				skyColor, resolution, exposure, time, camUnderWaterOffset, shadowDrawDistance, camUnderWater, useFXAA,
-				useDOF, useMotionBlur, useReflections, useVolumetricLight, useAmbientOcclusion, gDiffuse, gPosition,
-				gNormal, gDepth, gPBR, gMask, composite0, composite1, composite2, totalLights, useChromaticAberration,
-				composite3, useLensFlares, biasMatrix, viewLightMatrix, useShadows);
+				skyColor, resolution, exposure, time, shadowDrawDistance, useFXAA, useDOF, useMotionBlur,
+				useReflections, useVolumetricLight, useAmbientOcclusion, gDiffuse, gPosition, gNormal, gDepth, gPBR,
+				gMask, composite0, composite1, composite2, totalLights, useChromaticAberration, composite3,
+				useLensFlares, biasMatrix, viewLightMatrix, useShadows);
 		connectTextureUnits();
+		biasM = new Matrix4f();
+		biasM.m00(0.5f);
+		biasM.m11(0.5f);
+		biasM.m22(0.5f);
+		biasM.m30(0.5f);
+		biasM.m31(0.5f);
+		biasM.m32(0.5f);
 	}
 
 	/**
@@ -149,12 +152,6 @@ public class DeferredShadingShader extends ShaderProgram {
 		super.stop();
 	}
 
-	public void loadUnderWater(boolean value) {
-		camUnderWater.loadBoolean(value);
-		camUnderWaterOffset.loadFloat(tTime += 0.1f);
-		tTime %= 10;
-	}
-
 	public void loadExposure(float exposure) {
 		this.exposure.loadFloat(exposure);
 	}
@@ -176,19 +173,9 @@ public class DeferredShadingShader extends ShaderProgram {
 	}
 
 	public void loadBiasMatrix(Matrix4f[] shadowProjectionMatrix) {
-		if (!loadedShadowMatrix) {
-			Matrix4f biasMatrix = new Matrix4f();
-			biasMatrix.m00(0.5f);
-			biasMatrix.m11(0.5f);
-			biasMatrix.m22(0.5f);
-			biasMatrix.m30(0.5f);
-			biasMatrix.m31(0.5f);
-			biasMatrix.m32(0.5f);
-			this.biasMatrix.loadMatrix(biasMatrix);
-			for (int x = 0; x < 4; x++) {
-				this.projectionLightMatrix[x].loadMatrix(shadowProjectionMatrix[x]);
-			}
-			loadedShadowMatrix = true;
+		this.biasMatrix.loadMatrix(biasM);
+		for (int x = 0; x < 4; x++) {
+			this.projectionLightMatrix[x].loadMatrix(shadowProjectionMatrix[x]);
 		}
 	}
 

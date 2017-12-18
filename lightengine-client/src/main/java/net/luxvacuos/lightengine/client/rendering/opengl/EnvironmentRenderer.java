@@ -51,6 +51,7 @@ import net.luxvacuos.lightengine.client.rendering.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CubeMapTexture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
+import net.luxvacuos.lightengine.universal.ecs.entities.RootEntity;
 
 public class EnvironmentRenderer {
 
@@ -80,11 +81,14 @@ public class EnvironmentRenderer {
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		camera = new CubeMapCamera(new Vector3f());
+		camera.setRootEntity(new RootEntity());
+		camera.init();
 	}
 
 	public void renderEnvironmentMap(Vector3f center, SkyboxRenderer skyboxRenderer,
 			IWorldSimulation clientWorldSimulation, Vector3f lightPosition, Window window) {
 		camera.setPosition(center);
+		camera.update(0);
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 		window.setViewport(0, 0, cubeMapTexture.getSize(), cubeMapTexture.getSize());
 		for (int i = 0; i < 6; i++) {
@@ -102,6 +106,7 @@ public class EnvironmentRenderer {
 			IWorldSimulation clientWorldSimulation, Vector3f lightPosition, CubeMapTexture irradiance,
 			CubeMapTexture environmentMap, Texture brdfLUT, Window window) {
 		camera.setPosition(center);
+		camera.update(0);
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 		window.setViewport(0, 0, cubeMapTexture.getSize(), cubeMapTexture.getSize());
 		for (int i = 0; i < 6; i++) {
