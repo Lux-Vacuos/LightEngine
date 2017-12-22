@@ -116,7 +116,7 @@ public class Model implements IDisposable {
 		int childrenCount = root.mNumChildren();
 		for (int id = 0; id < childrenCount; id++) {
 			AINode child = AINode.create(root.mChildren().get(id));
-			System.out.println(child.mMeshes().get(0));
+			//System.out.println(child.mMeshes().get(0));
 		}
 
 		shape = new BvhTriangleMeshShape(triangleIndexVertexArray, true);

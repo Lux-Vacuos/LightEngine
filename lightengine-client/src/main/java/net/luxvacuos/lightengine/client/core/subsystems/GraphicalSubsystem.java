@@ -25,12 +25,22 @@ import static org.lwjgl.assimp.Assimp.aiGetVersionMajor;
 import static org.lwjgl.assimp.Assimp.aiGetVersionMinor;
 import static org.lwjgl.assimp.Assimp.aiGetVersionRevision;
 import static org.lwjgl.glfw.GLFW.glfwInit;
+import static org.lwjgl.opengl.GL11.GL_BACK;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
+import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11.GL_RENDERER;
+import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
 import static org.lwjgl.opengl.GL11.GL_VENDOR;
 import static org.lwjgl.opengl.GL11.GL_VERSION;
+import static org.lwjgl.opengl.GL11.glBlendFunc;
+import static org.lwjgl.opengl.GL11.glCullFace;
+import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11.glGetString;
 import static org.lwjgl.opengl.GL20.GL_SHADING_LANGUAGE_VERSION;
+import static org.lwjgl.opengl.GL32.GL_TEXTURE_CUBE_MAP_SEAMLESS;
 
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
@@ -97,6 +107,7 @@ public class GraphicalSubsystem implements ISubsystem {
 			GraphicalSubsystem.getWindowManager().render(window.getDelta());
 		});
 		GLUtil.init();
+		initGL();
 
 		REGISTRY.register(new Key("/Light Engine/System/lwjgl"), Version.getVersion());
 		REGISTRY.register(new Key("/Light Engine/System/glfw"), GLFW.glfwGetVersionString());
@@ -131,6 +142,15 @@ public class GraphicalSubsystem implements ISubsystem {
 		TaskManager.addTaskAsync(() -> DefaultData.init(loader));
 		StateMachine.registerState(new SplashScreenState());
 		window.setVisible(true);
+	}
+
+	private void initGL() {
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
 	}
 
 	@Override

@@ -45,20 +45,26 @@ public class SkyboxRenderer {
 
 	private RawModel dome;
 	private SkyboxShader shader;
+	private float scale;
 
 	public SkyboxRenderer(ResourceLoader loader) {
+		if (ClientVariables.FAR_PLANE > 0 && Float.isInfinite(ClientVariables.FAR_PLANE))
+			scale = 100000; // Arbitrary number
+		else
+			scale = ClientVariables.FAR_PLANE;
 		dome = loader.loadObjModel("SkyDome");
 		shader = new SkyboxShader();
 		shader.start();
-		shader.loadTransformationMatrix(Maths.createTransformationMatrix(new Vector3f(), 0, 0, 0, ClientVariables.FAR_PLANE));
+		shader.loadTransformationMatrix(Maths.createTransformationMatrix(new Vector3f(), 0, 0, 0, scale));
 		shader.stop();
 	}
 
-	public void render(CameraEntity camera, IWorldSimulation clientWorldSimulation, Vector3f lightPosition, boolean renderSun) {
+	public void render(CameraEntity camera, IWorldSimulation clientWorldSimulation, Vector3f lightPosition,
+			boolean renderSun) {
 		glDepthMask(false);
 		glDisable(GL_CULL_FACE);
 		shader.start();
-		shader.loadTransformationMatrix(Maths.createTransformationMatrix(camera.getPosition(), 0, 0, 0, ClientVariables.FAR_PLANE));
+		shader.loadTransformationMatrix(Maths.createTransformationMatrix(camera.getPosition(), 0, 0, 0, scale));
 		shader.loadProjectionMatrix(camera.getProjectionMatrix());
 		shader.loadViewMatrix(camera);
 		shader.loadTime(clientWorldSimulation.getGlobalTime());

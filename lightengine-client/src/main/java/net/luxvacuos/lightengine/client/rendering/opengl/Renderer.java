@@ -24,7 +24,7 @@ import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.
 import static org.lwjgl.opengl.GL11.GL_BACK;
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
+import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11.GL_FRONT;
@@ -33,15 +33,16 @@ import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
 import static org.lwjgl.opengl.GL11.glBlendFunc;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
+import static org.lwjgl.opengl.GL11.glClearDepth;
 import static org.lwjgl.opengl.GL11.glCullFace;
 import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL32.GL_TEXTURE_CUBE_MAP_SEAMLESS;
 
 import java.util.List;
 import java.util.Map;
 
 import org.joml.Matrix4f;
+import org.lwjgl.opengl.ARBClipControl;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.utils.ImmutableArray;
@@ -239,7 +240,10 @@ public class Renderer {
 			occlusionPass.render(camera, sunCamera, frustum, shadowFBO);
 		GPUProfiler.end();
 		GPUProfiler.start("G-Buffer pass");
+		ARBClipControl.glClipControl(ARBClipControl.GL_LOWER_LEFT, ARBClipControl.GL_ZERO_TO_ONE);
 		deferredPipeline.begin();
+		glDepthFunc(GL_GREATER);
+		glClearDepth(0.0);
 		clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		GPUProfiler.start("Skybox");
 		skyboxRenderer.render(camera, worldSimulation, sun.getSunPosition(), true);
@@ -252,7 +256,10 @@ public class Renderer {
 		renderingManager.render(camera);
 		GPUProfiler.end();
 		waterRenderer.render(waterTiles, camera, worldSimulation.getGlobalTime(), frustum);
+		glClearDepth(1.0);
+		glDepthFunc(GL_LESS);
 		deferredPipeline.end();
+		ARBClipControl.glClipControl(ARBClipControl.GL_LOWER_LEFT, ARBClipControl.GL_NEGATIVE_ONE_TO_ONE);
 		GPUProfiler.end();
 		GPUProfiler.start("Deferred Rendering");
 		deferredPipeline.preRender(camera, sun, worldSimulation, lightRenderer.getLights(),
@@ -263,6 +270,7 @@ public class Renderer {
 		postProcessPipeline.begin();
 		clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		deferredPipeline.render(postProcessPipeline.getFBO());
+		glDepthFunc(GL_GREATER);
 		GPUProfiler.start("Forward");
 		if (forwardPass != null)
 			forwardPass.render(camera, sunCamera, frustum, shadowFBO);
@@ -270,6 +278,7 @@ public class Renderer {
 		renderingManager.renderForward(camera, sun.getSunPosition(), irradianceCapture.getCubeMapTexture(),
 				preFilteredEnvironment.getCubeMapTexture(), preFilteredEnvironment.getBRDFLUT());
 		GPUProfiler.end();
+		glDepthFunc(GL_LESS);
 		postProcessPipeline.end();
 		GPUProfiler.end();
 		GPUProfiler.start("PostFX");
@@ -337,14 +346,6 @@ public class Renderer {
 		return lightRenderer;
 	}
 
-	public static void init() {
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-	}
-
 	public static void resetState() {
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
@@ -362,12 +363,31 @@ public class Renderer {
 	}
 
 	public static Matrix4f createProjectionMatrix(int width, int height, float fov, float nearPlane, float farPlane) {
-		return createProjectionMatrix(new Matrix4f(), width, height, fov, nearPlane, farPlane);
+		return createProjectionMatrix(new Matrix4f(), width, height, fov, nearPlane, farPlane, false);
+	}
+
+	public static Matrix4f createProjectionMatrix(int width, int height, float fov, float nearPlane, float farPlane,
+			boolean zZeroToOne) {
+		return createProjectionMatrix(new Matrix4f(), width, height, fov, nearPlane, farPlane, zZeroToOne);
 	}
 
 	public static Matrix4f createProjectionMatrix(Matrix4f proj, int width, int height, float fov, float nearPlane,
-			float farPlane) {
-		return proj.setPerspective((float) Math.toRadians(fov), (float) width / (float) height, nearPlane, farPlane);
+			float farPlane, boolean zZeroToOne) {
+		if (zZeroToOne && farPlane > 0 && Float.isInfinite(farPlane)) {
+			float y_scale = (float) (1f / Math.tan(Math.toRadians(fov / 2f)));
+			float x_scale = y_scale / ((float) width / (float) height);
+			proj.identity();
+			proj.m00(x_scale);
+			proj.m11(y_scale);
+			proj.m22(0);
+			proj.m23(-1);
+			proj.m32(nearPlane);
+			proj.m33(0);
+		} else {
+			proj.setPerspective((float) Math.toRadians(fov), (float) width / (float) height, nearPlane, farPlane,
+					zZeroToOne);
+		}
+		return proj;
 	}
 
 }

@@ -25,7 +25,7 @@ import net.luxvacuos.lightengine.universal.core.GlobalVariables;
 public class ClientVariables extends GlobalVariables {
 
 	public static final float NEAR_PLANE = 0.1f;
-	public static final float FAR_PLANE = 1000f;
+	public static final float FAR_PLANE = Float.POSITIVE_INFINITY;
 	public static final boolean WSL = false;
 
 	/**

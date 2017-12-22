@@ -89,13 +89,15 @@ public class EntityRenderer implements IRenderer {
 	@Override
 	public void renderReflections(CameraEntity camera, Vector3f lightPosition, CubeMapTexture irradiance,
 			CubeMapTexture environmentMap, Texture brdfLUT) {
-		forwardRenderer.render(entities, camera, lightPosition, irradiance, environmentMap, brdfLUT, false, false);
+		forwardRenderer.render(entities, camera, lightPosition, irradiance, environmentMap, brdfLUT, false,
+				MaterialType.OPAQUE);
 	}
 
 	@Override
 	public void renderForward(CameraEntity camera, Vector3f lightPosition, CubeMapTexture irradiance,
 			CubeMapTexture environmentMap, Texture brdfLUT) {
-		forwardRenderer.render(entities, camera, lightPosition, irradiance, environmentMap, brdfLUT, true, true);
+		forwardRenderer.render(entities, camera, lightPosition, irradiance, environmentMap, brdfLUT, true,
+				MaterialType.TRANSPARENT);
 	}
 
 	@Override

@@ -21,4 +21,6 @@
 ##variable GLOBAL
 #define MAX_REFLECTION_LOD 5.0
 #define GAMMA 2.2
+#define MAX_DISTANCE_VOLUME 10000
+#define MAX_DISTANCE_REFLECTION 1000
 ##end

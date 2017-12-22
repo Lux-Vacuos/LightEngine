@@ -41,6 +41,8 @@ uniform int useVolumetricLight;
 
 ##include function computeShadow
 
+##include variable GLOBAL
+
 vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
 
 float snoise(vec2 v){
@@ -73,8 +75,8 @@ float snoise(vec2 v){
 #define VOLUMETRIC_MULT 0.025
 #define VOLUMETRIC_SUN 1.0
 
-#define CLOUD_BOTTOM 200
-#define CLOUD_TOP 300
+#define CLOUD_BOTTOM 300
+#define CLOUD_TOP 400
 #define CLOUD_MULT 16
 #define CLOUD_DIFF 80
 
@@ -104,7 +106,8 @@ void main() {
 			rays += computeShadow(rayTrace);
 			perl = max(snoise(rayTrace.xz * 0.001 + vec2(time * 0.5, time * 0.1) * 0.005), 0.0) * CLOUD_MULT;
 			clouds += perl * smoothstep(CLOUD_BOTTOM, CLOUD_TOP - CLOUD_DIFF, rayTrace.y) * (1 - smoothstep(CLOUD_BOTTOM + CLOUD_DIFF, CLOUD_TOP, rayTrace.y));
-
+			if(rayDist > MAX_DISTANCE_VOLUME)
+				break;
    		} while(rayDist < cameraToWorldDist);
 		rays /= itr;
 		clouds /= itr;

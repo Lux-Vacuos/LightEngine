@@ -21,7 +21,6 @@
 package net.luxvacuos.lightengine.client.network;
 
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
 
 import org.joml.Vector3f;
@@ -32,7 +31,6 @@ import io.netty.channel.ChannelHandlerContext;
 import net.luxvacuos.lightengine.client.core.ClientWorldSimulation;
 import net.luxvacuos.lightengine.client.core.subsystems.NetworkSubsystem;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
-import net.luxvacuos.lightengine.client.ecs.entities.PlayerCamera;
 import net.luxvacuos.lightengine.client.ecs.entities.RenderPlayerEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.Sun;
 import net.luxvacuos.lightengine.client.world.ClientPhysicsSystem;
@@ -56,12 +54,11 @@ public class ClientNetworkHandler extends AbstractChannelHandler {
 		worldSimulation = new ClientWorldSimulation(10000);
 		engine = new Engine();
 		engine.addSystem(new ClientPhysicsSystem());
-		if (player == null)
-			this.player = new PlayerCamera("player" + new Random().nextInt(1000), UUID.randomUUID().toString());
-		else
-			this.player = player;
+		this.player = player;
+		if (player instanceof CameraEntity)
+			this.camera = (CameraEntity) player;
 		sun = new Sun();
-		engine.addEntity(this.player); 
+		engine.addEntity(this.player);
 		this.player.addEntity(sun.getCamera());
 	}
 

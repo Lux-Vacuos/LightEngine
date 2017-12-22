@@ -36,6 +36,7 @@ import org.joml.Matrix4f;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Material;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Mesh;
+import net.luxvacuos.lightengine.client.rendering.opengl.objects.Material.MaterialType;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.EntityBasicShader;
 import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
@@ -59,6 +60,8 @@ public class EntityShadowRenderer implements IDisposable {
 
 	private void renderEntity(Map<Material, List<EntityRendererObject>> entities) {
 		for (Material mat : entities.keySet()) {
+			if (mat.getType() != MaterialType.OPAQUE)
+				continue;
 			List<EntityRendererObject> batch = entities.get(mat);
 			for (EntityRendererObject obj : batch) {
 				prepareInstance(obj.entity);

@@ -108,8 +108,10 @@ public class Material implements IDisposable {
 		if (aiGetMaterialColor(material, AI_MATKEY_COLOR_SPECULAR, aiTextureType_NONE, 0, pbr) == aiReturn_SUCCESS) {
 			this.roughness = pbr.r();
 			this.metallic = pbr.g();
-			if(pbr.b() > 0.5f)
+			if (pbr.b() > 0f) {
 				this.type = MaterialType.TRANSPARENT;
+				this.diffuse.set(3, pbr.b());
+			}
 		}
 		diffuse.free();
 		emissive.free();

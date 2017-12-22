@@ -44,7 +44,7 @@ uniform mat4 viewLightMatrix;
 uniform mat4 biasMatrix;
 uniform sampler2DShadow shadowMap[4];
 
-const float distanceThreshold = 2;
+const float distanceThreshold = 1;
 const int sample_count = 16;
 const vec2 poisson16[] = vec2[](
                                 vec2( -0.94201624,  -0.39906216 ),
@@ -80,6 +80,12 @@ const vec2 poisson16[] = vec2[](
 ##include function computeAmbientOcclusion
 
 ##include function computeShadow
+
+// Linear depth
+//float zndc = texture(gDepth, textureCoords).r;
+//float A = projectionMatrix[2][2];
+//float B = projectionMatrix[3][2];
+//float zeye = B / (A + zndc);
 
 void main() {
 	vec4 mask = texture(gMask, textureCoords);

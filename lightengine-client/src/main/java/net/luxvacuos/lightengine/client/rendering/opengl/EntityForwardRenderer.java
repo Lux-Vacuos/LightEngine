@@ -62,7 +62,7 @@ public class EntityForwardRenderer implements IDisposable {
 
 	public void render(Map<Material, List<EntityRendererObject>> entities, CameraEntity camera, Vector3f lightPosition,
 			CubeMapTexture irradiance, CubeMapTexture environmentMap, Texture brdfLUT, boolean colorCorrect,
-			boolean transparentOnly) {
+			MaterialType materialType) {
 		shader.start();
 		shader.loadCamera(camera);
 		shader.loadLightPosition(lightPosition);
@@ -73,15 +73,14 @@ public class EntityForwardRenderer implements IDisposable {
 		glBindTexture(GL_TEXTURE_CUBE_MAP, environmentMap.getID());
 		glActiveTexture(GL_TEXTURE9);
 		glBindTexture(GL_TEXTURE_2D, brdfLUT.getID());
-		renderEntity(entities, transparentOnly);
+		renderEntity(entities, materialType);
 		shader.stop();
 	}
 
-	private void renderEntity(Map<Material, List<EntityRendererObject>> entities, boolean transparentOnly) {
+	private void renderEntity(Map<Material, List<EntityRendererObject>> entities, MaterialType materialType) {
 		for (Material mat : entities.keySet()) {
-			if (transparentOnly)
-				if (mat.getType() != MaterialType.TRANSPARENT)
-					continue;
+			if (mat.getType() != materialType)
+				continue;
 			List<EntityRendererObject> batch = entities.get(mat);
 			for (EntityRendererObject obj : batch) {
 				prepareInstance(obj.entity);

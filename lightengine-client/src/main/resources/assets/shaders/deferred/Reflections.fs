@@ -88,7 +88,8 @@ void main(void){
        			newPos = texture(gPosition, newScreen.xy/2.0+0.5).xyz;
        			currentWorldDist = length(newPos.xyz - cameraPosition);
        			rayDist = length(rayTrace - cameraPosition);
-       			if (newScreen.x > 1 || newScreen.x < -1 || newScreen.y > 1 || newScreen.y < -1 || newScreen.z > 1 || newScreen.z < -1 || cameraToWorldDist > currentWorldDist || dot(refl, cameraToWorldNorm) < 0)
+       			if (newScreen.x > 1 || newScreen.x < -1 || newScreen.y > 1 || newScreen.y < -1 || newScreen.z > 1 || newScreen.z < -1
+       			|| cameraToWorldDist > currentWorldDist|| dot(refl, cameraToWorldNorm) < 0 || rayDist > MAX_DISTANCE_REFLECTION)
 	       			break;
    			} while(rayDist < currentWorldDist);
 

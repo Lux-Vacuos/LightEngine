@@ -75,7 +75,7 @@ public class CubeMapCamera extends CameraEntity {
 	}
 
 	private void createProjectionMatrix() {
-		float y_scale = (float) ((1f / Math.tan(Math.toRadians(FOV / 2f))));
+		float y_scale = (float) (1f / Math.tan(Math.toRadians(FOV / 2f)));
 		float x_scale = y_scale / ASPECT_RATIO;
 		float frustum_length = FAR_PLANE - NEAR_PLANE;
 		Matrix4f projectionMatrix = new Matrix4f();
