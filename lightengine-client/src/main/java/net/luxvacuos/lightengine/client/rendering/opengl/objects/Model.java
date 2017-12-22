@@ -30,9 +30,9 @@ import java.util.List;
 
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.assimp.AIFace;
-import org.lwjgl.assimp.AILight;
 import org.lwjgl.assimp.AIMaterial;
 import org.lwjgl.assimp.AIMesh;
+import org.lwjgl.assimp.AINode;
 import org.lwjgl.assimp.AIScene;
 import org.lwjgl.assimp.AIVector3D;
 
@@ -41,7 +41,7 @@ import com.bulletphysics.collision.shapes.CollisionShape;
 import com.bulletphysics.collision.shapes.IndexedMesh;
 import com.bulletphysics.collision.shapes.TriangleIndexVertexArray;
 
-import net.luxvacuos.lightengine.client.rendering.opengl.Renderer;
+import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
 public class Model implements IDisposable {
@@ -54,18 +54,19 @@ public class Model implements IDisposable {
 
 	public Model(AIScene scene, String rootPath) {
 		this.scene = scene;
-
-		int meshCount = scene.mNumMeshes();
-		PointerBuffer meshesBuffer = scene.mMeshes();
-		meshes = new ArrayList<>();
-		for (int i = 0; i < meshCount; ++i) {
-			meshes.add(new Mesh(AIMesh.create(meshesBuffer.get(i))));
-		}
+		
 		int materialCount = scene.mNumMaterials();
 		PointerBuffer materialsBuffer = scene.mMaterials();
 		materials = new ArrayList<>();
 		for (int i = 0; i < materialCount; ++i) {
 			materials.add(new Material(AIMaterial.create(materialsBuffer.get(i)), rootPath));
+		}
+		
+		int meshCount = scene.mNumMeshes();
+		PointerBuffer meshesBuffer = scene.mMeshes();
+		meshes = new ArrayList<>();
+		for (int i = 0; i < meshCount; ++i) {
+			meshes.add(new Mesh(AIMesh.create(meshesBuffer.get(i))));
 		}
 		// int lightCount = scene.mNumLights();
 		// PointerBuffer lightBuffer = scene.mLights();
@@ -109,6 +110,15 @@ public class Model implements IDisposable {
 
 			triangleIndexVertexArray.addIndexedMesh(mesh);
 		}
+		List<BasicEntity> childrens = new ArrayList<>();
+		
+		AINode root = scene.mRootNode();
+		int childrenCount = root.mNumChildren();
+		for (int id = 0; id < childrenCount; id++) {
+			AINode child = AINode.create(root.mChildren().get(id));
+			System.out.println(child.mMeshes().get(0));
+		}
+
 		shape = new BvhTriangleMeshShape(triangleIndexVertexArray, true);
 	}
 

@@ -157,7 +157,7 @@ public class Renderer {
 		Array<Entity> entitiesR = new Array<>(entitiesT.toArray(Entity.class));
 		ImmutableArray<Entity> entities = new ImmutableArray<>(entitiesR);
 		resetState();
-		renderingManager.preProcess(entities);
+		renderingManager.preProcess(entities, camera);
 		GPUProfiler.start("Main Renderer");
 		GPUProfiler.start("IrradianceMap");
 		envRenderer.renderEnvironmentMap(camera.getPosition(), skyboxRenderer, worldSimulation, sun.getSunPosition(),

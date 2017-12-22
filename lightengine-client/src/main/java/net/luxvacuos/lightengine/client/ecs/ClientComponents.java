@@ -23,7 +23,7 @@ package net.luxvacuos.lightengine.client.ecs;
 import com.badlogic.ashley.core.ComponentMapper;
 
 import net.luxvacuos.lightengine.client.ecs.components.ProjectionMatrix;
-import net.luxvacuos.lightengine.client.ecs.components.Renderable;
+import net.luxvacuos.lightengine.client.ecs.components.ModelLoader;
 import net.luxvacuos.lightengine.client.ecs.components.ViewMatrix;
 import net.luxvacuos.lightengine.universal.ecs.Components;
 
@@ -31,7 +31,7 @@ public class ClientComponents extends Components {
 
 	private ClientComponents() { }
 	
-	public static final ComponentMapper<Renderable> RENDERABLE = ComponentMapper.getFor(Renderable.class);
+	public static final ComponentMapper<ModelLoader> RENDERABLE = ComponentMapper.getFor(ModelLoader.class);
 	
 	public static final ComponentMapper<ViewMatrix> VIEW_MATRIX = ComponentMapper.getFor(ViewMatrix.class);
 	

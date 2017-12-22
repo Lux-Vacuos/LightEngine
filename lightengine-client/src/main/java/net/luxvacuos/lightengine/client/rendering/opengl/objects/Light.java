@@ -45,7 +45,7 @@ public class Light extends LEEntity {
 	public Light(Vector3f position, Vector3f color, Vector3f rotation, float radius, float inRadius) {
 		this.localPosition = position;
 		this.color = color;
-		this.rotation = rotation;
+		this.localRotation = rotation;
 		this.radius = radius;
 		this.inRadius = inRadius;
 		type = 1;
@@ -68,8 +68,8 @@ public class Light extends LEEntity {
 			break;
 		case aiLightSource_SPOT:
 			System.out.println("Spot");
-			this.rotation = new Vector3f(light.mDirection().x(), light.mDirection().y(), light.mDirection().z());
-			System.out.println(rotation);
+			this.localRotation = new Vector3f(light.mDirection().x(), light.mDirection().y(), light.mDirection().z());
+			System.out.println(localRotation);
 			this.radius = light.mAngleOuterCone();
 			this.inRadius = light.mAngleInnerCone();
 			type = 1;
@@ -90,14 +90,6 @@ public class Light extends LEEntity {
 		}
 		Renderer.getLightRenderer().addLight(this);
 		super.init();
-	}
-
-	@Override
-	public void update(float delta) {
-		if (type == 1) {
-			camera.setRotation(rotation.add(new Vector3f(180, 0, 0), new Vector3f()));
-		}
-		super.update(delta);
 	}
 
 	@Override

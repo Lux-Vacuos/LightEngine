@@ -48,6 +48,7 @@ public class SpotlightCamera extends CameraEntity {
 
 	@Override
 	public void update(float delta) {
+		super.update(delta);
 		setViewMatrix(Maths.createViewMatrix(this));
 		Matrix4f proj = getProjectionMatrix();
 		Vector3f v = new Vector3f();

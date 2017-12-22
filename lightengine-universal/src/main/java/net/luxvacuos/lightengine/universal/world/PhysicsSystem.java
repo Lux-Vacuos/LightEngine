@@ -78,6 +78,7 @@ public class PhysicsSystem extends EntitySystem {
 				if (entity instanceof LEEntity) {
 					LEEntity ent = (LEEntity) entity;
 					ent.setRootEntity(rootEntity);
+					ent.setEngine(engine);
 					ent.init();
 				}
 
@@ -113,7 +114,6 @@ public class PhysicsSystem extends EntitySystem {
 
 	@Override
 	public void update(float delta) {
-		dynamicsWorld.stepSimulation(delta);
 		for (Entity entity : entities) {
 			if (entity instanceof LEEntity) {
 				LEEntity leEntity = (LEEntity) entity;
@@ -130,11 +130,12 @@ public class PhysicsSystem extends EntitySystem {
 				}
 			}
 			update(delta, entity);
-
+		}
+		dynamicsWorld.stepSimulation(delta);
+		for (Entity entity : entities)
 			if (entity instanceof LEEntity)
 				((LEEntity) entity).afterUpdate(delta);
 
-		}
 	}
 
 	protected void update(float delta, Entity entity) {

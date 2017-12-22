@@ -41,32 +41,37 @@ public class CubeMapCamera extends CameraEntity {
 	public void switchToFace(int faceIndex) {
 		switch (faceIndex) {
 		case 0:
-			rotation.x = 0;
-			rotation.y = -90;
+			localRotation.x = 0;
+			localRotation.y = -90;
 			break;
 		case 1:
-			rotation.x = 0;
-			rotation.y = 90;
+			localRotation.x = 0;
+			localRotation.y = 90;
 			break;
 		case 2:
-			rotation.x = 90;
-			rotation.y = 180;
+			localRotation.x = 90;
+			localRotation.y = 180;
 			break;
 		case 3:
-			rotation.x = -90;
-			rotation.y = 180;
+			localRotation.x = -90;
+			localRotation.y = 180;
 			break;
 		case 4:
-			rotation.x = 0;
-			rotation.y = 180;
+			localRotation.x = 0;
+			localRotation.y = 180;
 			break;
 		case 5:
-			rotation.x = 0;
-			rotation.y = 0;
+			localRotation.x = 0;
+			localRotation.y = 0;
 			break;
 		}
-		rotation.z = 180;
+		localRotation.z = 180;
 		updateViewMatrix();
+	}
+	
+	@Override
+	public Vector3f getRotation() {
+		return localRotation;
 	}
 
 	private void createProjectionMatrix() {

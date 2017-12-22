@@ -24,6 +24,7 @@ import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.
 
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
+import org.joml.Vector3f;
 
 import net.luxvacuos.lightengine.client.resources.CastRay;
 import net.luxvacuos.lightengine.client.util.Maths;
@@ -88,13 +89,18 @@ public class SunCamera extends CameraEntity {
 		super.dispose();
 		EventSubsystem.removeEvent("lightengine.renderer.resetshadowmatrix", shadowReset);
 	}
+	
+	@Override
+	public Vector3f getRotation() {
+		return localRotation;
+	}
 
 	public void updateShadowRay(boolean inverted) {
 		setViewMatrix(Maths.createViewMatrix(this));
 		if (inverted)
-			castRay.update(getProjectionMatrix(),
-					Maths.createViewMatrixPos(localPosition,
-							Maths.createViewMatrixRot(rotation.x() + 180, rotation.y(), rotation.z(), null)),
+			castRay.update(
+					getProjectionMatrix(), Maths.createViewMatrixPos(localPosition, Maths
+							.createViewMatrixRot(localRotation.x() + 180, localRotation.y(), localRotation.z(), null)),
 					center, 2048, 2048);
 		else
 			castRay.update(getProjectionMatrix(), getViewMatrix(), center, 2048, 2048);
