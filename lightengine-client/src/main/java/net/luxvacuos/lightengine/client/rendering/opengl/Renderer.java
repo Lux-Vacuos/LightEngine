@@ -96,6 +96,7 @@ public class Renderer {
 	private static IEvent shadowMap, reload;
 
 	public static void init(Window window) {
+		System.out.println(enabled);
 		if (!enabled) {
 			renderingManager = new RenderingManager();
 			Renderer.window = window;
@@ -267,10 +268,12 @@ public class Renderer {
 				preFilteredEnvironment.getBRDFLUT(), shadowFBO, exposure);
 		GPUProfiler.end();
 		GPUProfiler.start("PostFX Pre-Pass");
+		ARBClipControl.glClipControl(ARBClipControl.GL_LOWER_LEFT, ARBClipControl.GL_ZERO_TO_ONE);
 		postProcessPipeline.begin();
+		glDepthFunc(GL_GREATER);
+		glClearDepth(0.0);
 		clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		deferredPipeline.render(postProcessPipeline.getFBO());
-		glDepthFunc(GL_GREATER);
 		GPUProfiler.start("Forward");
 		if (forwardPass != null)
 			forwardPass.render(camera, sunCamera, frustum, shadowFBO);
@@ -278,8 +281,10 @@ public class Renderer {
 		renderingManager.renderForward(camera, sun.getSunPosition(), irradianceCapture.getCubeMapTexture(),
 				preFilteredEnvironment.getCubeMapTexture(), preFilteredEnvironment.getBRDFLUT());
 		GPUProfiler.end();
+		glClearDepth(1.0);
 		glDepthFunc(GL_LESS);
 		postProcessPipeline.end();
+		ARBClipControl.glClipControl(ARBClipControl.GL_LOWER_LEFT, ARBClipControl.GL_NEGATIVE_ONE_TO_ONE);
 		GPUProfiler.end();
 		GPUProfiler.start("PostFX");
 		postProcessPipeline.preRender(camera);

@@ -80,7 +80,7 @@ public abstract class PostProcessPipeline implements IPostProcessPipeline {
 		if (quad == null)
 			quad = window.getResourceLoader().loadToVAO(positions, 2);
 		
-		fbo = new FBO(width, height, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
+		fbo = new FBO(width, height, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, true);
 
 		previousCameraPosition = new Vector3f();
 		previousViewMatrix = new Matrix4f();
@@ -134,7 +134,7 @@ public abstract class PostProcessPipeline implements IPostProcessPipeline {
 		if (texture != -1)
 			nvgDeleteImage(window.getNVGID(), texture);
 		fbo.dispose();
-		fbo = new FBO(width, height, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
+		fbo = new FBO(width, height, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, true);
 		texture = Theme.generateImageFromTexture(window.getNVGID(), fbo.getTexture(), width, height, NVG_IMAGE_FLIPY);
 		finalShader.start();
 		finalShader.loadResolution(new Vector2f(width, height));

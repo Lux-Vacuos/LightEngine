@@ -25,6 +25,6 @@ layout(location = 0) in vec2 position;
 out vec2 textureCoords;
 
 void main(){
-	gl_Position = vec4(position, -0.8, 1.0);
+	gl_Position = vec4(position, 0.5, 1.0);
 	textureCoords = vec2((position.x + 1.0) / 2.0, (position.y + 1.0) / 2.0);
 }

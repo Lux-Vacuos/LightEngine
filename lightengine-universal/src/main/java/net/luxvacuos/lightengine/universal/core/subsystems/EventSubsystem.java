@@ -68,7 +68,10 @@ public class EventSubsystem implements ISubsystem {
 
 	public static boolean removeEvent(String key, IEvent event) {
 		List<IEvent> eventList = events.get(key);
-		return eventList.remove(event);
+		if (eventList != null)
+			return eventList.remove(event);
+		else
+			return true;
 	}
 
 	public static void triggerEvent(String key) {

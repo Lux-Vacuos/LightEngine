@@ -138,7 +138,6 @@ public abstract class DeferredPipeline implements IDeferredPipeline {
 		glDisableVertexAttribArray(0);
 		glBindVertexArray(0);
 		finalShader.stop();
-
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, mainFBO.getFbo());
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, postProcess.getFbo());
 		glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
