@@ -179,7 +179,7 @@ public abstract class ShaderProgram implements IDisposable {
 			Logger.log("Loading Shader: " + file);
 			String line;
 			while ((line = reader.readLine()) != null) {
-				if (line.startsWith("##include")) {
+				if (line.startsWith("#include")) {
 					String[] split = line.split(" ");
 					String name = split[2];
 					if (split[1].equalsIgnoreCase("variable")) {
