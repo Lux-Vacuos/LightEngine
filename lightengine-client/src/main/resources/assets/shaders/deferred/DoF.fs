@@ -42,5 +42,5 @@ void main(void){
 		sum /= 65.0;
 		textureColour = sum;
 	}
-    out_Color = textureColour;
+	out_Color = textureColour;
 }

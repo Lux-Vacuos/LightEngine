@@ -35,28 +35,28 @@ const float haloWidth = 0.47;
 const float distortion = 1.5;
 
 vec4 textureDistorted(sampler2D tex, vec2 texcoord, vec2 direction, vec3 distortion) {
-    return vec4(texture(tex, texcoord + direction * distortion.r).r, texture(tex, texcoord + direction * distortion.g).g, texture(tex, texcoord + direction * distortion.b).b, 1.0);
+	return vec4(texture(tex, texcoord + direction * distortion.r).r, texture(tex, texcoord + direction * distortion.g).g, texture(tex, texcoord + direction * distortion.b).b, 1.0);
 }
 
 void main() {
 	vec4 result = vec4(0.0);
-    if(useLensFlares == 1) {
-	    vec2 texcoord = -textureCoords + vec2(1.0);
-        vec2 ghostVec = (vec2(0.5) - texcoord) * ghostDispersal;
-        vec2 texelSize = 1.0 / vec2(textureSize(composite1, 0));
-        vec3 distortion = vec3(-texelSize.x * distortion, 0.0, texelSize.x * distortion);
-        vec2 direction = normalize(ghostVec);
-        for (int i = 0; i < ghosts; ++i) { 
-    	    vec2 offset = texcoord + ghostVec * float(i);
-            float weight = length(vec2(0.5) - offset) / length(vec2(0.5));
-            weight = pow(1.0 - weight, 10.0);
-    		result += textureDistorted(composite1, offset, direction, distortion) * weight;
-        }
-        vec2 haloVec = normalize(ghostVec) * haloWidth;
-        float weight = length(vec2(0.5) - fract(texcoord + haloVec)) / length(vec2(0.5));
-        weight = pow(1.0 - weight, 5.0);
-        result += textureDistorted(composite1, texcoord + haloVec, direction, distortion) * weight;
-        result *= texture(composite2, vec2(length(vec2(0.5) - texcoord) / length(vec2(0.5)), 0.0));
-    }
-    out_Color = result;
+	if(useLensFlares == 1) {
+		vec2 texcoord = -textureCoords + vec2(1.0);
+		vec2 ghostVec = (vec2(0.5) - texcoord) * ghostDispersal;
+		vec2 texelSize = 1.0 / vec2(textureSize(composite1, 0));
+		vec3 distortion = vec3(-texelSize.x * distortion, 0.0, texelSize.x * distortion);
+		vec2 direction = normalize(ghostVec);
+		for (int i = 0; i < ghosts; ++i) { 
+			vec2 offset = texcoord + ghostVec * float(i);
+			float weight = length(vec2(0.5) - offset) / length(vec2(0.5));
+			weight = pow(1.0 - weight, 10.0);
+			result += textureDistorted(composite1, offset, direction, distortion) * weight;
+		}
+		vec2 haloVec = normalize(ghostVec) * haloWidth;
+		float weight = length(vec2(0.5) - fract(texcoord + haloVec)) / length(vec2(0.5));
+		weight = pow(1.0 - weight, 5.0);
+		result += textureDistorted(composite1, texcoord + haloVec, direction, distortion) * weight;
+		result *= texture(composite2, vec2(length(vec2(0.5) - texcoord) / length(vec2(0.5)), 0.0));
+	}
+	out_Color = result;
 }

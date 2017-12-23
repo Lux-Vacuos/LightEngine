@@ -50,47 +50,47 @@ void main(void){
 	if(mask.a != 1) {
    		if(useReflections == 1) {
 			vec4 diffuse = texture(gDiffuse, textureCoords);
-	    	vec2 pbr = texture(gPBR, textureCoords).rg;
-    		vec3 position = texture(gPosition, textureCoords).rgb;
-    		vec3 normal = texture(gNormal, textureCoords).rgb;
+			vec2 pbr = texture(gPBR, textureCoords).rg;
+			vec3 position = texture(gPosition, textureCoords).rgb;
+			vec3 normal = texture(gNormal, textureCoords).rgb;
 
 			vec3 N = normalize(normal);
-	    	vec3 V = normalize(cameraPosition - position);
+			vec3 V = normalize(cameraPosition - position);
 			vec3 R = reflect(-V, N);
 
 			float roughness = pbr.r;
 			float metallic = pbr.g;
 
-	    	vec3 F0 = vec3(0.04);
-	    	F0 = mix(F0, diffuse.rgb, metallic);
-		    vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+			vec3 F0 = vec3(0.04);
+			F0 = mix(F0, diffuse.rgb, metallic);
+			vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
 
 			vec3 prefilteredColor = textureLod(composite2, R, roughness * MAX_REFLECTION_LOD).rgb; 
 			vec2 envBRDF = texture(composite3, vec2(max(dot(N, V), 0.0), roughness)).rg;
 			vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
 
-    		float depth = texture(gDepth, texcoord).r;
-    		vec3 cameraToWorld = position - cameraPosition.xyz;
-    		float cameraToWorldDist = length(cameraToWorld);
-    		vec3 cameraToWorldNorm = normalize(cameraToWorld);
-    		vec3 refl = normalize(reflect(cameraToWorldNorm, N));	
-    		vec3 newPos;
-    		vec4 newScreen;
-    		vec3 rayTrace = position;
-    		float currentWorldDist, rayDist;
-    		float incr = 0.4;
+			float depth = texture(gDepth, texcoord).r;
+			vec3 cameraToWorld = position - cameraPosition.xyz;
+			float cameraToWorldDist = length(cameraToWorld);
+			vec3 cameraToWorldNorm = normalize(cameraToWorld);
+			vec3 refl = normalize(reflect(cameraToWorldNorm, N));	
+			vec3 newPos;
+			vec4 newScreen;
+			vec3 rayTrace = position;
+			float currentWorldDist, rayDist;
+			float incr = 0.4;
 			do {
 				rayTrace += refl*incr;
 				incr *= 1.2;
-        		newScreen = viewMatrix * vec4(rayTrace, 1);
+				newScreen = viewMatrix * vec4(rayTrace, 1);
 				newScreen = projectionMatrix * newScreen;
-        		newScreen /= newScreen.w;
-       			newPos = texture(gPosition, newScreen.xy/2.0+0.5).xyz;
-       			currentWorldDist = length(newPos.xyz - cameraPosition);
-       			rayDist = length(rayTrace - cameraPosition);
-       			if (newScreen.x > 1 || newScreen.x < -1 || newScreen.y > 1 || newScreen.y < -1 || newScreen.z > 1 || newScreen.z < -1
-       			|| cameraToWorldDist > currentWorldDist|| dot(refl, cameraToWorldNorm) < 0 || rayDist > MAX_DISTANCE_REFLECTION)
-	       			break;
+				newScreen /= newScreen.w;
+	   			newPos = texture(gPosition, newScreen.xy/2.0+0.5).xyz;
+	   			currentWorldDist = length(newPos.xyz - cameraPosition);
+	   			rayDist = length(rayTrace - cameraPosition);
+	   			if (newScreen.x > 1 || newScreen.x < -1 || newScreen.y > 1 || newScreen.y < -1 || newScreen.z > 1 || newScreen.z < -1
+	   			|| cameraToWorldDist > currentWorldDist|| dot(refl, cameraToWorldNorm) < 0 || rayDist > MAX_DISTANCE_REFLECTION)
+		   			break;
    			} while(rayDist < currentWorldDist);
 
 			vec4 newColor = texture(composite0, newScreen.xy/2.0 + 0.5);
@@ -101,12 +101,12 @@ void main(void){
 			}
 			newColor /= 65.0;
 			float fact = 1.0;
-    		if (dot(refl, cameraToWorldNorm) < 0)
-	    		fact = 0.0;
-    		else if (newScreen.x > 1 || newScreen.x < -1 || newScreen.y > 1 || newScreen.y < -1)
-		       	fact = 0.0;
-    		else if (cameraToWorldDist > currentWorldDist)
-		       	fact = 0.0;
+			if (dot(refl, cameraToWorldNorm) < 0)
+				fact = 0.0;
+			else if (newScreen.x > 1 || newScreen.x < -1 || newScreen.y > 1 || newScreen.y < -1)
+			   	fact = 0.0;
+			else if (cameraToWorldDist > currentWorldDist)
+			   	fact = 0.0;
 			else if(newScreen.z < -1)
 					fact = 0.0;
 			image.rgb -= max(specular, 0.0);

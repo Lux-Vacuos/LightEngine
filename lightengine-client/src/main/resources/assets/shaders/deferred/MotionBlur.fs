@@ -63,5 +63,5 @@ void main(){
 		sum = sum/samples;
 		textureColour = sum;
 	}
-    out_Color = textureColour;
+	out_Color = textureColour;
 }

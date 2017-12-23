@@ -40,25 +40,25 @@ vec3 calculateTriangleNormal(){
 }
 
 void main() {
-    
-    normal = calculateTriangleNormal();
-    passPositionOut = passPosition[0];
-    clipSpaceOut = clipSpace[0];
-    textureCoordsOut = passTextureCoords[0];
-    gl_Position = gl_in[0].gl_Position;
-    EmitVertex();
+	
+	normal = calculateTriangleNormal();
+	passPositionOut = passPosition[0];
+	clipSpaceOut = clipSpace[0];
+	textureCoordsOut = passTextureCoords[0];
+	gl_Position = gl_in[0].gl_Position;
+	EmitVertex();
 
-    passPositionOut = passPosition[1];
-    clipSpaceOut = clipSpace[1];
-    textureCoordsOut = passTextureCoords[1];
-    gl_Position =  gl_in[1].gl_Position;
-    EmitVertex();
+	passPositionOut = passPosition[1];
+	clipSpaceOut = clipSpace[1];
+	textureCoordsOut = passTextureCoords[1];
+	gl_Position =  gl_in[1].gl_Position;
+	EmitVertex();
 
-    passPositionOut = passPosition[2];
-    clipSpaceOut = clipSpace[2];
-    textureCoordsOut = passTextureCoords[2];
-    gl_Position =  gl_in[2].gl_Position;
-    EmitVertex();
+	passPositionOut = passPosition[2];
+	clipSpaceOut = clipSpace[2];
+	textureCoordsOut = passTextureCoords[2];
+	gl_Position =  gl_in[2].gl_Position;
+	EmitVertex();
 
-    EndPrimitive();
+	EndPrimitive();
 }

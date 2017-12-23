@@ -30,9 +30,9 @@ uniform int blurBehind;
 uniform vec4 frame;
 
 void main(){
-    out_Color = texture(image, textureCoords);
-    out_Color.a = 1;
-    if(blurBehind == 1)
-        if(texture(window,textureCoords).a > 0)
-            out_Color.a = 0;
+	out_Color = texture(image, textureCoords);
+	out_Color.a = 1;
+	if(blurBehind == 1)
+		if(texture(window,textureCoords).a > 0)
+			out_Color.a = 0;
 }

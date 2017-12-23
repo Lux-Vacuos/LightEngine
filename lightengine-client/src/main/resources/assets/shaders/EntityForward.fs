@@ -64,7 +64,7 @@ void main() {
 	normal = normalize(normal * 2.0 - 1.0);
 	normal = normalize(TBN * normal);
 
-    vec3 position = pass_position.xyz;
+	vec3 position = pass_position.xyz;
 
 	vec3 N = normalize(normal);
 	vec3 V = normalize(cameraPosition - position);
@@ -78,17 +78,17 @@ void main() {
 	vec3 kD = vec3(1.0) - kS;
 	kD *= 1.0 - metallic;	  
 	
-    vec3 Lo = vec3(0.0);
-    vec3 L = normalize(lightPosition);
-    vec3 H = normalize(V + L);
-    vec3 radiance = vec3(1.0);        
+	vec3 Lo = vec3(0.0);
+	vec3 L = normalize(lightPosition);
+	vec3 H = normalize(V + L);
+	vec3 radiance = vec3(1.0);        
 	
-    float NDF = DistributionGGX(N, H, roughness);        
-    float G = GeometrySmith(N, V, L, roughness);      
-        
-    vec3 nominator = NDF * G * F;
+	float NDF = DistributionGGX(N, H, roughness);        
+	float G = GeometrySmith(N, V, L, roughness);      
+		
+	vec3 nominator = NDF * G * F;
    	float denominator = max(dot(V, N), 0.0) * max(dot(L, N), 0.0) + 0.001; 
-    vec3 brdf = nominator / denominator;
+	vec3 brdf = nominator / denominator;
 	
    	float NdotL = max(dot(N, L), 0.0);      
   	Lo += (kD * diffuseF.rgb / PI + brdf) * radiance * NdotL;
@@ -103,10 +103,10 @@ void main() {
 	vec3 emissive = material.emissive.rgb * diffuseF.rgb;
 
 	vec3 ambient = kD * diffuse + max(specular, 0.0) + emissive;
-    vec3 color = ambient + Lo;
+	vec3 color = ambient + Lo;
 	if(colorCorrect == 1) {
 		vec3 final = vec3(1.0) - exp(-color * exposure);
-	    final = pow(final, vec3(1.0 / GAMMA));
+		final = pow(final, vec3(1.0 / GAMMA));
 		out_Color = vec4(final, diffuseF.a);
 	} else 
 		out_Color = vec4(color, diffuseF.a);

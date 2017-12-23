@@ -28,7 +28,7 @@ uniform sampler2D composite0;
 uniform sampler2D composite1;
 
 void main(){
-    vec4 hdrColor = texture(composite1, textureCoords);
-    hdrColor += texture(composite0, textureCoords);
-    out_Color = hdrColor;
+	vec4 hdrColor = texture(composite1, textureCoords);
+	hdrColor += texture(composite0, textureCoords);
+	out_Color = hdrColor;
 }

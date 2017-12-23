@@ -32,8 +32,8 @@ uniform float exposure;
 
 void main(){
 	vec2 texcoord = textureCoords;
-    vec4 color = texture(composite0, texcoord);
-    vec4 final = vec4(1.0) - exp(-color * exposure);
-    final = pow(final, vec4(1.0 / GAMMA));
-    out_Color = final;
+	vec4 color = texture(composite0, texcoord);
+	vec4 final = vec4(1.0) - exp(-color * exposure);
+	final = pow(final, vec4(1.0 / GAMMA));
+	out_Color = final;
 }

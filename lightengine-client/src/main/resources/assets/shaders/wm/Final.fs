@@ -62,11 +62,11 @@ float noise(vec2 x) {
 
 
 void main(){
-    vec4 source = texture(image,textureCoords);
-    vec4 window = texture(window,textureCoords);
-     if(blurBehind == 1)
+	vec4 source = texture(image,textureCoords);
+	vec4 window = texture(window,textureCoords);
+	 if(blurBehind == 1)
 	 	if(window.a > 0)
-        	source.rgb *= 1.0 - vec3(noise((gl_FragCoord.xy + windowPosition.xy * 0.10))) * 0.10;
-    out_Color.rgb = mix(source.rgb, window.rgb, window.a);
-    out_Color.a = 1;
+			source.rgb *= 1.0 - vec3(noise((gl_FragCoord.xy + windowPosition.xy * 0.10))) * 0.10;
+	out_Color.rgb = mix(source.rgb, window.rgb, window.a);
+	out_Color.a = 1;
 }

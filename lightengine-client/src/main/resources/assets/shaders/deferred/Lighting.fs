@@ -47,23 +47,23 @@ uniform sampler2DShadow shadowMap[4];
 const float distanceThreshold = 1;
 const int sample_count = 16;
 const vec2 poisson16[] = vec2[](
-                                vec2( -0.94201624,  -0.39906216 ),
-                                vec2(  0.94558609,  -0.76890725 ),
-                                vec2( -0.094184101, -0.92938870 ),
-                                vec2(  0.34495938,   0.29387760 ),
-                                vec2( -0.91588581,   0.45771432 ),
-                                vec2( -0.81544232,  -0.87912464 ),
-                                vec2( -0.38277543,   0.27676845 ),
-                                vec2(  0.97484398,   0.75648379 ),
-                                vec2(  0.44323325,  -0.97511554 ),
-                                vec2(  0.53742981,  -0.47373420 ),
-                                vec2( -0.26496911,  -0.41893023 ),
-                                vec2(  0.79197514,   0.19090188 ),
-                                vec2( -0.24188840,   0.99706507 ),
-                                vec2( -0.81409955,   0.91437590 ),
-                                vec2(  0.19984126,   0.78641367 ),
-                                vec2(  0.14383161,  -0.14100790 )
-                               );
+								vec2( -0.94201624,  -0.39906216 ),
+								vec2(  0.94558609,  -0.76890725 ),
+								vec2( -0.094184101, -0.92938870 ),
+								vec2(  0.34495938,   0.29387760 ),
+								vec2( -0.91588581,   0.45771432 ),
+								vec2( -0.81544232,  -0.87912464 ),
+								vec2( -0.38277543,   0.27676845 ),
+								vec2(  0.97484398,   0.75648379 ),
+								vec2(  0.44323325,  -0.97511554 ),
+								vec2(  0.53742981,  -0.47373420 ),
+								vec2( -0.26496911,  -0.41893023 ),
+								vec2(  0.79197514,   0.19090188 ),
+								vec2( -0.24188840,   0.99706507 ),
+								vec2( -0.81409955,   0.91437590 ),
+								vec2(  0.19984126,   0.78641367 ),
+								vec2(  0.14383161,  -0.14100790 )
+							   );
 
 ##include variable GLOBAL
 
@@ -92,38 +92,38 @@ void main() {
 	vec4 image = texture(gDiffuse, textureCoords);
 	if (mask.a != 1) {
 		vec2 pbr = texture(gPBR, textureCoords).rg;
-    	vec3 position = texture(gPosition, textureCoords).rgb;
-    	vec3 normal = texture(gNormal, textureCoords).rgb;
+		vec3 position = texture(gPosition, textureCoords).rgb;
+		vec3 normal = texture(gNormal, textureCoords).rgb;
 
 		vec3 N = normalize(normal);
-	    vec3 V = normalize(cameraPosition - position);
+		vec3 V = normalize(cameraPosition - position);
 		vec3 R = reflect(-V, N);
 
 		float roughness = pbr.r;
 		float metallic = pbr.g;
 
-	    vec3 F0 = vec3(0.04);
-	    F0 = mix(F0, image.rgb, metallic);
-	    vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+		vec3 F0 = vec3(0.04);
+		F0 = mix(F0, image.rgb, metallic);
+		vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
 
-	    vec3 kS = F;
-	    vec3 kD = vec3(1.0) - kS;
-	    kD *= 1.0 - metallic;	  
+		vec3 kS = F;
+		vec3 kD = vec3(1.0) - kS;
+		kD *= 1.0 - metallic;	  
 	
-    	vec3 Lo = vec3(0.0);
-       	vec3 L = normalize(lightPosition);
-       	vec3 H = normalize(V + L);
-        vec3 radiance = vec3(1.0);        
+		vec3 Lo = vec3(0.0);
+	   	vec3 L = normalize(lightPosition);
+	   	vec3 H = normalize(V + L);
+		vec3 radiance = vec3(1.0);        
 	
-       	float NDF = DistributionGGX(N, H, roughness);        
-       	float G = GeometrySmith(N, V, L, roughness);      
-        
-    	vec3 nominator = NDF * G * F;
-       	float denominator = max(dot(V, N), 0.0) * max(dot(L, N), 0.0) + 0.001; 
-        vec3 brdf = nominator / denominator;
+	   	float NDF = DistributionGGX(N, H, roughness);        
+	   	float G = GeometrySmith(N, V, L, roughness);      
+		
+		vec3 nominator = NDF * G * F;
+	   	float denominator = max(dot(V, N), 0.0) * max(dot(L, N), 0.0) + 0.001; 
+		vec3 brdf = nominator / denominator;
 	
-       	float NdotL = max(dot(N, L), 0.0) * computeShadow(position);      
-       	Lo += (kD * image.rgb / PI + brdf) * radiance * NdotL;
+	   	float NdotL = max(dot(N, L), 0.0) * computeShadow(position);      
+	   	Lo += (kD * image.rgb / PI + brdf) * radiance * NdotL;
 		
 		vec3 irradiance = texture(composite1, N).rgb;
 		vec3 diffuse = irradiance * image.rgb;
@@ -135,11 +135,11 @@ void main() {
 		vec3 emissive = texture(gMask, vec2(textureCoords)).rgb;
 
 		vec3 ambient = (kD * diffuse) * computeAmbientOcclusion(position, N);
-    	vec3 color = ambient + emissive + Lo + max(specular, 0.0);
+		vec3 color = ambient + emissive + Lo + max(specular, 0.0);
 		image.rgb = color;
 	}
 	vec4 vol = texture(composite0, textureCoords);
-    image = mix(image, vec4(vol.g), vol.g);
+	image = mix(image, vec4(vol.g), vol.g);
 	image += vec4(vol.r);
 	out_Color = image;
 }

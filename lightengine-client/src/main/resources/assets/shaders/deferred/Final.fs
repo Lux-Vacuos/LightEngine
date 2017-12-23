@@ -27,5 +27,5 @@ out vec4 out_Color;
 uniform sampler2D composite0;
 
 void main(void){
-    out_Color = texture(composite0, textureCoords);
+	out_Color = texture(composite0, textureCoords);
 }

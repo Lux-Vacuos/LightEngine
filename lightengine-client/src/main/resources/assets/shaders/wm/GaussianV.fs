@@ -29,30 +29,30 @@ uniform sampler2D image;
 uniform sampler2D window;
 
 void main(){
-    vec4 result = vec4(0.0);
-    vec4 mask = texture(image, textureCoords);
-    if(mask.a == 0) {
-        result.rgb += texture(image, blurTexCoords[0]).rgb * 0.024418;
-        result.rgb += texture(image, blurTexCoords[1]).rgb * 0.032928;
-        result.rgb += texture(image, blurTexCoords[2]).rgb * 0.042669;
-        result.rgb += texture(image, blurTexCoords[3]).rgb * 0.05313;
-        result.rgb += texture(image, blurTexCoords[4]).rgb * 0.06357;
-        result.rgb += texture(image, blurTexCoords[5]).rgb * 0.073088;
-        result.rgb += texture(image, blurTexCoords[6]).rgb * 0.080748;
-        result.rgb += texture(image, blurTexCoords[7]).rgb * 0.085724;
-        result.rgb += texture(image, blurTexCoords[8]).rgb * 0.08745;
-        result.rgb += texture(image, blurTexCoords[9]).rgb * 0.085724;
-        result.rgb += texture(image, blurTexCoords[10]).rgb * 0.080748;
-        result.rgb += texture(image, blurTexCoords[11]).rgb * 0.073088;
-        result.rgb += texture(image, blurTexCoords[12]).rgb * 0.06357;
-        result.rgb += texture(image, blurTexCoords[13]).rgb * 0.05313;
-        result.rgb += texture(image, blurTexCoords[14]).rgb * 0.042669;
-        result.rgb += texture(image, blurTexCoords[15]).rgb * 0.032928;
-        result.rgb += texture(image, blurTexCoords[16]).rgb * 0.024418;
-        out_Color.rgb = result.rgb;
-        out_Color.a = 0;
-    } else {
-        out_Color = mask;
-        out_Color.a = 1;
-    }
+	vec4 result = vec4(0.0);
+	vec4 mask = texture(image, textureCoords);
+	if(mask.a == 0) {
+		result.rgb += texture(image, blurTexCoords[0]).rgb * 0.024418;
+		result.rgb += texture(image, blurTexCoords[1]).rgb * 0.032928;
+		result.rgb += texture(image, blurTexCoords[2]).rgb * 0.042669;
+		result.rgb += texture(image, blurTexCoords[3]).rgb * 0.05313;
+		result.rgb += texture(image, blurTexCoords[4]).rgb * 0.06357;
+		result.rgb += texture(image, blurTexCoords[5]).rgb * 0.073088;
+		result.rgb += texture(image, blurTexCoords[6]).rgb * 0.080748;
+		result.rgb += texture(image, blurTexCoords[7]).rgb * 0.085724;
+		result.rgb += texture(image, blurTexCoords[8]).rgb * 0.08745;
+		result.rgb += texture(image, blurTexCoords[9]).rgb * 0.085724;
+		result.rgb += texture(image, blurTexCoords[10]).rgb * 0.080748;
+		result.rgb += texture(image, blurTexCoords[11]).rgb * 0.073088;
+		result.rgb += texture(image, blurTexCoords[12]).rgb * 0.06357;
+		result.rgb += texture(image, blurTexCoords[13]).rgb * 0.05313;
+		result.rgb += texture(image, blurTexCoords[14]).rgb * 0.042669;
+		result.rgb += texture(image, blurTexCoords[15]).rgb * 0.032928;
+		result.rgb += texture(image, blurTexCoords[16]).rgb * 0.024418;
+		out_Color.rgb = result.rgb;
+		out_Color.a = 0;
+	} else {
+		out_Color = mask;
+		out_Color.a = 1;
+	}
 }

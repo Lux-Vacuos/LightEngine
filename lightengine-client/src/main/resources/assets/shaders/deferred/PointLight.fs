@@ -52,45 +52,45 @@ uniform sampler2D composite0;
 ##include function fresnelSchlickRoughness
 
 vec3 calcLight(Light light, vec3 position, vec3 diffuse, vec3 L, vec3 N, vec3 V, vec3 kD, vec3 F, float roughness) {
-    vec3 H = normalize(V + L);
-    float distance = length(light.position - position);
+	vec3 H = normalize(V + L);
+	float distance = length(light.position - position);
 	float attenuation = 1.0 / (distance * distance);
 	vec3 radiance = light.color * attenuation;   
 			
-    float NDF = DistributionGGX(N, H, roughness);        
+	float NDF = DistributionGGX(N, H, roughness);        
 	float G = GeometrySmith(N, V, L, roughness);      			
-    vec3 nominator = NDF * G * F;
-    float denominator = totalLights * max(dot(V, N), 0.0) * max(dot(L, N), 0.0) + 0.001; 
+	vec3 nominator = NDF * G * F;
+	float denominator = totalLights * max(dot(V, N), 0.0) * max(dot(L, N), 0.0) + 0.001; 
 	vec3 brdf = nominator / denominator;
 			
-    float NdotL = max(dot(N, L), 0.0);                
+	float NdotL = max(dot(N, L), 0.0);                
 	return (kD * diffuse / PI + brdf) * radiance * NdotL; 
 }
 
 void main(){
-    vec4 composite = texture(composite0, textureCoords);
+	vec4 composite = texture(composite0, textureCoords);
 	vec4 mask = texture(gMask, textureCoords);
 	if(mask.a != 1) {
 		vec4 diffuse = texture(gDiffuse, textureCoords);
 		vec2 pbr = texture(gPBR, textureCoords).rg;
-    	vec3 position = texture(gPosition, textureCoords).rgb;
-    	vec3 normal = texture(gNormal, textureCoords).rgb;
+		vec3 position = texture(gPosition, textureCoords).rgb;
+		vec3 normal = texture(gNormal, textureCoords).rgb;
 
 		vec3 N = normalize(normal);
-	    vec3 V = normalize(cameraPosition - position);
+		vec3 V = normalize(cameraPosition - position);
 
 		float roughness = pbr.r;
 		float metallic = pbr.g;
 
-	    vec3 F0 = vec3(0.04);
-	    F0 = mix(F0, diffuse.rgb, metallic);
-	    vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+		vec3 F0 = vec3(0.04);
+		F0 = mix(F0, diffuse.rgb, metallic);
+		vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
 
-	    vec3 kS = F;
-	    vec3 kD = vec3(1.0) - kS;
-	    kD *= 1.0 - metallic;	  
+		vec3 kS = F;
+		vec3 kD = vec3(1.0) - kS;
+		kD *= 1.0 - metallic;	  
 	
-    	vec3 Lo = vec3(0.0);
+		vec3 Lo = vec3(0.0);
 		for(int i = 0; i < totalLights; i++) {
 			vec3 L = normalize(lights[i].position - position);
 			if(lights[i].type == 0) 
@@ -100,7 +100,7 @@ void main(){
 				float epsilon = lights[i].inRadius - lights[i].radius;
 				float intensity = clamp((theta - lights[i].radius) / epsilon, 0.0, 1.0);    
 				if(intensity > 0.0) {
-        			float shadow = 1.0;
+					float shadow = 1.0;
 					if(lights[i].shadowEnabled == 1)	{
 						vec4 posLight = lights[i].shadowViewMatrix * vec4(position, 1.0);
 						vec4 shadowCoord = biasMatrix * (lights[i].shadowProjectionMatrix * posLight);
@@ -109,9 +109,9 @@ void main(){
 					Lo += calcLight(lights[i], position, diffuse.rgb, L, N, V, kD, F, roughness) * intensity * shadow;
 				}
 			}
-    	}
-    	vec3 color = Lo;
-    	composite.rgb += color;
+		}
+		vec3 color = Lo;
+		composite.rgb += color;
 
 	}
 	out_Color = composite;

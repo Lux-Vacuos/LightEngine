@@ -86,5 +86,5 @@ void main(){
 	} else {
 		textureColour = texture(composite0, textureCoords).rgb;
 	}
-    out_Color = textureColour;
+	out_Color = textureColour;
 }

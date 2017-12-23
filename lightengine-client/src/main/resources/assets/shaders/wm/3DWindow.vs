@@ -1,3 +1,4 @@
+
 //
 // This file is part of Light Engine
 // 
@@ -29,8 +30,8 @@ uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
 
 void main() {
-    vec4 worldPosition = transformationMatrix * vec4(position, 0.0, 1.0);
+	vec4 worldPosition = transformationMatrix * vec4(position, 0.0, 1.0);
 	vec4 positionRelativeToCam = viewMatrix * worldPosition;
 	gl_Position = projectionMatrix * positionRelativeToCam;
-    textureCoords = vec2(position.x + 0.5, position.y + 0.5);
+	textureCoords = vec2(position.x + 0.5, position.y + 0.5);
 }

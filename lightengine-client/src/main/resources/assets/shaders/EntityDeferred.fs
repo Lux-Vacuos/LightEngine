@@ -40,7 +40,7 @@ void main() {
 	roughnessF *= material.roughness;
 	metallicF *= material.metallic;
 
-    //if(diffuseF.a > 0.5 && diffuseF.a < 1.0) {
+	//if(diffuseF.a > 0.5 && diffuseF.a < 1.0) {
 	//	if(int(gl_FragCoord.x + gl_FragCoord.y) % 2 == 1)
 	//		discard;
 	//} else if(diffuseF.a <= 0.5) 

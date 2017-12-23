@@ -34,12 +34,12 @@ uniform int useLensFlares;
 const float mult = 2.0;
 
 void main(){
-    vec4 textureColor = texture(composite3, textureCoords);
-    if(useLensFlares == 1) {
-        vec4 lensMod = texture(composite1, textureCoords);
-        lensMod += texture(composite2, textureCoords);
-        vec4 lensFlare = texture(composite0, textureCoords) * (lensMod * mult);
-        textureColor += lensFlare;
-    }
-    out_Color = textureColor;
+	vec4 textureColor = texture(composite3, textureCoords);
+	if(useLensFlares == 1) {
+		vec4 lensMod = texture(composite1, textureCoords);
+		lensMod += texture(composite2, textureCoords);
+		vec4 lensFlare = texture(composite0, textureCoords) * (lensMod * mult);
+		textureColor += lensFlare;
+	}
+	out_Color = textureColor;
 }
