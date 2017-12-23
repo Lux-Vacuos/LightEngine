@@ -1,6 +1,6 @@
 //
 // This file is part of Light Engine
-// 
+//
 // Copyright (C) 2016-2017 Lux Vacuos
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //
 
 #version 330 core
@@ -29,8 +29,12 @@ uniform sampler2D window;
 uniform int blurBehind;
 uniform vec2 windowPosition;
 
-float hash(float n) { return fract(sin(n) * 1e4); }
-float hash(vec2 p) { return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x)))); }
+float hash(float n) {
+	return fract(sin(n) * 1e4);
+}
+float hash(vec2 p) {
+	return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x))));
+}
 
 float noise(float x) {
 	float i = floor(x);
@@ -60,12 +64,11 @@ float noise(vec2 x) {
 	return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
 }
 
-
-void main(){
-	vec4 source = texture(image,textureCoords);
-	vec4 window = texture(window,textureCoords);
-	 if(blurBehind == 1)
-	 	if(window.a > 0)
+void main() {
+	vec4 source = texture(image, textureCoords);
+	vec4 window = texture(window, textureCoords);
+	if (blurBehind == 1)
+		if (window.a > 0)
 			source.rgb *= 1.0 - vec3(noise((gl_FragCoord.xy + windowPosition.xy * 0.10))) * 0.10;
 	out_Color.rgb = mix(source.rgb, window.rgb, window.a);
 	out_Color.a = 1;

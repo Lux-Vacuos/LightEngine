@@ -1,6 +1,6 @@
 //
 // This file is part of Light Engine
-// 
+//
 // Copyright (C) 2016-2017 Lux Vacuos
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //
 
 #version 330 core
@@ -28,10 +28,10 @@ out vec4 out_Color;
 uniform sampler2D image;
 uniform sampler2D window;
 
-void main(){
+void main() {
 	vec4 result = vec4(0.0);
 	vec4 mask = texture(image, textureCoords);
-	if(mask.a == 0) {
+	if (mask.a == 0) {
 		result.rgb += texture(image, blurTexCoords[0]).rgb * 0.024418;
 		result.rgb += texture(image, blurTexCoords[1]).rgb * 0.032928;
 		result.rgb += texture(image, blurTexCoords[2]).rgb * 0.042669;

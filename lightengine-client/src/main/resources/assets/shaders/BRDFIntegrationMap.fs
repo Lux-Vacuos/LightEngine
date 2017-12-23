@@ -1,6 +1,6 @@
 //
 // This file is part of Light Engine
-// 
+//
 // Copyright (C) 2016-2017 Lux Vacuos
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //
 
 #version 330 core
@@ -24,7 +24,7 @@ in vec2 textureCoords;
 
 out vec2 out_color;
 
-##include variable pi
+#include variable pi
 
 const uint SAMPLE_COUNT = 1024u;
 
@@ -43,20 +43,20 @@ vec2 Hammersley(uint i, uint N) {
 
 vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness) {
 	float a = roughness * roughness;
-	
+
 	float phi = 2.0 * PI * Xi.x;
 	float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (a * a - 1.0) * Xi.y));
-	float sinTheta = sqrt(1.0 - cosTheta*cosTheta);
-	
+	float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
+
 	vec3 H;
 	H.x = cos(phi) * sinTheta;
 	H.y = sin(phi) * sinTheta;
 	H.z = cosTheta;
-	
+
 	vec3 up = abs(N.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
 	vec3 tangent = normalize(cross(up, N));
 	vec3 bitangent = cross(N, tangent);
-	
+
 	vec3 sampleVec = tangent * H.x + bitangent * H.y + N * H.z;
 	return normalize(sampleVec);
 }
@@ -65,7 +65,7 @@ float GeometrySchlickGGX(float NdotV, float roughness) {
 	float a = roughness;
 	float k = (a * a) / 2.0;
 
-	float nom   = NdotV;
+	float nom = NdotV;
 	float denom = NdotV * (1.0 - k) + k;
 
 	return nom / denom;
@@ -78,11 +78,11 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness) {
 	float ggx1 = GeometrySchlickGGX(NdotL, roughness);
 
 	return ggx1 * ggx2;
-} 
+}
 
 vec2 IntegrateBRDF(float roughness, float NdotV) {
 	vec3 V;
-	V.x = sqrt(1.0 - NdotV*NdotV);
+	V.x = sqrt(1.0 - NdotV * NdotV);
 	V.y = 0.0;
 	V.z = NdotV;
 
@@ -91,7 +91,7 @@ vec2 IntegrateBRDF(float roughness, float NdotV) {
 
 	vec3 N = vec3(0.0, 0.0, 1.0);
 
-	for(uint i = 0u; i < SAMPLE_COUNT; ++i) {
+	for (uint i = 0u; i < SAMPLE_COUNT; ++i) {
 		vec2 Xi = Hammersley(i, SAMPLE_COUNT);
 		vec3 H = ImportanceSampleGGX(Xi, N, roughness);
 		vec3 L = normalize(2.0 * dot(V, H) * H - V);
@@ -100,7 +100,7 @@ vec2 IntegrateBRDF(float roughness, float NdotV) {
 		float NdotH = max(H.z, 0.0);
 		float VdotH = max(dot(V, H), 0.0);
 
-		if(NdotL > 0.0) {
+		if (NdotL > 0.0) {
 			float G = GeometrySmith(N, V, L, roughness);
 			float G_Vis = (G * VdotH) / (NdotH * NdotV);
 			float Fc = pow(1.0 - VdotH, 5.0);

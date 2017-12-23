@@ -1,6 +1,6 @@
 //
 // This file is part of Light Engine
-// 
+//
 // Copyright (C) 2016-2017 Lux Vacuos
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,18 +15,18 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //
 
 #version 330 core
 
-##include struct Material
+#include struct Material
 
 in vec2 pass_textureCoords;
 in vec4 pass_position;
 in mat3 TBN;
 
-out vec4 [5] out_Color;
+out vec4[5] out_Color;
 
 uniform Material material;
 
@@ -36,22 +36,22 @@ void main() {
 	float roughnessF = texture(material.roughnessTex, pass_textureCoords).r;
 	float metallicF = texture(material.metallicTex, pass_textureCoords).r;
 
-   	diffuseF *= material.diffuse;
+	diffuseF *= material.diffuse;
 	roughnessF *= material.roughness;
 	metallicF *= material.metallic;
 
-	//if(diffuseF.a > 0.5 && diffuseF.a < 1.0) {
+	// if(diffuseF.a > 0.5 && diffuseF.a < 1.0) {
 	//	if(int(gl_FragCoord.x + gl_FragCoord.y) % 2 == 1)
 	//		discard;
-	//} else if(diffuseF.a <= 0.5) 
+	//} else if(diffuseF.a <= 0.5)
 	//	discard;
-	if(diffuseF.a < 1)
+	if (diffuseF.a < 1)
 		discard;
 
 	vec3 normal = texture(material.normalTex, pass_textureCoords).rgb;
 	normal = normalize(normal * 2.0 - 1.0);
 	normal = normalize(TBN * normal);
-	
+
 	out_Color[0] = diffuseF;
 	out_Color[1] = vec4(pass_position.xyz, 0.0);
 	out_Color[2] = vec4(normal.xyz, 0.0);

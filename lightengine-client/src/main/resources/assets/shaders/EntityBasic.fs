@@ -1,6 +1,6 @@
 //
 // This file is part of Light Engine
-// 
+//
 // Copyright (C) 2016-2017 Lux Vacuos
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //
 
 #version 330 core
@@ -25,6 +25,6 @@ in vec2 pass_textureCoords;
 uniform sampler2D texture0;
 
 void main() {
-	if(texture(texture0, pass_textureCoords).a < 0.5)
+	if (texture(texture0, pass_textureCoords).a < 0.5)
 		discard;
 }

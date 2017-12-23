@@ -1,6 +1,6 @@
 //
 // This file is part of Light Engine
-// 
+//
 // Copyright (C) 2016-2017 Lux Vacuos
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //
 
 #version 330 core
@@ -28,9 +28,9 @@ uniform sampler2D composite0;
 uniform sampler2D composite1;
 uniform float exposure;
 
-##include variable GLOBAL
+#include variable GLOBAL
 
-void main(){
+void main() {
 	vec2 texcoord = textureCoords;
 	vec4 color = texture(composite0, texcoord);
 	vec4 final = vec4(1.0) - exp(-color * exposure);

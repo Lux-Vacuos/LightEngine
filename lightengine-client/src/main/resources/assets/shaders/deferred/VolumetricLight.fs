@@ -1,6 +1,6 @@
 //
 // This file is part of Light Engine
-// 
+//
 // Copyright (C) 2016-2017 Lux Vacuos
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //
 
 #version 330 core
@@ -39,37 +39,37 @@ uniform sampler2DShadow shadowMap[4];
 uniform int useShadows;
 uniform int useVolumetricLight;
 
-##include function computeShadow
+#include function computeShadow
 
-##include variable GLOBAL
+#include variable GLOBAL
 
-vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
+vec3 permute(vec3 x) {
+	return mod(((x * 34.0) + 1.0) * x, 289.0);
+}
 
-float snoise(vec2 v){
-  const vec4 C = vec4(0.211324865405187, 0.366025403784439,
-		   -0.577350269189626, 0.024390243902439);
-  vec2 i  = floor(v + dot(v, C.yy) );
-  vec2 x0 = v -   i + dot(i, C.xx);
-  vec2 i1;
-  i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-  vec4 x12 = x0.xyxy + C.xxzz;
-  x12.xy -= i1;
-  i = mod(i, 289.0);
-  vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
-  + i.x + vec3(0.0, i1.x, 1.0 ));
-  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy),
-	dot(x12.zw,x12.zw)), 0.0);
-  m = m*m ;
-  m = m*m ;
-  vec3 x = 2.0 * fract(p * C.www) - 1.0;
-  vec3 h = abs(x) - 0.5;
-  vec3 ox = floor(x + 0.5);
-  vec3 a0 = x - ox;
-  m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
-  vec3 g;
-  g.x  = a0.x  * x0.x  + h.x  * x0.y;
-  g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-  return 130.0 * dot(m, g);
+float snoise(vec2 v) {
+	const vec4 C =
+		vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+	vec2 i = floor(v + dot(v, C.yy));
+	vec2 x0 = v - i + dot(i, C.xx);
+	vec2 i1;
+	i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+	vec4 x12 = x0.xyxy + C.xxzz;
+	x12.xy -= i1;
+	i = mod(i, 289.0);
+	vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
+	vec3 m = max(0.5 - vec3(dot(x0, x0), dot(x12.xy, x12.xy), dot(x12.zw, x12.zw)), 0.0);
+	m = m * m;
+	m = m * m;
+	vec3 x = 2.0 * fract(p * C.www) - 1.0;
+	vec3 h = abs(x) - 0.5;
+	vec3 ox = floor(x + 0.5);
+	vec3 a0 = x - ox;
+	m *= 1.79284291400159 - 0.85373472095314 * (a0 * a0 + h * h);
+	vec3 g;
+	g.x = a0.x * x0.x + h.x * x0.y;
+	g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+	return 130.0 * dot(m, g);
 }
 
 #define VOLUMETRIC_MULT 0.025
@@ -81,7 +81,7 @@ float snoise(vec2 v){
 #define CLOUD_DIFF 80
 
 void main() {
-	if(useVolumetricLight == 1 && useShadows == 1) {
+	if (useVolumetricLight == 1 && useShadows == 1) {
 		vec4 position = texture(gPosition, textureCoords);
 		vec3 normal = texture(gNormal, textureCoords).rgb;
 
@@ -99,19 +99,22 @@ void main() {
 		do {
 			rayTrace += cameraToWorldNorm * incr;
 			incr *= 1.05;
-	   		rayDist = length(rayTrace - cameraPosition);
-			if(rayDist > cameraToWorldDist - bias)
+			rayDist = length(rayTrace - cameraPosition);
+			if (rayDist > cameraToWorldDist - bias)
 				break;
 			itr++;
 			rays += computeShadow(rayTrace);
-			perl = max(snoise(rayTrace.xz * 0.001 + vec2(time * 0.5, time * 0.1) * 0.005), 0.0) * CLOUD_MULT;
-			clouds += perl * smoothstep(CLOUD_BOTTOM, CLOUD_TOP - CLOUD_DIFF, rayTrace.y) * (1 - smoothstep(CLOUD_BOTTOM + CLOUD_DIFF, CLOUD_TOP, rayTrace.y));
-			if(rayDist > MAX_DISTANCE_VOLUME)
+			perl = max(snoise(rayTrace.xz * 0.001 + vec2(time * 0.5, time * 0.1) * 0.005), 0.0) *
+				   CLOUD_MULT;
+			clouds += perl * smoothstep(CLOUD_BOTTOM, CLOUD_TOP - CLOUD_DIFF, rayTrace.y) *
+					  (1 - smoothstep(CLOUD_BOTTOM + CLOUD_DIFF, CLOUD_TOP, rayTrace.y));
+			if (rayDist > MAX_DISTANCE_VOLUME)
 				break;
-   		} while(rayDist < cameraToWorldDist);
+		} while (rayDist < cameraToWorldDist);
 		rays /= itr;
 		clouds /= itr;
-		rays = max(rays * VOLUMETRIC_MULT, 0.0) * (1.0 + smoothstep(0, 0.5, dot(cameraToWorldNorm, L) - 0.5) * VOLUMETRIC_SUN);
+		rays = max(rays * VOLUMETRIC_MULT, 0.0) *
+			   (1.0 + smoothstep(0, 0.5, dot(cameraToWorldNorm, L) - 0.5) * VOLUMETRIC_SUN);
 		out_Color = vec4(rays, max(clouds, 0.0), 0, 0);
 	} else {
 		out_Color = vec4(0.0);

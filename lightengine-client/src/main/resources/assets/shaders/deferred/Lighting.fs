@@ -1,6 +1,6 @@
 //
 // This file is part of Light Engine
-// 
+//
 // Copyright (C) 2016-2017 Lux Vacuos
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //
 
 #version 330 core
@@ -47,45 +47,34 @@ uniform sampler2DShadow shadowMap[4];
 const float distanceThreshold = 1;
 const int sample_count = 16;
 const vec2 poisson16[] = vec2[](
-								vec2( -0.94201624,  -0.39906216 ),
-								vec2(  0.94558609,  -0.76890725 ),
-								vec2( -0.094184101, -0.92938870 ),
-								vec2(  0.34495938,   0.29387760 ),
-								vec2( -0.91588581,   0.45771432 ),
-								vec2( -0.81544232,  -0.87912464 ),
-								vec2( -0.38277543,   0.27676845 ),
-								vec2(  0.97484398,   0.75648379 ),
-								vec2(  0.44323325,  -0.97511554 ),
-								vec2(  0.53742981,  -0.47373420 ),
-								vec2( -0.26496911,  -0.41893023 ),
-								vec2(  0.79197514,   0.19090188 ),
-								vec2( -0.24188840,   0.99706507 ),
-								vec2( -0.81409955,   0.91437590 ),
-								vec2(  0.19984126,   0.78641367 ),
-								vec2(  0.14383161,  -0.14100790 )
-							   );
+	vec2(-0.94201624, -0.39906216), vec2(0.94558609, -0.76890725), vec2(-0.094184101, -0.92938870),
+	vec2(0.34495938, 0.29387760), vec2(-0.91588581, 0.45771432), vec2(-0.81544232, -0.87912464),
+	vec2(-0.38277543, 0.27676845), vec2(0.97484398, 0.75648379), vec2(0.44323325, -0.97511554),
+	vec2(0.53742981, -0.47373420), vec2(-0.26496911, -0.41893023), vec2(0.79197514, 0.19090188),
+	vec2(-0.24188840, 0.99706507), vec2(-0.81409955, 0.91437590), vec2(0.19984126, 0.78641367),
+	vec2(0.14383161, -0.14100790));
 
-##include variable GLOBAL
+#include variable GLOBAL
 
-##include variable pi
+#include variable pi
 
-##include function DistributionGGX
+#include function DistributionGGX
 
-##include function GeometrySchlickGGX
+#include function GeometrySchlickGGX
 
-##include function GeometrySmith
+#include function GeometrySmith
 
-##include function fresnelSchlickRoughness
+#include function fresnelSchlickRoughness
 
-##include function computeAmbientOcclusion
+#include function computeAmbientOcclusion
 
-##include function computeShadow
+#include function computeShadow
 
 // Linear depth
-//float zndc = texture(gDepth, textureCoords).r;
-//float A = projectionMatrix[2][2];
-//float B = projectionMatrix[3][2];
-//float zeye = B / (A + zndc);
+// float zndc = texture(gDepth, textureCoords).r;
+// float A = projectionMatrix[2][2];
+// float B = projectionMatrix[3][2];
+// float zeye = B / (A + zndc);
 
 void main() {
 	vec4 mask = texture(gMask, textureCoords);
@@ -108,27 +97,27 @@ void main() {
 
 		vec3 kS = F;
 		vec3 kD = vec3(1.0) - kS;
-		kD *= 1.0 - metallic;	  
-	
+		kD *= 1.0 - metallic;
+
 		vec3 Lo = vec3(0.0);
-	   	vec3 L = normalize(lightPosition);
-	   	vec3 H = normalize(V + L);
-		vec3 radiance = vec3(1.0);        
-	
-	   	float NDF = DistributionGGX(N, H, roughness);        
-	   	float G = GeometrySmith(N, V, L, roughness);      
-		
+		vec3 L = normalize(lightPosition);
+		vec3 H = normalize(V + L);
+		vec3 radiance = vec3(1.0);
+
+		float NDF = DistributionGGX(N, H, roughness);
+		float G = GeometrySmith(N, V, L, roughness);
+
 		vec3 nominator = NDF * G * F;
-	   	float denominator = max(dot(V, N), 0.0) * max(dot(L, N), 0.0) + 0.001; 
+		float denominator = max(dot(V, N), 0.0) * max(dot(L, N), 0.0) + 0.001;
 		vec3 brdf = nominator / denominator;
-	
-	   	float NdotL = max(dot(N, L), 0.0) * computeShadow(position);      
-	   	Lo += (kD * image.rgb / PI + brdf) * radiance * NdotL;
-		
+
+		float NdotL = max(dot(N, L), 0.0) * computeShadow(position);
+		Lo += (kD * image.rgb / PI + brdf) * radiance * NdotL;
+
 		vec3 irradiance = texture(composite1, N).rgb;
 		vec3 diffuse = irradiance * image.rgb;
 
-		vec3 prefilteredColor = textureLod(composite2, R, roughness * MAX_REFLECTION_LOD).rgb; 
+		vec3 prefilteredColor = textureLod(composite2, R, roughness * MAX_REFLECTION_LOD).rgb;
 		vec2 envBRDF = texture(composite3, vec2(max(dot(N, V), 0.0), roughness)).rg;
 		vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
 

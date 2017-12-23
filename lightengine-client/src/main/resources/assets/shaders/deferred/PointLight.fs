@@ -1,6 +1,6 @@
 //
 // This file is part of Light Engine
-// 
+//
 // Copyright (C) 2016-2017 Lux Vacuos
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,12 +15,12 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //
 
 #version 330 core
 
-##include struct Light
+#include struct Light
 
 in vec2 textureCoords;
 
@@ -41,36 +41,37 @@ uniform sampler2D gMask;
 uniform sampler2D gPBR; // R = roughness, B = metallic
 uniform sampler2D composite0;
 
-##include variable pi
+#include variable pi
 
-##include function DistributionGGX
+#include function DistributionGGX
 
-##include function GeometrySchlickGGX
+#include function GeometrySchlickGGX
 
-##include function GeometrySmith
+#include function GeometrySmith
 
-##include function fresnelSchlickRoughness
+#include function fresnelSchlickRoughness
 
-vec3 calcLight(Light light, vec3 position, vec3 diffuse, vec3 L, vec3 N, vec3 V, vec3 kD, vec3 F, float roughness) {
+vec3 calcLight(Light light, vec3 position, vec3 diffuse, vec3 L, vec3 N, vec3 V, vec3 kD, vec3 F,
+			   float roughness) {
 	vec3 H = normalize(V + L);
 	float distance = length(light.position - position);
 	float attenuation = 1.0 / (distance * distance);
-	vec3 radiance = light.color * attenuation;   
-			
-	float NDF = DistributionGGX(N, H, roughness);        
-	float G = GeometrySmith(N, V, L, roughness);      			
+	vec3 radiance = light.color * attenuation;
+
+	float NDF = DistributionGGX(N, H, roughness);
+	float G = GeometrySmith(N, V, L, roughness);
 	vec3 nominator = NDF * G * F;
-	float denominator = totalLights * max(dot(V, N), 0.0) * max(dot(L, N), 0.0) + 0.001; 
+	float denominator = totalLights * max(dot(V, N), 0.0) * max(dot(L, N), 0.0) + 0.001;
 	vec3 brdf = nominator / denominator;
-			
-	float NdotL = max(dot(N, L), 0.0);                
-	return (kD * diffuse / PI + brdf) * radiance * NdotL; 
+
+	float NdotL = max(dot(N, L), 0.0);
+	return (kD * diffuse / PI + brdf) * radiance * NdotL;
 }
 
-void main(){
+void main() {
 	vec4 composite = texture(composite0, textureCoords);
 	vec4 mask = texture(gMask, textureCoords);
-	if(mask.a != 1) {
+	if (mask.a != 1) {
 		vec4 diffuse = texture(gDiffuse, textureCoords);
 		vec2 pbr = texture(gPBR, textureCoords).rg;
 		vec3 position = texture(gPosition, textureCoords).rgb;
@@ -88,31 +89,32 @@ void main(){
 
 		vec3 kS = F;
 		vec3 kD = vec3(1.0) - kS;
-		kD *= 1.0 - metallic;	  
-	
+		kD *= 1.0 - metallic;
+
 		vec3 Lo = vec3(0.0);
-		for(int i = 0; i < totalLights; i++) {
+		for (int i = 0; i < totalLights; i++) {
 			vec3 L = normalize(lights[i].position - position);
-			if(lights[i].type == 0) 
+			if (lights[i].type == 0)
 				Lo += calcLight(lights[i], position, diffuse.rgb, L, N, V, kD, F, roughness);
-			else if(lights[i].type == 1) {
+			else if (lights[i].type == 1) {
 				float theta = dot(L, normalize(-lights[i].direction));
 				float epsilon = lights[i].inRadius - lights[i].radius;
-				float intensity = clamp((theta - lights[i].radius) / epsilon, 0.0, 1.0);    
-				if(intensity > 0.0) {
+				float intensity = clamp((theta - lights[i].radius) / epsilon, 0.0, 1.0);
+				if (intensity > 0.0) {
 					float shadow = 1.0;
-					if(lights[i].shadowEnabled == 1)	{
+					if (lights[i].shadowEnabled == 1) {
 						vec4 posLight = lights[i].shadowViewMatrix * vec4(position, 1.0);
-						vec4 shadowCoord = biasMatrix * (lights[i].shadowProjectionMatrix * posLight);
-						shadow = texture(lights[i].shadowMap, (shadowCoord.xyz/shadowCoord.w), 0);
+						vec4 shadowCoord =
+							biasMatrix * (lights[i].shadowProjectionMatrix * posLight);
+						shadow = texture(lights[i].shadowMap, (shadowCoord.xyz / shadowCoord.w), 0);
 					}
-					Lo += calcLight(lights[i], position, diffuse.rgb, L, N, V, kD, F, roughness) * intensity * shadow;
+					Lo += calcLight(lights[i], position, diffuse.rgb, L, N, V, kD, F, roughness) *
+						  intensity * shadow;
 				}
 			}
 		}
 		vec3 color = Lo;
 		composite.rgb += color;
-
 	}
 	out_Color = composite;
 }

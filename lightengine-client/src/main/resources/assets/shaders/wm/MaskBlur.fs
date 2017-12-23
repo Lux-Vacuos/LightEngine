@@ -1,6 +1,6 @@
 //
 // This file is part of Light Engine
-// 
+//
 // Copyright (C) 2016-2017 Lux Vacuos
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //
 
 #version 330 core
@@ -29,10 +29,10 @@ uniform sampler2D window;
 uniform int blurBehind;
 uniform vec4 frame;
 
-void main(){
+void main() {
 	out_Color = texture(image, textureCoords);
 	out_Color.a = 1;
-	if(blurBehind == 1)
-		if(texture(window,textureCoords).a > 0)
+	if (blurBehind == 1)
+		if (texture(window, textureCoords).a > 0)
 			out_Color.a = 0;
 }

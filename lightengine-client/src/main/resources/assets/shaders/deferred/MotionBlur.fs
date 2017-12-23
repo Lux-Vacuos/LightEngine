@@ -1,6 +1,6 @@
 //
 // This file is part of Light Engine
-// 
+//
 // Copyright (C) 2016-2017 Lux Vacuos
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //
 
 #version 330 core
@@ -36,18 +36,18 @@ uniform sampler2D gDepth;
 
 uniform int useMotionBlur;
 
-void main(){
+void main() {
 	vec3 textureColour = texture(composite0, textureCoords).rgb;
-	if(useMotionBlur == 1){
+	if (useMotionBlur == 1) {
 		vec3 sum = textureColour.rgb;
-		vec4 tex = vec4(textureCoords, 0.0,0.0);
+		vec4 tex = vec4(textureCoords, 0.0, 0.0);
 		float depth = texture(gDepth, textureCoords).x;
 		vec4 currentPosition = vec4(tex.x * 2.0 - 1.0, tex.y * 2.0 - 1.0, 2.0 * depth - 1.0, 1.0);
 		vec4 fragposition = inverseProjectionMatrix * currentPosition;
 		fragposition = inverseViewMatrix * fragposition;
 		fragposition /= fragposition.w;
 		fragposition.xyz += cameraPosition;
-	
+
 		vec4 previousPosition = fragposition;
 		previousPosition.xyz -= previousCameraPosition;
 		previousPosition = previousViewMatrix * previousPosition;
@@ -59,8 +59,8 @@ void main(){
 		for (int i = 0; i < 12; ++i, coord += velocity) {
 			sum += texture(composite0, coord).rgb;
 			samples++;
-		}	
-		sum = sum/samples;
+		}
+		sum = sum / samples;
 		textureColour = sum;
 	}
 	out_Color = textureColour;

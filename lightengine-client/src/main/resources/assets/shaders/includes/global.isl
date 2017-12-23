@@ -1,6 +1,6 @@
 //
 // This file is part of Light Engine
-// 
+//
 // Copyright (C) 2016-2017 Lux Vacuos
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,12 +15,12 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //
 
-##variable GLOBAL
+#variable GLOBAL
 #define MAX_REFLECTION_LOD 5.0
 #define GAMMA 2.2
 #define MAX_DISTANCE_VOLUME 10000
 #define MAX_DISTANCE_REFLECTION 1000
-##end
+#end

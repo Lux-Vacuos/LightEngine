@@ -1,6 +1,6 @@
 //
 // This file is part of Light Engine
-// 
+//
 // Copyright (C) 2016-2017 Lux Vacuos
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //
 
 #version 330 core
@@ -33,9 +33,9 @@ uniform int useLensFlares;
 
 const float mult = 2.0;
 
-void main(){
+void main() {
 	vec4 textureColor = texture(composite3, textureCoords);
-	if(useLensFlares == 1) {
+	if (useLensFlares == 1) {
 		vec4 lensMod = texture(composite1, textureCoords);
 		lensMod += texture(composite2, textureCoords);
 		vec4 lensFlare = texture(composite0, textureCoords) * (lensMod * mult);

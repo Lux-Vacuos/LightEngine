@@ -1,6 +1,6 @@
 //
 // This file is part of Light Engine
-// 
+//
 // Copyright (C) 2016-2017 Lux Vacuos
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //
 
 #version 330 core
@@ -33,22 +33,22 @@ uniform float time;
 
 #define PI 3.14159265359
 
-const float A = 0.1;	// amplitude
-const float L = 8;	// wavelength
-const float w = 2*PI/L;
+const float A = 0.1; // amplitude
+const float L = 8;   // wavelength
+const float w = 2 * PI / L;
 const float Q = 1;
 const float tiling = 1.0;
 
 void main() {
 	vec4 worldPosition = transformationMatrix * vec4(position, 1.0);
-	
+
 	vec3 P0 = worldPosition.xyz;
 	vec2 D = vec2(1, 0.5);
 	float dotD = dot(P0.xz, D);
-	float C = cos(w*dotD + time/4);
-	float S = sin(w*dotD + time/4);
-	
-	vec3 P = vec3(P0.x + Q*A*C*D.x, A * S + worldPosition.y, P0.z + Q*A*C*D.y);
+	float C = cos(w * dotD + time / 4);
+	float S = sin(w * dotD + time / 4);
+
+	vec3 P = vec3(P0.x + Q * A * C * D.x, A * S + worldPosition.y, P0.z + Q * A * C * D.y);
 	worldPosition.xyz = P;
 
 	passPosition = worldPosition.xyz;

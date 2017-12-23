@@ -52,7 +52,7 @@ public final class ShaderIncludes {
 			String line;
 			boolean var = false, struct = false, func = false;
 			while ((line = reader.readLine()) != null) {
-				if (line.startsWith("##end") && (var || func || struct)) {
+				if (line.startsWith("#end") && (var || func || struct)) {
 					Logger.log("Parsed ISL Object '" + includeName + "'");
 					if (var) {
 						var = false;
@@ -71,18 +71,18 @@ public final class ShaderIncludes {
 						continue;
 					}
 					continue;
-				} else if (line.startsWith("##variable")) { // Process a
+				} else if (line.startsWith("#variable")) { // Process a
 															// variable
 					var = true;
 					String[] cat = line.split(" ");
 					includeName = cat[1];
 					continue;
-				} else if (line.startsWith("##struct")) { // Process a struct
+				} else if (line.startsWith("#struct")) { // Process a struct
 					struct = true;
 					String[] cat = line.split(" ");
 					includeName = cat[1];
 					continue;
-				} else if (line.startsWith("##function")) { // Process a
+				} else if (line.startsWith("#function")) { // Process a
 															// function
 					func = true;
 					String[] cat = line.split(" ");

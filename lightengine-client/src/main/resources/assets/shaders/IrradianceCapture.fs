@@ -1,6 +1,6 @@
 //
 // This file is part of Light Engine
-// 
+//
 // Copyright (C) 2016-2017 Lux Vacuos
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //
 
 #version 330 core
@@ -26,23 +26,24 @@ out vec4 out_color;
 
 uniform samplerCube envMap;
 
-##include variable pi
+#include variable pi
 
-void main() {		
+void main() {
 	vec3 normal = normalize(pass_Position);
-  
-	vec3 irradiance = vec3(0.0);  
+
+	vec3 irradiance = vec3(0.0);
 
 	vec3 up = vec3(0.0, 1.0, 0.0);
 	vec3 right = cross(up, normal);
 	up = cross(normal, right);
 
 	float sampleDelta = 0.025f;
-	uint nrSamples = 0u; 
-	for(float phi = 0.0; phi < 2.0 * PI; phi += sampleDelta) {
-		for(float theta = 0.0; theta < 0.5 * PI; theta += sampleDelta) {
+	uint nrSamples = 0u;
+	for (float phi = 0.0; phi < 2.0 * PI; phi += sampleDelta) {
+		for (float theta = 0.0; theta < 0.5 * PI; theta += sampleDelta) {
 			vec3 tangentSample = vec3(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
-			vec3 sampleVec = tangentSample.x * right + tangentSample.y * up + tangentSample.z * normal; 
+			vec3 sampleVec =
+				tangentSample.x * right + tangentSample.y * up + tangentSample.z * normal;
 			irradiance += texture(envMap, sampleVec).rgb * cos(theta) * sin(theta);
 			nrSamples++;
 		}

@@ -1,6 +1,6 @@
 //
 // This file is part of Light Engine
-// 
+//
 // Copyright (C) 2016-2017 Lux Vacuos
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //
 
 #version 330 core
@@ -29,14 +29,15 @@ uniform sampler2D gDepth;
 
 uniform int useDOF;
 
-void main(void){
+void main(void) {
 	vec3 textureColour = texture(composite0, textureCoords).rgb;
-	if(useDOF == 1){
+	if (useDOF == 1) {
 		vec3 sum = textureColour.rgb;
-		float bias = min(abs(texture(gDepth, textureCoords).x - texture(gDepth, vec2(0.5)).x) * .01, .005);
+		float bias =
+			min(abs(texture(gDepth, textureCoords).x - texture(gDepth, vec2(0.5)).x) * .01, .005);
 		for (int i = -4; i < 4; i++) {
 			for (int j = -4; j < 4; j++) {
-				sum += texture(composite0, textureCoords + vec2(j, i) * bias ).rgb;
+				sum += texture(composite0, textureCoords + vec2(j, i) * bias).rgb;
 			}
 		}
 		sum /= 65.0;

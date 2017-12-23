@@ -1,6 +1,6 @@
 //
 // This file is part of Light Engine
-// 
+//
 // Copyright (C) 2016-2017 Lux Vacuos
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,12 +15,12 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //
 
 #version 330 core
 
-##include struct Material
+#include struct Material
 
 in vec2 pass_textureCoords;
 in vec4 pass_position;
@@ -36,19 +36,19 @@ uniform samplerCube irradianceMap;
 uniform samplerCube preFilterEnv;
 uniform sampler2D brdfLUT;
 
-##include variable pi
+#include variable pi
 
-##include function DistributionGGX
+#include function DistributionGGX
 
-##include function GeometrySchlickGGX
+#include function GeometrySchlickGGX
 
-##include function GeometrySmith
+#include function GeometrySmith
 
-##include function fresnelSchlickRoughness
+#include function fresnelSchlickRoughness
 
 #define exposure 1.0
 
-##include variable GLOBAL
+#include variable GLOBAL
 
 void main() {
 
@@ -56,7 +56,7 @@ void main() {
 	float roughness = texture(material.roughnessTex, pass_textureCoords).r;
 	float metallic = texture(material.metallicTex, pass_textureCoords).r;
 
-   	diffuseF *= material.diffuse;
+	diffuseF *= material.diffuse;
 	roughness *= material.roughness;
 	metallic *= material.metallic;
 
@@ -76,27 +76,27 @@ void main() {
 
 	vec3 kS = F;
 	vec3 kD = vec3(1.0) - kS;
-	kD *= 1.0 - metallic;	  
-	
+	kD *= 1.0 - metallic;
+
 	vec3 Lo = vec3(0.0);
 	vec3 L = normalize(lightPosition);
 	vec3 H = normalize(V + L);
-	vec3 radiance = vec3(1.0);        
-	
-	float NDF = DistributionGGX(N, H, roughness);        
-	float G = GeometrySmith(N, V, L, roughness);      
-		
+	vec3 radiance = vec3(1.0);
+
+	float NDF = DistributionGGX(N, H, roughness);
+	float G = GeometrySmith(N, V, L, roughness);
+
 	vec3 nominator = NDF * G * F;
-   	float denominator = max(dot(V, N), 0.0) * max(dot(L, N), 0.0) + 0.001; 
+	float denominator = max(dot(V, N), 0.0) * max(dot(L, N), 0.0) + 0.001;
 	vec3 brdf = nominator / denominator;
-	
-   	float NdotL = max(dot(N, L), 0.0);      
-  	Lo += (kD * diffuseF.rgb / PI + brdf) * radiance * NdotL;
-		
+
+	float NdotL = max(dot(N, L), 0.0);
+	Lo += (kD * diffuseF.rgb / PI + brdf) * radiance * NdotL;
+
 	vec3 irradiance = texture(irradianceMap, N).rgb;
 	vec3 diffuse = irradiance * diffuseF.rgb;
 
-	vec3 prefilteredColor = textureLod(preFilterEnv, R, roughness * MAX_REFLECTION_LOD).rgb; 
+	vec3 prefilteredColor = textureLod(preFilterEnv, R, roughness * MAX_REFLECTION_LOD).rgb;
 	vec2 envBRDF = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
 	vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
 
@@ -104,10 +104,10 @@ void main() {
 
 	vec3 ambient = kD * diffuse + max(specular, 0.0) + emissive;
 	vec3 color = ambient + Lo;
-	if(colorCorrect == 1) {
+	if (colorCorrect == 1) {
 		vec3 final = vec3(1.0) - exp(-color * exposure);
 		final = pow(final, vec3(1.0 / GAMMA));
 		out_Color = vec4(final, diffuseF.a);
-	} else 
+	} else
 		out_Color = vec4(color, diffuseF.a);
 }

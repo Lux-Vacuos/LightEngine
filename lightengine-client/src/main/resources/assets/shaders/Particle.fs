@@ -1,6 +1,6 @@
 //
 // This file is part of Light Engine
-// 
+//
 // Copyright (C) 2016-2017 Lux Vacuos
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //
 
 #version 330 core
@@ -28,6 +28,7 @@ out vec4 out_Color;
 
 uniform sampler2D particleTexture;
 
-void main(){
-	out_Color = mix(texture(particleTexture, textureCoords0), texture(particleTexture, textureCoords1), blend);
+void main() {
+	out_Color = mix(texture(particleTexture, textureCoords0),
+					texture(particleTexture, textureCoords1), blend);
 }

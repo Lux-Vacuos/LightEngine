@@ -1,6 +1,6 @@
 //
 // This file is part of Light Engine
-// 
+//
 // Copyright (C) 2016-2017 Lux Vacuos
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //
 
 #version 330 core
@@ -32,15 +32,15 @@ out vec4 clipSpaceOut;
 out vec3 normal;
 out vec2 textureCoordsOut;
 
-vec3 calculateTriangleNormal(){
+vec3 calculateTriangleNormal() {
 	vec3 tangent = passPosition[1].xyz - passPosition[0].xyz;
 	vec3 bitangent = passPosition[2].xyz - passPosition[0].xyz;
-	vec3 normal = cross(tangent, bitangent);	
+	vec3 normal = cross(tangent, bitangent);
 	return normalize(normal);
 }
 
 void main() {
-	
+
 	normal = calculateTriangleNormal();
 	passPositionOut = passPosition[0];
 	clipSpaceOut = clipSpace[0];
@@ -51,13 +51,13 @@ void main() {
 	passPositionOut = passPosition[1];
 	clipSpaceOut = clipSpace[1];
 	textureCoordsOut = passTextureCoords[1];
-	gl_Position =  gl_in[1].gl_Position;
+	gl_Position = gl_in[1].gl_Position;
 	EmitVertex();
 
 	passPositionOut = passPosition[2];
 	clipSpaceOut = clipSpace[2];
 	textureCoordsOut = passTextureCoords[2];
-	gl_Position =  gl_in[2].gl_Position;
+	gl_Position = gl_in[2].gl_Position;
 	EmitVertex();
 
 	EndPrimitive();

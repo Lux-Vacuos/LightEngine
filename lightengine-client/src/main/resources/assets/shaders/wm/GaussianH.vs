@@ -1,6 +1,6 @@
 //
 // This file is part of Light Engine
-// 
+//
 // Copyright (C) 2016-2017 Lux Vacuos
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //
 
 #version 330 core
@@ -27,13 +27,13 @@ out vec2 blurTexCoords[17];
 
 uniform vec2 resolution;
 
-void main(){
+void main() {
 	gl_Position = vec4(position, -0.8, 1.0);
-	textureCoords = vec2((position.x+1.0)/2.0, (position.y+1.0)/2.0);
+	textureCoords = vec2((position.x + 1.0) / 2.0, (position.y + 1.0) / 2.0);
 
 	vec2 pixelSize = 1.0 / resolution;
-	
-	for(int i = -9; i <= 9; i++){
-		blurTexCoords[i+9] = textureCoords + vec2(pixelSize.x * i, 0.0);
+
+	for (int i = -9; i <= 9; i++) {
+		blurTexCoords[i + 9] = textureCoords + vec2(pixelSize.x * i, 0.0);
 	}
 }

@@ -1,6 +1,6 @@
 //
 // This file is part of Light Engine
-// 
+//
 // Copyright (C) 2016-2017 Lux Vacuos
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,10 +15,10 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //
 
-##struct Material
+#struct Material
 struct Material {
 	vec4 diffuse;
 	vec4 emissive;
@@ -29,4 +29,4 @@ struct Material {
 	sampler2D roughnessTex;
 	sampler2D metallicTex;
 };
-##end
+#end

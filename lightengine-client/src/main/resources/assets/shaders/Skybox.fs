@@ -1,6 +1,6 @@
 //
 // This file is part of Light Engine
-// 
+//
 // Copyright (C) 2016-2017 Lux Vacuos
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// 
+//
 //
 
 #version 330 core
@@ -24,7 +24,7 @@ in vec2 pass_textureCoords;
 in vec3 pass_position;
 in vec3 pass_normal;
 
-out vec4 [5] out_Color;
+out vec4[5] out_Color;
 
 uniform int renderSun;
 uniform float time;
@@ -33,7 +33,7 @@ uniform vec3 lightPosition;
 #define SUN_LOWER_LIMIT 0.51
 #define SUN_UPPER_LIMIT 0.5
 
-##include variable pi
+#include variable pi
 #define iSteps 16
 #define jSteps 8
 
@@ -45,18 +45,21 @@ vec2 rsi(vec3 r0, vec3 rd, float sr) {
 	float b = 2.0 * dot(rd, r0);
 	float c = dot(r0, r0) - (sr * sr);
 	float d = (b * b) - 4.0 * a * c;
-	if (d < 0.0) return vec2(1e5, -1e5);
+	if (d < 0.0)
+		return vec2(1e5, -1e5);
 	return vec2((-b - sqrt(d)) / (2.0 * a), (-b + sqrt(d)) / (2.0 * a));
 }
 
-vec3 atmosphere(vec3 r, vec3 r0, vec3 pSun, float iSun, float rPlanet, float rAtmos, vec3 kRlh, float kMie, float shRlh, float shMie, float g) {
+vec3 atmosphere(vec3 r, vec3 r0, vec3 pSun, float iSun, float rPlanet, float rAtmos, vec3 kRlh,
+				float kMie, float shRlh, float shMie, float g) {
 	// Normalize the sun and view directions.
 	pSun = normalize(pSun);
 	r = normalize(r);
 
 	// Calculate the step size of the primary ray.
 	vec2 p = rsi(r0, r, rAtmos);
-	if (p.x > p.y) return vec3(0, 0, 0);
+	if (p.x > p.y)
+		return vec3(0, 0, 0);
 	p.y = min(p.y, rsi(r0, r, rPlanet).x);
 	float iStepSize = (p.y - p.x) / float(iSteps);
 
@@ -76,7 +79,8 @@ vec3 atmosphere(vec3 r, vec3 r0, vec3 pSun, float iSun, float rPlanet, float rAt
 	float mumu = mu * mu;
 	float gg = g * g;
 	float pRlh = 3.0 / (16.0 * PI) * (1.0 + mumu);
-	float pMie = 3.0 / (8.0 * PI) * ((1.0 - gg) * (mumu + 1.0)) / (pow(1.0 + gg - 2.0 * mu * g, 1.5) * (2.0 + gg));
+	float pMie = 3.0 / (8.0 * PI) * ((1.0 - gg) * (mumu + 1.0)) /
+				 (pow(1.0 + gg - 2.0 * mu * g, 1.5) * (2.0 + gg));
 
 	// Sample the primary ray.
 	for (int i = 0; i < iSteps; i++) {
@@ -131,41 +135,40 @@ vec3 atmosphere(vec3 r, vec3 r0, vec3 pSun, float iSun, float rPlanet, float rAt
 
 		// Increment the primary ray time.
 		iTime += iStepSize;
-
 	}
 
 	// Calculate and return the final color.
 	return iSun * (pRlh * kRlh * totalRlh + pMie * kMie * totalMie);
 }
 
-
-void main(){
+void main() {
 	vec3 V = normalize(pass_normal);
 	vec3 L = normalize(lightPosition);
 
-	vec3 color = atmosphere(
-		V,                              // normalized ray direction
-		vec3(0,6372e3,0),               // ray origin
-		L,                              // position of the sun
-		22.0,                           // intensity of the sun
-		6371e3,                         // radius of the planet in meters
-		6471e3,                         // radius of the atmosphere in meters
-		vec3(5.5e-6, 13.0e-6, 22.4e-6), // Rayleigh scattering coefficient
-		21e-6,                          // Mie scattering coefficient
-		8e3,                            // Rayleigh scale height
-		1.2e3,                          // Mie scale height
-		0.758                           // Mie preferred scattering direction
+	vec3 color = atmosphere(V,								// normalized ray direction
+							vec3(0, 6372e3, 0),				// ray origin
+							L,								// position of the sun
+							22.0,							// intensity of the sun
+							6371e3,							// radius of the planet in meters
+							6471e3,							// radius of the atmosphere in meters
+							vec3(5.5e-6, 13.0e-6, 22.4e-6), // Rayleigh scattering coefficient
+							21e-6,							// Mie scattering coefficient
+							8e3,							// Rayleigh scale height
+							1.2e3,							// Mie scale height
+							0.758							// Mie preferred scattering direction
 	);
 
 	color = 1.0 - exp(-1.0 * color);
 
-	if(renderSun == 1) {
+	if (renderSun == 1) {
 		float vl = dot(V, L);
-		float factorSun = clamp((pass_textureCoords.y - SUN_LOWER_LIMIT) / (SUN_UPPER_LIMIT - SUN_LOWER_LIMIT), 0.0, 1.0);
-		if(vl > 0.999) 
+		float factorSun =
+			clamp((pass_textureCoords.y - SUN_LOWER_LIMIT) / (SUN_UPPER_LIMIT - SUN_LOWER_LIMIT),
+				  0.0, 1.0);
+		if (vl > 0.999)
 			color = mix(color, mix(color, vec3(100.0), smoothstep(0.9998, 0.9999, vl)), factorSun);
 	}
-	
+
 	out_Color[0].rgb = color;
 	out_Color[0].a = 1;
 	out_Color[1] = vec4(pass_position.xyz, 0);
