@@ -111,6 +111,8 @@ void main(void) {
 				fact = 0.0;
 			else if (newScreen.z < -1)
 				fact = 0.0;
+			else if (rayDist > MAX_DISTANCE_REFLECTION)
+				fact = 0.0;
 			image.rgb -= max(specular, 0.0);
 			image.rgb +=
 				mix(max(specular, 0.0), max(newColor.rgb * (F * envBRDF.x + envBRDF.y), 0.0), fact);

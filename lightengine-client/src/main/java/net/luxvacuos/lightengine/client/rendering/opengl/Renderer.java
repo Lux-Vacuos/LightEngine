@@ -96,7 +96,6 @@ public class Renderer {
 	private static IEvent shadowMap, reload;
 
 	public static void init(Window window) {
-		System.out.println(enabled);
 		if (!enabled) {
 			renderingManager = new RenderingManager();
 			Renderer.window = window;

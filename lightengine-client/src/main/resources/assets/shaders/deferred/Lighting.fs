@@ -128,7 +128,6 @@ void main() {
 		image.rgb = color;
 	}
 	vec4 vol = texture(composite0, textureCoords);
-	image = mix(image, vec4(vol.g), vol.g);
 	image += vec4(vol.r);
 	out_Color = image;
 }

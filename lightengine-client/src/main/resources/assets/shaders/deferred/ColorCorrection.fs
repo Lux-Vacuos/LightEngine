@@ -25,7 +25,6 @@ in vec2 textureCoords;
 out vec4 out_Color;
 
 uniform sampler2D composite0;
-uniform sampler2D composite1;
 uniform float exposure;
 
 #include variable GLOBAL
