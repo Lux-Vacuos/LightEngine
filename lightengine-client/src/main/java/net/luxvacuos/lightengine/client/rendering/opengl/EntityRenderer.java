@@ -37,12 +37,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
 
 import com.badlogic.ashley.core.Entity;
 
 import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
+import net.luxvacuos.lightengine.client.ecs.entities.Sun;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CubeMapTexture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Material;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Material.MaterialType;
@@ -87,16 +87,16 @@ public class EntityRenderer implements IRenderer {
 	}
 
 	@Override
-	public void renderReflections(CameraEntity camera, Vector3f lightPosition, CubeMapTexture irradiance,
+	public void renderReflections(CameraEntity camera, Sun sun, ShadowFBO shadow, CubeMapTexture irradiance,
 			CubeMapTexture environmentMap, Texture brdfLUT) {
-		forwardRenderer.render(entities, camera, lightPosition, irradiance, environmentMap, brdfLUT, false,
+		forwardRenderer.render(entities, camera, sun, shadow, irradiance, environmentMap, brdfLUT, false,
 				MaterialType.OPAQUE);
 	}
 
 	@Override
-	public void renderForward(CameraEntity camera, Vector3f lightPosition, CubeMapTexture irradiance,
+	public void renderForward(CameraEntity camera, Sun sun, ShadowFBO shadow, CubeMapTexture irradiance,
 			CubeMapTexture environmentMap, Texture brdfLUT) {
-		forwardRenderer.render(entities, camera, lightPosition, irradiance, environmentMap, brdfLUT, true,
+		forwardRenderer.render(entities, camera, sun, shadow, irradiance, environmentMap, brdfLUT, true,
 				MaterialType.TRANSPARENT);
 	}
 

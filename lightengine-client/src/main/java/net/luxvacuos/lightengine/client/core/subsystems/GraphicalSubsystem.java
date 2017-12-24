@@ -44,6 +44,7 @@ import static org.lwjgl.opengl.GL32.GL_TEXTURE_CUBE_MAP_SEAMLESS;
 
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWErrorCallback;
 
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.client.core.ClientVariables;
@@ -84,6 +85,8 @@ public class GraphicalSubsystem implements ISubsystem {
 	public void init() {
 		REGISTRY.register(new Key("/Light Engine/Display/width"), ClientVariables.WIDTH);
 		REGISTRY.register(new Key("/Light Engine/Display/height"), ClientVariables.HEIGHT);
+		
+		GLFW.glfwSetErrorCallback(GLFWErrorCallback.createPrint(System.err));
 
 		if (!glfwInit())
 			throw new IllegalStateException("Unable to initialize GLFW");

@@ -37,7 +37,6 @@ import org.joml.Vector3f;
 
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.Sun;
-import net.luxvacuos.lightengine.client.ecs.entities.SunCamera;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CubeMapTexture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Light;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.RawModel;
@@ -115,7 +114,7 @@ public abstract class DeferredPass implements IDeferredPass {
 		shader.loadExposure(exposure);
 		shader.loadTime(clientWorldSimulation.getGlobalTime());
 		shader.loadLightMatrix(sun.getCamera().getViewMatrix());
-		shader.loadBiasMatrix(((SunCamera) sun.getCamera()).getProjectionArray());
+		shader.loadBiasMatrix(sun.getCamera().getProjectionArray());
 		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		render(auxs, pipe, irradianceCapture, environmentMap, brdfLUT, shadowFBO);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, quad.getVertexCount());

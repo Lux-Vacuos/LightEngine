@@ -22,9 +22,6 @@ package net.luxvacuos.lightengine.client.core;
 
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWErrorCallback;
-
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.client.bootstrap.Bootstrap;
 import net.luxvacuos.lightengine.client.core.exception.UpdateThreadException;
@@ -54,7 +51,6 @@ public class LightEngineClient extends AbstractEngine {
 	private Thread updateThread;
 
 	public LightEngineClient() {
-		GLFW.glfwSetErrorCallback(GLFWErrorCallback.createPrint(System.err));
 		StateMachine.setEngineType(EngineType.CLIENT);
 		init();
 	}
@@ -179,7 +175,6 @@ public class LightEngineClient extends AbstractEngine {
 		MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), false);
 		update();
 		dispose();
-		GLFW.glfwTerminate();
 	}
 
 	@Override

@@ -143,12 +143,11 @@ public class Renderer {
 					EventSubsystem.triggerEvent("lightengine.renderer.postresize");
 				});
 			});
-			TaskManager.addTask(() -> {
-				enabled = true;
-				EventSubsystem.triggerEvent("lightengine.renderer.initialized");
-			});
-
 		}
+		TaskManager.addTask(() -> {
+			enabled = true;
+			EventSubsystem.triggerEvent("lightengine.renderer.initialized");
+		});
 	}
 
 	public static void render(ImmutableArray<Entity> entitiesT, Map<ParticleTexture, List<Particle>> particles,
@@ -167,14 +166,14 @@ public class Renderer {
 		GPUProfiler.end();
 		GPUProfiler.start("EnvironmentMap");
 		envRendererEntities.renderEnvironmentMap(camera.getPosition(), skyboxRenderer, renderingManager,
-				worldSimulation, sun.getSunPosition(), irradianceCapture.getCubeMapTexture(),
+				worldSimulation, sun, shadowFBO, irradianceCapture.getCubeMapTexture(),
 				preFilteredEnvironment.getCubeMapTexture(), preFilteredEnvironment.getBRDFLUT(), window);
 		GPUProfiler.start("PreFilteredEnvironment");
 		preFilteredEnvironment.render(window, envRendererEntities.getCubeMapTexture().getID());
 		GPUProfiler.end();
 		GPUProfiler.end();
 		GPUProfiler.start("Shadows");
-		SunCamera sunCamera = (SunCamera) sun.getCamera();
+		SunCamera sunCamera = sun.getCamera();
 		if ((boolean) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/shadows"))) {
 			GPUProfiler.start("Directional");
 			sunCamera.switchProjectionMatrix(0);
@@ -277,7 +276,7 @@ public class Renderer {
 		if (forwardPass != null)
 			forwardPass.render(camera, sunCamera, frustum, shadowFBO);
 		particleRenderer.render(particles, camera);
-		renderingManager.renderForward(camera, sun.getSunPosition(), irradianceCapture.getCubeMapTexture(),
+		renderingManager.renderForward(camera, sun, shadowFBO, irradianceCapture.getCubeMapTexture(),
 				preFilteredEnvironment.getCubeMapTexture(), preFilteredEnvironment.getBRDFLUT());
 		GPUProfiler.end();
 		glClearDepth(1.0);

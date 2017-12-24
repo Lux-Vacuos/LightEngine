@@ -50,7 +50,7 @@ public class Sun {
 				camera.getDRay().getRay().dZ * 10);
 	}
 
-	public CameraEntity getCamera() {
+	public SunCamera getCamera() {
 		return camera;
 	}
 

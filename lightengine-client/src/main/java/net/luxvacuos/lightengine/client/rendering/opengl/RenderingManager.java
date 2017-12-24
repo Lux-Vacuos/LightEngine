@@ -27,8 +27,6 @@ import static org.lwjgl.opengl.GL11.glEnable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.joml.Vector3f;
-
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.utils.IntMap;
@@ -37,6 +35,7 @@ import com.esotericsoftware.kryonet.util.ObjectIntMap;
 
 import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
+import net.luxvacuos.lightengine.client.ecs.entities.Sun;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CubeMapTexture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
 import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
@@ -58,10 +57,11 @@ public class RenderingManager implements IDisposable {
 		for (Entity entity : entities) {
 			if (entity instanceof BasicEntity)
 				if (ClientComponents.RENDERABLE.has(entity)) {
-					BasicEntity ent = (BasicEntity) entity;
-					//if (ent.getPosition().sub(camera.getPosition(), new Vector3f()).length() < 100)
-						if (ClientComponents.RENDERABLE.get(entity).isLoaded())
-							process((BasicEntity) entity);
+					// BasicEntity ent = (BasicEntity) entity;
+					// if (ent.getPosition().sub(camera.getPosition(), new Vector3f()).length() <
+					// 100)
+					if (ClientComponents.RENDERABLE.get(entity).isLoaded())
+						process((BasicEntity) entity);
 				}
 		}
 		for (Entry<IRenderer> rendererEntry : renderers) {
@@ -77,17 +77,17 @@ public class RenderingManager implements IDisposable {
 			rendererEntry.value.render(camera);
 	}
 
-	public void renderReflections(CameraEntity camera, Vector3f lightPosition, CubeMapTexture irradiance,
+	public void renderReflections(CameraEntity camera, Sun sun, ShadowFBO shadow, CubeMapTexture irradiance,
 			CubeMapTexture environmentMap, Texture brdfLUT) {
 		for (Entry<IRenderer> rendererEntry : renderers)
-			rendererEntry.value.renderReflections(camera, lightPosition, irradiance, environmentMap, brdfLUT);
+			rendererEntry.value.renderReflections(camera, sun, shadow, irradiance, environmentMap, brdfLUT);
 	}
 
-	public void renderForward(CameraEntity camera, Vector3f lightPosition, CubeMapTexture irradiance,
+	public void renderForward(CameraEntity camera, Sun sun, ShadowFBO shadow, CubeMapTexture irradiance,
 			CubeMapTexture environmentMap, Texture brdfLUT) {
 		glEnable(GL_BLEND);
 		for (Entry<IRenderer> rendererEntry : renderers)
-			rendererEntry.value.renderForward(camera, lightPosition, irradiance, environmentMap, brdfLUT);
+			rendererEntry.value.renderForward(camera, sun, shadow, irradiance, environmentMap, brdfLUT);
 		glDisable(GL_BLEND);
 	}
 

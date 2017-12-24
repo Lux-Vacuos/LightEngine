@@ -79,7 +79,7 @@ void main() {
 
 		float NdotL = max(dot(N, L), 0.0);
 		if (NdotL > 0.0) {
-			prefilteredColor += texture(envMap, L).rgb * NdotL;
+			prefilteredColor += max(texture(envMap, L).rgb, 0.0) * NdotL;
 			totalWeight += NdotL;
 		}
 	}

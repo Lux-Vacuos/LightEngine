@@ -52,17 +52,48 @@ public class EntityFowardShader extends ShaderProgram {
 	private UniformSampler brdfLUT = new UniformSampler("brdfLUT");
 	private UniformBoolean colorCorrect = new UniformBoolean("colorCorrect");
 
+	private UniformBoolean useShadows = new UniformBoolean("useShadows");
+
+	private UniformMatrix projectionLightMatrix[];
+	private UniformMatrix viewLightMatrix = new UniformMatrix("viewLightMatrix");
+	private UniformMatrix biasMatrix = new UniformMatrix("biasMatrix");
+	private UniformSampler shadowMap[];
+
+	private Matrix4f biasM;
+
 	public EntityFowardShader() {
 		super(ClientVariables.VERTEX_FILE_ENTITY_FORWARD, ClientVariables.FRAGMENT_FILE_ENTITY_FORWARD,
 				new Attribute(0, "position"), new Attribute(1, "textureCoords"), new Attribute(2, "normals"),
 				new Attribute(3, "tangent"));
+		projectionLightMatrix = new UniformMatrix[4];
+		for (int x = 0; x < 4; x++) {
+			projectionLightMatrix[x] = new UniformMatrix("projectionLightMatrix[" + x + "]");
+		}
+		super.storeUniformArray(projectionLightMatrix);
+		shadowMap = new UniformSampler[4];
+		for (int x = 0; x < 4; x++) {
+			shadowMap[x] = new UniformSampler("shadowMap[" + x + "]");
+		}
+		super.storeUniformArray(shadowMap);
 		super.storeAllUniformLocations(transformationMatrix, projectionMatrix, viewMatrix, material, cameraPosition,
-				lightPosition, irradianceMap, preFilterEnv, brdfLUT, colorCorrect);
+				lightPosition, irradianceMap, preFilterEnv, brdfLUT, colorCorrect, biasMatrix, viewLightMatrix,
+				useShadows);
 		super.start();
-		irradianceMap.loadTexUnit(7);
-		preFilterEnv.loadTexUnit(8);
-		brdfLUT.loadTexUnit(9);
+		irradianceMap.loadTexUnit(4);
+		preFilterEnv.loadTexUnit(5);
+		brdfLUT.loadTexUnit(6);
+		shadowMap[0].loadTexUnit(7);
+		shadowMap[1].loadTexUnit(8);
+		shadowMap[2].loadTexUnit(9);
+		shadowMap[3].loadTexUnit(10);
 		super.stop();
+		biasM = new Matrix4f();
+		biasM.m00(0.5f);
+		biasM.m11(0.5f);
+		biasM.m22(0.5f);
+		biasM.m30(0.5f);
+		biasM.m31(0.5f);
+		biasM.m32(0.5f);
 	}
 
 	public void loadTransformationMatrix(Matrix4f matrix) {
@@ -85,6 +116,21 @@ public class EntityFowardShader extends ShaderProgram {
 		projectionMatrix.loadMatrix(camera.getProjectionMatrix());
 		viewMatrix.loadMatrix(camera.getViewMatrix());
 		cameraPosition.loadVec3(camera.getPosition());
+	}
+
+	public void loadBiasMatrix(Matrix4f[] shadowProjectionMatrix) {
+		this.biasMatrix.loadMatrix(biasM);
+		for (int x = 0; x < 4; x++) {
+			this.projectionLightMatrix[x].loadMatrix(shadowProjectionMatrix[x]);
+		}
+	}
+
+	public void loadLightMatrix(Matrix4f sunCameraViewMatrix) {
+		viewLightMatrix.loadMatrix(sunCameraViewMatrix);
+	}
+
+	public void loadSettings(boolean useShadows) {
+		this.useShadows.loadBoolean(useShadows);
 	}
 
 }

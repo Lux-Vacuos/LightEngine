@@ -35,6 +35,11 @@ uniform vec3 lightPosition;
 uniform samplerCube irradianceMap;
 uniform samplerCube preFilterEnv;
 uniform sampler2D brdfLUT;
+uniform int useShadows;
+uniform mat4 projectionLightMatrix[4];
+uniform mat4 viewLightMatrix;
+uniform mat4 biasMatrix;
+uniform sampler2DShadow shadowMap[4];
 
 #include variable pi
 
@@ -45,6 +50,8 @@ uniform sampler2D brdfLUT;
 #include function GeometrySmith
 
 #include function fresnelSchlickRoughness
+
+#include function computeShadow
 
 #define exposure 1.0
 
@@ -90,7 +97,7 @@ void main() {
 	float denominator = max(dot(V, N), 0.0) * max(dot(L, N), 0.0) + 0.001;
 	vec3 brdf = nominator / denominator;
 
-	float NdotL = max(dot(N, L), 0.0);
+	float NdotL = max(dot(N, L), 0.0) * computeShadow(position);
 	Lo += (kD * diffuseF.rgb / PI + brdf) * radiance * NdotL;
 
 	vec3 irradiance = texture(irradianceMap, N).rgb;
