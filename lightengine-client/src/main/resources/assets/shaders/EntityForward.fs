@@ -51,6 +51,8 @@ uniform sampler2DShadow shadowMap[4];
 
 #include function fresnelSchlickRoughness
 
+#include function fresnelSchlick
+
 #include function computeShadow
 
 #define exposure 1.0
@@ -76,29 +78,35 @@ void main() {
 	vec3 N = normalize(normal);
 	vec3 V = normalize(cameraPosition - position);
 	vec3 R = reflect(-V, N);
+	vec3 L = normalize(lightPosition);
+	vec3 H = normalize(V + L);
 
 	vec3 F0 = vec3(0.04);
 	F0 = mix(F0, diffuseF.rgb, metallic);
-	vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+
+	vec3 Lo = vec3(0.0);
+	vec3 radiance = vec3(1.0);
+
+	float NDF = DistributionGGX(N, H, roughness);
+	float G = GeometrySmith(N, V, L, roughness);
+	vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+
+	vec3 nominator = NDF * G * F;
+	float denominator = max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001;
+	vec3 brdf = nominator / denominator;
 
 	vec3 kS = F;
 	vec3 kD = vec3(1.0) - kS;
 	kD *= 1.0 - metallic;
 
-	vec3 Lo = vec3(0.0);
-	vec3 L = normalize(lightPosition);
-	vec3 H = normalize(V + L);
-	vec3 radiance = vec3(1.0);
-
-	float NDF = DistributionGGX(N, H, roughness);
-	float G = GeometrySmith(N, V, L, roughness);
-
-	vec3 nominator = NDF * G * F;
-	float denominator = max(dot(V, N), 0.0) * max(dot(L, N), 0.0) + 0.001;
-	vec3 brdf = nominator / denominator;
-
 	float NdotL = max(dot(N, L), 0.0) * computeShadow(position);
 	Lo += (kD * diffuseF.rgb / PI + brdf) * radiance * NdotL;
+
+	F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+
+	kS = F;
+	kD = 1.0 - kS;
+	kD *= 1.0 - metallic;
 
 	vec3 irradiance = texture(irradianceMap, N).rgb;
 	vec3 diffuse = irradiance * diffuseF.rgb;
@@ -109,8 +117,8 @@ void main() {
 
 	vec3 emissive = material.emissive.rgb * diffuseF.rgb;
 
-	vec3 ambient = kD * diffuse + max(specular, 0.0) + emissive;
-	vec3 color = ambient + Lo;
+	vec3 ambient = kD * diffuse + specular;
+	vec3 color = ambient + emissive + Lo;
 	if (colorCorrect == 1) {
 		vec3 final = vec3(1.0) - exp(-color * exposure);
 		final = pow(final, vec3(1.0 / GAMMA));

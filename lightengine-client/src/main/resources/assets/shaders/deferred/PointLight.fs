@@ -49,10 +49,10 @@ uniform sampler2D composite0;
 
 #include function GeometrySmith
 
-#include function fresnelSchlickRoughness
+#include function fresnelSchlick
 
-vec3 calcLight(Light light, vec3 position, vec3 diffuse, vec3 L, vec3 N, vec3 V, vec3 kD, vec3 F,
-			   float roughness) {
+vec3 calcLight(Light light, vec3 position, vec3 diffuse, vec3 L, vec3 N, vec3 V, vec3 F0,
+			   float roughness, float metallic) {
 	vec3 H = normalize(V + L);
 	float distance = length(light.position - position);
 	float attenuation = 1.0 / (distance * distance);
@@ -60,9 +60,15 @@ vec3 calcLight(Light light, vec3 position, vec3 diffuse, vec3 L, vec3 N, vec3 V,
 
 	float NDF = DistributionGGX(N, H, roughness);
 	float G = GeometrySmith(N, V, L, roughness);
+	vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+
 	vec3 nominator = NDF * G * F;
-	float denominator = totalLights * max(dot(V, N), 0.0) * max(dot(L, N), 0.0) + 0.001;
+	float denominator = totalLights * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001;
 	vec3 brdf = nominator / denominator;
+
+	vec3 kS = F;
+	vec3 kD = vec3(1.0) - kS;
+	kD *= 1.0 - metallic;
 
 	float NdotL = max(dot(N, L), 0.0);
 	return (kD * diffuse / PI + brdf) * radiance * NdotL;
@@ -85,18 +91,15 @@ void main() {
 
 		vec3 F0 = vec3(0.04);
 		F0 = mix(F0, diffuse.rgb, metallic);
-		vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
-
-		vec3 kS = F;
-		vec3 kD = vec3(1.0) - kS;
-		kD *= 1.0 - metallic;
 
 		vec3 Lo = vec3(0.0);
 		for (int i = 0; i < totalLights; i++) {
 			vec3 L = normalize(lights[i].position - position);
-			if (lights[i].type == 0)
-				Lo += calcLight(lights[i], position, diffuse.rgb, L, N, V, kD, F, roughness);
-			else if (lights[i].type == 1) {
+			switch (lights[i].type) {
+			case 0:
+				Lo += calcLight(lights[i], position, diffuse.rgb, L, N, V, F0, roughness, metallic);
+				break;
+			case 1:
 				float theta = dot(L, normalize(-lights[i].direction));
 				float epsilon = lights[i].inRadius - lights[i].radius;
 				float intensity = clamp((theta - lights[i].radius) / epsilon, 0.0, 1.0);
@@ -108,9 +111,11 @@ void main() {
 							biasMatrix * (lights[i].shadowProjectionMatrix * posLight);
 						shadow = texture(lights[i].shadowMap, (shadowCoord.xyz / shadowCoord.w), 0);
 					}
-					Lo += calcLight(lights[i], position, diffuse.rgb, L, N, V, kD, F, roughness) *
+					Lo += calcLight(lights[i], position, diffuse.rgb, L, N, V, F0, roughness,
+									metallic) *
 						  intensity * shadow;
 				}
+				break;
 			}
 		}
 		vec3 color = Lo;

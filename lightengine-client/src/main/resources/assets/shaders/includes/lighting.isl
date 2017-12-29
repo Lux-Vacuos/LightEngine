@@ -62,6 +62,12 @@ vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness) {
 }
 #end
 
+#function fresnelSchlick
+vec3 fresnelSchlick(float cosTheta, vec3 F0) {
+	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+}
+#end
+
 #function computeAmbientOcclusion
 float computeAmbientOcclusion(vec3 position, vec3 normal) {
 	if (useAmbientOcclusion == 1) {

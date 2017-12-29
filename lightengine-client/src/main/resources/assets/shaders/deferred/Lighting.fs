@@ -64,6 +64,8 @@ const vec2 poisson16[] = vec2[](
 
 #include function GeometrySmith
 
+#include function fresnelSchlick
+
 #include function fresnelSchlickRoughness
 
 #include function computeAmbientOcclusion
@@ -83,36 +85,41 @@ void main() {
 		vec2 pbr = texture(gPBR, textureCoords).rg;
 		vec3 position = texture(gPosition, textureCoords).rgb;
 		vec3 normal = texture(gNormal, textureCoords).rgb;
+		float roughness = pbr.r;
+		float metallic = pbr.g;
 
 		vec3 N = normalize(normal);
 		vec3 V = normalize(cameraPosition - position);
 		vec3 R = reflect(-V, N);
-
-		float roughness = pbr.r;
-		float metallic = pbr.g;
+		vec3 L = normalize(lightPosition);
+		vec3 H = normalize(V + L);
 
 		vec3 F0 = vec3(0.04);
 		F0 = mix(F0, image.rgb, metallic);
-		vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+
+		vec3 Lo = vec3(0.0);
+		vec3 radiance = vec3(1.0);
+
+		float NDF = DistributionGGX(N, H, roughness);
+		float G = GeometrySmith(N, V, L, roughness);
+		vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+
+		vec3 nominator = NDF * G * F;
+		float denominator = max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001;
+		vec3 brdf = nominator / denominator;
 
 		vec3 kS = F;
 		vec3 kD = vec3(1.0) - kS;
 		kD *= 1.0 - metallic;
 
-		vec3 Lo = vec3(0.0);
-		vec3 L = normalize(lightPosition);
-		vec3 H = normalize(V + L);
-		vec3 radiance = vec3(1.0);
-
-		float NDF = DistributionGGX(N, H, roughness);
-		float G = GeometrySmith(N, V, L, roughness);
-
-		vec3 nominator = NDF * G * F;
-		float denominator = max(dot(V, N), 0.0) * max(dot(L, N), 0.0) + 0.001;
-		vec3 brdf = nominator / denominator;
-
 		float NdotL = max(dot(N, L), 0.0) * computeShadow(position);
 		Lo += (kD * image.rgb / PI + brdf) * radiance * NdotL;
+
+		F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+
+		kS = F;
+		kD = 1.0 - kS;
+		kD *= 1.0 - metallic;
 
 		vec3 irradiance = texture(composite1, N).rgb;
 		vec3 diffuse = irradiance * image.rgb;
@@ -121,10 +128,10 @@ void main() {
 		vec2 envBRDF = texture(composite3, vec2(max(dot(N, V), 0.0), roughness)).rg;
 		vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
 
-		vec3 emissive = texture(gMask, vec2(textureCoords)).rgb;
+		vec3 emissive = texture(gMask, textureCoords).rgb;
 
-		vec3 ambient = (kD * diffuse) * computeAmbientOcclusion(position, N);
-		vec3 color = ambient + emissive + Lo + max(specular, 0.0);
+		vec3 ambient = (kD * diffuse + specular) * computeAmbientOcclusion(position, N);
+		vec3 color = ambient + emissive + Lo;
 		image.rgb = color;
 	}
 	vec4 vol = texture(composite0, textureCoords);
