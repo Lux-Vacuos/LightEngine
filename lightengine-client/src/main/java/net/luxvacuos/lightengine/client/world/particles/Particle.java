@@ -63,7 +63,7 @@ public class Particle {
 		change.mul(delta);
 		position.add(change);
 
-		distance = (float) camera.getPosition().sub(position).lengthSquared();
+		distance = (float) camera.getPosition().sub(position, new Vector3f()).lengthSquared();
 
 		updateTextureCoord();
 		elapsedTime += delta;

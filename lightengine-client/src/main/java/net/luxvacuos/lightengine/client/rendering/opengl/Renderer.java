@@ -386,6 +386,7 @@ public class Renderer {
 			proj.m23(-1);
 			proj.m32(nearPlane);
 			proj.m33(0);
+			proj.assumePerspective();
 		} else {
 			proj.setPerspective((float) Math.toRadians(fov), (float) width / (float) height, nearPlane, farPlane,
 					zZeroToOne);

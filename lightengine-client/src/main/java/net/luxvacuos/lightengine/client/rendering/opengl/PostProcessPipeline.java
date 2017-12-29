@@ -124,7 +124,7 @@ public abstract class PostProcessPipeline implements IPostProcessPipeline {
 		glDisableVertexAttribArray(0);
 		glBindVertexArray(0);
 		previousViewMatrix = Maths.createViewMatrix(camera);
-		previousCameraPosition = camera.getPosition();
+		previousCameraPosition.set(camera.getPosition());
 	}
 	
 	@Override
