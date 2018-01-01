@@ -6,7 +6,7 @@ plugins {
 }
 
 sourceCompatibility = '9'
-project.ext.jomlVersion = "1.9.6"
+project.ext.jomlVersion = "1.9.7"
 
 sourceSets {
 	main {
