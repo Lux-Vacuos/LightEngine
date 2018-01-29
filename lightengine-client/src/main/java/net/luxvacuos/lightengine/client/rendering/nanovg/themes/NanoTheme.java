@@ -103,8 +103,6 @@ public class NanoTheme implements ITheme {
 				.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/borderSize"));
 		int titleBarHeight = (int) REGISTRY
 				.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/titleBarHeight"));
-		boolean titleBarBorder = (boolean) REGISTRY
-				.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/titleBarBorder"));
 		nvgSave(vg);
 		if (Theme.DEBUG)
 			nvgStrokeWidth(vg, Theme.DEBUG_STROKE);
@@ -127,27 +125,16 @@ public class NanoTheme implements ITheme {
 				nvgBeginPath(vg);
 				nvgRect(vg, x + fl, y + ft, w - fr - fl, h - fb - ft);
 				nvgPathWinding(vg, NVG_HOLE);
-				if (titleBar)
-					if (titleBarBorder) {
-						nvgRect(vg, x - borderSize, y - titleBarHeight - borderSize, w + borderSize * 2f,
-								h + titleBarHeight + borderSize * 2f);
-						nvgFillColor(vg, Theme.rgba(31, 31, 31, 120, colorA));
-						nvgFill(vg);
-						if (Theme.DEBUG) {
-							nvgStrokeColor(vg, Theme.debugA);
-							nvgStroke(vg);
-						}
-					} else {
-						nvgRect(vg, x - borderSize, y - titleBarHeight, w + borderSize * 2f,
-								h + titleBarHeight + borderSize);
-						nvgFillColor(vg, Theme.rgba(31, 31, 31, 120, colorA));
-						nvgFill(vg);
-						if (Theme.DEBUG) {
-							nvgStrokeColor(vg, Theme.debugA);
-							nvgStroke(vg);
-						}
+				if (titleBar) {
+					nvgRect(vg, x - borderSize, y - titleBarHeight - borderSize, w + borderSize * 2f,
+							h + titleBarHeight + borderSize * 2f);
+					nvgFillColor(vg, Theme.rgba(31, 31, 31, 120, colorA));
+					nvgFill(vg);
+					if (Theme.DEBUG) {
+						nvgStrokeColor(vg, Theme.debugA);
+						nvgStroke(vg);
 					}
-				else {
+				} else {
 					nvgRect(vg, x - borderSize, y - borderSize, w + borderSize * 2f, h + borderSize * 2f);
 					nvgFillColor(vg, Theme.rgba(31, 31, 31, 120, colorA));
 					nvgFill(vg);
@@ -175,26 +162,16 @@ public class NanoTheme implements ITheme {
 		if (decorations && !maximized) {
 			// Drop shadow
 			if (titleBar) {
-				if (titleBarBorder) {
-					nvgBoxGradient(vg, x - borderSize, y + 5 - titleBarHeight - borderSize, w + borderSize * 2f,
-							h + titleBarHeight + borderSize * 2f, 0, 20, Theme.rgba(0, 0, 0, 100, colorA),
-							Theme.rgba(0, 0, 0, 0, colorB), shadowPaint);
-					nvgBeginPath(vg);
-					nvgRect(vg, x - 20 - borderSize, y - 10 - titleBarHeight - borderSize, w + 40 + borderSize * 2f,
-							h + 30 + titleBarHeight + borderSize * 2f);
-					nvgRect(vg, x - borderSize, y - titleBarHeight - borderSize, w + borderSize * 2f,
-							h + titleBarHeight + borderSize * 2f);
-				} else {
-					nvgBoxGradient(vg, x - borderSize, y + 5 - titleBarHeight, w + borderSize * 2f,
-							h + titleBarHeight + borderSize, 0, 20, Theme.rgba(0, 0, 0, 100, colorA),
-							Theme.rgba(0, 0, 0, 0, colorB), shadowPaint);
-					nvgBeginPath(vg);
-					nvgRect(vg, x - 20 - borderSize, y - 10 - titleBarHeight, w + 40 + borderSize * 2f,
-							h + 30 + titleBarHeight + borderSize);
-					nvgRect(vg, x - borderSize, y - titleBarHeight, w + borderSize * 2f,
-							h + titleBarHeight + borderSize);
 
-				}
+				nvgBoxGradient(vg, x - borderSize, y + 5 - titleBarHeight - borderSize, w + borderSize * 2f,
+						h + titleBarHeight + borderSize * 2f, 0, 20, Theme.rgba(0, 0, 0, 100, colorA),
+						Theme.rgba(0, 0, 0, 0, colorB), shadowPaint);
+				nvgBeginPath(vg);
+				nvgRect(vg, x - 20 - borderSize, y - 10 - titleBarHeight - borderSize, w + 40 + borderSize * 2f,
+						h + 30 + titleBarHeight + borderSize * 2f);
+				nvgRect(vg, x - borderSize, y - titleBarHeight - borderSize, w + borderSize * 2f,
+						h + titleBarHeight + borderSize * 2f);
+
 			} else {
 				nvgBoxGradient(vg, x - borderSize, y + 10 - borderSize, w + borderSize * 2f, h + borderSize * 2f, 0, 20,
 						Theme.rgba(0, 0, 0, 80, colorA), Theme.rgba(0, 0, 0, 0, colorB), shadowPaint);

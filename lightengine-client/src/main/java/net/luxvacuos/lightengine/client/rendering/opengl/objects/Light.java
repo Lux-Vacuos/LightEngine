@@ -88,7 +88,6 @@ public class Light extends LEEntity {
 					shadowMapCreated = true;
 				});
 		}
-		System.out.println("A");
 		Renderer.getLightRenderer().addLight(this);
 		super.init();
 	}

@@ -46,7 +46,11 @@ public class EventSubsystem implements ISubsystem {
 	}
 
 	@Override
-	public void render(float delta) {
+	public void preRender(float delta) {
+	}
+
+	@Override
+	public void postRender(float delta) {
 	}
 
 	@Override

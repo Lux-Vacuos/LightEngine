@@ -150,6 +150,7 @@ public abstract class NanoWindow implements IWindow {
 			if (draggable && !maximized) {
 				this.x += window.getMouseHandler().getDX();
 				this.y += window.getMouseHandler().getDY();
+				updateRenderSize();
 			}
 		});
 		if (fullScreen)
@@ -245,6 +246,7 @@ public abstract class NanoWindow implements IWindow {
 			}
 		}
 		if (isResizing() || afterResize) {
+			updateRenderSize();
 			if (!isResizing() && afterResize)
 				notifyWindow(WindowMessage.WM_COMPOSITOR_RELOAD, null);
 			afterResize = isResizing();
@@ -256,7 +258,6 @@ public abstract class NanoWindow implements IWindow {
 
 	@Override
 	public void alwaysUpdate(float delta, IWindowManager nanoWindowManager) {
-		updateRenderSize();
 		titleBar.alwaysUpdate(delta, window);
 		if (compositor) {
 			if (animationState.equals(AnimationState.AFTER_CLOSE) && exiting)
@@ -318,12 +319,13 @@ public abstract class NanoWindow implements IWindow {
 								.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/titleBarHeight"))
 						- (int) REGISTRY
 								.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/shellHeight"));
-				updateRenderSize();
-				if (compositor)
+				if (compositor) {
+					updateRenderSize();
 					TaskManager.addTask(() -> {
 						nvgluDeleteFramebuffer(window.getNVGID(), fbo);
 						fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
 					});
+				}
 			}
 			break;
 		case WindowMessage.WM_RESTORE:
@@ -333,12 +335,13 @@ public abstract class NanoWindow implements IWindow {
 				this.y = oldY;
 				this.w = oldW;
 				this.h = oldH;
-				updateRenderSize();
-				if (compositor)
+				if (compositor) {
+					updateRenderSize();
 					TaskManager.addTask(() -> {
 						nvgluDeleteFramebuffer(window.getNVGID(), fbo);
 						fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
 					});
+				}
 			}
 			if (minimized) {
 				if (compositor) {
@@ -367,23 +370,28 @@ public abstract class NanoWindow implements IWindow {
 								.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/titleBarHeight"))
 						- (int) REGISTRY
 								.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/shellHeight"));
-				updateRenderSize();
-				if (compositor)
+				if (compositor) {
+					updateRenderSize();
 					TaskManager.addTask(() -> {
 						nvgluDeleteFramebuffer(window.getNVGID(), fbo);
 						fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
 					});
+				}
 			} else if (!maximized && fullScreen) {
 				x = 0;
 				y = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
 				w = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"));
 				h = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
-				updateRenderSize();
-				if (compositor)
+				if (compositor) {
+					updateRenderSize();
 					TaskManager.addTask(() -> {
 						nvgluDeleteFramebuffer(window.getNVGID(), fbo);
 						fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
 					});
+				}
+			} else {
+				if (compositor)
+					updateRenderSize();
 			}
 			break;
 		case WindowMessage.WM_EXTEND_FRAME:
@@ -395,6 +403,8 @@ public abstract class NanoWindow implements IWindow {
 			break;
 		case WindowMessage.WM_HIDDEN_WINDOW:
 			hidden = (boolean) param;
+			if (compositor)
+				updateRenderSize();
 			break;
 		case WindowMessage.WM_ALWAYS_ON_TOP:
 			alwaysOnTop = (boolean) param;
@@ -414,6 +424,7 @@ public abstract class NanoWindow implements IWindow {
 			break;
 		case WindowMessage.WM_COMPOSITOR_ENABLED:
 			compositor = true;
+			updateRenderSize();
 			TaskManager.addTask(() -> fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0));
 			break;
 		case WindowMessage.WM_COMPOSITOR_RELOAD:
@@ -621,25 +632,14 @@ public abstract class NanoWindow implements IWindow {
 				.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/borderSize"));
 		int titleBarHeight = (int) REGISTRY
 				.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/titleBarHeight"));
-		boolean titleBarBorder = (boolean) REGISTRY
-				.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/titleBarBorder"));
-		if (titleBar.isEnabled() && decorations && !maximized)
-			if (titleBarBorder) {
-				lfx = borderSize;
-				lfy = titleBarHeight + borderSize;
-				fx = x - borderSize;
-				fy = y + titleBarHeight + borderSize;
-				fw = (int) (w + borderSize * 2f);
-				fh = (int) (h + titleBarHeight + borderSize * 2f);
-			} else {
-				lfx = borderSize;
-				lfy = titleBarHeight;
-				fx = x - borderSize;
-				fy = y + titleBarHeight;
-				fw = (int) (w + borderSize * 2f);
-				fh = h + titleBarHeight + borderSize;
-			}
-		else if (!decorations) {
+		if (titleBar.isEnabled() && decorations && !maximized) {
+			lfx = borderSize;
+			lfy = titleBarHeight + borderSize;
+			fx = x - borderSize;
+			fy = y + titleBarHeight + borderSize;
+			fw = (int) (w + borderSize * 2f);
+			fh = (int) (h + titleBarHeight + borderSize * 2f);
+		} else if (!decorations) {
 			lfx = 0;
 			lfy = 0;
 			fx = x;

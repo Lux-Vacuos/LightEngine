@@ -244,17 +244,19 @@ public class Renderer {
 		glDepthFunc(GL_GREATER);
 		glClearDepth(0.0);
 		clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		GPUProfiler.start("Skybox");
-		skyboxRenderer.render(camera, worldSimulation, sun.getSunPosition(), true);
-		GPUProfiler.end();
 		GPUProfiler.start("External");
 		if (deferredPass != null)
 			deferredPass.render(camera, sunCamera, frustum, shadowFBO);
 		GPUProfiler.end();
+		GPUProfiler.start("Skybox");
+		skyboxRenderer.render(camera, worldSimulation, sun.getSunPosition(), true);
+		GPUProfiler.end();
 		GPUProfiler.start("RenderingManager");
 		renderingManager.render(camera);
 		GPUProfiler.end();
+		GPUProfiler.start("Water");
 		waterRenderer.render(waterTiles, camera, worldSimulation.getGlobalTime(), frustum);
+		GPUProfiler.end();
 		glClearDepth(1.0);
 		glDepthFunc(GL_LESS);
 		deferredPipeline.end();

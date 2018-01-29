@@ -38,7 +38,7 @@ import net.luxvacuos.lightengine.universal.network.LastChannelHandler;
 import net.luxvacuos.lightengine.universal.network.ManagerChannelHandler;
 
 public class NetworkSubsystem extends AbstractNettyNetworkHandler implements ISubsystem {
-	
+
 	private static ManagerChannelHandler mch;
 	private static ServerBootstrap b;
 	private static EventLoopGroup workerGroup;
@@ -76,13 +76,17 @@ public class NetworkSubsystem extends AbstractNettyNetworkHandler implements ISu
 	}
 
 	@Override
-	public void render(float delta) {
+	public void preRender(float delta) {
+	}
+
+	@Override
+	public void postRender(float delta) {
 	}
 
 	@Override
 	public void dispose() {
-        workerGroup.shutdownGracefully();
-        bossGroup.shutdownGracefully();
+		workerGroup.shutdownGracefully();
+		bossGroup.shutdownGracefully();
 	}
 
 	public static void bind(int port) throws InterruptedException {

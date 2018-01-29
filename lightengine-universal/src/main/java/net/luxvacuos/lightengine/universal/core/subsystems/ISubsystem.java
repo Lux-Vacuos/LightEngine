@@ -29,6 +29,8 @@ public interface ISubsystem extends IDisposable {
 	public void restart();
 
 	public void update(float delta);
+	
+	public void preRender(float delta);
 
-	public void render(float delta);
+	public void postRender(float delta);
 }

@@ -45,7 +45,7 @@ public abstract class AbstractEngine implements IEngine, IDisposable {
 		}
 		Logger.log("--- ");
 	}
-	
+
 	@Override
 	public void restart() {
 		Logger.log("Restarting Subsystems");
@@ -55,18 +55,25 @@ public abstract class AbstractEngine implements IEngine, IDisposable {
 		}
 		Logger.log("--- ");
 	}
-	
+
 	@Override
 	public void updateSubsystems(float delta) {
 		for (ISubsystem subsystem : subsystems) {
 			subsystem.update(delta);
 		}
 	}
-	
+
 	@Override
-	public void renderSubsystems(float delta) {
+	public void preRenderSubsystems(float delta) {
 		for (ISubsystem subsystem : subsystems) {
-			subsystem.render(delta);
+			subsystem.preRender(delta);
+		}
+	}
+
+	@Override
+	public void postRenderSubsystems(float delta) {
+		for (ISubsystem subsystem : subsystems) {
+			subsystem.postRender(delta);
 		}
 	}
 

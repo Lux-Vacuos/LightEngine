@@ -85,7 +85,7 @@ public class GraphicalSubsystem implements ISubsystem {
 	public void init() {
 		REGISTRY.register(new Key("/Light Engine/Display/width"), ClientVariables.WIDTH);
 		REGISTRY.register(new Key("/Light Engine/Display/height"), ClientVariables.HEIGHT);
-		
+
 		GLFW.glfwSetErrorCallback(GLFWErrorCallback.createPrint(System.err));
 
 		if (!glfwInit())
@@ -165,21 +165,26 @@ public class GraphicalSubsystem implements ISubsystem {
 	}
 
 	@Override
-	public void render(float delta) {
-		if (!window.isIconified()) {
+	public void preRender(float delta) {
+		WindowManager.update();
+		if (!window.isIconified())
 			if (window.wasResized()) {
 				REGISTRY.register(new Key("/Light Engine/Display/width"), window.getWidth());
 				REGISTRY.register(new Key("/Light Engine/Display/height"), window.getHeight());
-				EventSubsystem.triggerEvent("lightengine.renderer.resize");
 				windowManager.reloadCompositor();
+				EventSubsystem.triggerEvent("lightengine.renderer.resize");
 			}
+	}
+
+	@Override
+	public void postRender(float delta) {
+		if (!window.isIconified()) {
 			CachedAssets.update(delta);
 			Renderer.clearColors(0, 0, 0, 1);
 			Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			GraphicalSubsystem.getWindowManager().update(delta);
 			GraphicalSubsystem.getWindowManager().render(delta);
 		}
-		WindowManager.update();
 	}
 
 	@Override

@@ -82,18 +82,21 @@ public class Shell extends ComponentWindow implements IShell {
 	public void alwaysUpdateApp(float delta) {
 		if (fadeIn) {
 			y += 100f * delta;
+			updateRenderSize();
 			if (y >= h) {
 				y = h;
 				fadeIn = false;
+				updateRenderSize();
 				CoreSubsystem.REGISTRY.register(KeyCache.getKey("/Light Engine/Settings/WindowManager/shellHeight"), y);
 			}
 		}
 		if (fadeOut) {
 			y -= 100f * delta;
+			updateRenderSize();
 			if (y <= 0) {
-				super.setHidden(!enabled);
-				fadeOut = false;
 				y = 0;
+				fadeOut = false;
+				super.setHidden(!enabled);
 				CoreSubsystem.REGISTRY.register(KeyCache.getKey("/Light Engine/Settings/WindowManager/shellHeight"), 0);
 			}
 		}

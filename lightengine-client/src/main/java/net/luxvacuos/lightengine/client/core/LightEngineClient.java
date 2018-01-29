@@ -149,8 +149,9 @@ public class LightEngineClient extends AbstractEngine {
 			Timers.startGPUTimer();
 			GPUProfiler.startFrame();
 			GPUProfiler.start("Render");
-			super.renderSubsystems(delta);
+			super.preRenderSubsystems(delta);
 			StateMachine.render(delta);
+			super.postRenderSubsystems(delta);
 			GPUProfiler.end();
 			GPUProfiler.endFrame();
 			Timers.stopGPUTimer();

@@ -117,8 +117,10 @@ public class NotificationsArea extends ComponentWindow {
 							x -= 500 * delta;
 							int xt = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"))
 									- 295;
+							updateRenderSize();
 							if (x <= xt) {
 								x = xt;
+								updateRenderSize();
 								fadeIn = false;
 							}
 						}
@@ -126,6 +128,7 @@ public class NotificationsArea extends ComponentWindow {
 							x += 500 * delta;
 							int xt = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"))
 									+ 5;
+							updateRenderSize();
 							if (x >= xt) {
 								fadeOut = false;
 								super.closeWindow();
