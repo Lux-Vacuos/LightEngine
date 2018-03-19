@@ -46,11 +46,11 @@ public class EventSubsystem implements ISubsystem {
 	}
 
 	@Override
-	public void preRender(float delta) {
+	public void render(float delta) {
 	}
 
 	@Override
-	public void postRender(float delta) {
+	public void updateMainThread(float delta) {
 	}
 
 	@Override
@@ -79,7 +79,7 @@ public class EventSubsystem implements ISubsystem {
 	}
 
 	public static void triggerEvent(String key) {
-		TaskManager.addTaskUpdate(() -> {
+		TaskManager.tm.addTaskUpdate(() -> {
 			List<IEvent> eventList = events.get(key);
 			if (eventList != null)
 				for (IEvent event : eventList)

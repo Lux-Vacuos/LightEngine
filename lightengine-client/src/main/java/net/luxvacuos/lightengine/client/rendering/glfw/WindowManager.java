@@ -20,8 +20,6 @@
 
 package net.luxvacuos.lightengine.client.rendering.glfw;
 
-import static org.lwjgl.glfw.GLFW.glfwPollEvents;
-import static org.lwjgl.glfw.GLFWVulkan.glfwVulkanSupported;
 import static org.lwjgl.opengl.GL11.GL_VENDOR;
 import static org.lwjgl.opengl.GL11.glGetIntegerv;
 import static org.lwjgl.opengl.GL11.glGetString;
@@ -64,23 +62,40 @@ public final class WindowManager {
 		return new WindowHandle(width, height, title);
 	}
 
-	public static long createWindow(WindowHandle handle, boolean vsync) {
-		Logger.log("Creating new Window '" + handle.title + "'");
-		if (glfwVulkanSupported()) {
-			// TODO: Implement Vulkan
-		}
+	public static Window generateWindow(WindowHandle handle) {
+		return generateWindow(handle, NULL);
+	}
 
+	public static Window generateWindow(WindowHandle handle, long parentID) {
+		Logger.log("Creating new Window '" + handle.title + "'");
 		long windowID = GLFW.glfwCreateWindow(handle.width, handle.height, (handle.title == null ? "" : handle.title),
-				NULL, NULL);
+				NULL, parentID);
 		if (windowID == NULL)
 			throw new GLFWException("Failed to create GLFW Window '" + handle.title + "'");
 
 		Window window = new Window(windowID, handle.width, handle.height);
-
 		GLFWVidMode vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
 		GLFW.glfwSetWindowPos(windowID, (vidmode.width() - window.width) / 2, (vidmode.height() - window.height) / 2);
+
+		int[] h = new int[1];
+		int[] w = new int[1];
+
+		GLFW.glfwGetFramebufferSize(windowID, w, h);
+		window.framebufferHeight = h[0];
+		window.framebufferWidth = w[0];
+		GLFW.glfwGetWindowSize(windowID, w, h);
+		window.height = h[0];
+		window.width = w[0];
+		window.pixelRatio = (float) window.framebufferWidth / (float) window.width;
+		return window;
+	}
+
+	public static void createWindow(WindowHandle handle, Window window, boolean vsync) {
+		long windowID = window.getID();
+
 		GLFW.glfwMakeContextCurrent(windowID);
 		GLFW.glfwSwapInterval(vsync ? 1 : 0);
+
 		try (MemoryStack stack = stackPush()) {
 			IntBuffer w = stack.callocInt(1);
 			IntBuffer h = stack.callocInt(1);
@@ -142,8 +157,7 @@ public final class WindowManager {
 			}
 		}
 
-		boolean forwardCompat = GLFW.glfwGetWindowAttrib(windowID, GLFW.GLFW_OPENGL_FORWARD_COMPAT) == GLFW.GLFW_TRUE;
-		window.capabilities = GL.createCapabilities(forwardCompat);
+		window.capabilities = GL.createCapabilities(true);
 
 		int nvgFlags = NanoVGGL3.NVG_ANTIALIAS | NanoVGGL3.NVG_STENCIL_STROKES;
 		if (ClientVariables.debug)
@@ -154,24 +168,9 @@ public final class WindowManager {
 			throw new GLFWException("Fail to create NanoVG context for Window '" + handle.title + "'");
 
 		window.lastLoopTime = getTime();
-
-		int[] h = new int[1];
-		int[] w = new int[1];
-
-		GLFW.glfwGetFramebufferSize(windowID, w, h);
-		window.framebufferHeight = h[0];
-		window.framebufferWidth = w[0];
-		GLFW.glfwGetWindowSize(windowID, w, h);
-		window.height = h[0];
-		window.width = w[0];
-		window.pixelRatio = (float) window.framebufferWidth / (float) window.width;
 		window.resetViewport();
-
 		window.created = true;
-
 		windows.add(window);
-
-		return windowID;
 	}
 
 	public static Window getWindow(long windowID) {
@@ -182,13 +181,9 @@ public final class WindowManager {
 					windows.swap(0, index); // Swap the window to the front of
 											// the array to speed up future
 											// recurring searches
-				if (GLFW.glfwGetCurrentContext() != windowID)
-					GLFW.glfwMakeContextCurrent(windowID);
 				return window;
 			}
-
 		}
-
 		return null;
 	}
 
@@ -196,7 +191,6 @@ public final class WindowManager {
 		for (Window window : windows) {
 			if (!window.created)
 				continue;
-			window.dispose();
 			window.closeDisplay();
 		}
 	}
@@ -207,9 +201,9 @@ public final class WindowManager {
 			window.resized = false;
 			window.getMouseHandler().update();
 		}
-		glfwPollEvents();
+		GLFW.glfwPollEvents();
 	}
-
+	
 	public static double getTime() {
 		return GLFW.glfwGetTime();
 	}

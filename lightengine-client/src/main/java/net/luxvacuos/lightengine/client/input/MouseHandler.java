@@ -77,14 +77,14 @@ public class MouseHandler {
 		else
 			return -1;
 	}
-	
+
 	public int getXI() {
 		if (this.isInside())
 			return (int) this.posCallback.getX();
 		else
 			return -1;
 	}
-	
+
 	public int getYI() {
 		if (this.isInside())
 			return (int) (window.getHeight() - this.posCallback.getY());
@@ -121,7 +121,7 @@ public class MouseHandler {
 	}
 
 	public static void setGrabbed(long windowID, boolean grab) {
-		TaskManager.addTask(() -> GLFW.glfwSetInputMode(windowID, GLFW.GLFW_CURSOR,
+		TaskManager.tm.addTask(() -> GLFW.glfwSetInputMode(windowID, GLFW.GLFW_CURSOR,
 				grab ? GLFW.GLFW_CURSOR_DISABLED : GLFW.GLFW_CURSOR_NORMAL));
 	}
 

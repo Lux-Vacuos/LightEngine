@@ -13,7 +13,7 @@ public class Splash extends AbstractState {
 
 	@Override
 	public void update(float delta) {
-		if (TaskManager.isEmpty())
+		if (TaskManager.tm.isEmpty())
 			StateMachine.setCurrentState(StateNames.MAIN);
 	}
 

@@ -18,19 +18,14 @@
  * 
  */
 
-package net.luxvacuos.lightengine.universal.core.subsystems;
+package net.luxvacuos.lightengine.universal.bootstrap;
 
-import net.luxvacuos.lightengine.universal.resources.IDisposable;
+import net.luxvacuos.lightengine.universal.core.IEngineLoader;
 
-public interface ISubsystem extends IDisposable {
+public class DummyEngineLoader implements IEngineLoader {
 
-	public void init();
+	@Override
+	public void loadExternal() {
+	}
 
-	public void restart();
-
-	public void update(float delta);
-	
-	public void updateMainThread(float delta);
-	
-	public void render(float delta);
 }

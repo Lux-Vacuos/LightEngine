@@ -24,13 +24,16 @@ import java.io.File;
 import java.io.IOException;
 
 import net.luxvacuos.lightengine.server.core.LightEngineServer;
+import net.luxvacuos.lightengine.server.core.ServerTaskManager;
 import net.luxvacuos.lightengine.universal.bootstrap.AbstractBootstrap;
+import net.luxvacuos.lightengine.universal.core.IEngineLoader;
+import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.TempVariables;
 
 public class Bootstrap extends AbstractBootstrap {
 
-	public Bootstrap(String[] args) {
-		super(args);
+	public Bootstrap(String[] args, IEngineLoader loader) {
+		super(args, loader);
 	}
 
 	@Override
@@ -48,6 +51,9 @@ public class Bootstrap extends AbstractBootstrap {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+		TaskManager.tm = new ServerTaskManager();
+		loader.loadExternal();
 		new LightEngineServer();
 	}
 

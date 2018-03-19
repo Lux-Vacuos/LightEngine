@@ -39,7 +39,7 @@ public class ClientPhysicsSystem extends PhysicsSystem {
 			@Override
 			public void entityRemoved(Entity entity) {
 				if (ClientComponents.RENDERABLE.has(entity))
-					TaskManager.addTask(() -> ClientComponents.RENDERABLE.get(entity).getModel().dispose());
+					TaskManager.tm.addTask(() -> ClientComponents.RENDERABLE.get(entity).getModel().dispose());
 				if (entity instanceof RenderEntity)
 					if (Components.COLLISION.has(entity))
 						((RenderEntity) entity).addedToSim = false;

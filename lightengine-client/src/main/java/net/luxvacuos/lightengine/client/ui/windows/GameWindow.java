@@ -51,7 +51,7 @@ public class GameWindow extends ComponentWindow {
 		game.setResizeV(true);
 
 		event = EventSubsystem.addEvent("lightengine.renderer.postresize", () -> {
-			TaskManager.addTask(() -> game.setImage(Renderer.getNVGImage()));
+			TaskManager.tm.addTask(() -> game.setImage(Renderer.getNVGImage()));
 		});
 
 		super.addComponent(game);

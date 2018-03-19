@@ -103,7 +103,7 @@ public class LightEngineClient extends AbstractEngine {
 			Sync sync = new Sync();
 			while (StateMachine.isRunning()) {
 				Timers.startCPUTimer();
-				TaskManager.updateThread();
+				TaskManager.tm.updateThread();
 				if (sync.timeCount > 1f) {
 					CoreSubsystem.ups = CoreSubsystem.upsCount;
 					CoreSubsystem.upsCount = 0;
@@ -131,7 +131,7 @@ public class LightEngineClient extends AbstractEngine {
 				} catch (InterruptedException e) {
 				}
 				if (!updateThread.isAlive()) {
-					TaskManager.addTask(() -> {
+					TaskManager.tm.addTask(() -> {
 						throw new UpdateThreadException("Update Thread died");
 					});
 				}
@@ -142,23 +142,23 @@ public class LightEngineClient extends AbstractEngine {
 		watchdog.start();
 
 		Window window = GraphicalSubsystem.getMainWindow();
-		float delta = 0;
+		float delta = 0f;
 		while (StateMachine.isRunning()) {
-			TaskManager.update();
+			TaskManager.tm.update();
 			delta = window.getDelta();
 			Timers.startGPUTimer();
 			GPUProfiler.startFrame();
 			GPUProfiler.start("Render");
-			super.preRenderSubsystems(delta);
+			super.updateSubsystemsMainThread(delta);
+			super.render(delta);
 			StateMachine.render(delta);
-			super.postRenderSubsystems(delta);
 			GPUProfiler.end();
 			GPUProfiler.endFrame();
 			Timers.stopGPUTimer();
 			Timers.update();
 			window.updateDisplay(fps);
 			if (window.isCloseRequested())
-				TaskManager.addTaskUpdate(() -> StateMachine.dispose());
+				TaskManager.tm.addTaskUpdate(() -> StateMachine.dispose());
 		}
 	}
 

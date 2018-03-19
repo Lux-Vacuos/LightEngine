@@ -34,9 +34,9 @@ public interface IEngine {
 
 	public void updateSubsystems(float delta);
 
-	public void preRenderSubsystems(float delta);
-	
-	public void postRenderSubsystems(float delta);
+	public void updateSubsystemsMainThread(float delta);
+
+	public void render(float delta);
 
 	public void handleError(Throwable e);
 

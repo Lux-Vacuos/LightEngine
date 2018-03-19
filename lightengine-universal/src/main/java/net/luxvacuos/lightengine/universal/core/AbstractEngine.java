@@ -33,7 +33,7 @@ public abstract class AbstractEngine implements IEngine, IDisposable {
 
 	public AbstractEngine() {
 		subsystems = new ArrayList<>();
-		TaskManager.init();
+		TaskManager.tm.init();
 	}
 
 	@Override
@@ -64,16 +64,16 @@ public abstract class AbstractEngine implements IEngine, IDisposable {
 	}
 
 	@Override
-	public void preRenderSubsystems(float delta) {
+	public void updateSubsystemsMainThread(float delta) {
 		for (ISubsystem subsystem : subsystems) {
-			subsystem.preRender(delta);
+			subsystem.updateMainThread(delta);
 		}
 	}
 
 	@Override
-	public void postRenderSubsystems(float delta) {
+	public void render(float delta) {
 		for (ISubsystem subsystem : subsystems) {
-			subsystem.postRender(delta);
+			subsystem.render(delta);
 		}
 	}
 

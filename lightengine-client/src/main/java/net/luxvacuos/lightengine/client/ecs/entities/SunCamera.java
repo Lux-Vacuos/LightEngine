@@ -61,7 +61,7 @@ public class SunCamera extends CameraEntity {
 					-shadowDrawDistance, shadowDrawDistance, false);
 			shadowProjectionMatrix[3] = Maths.orthoSymmetric(-shadowDrawDistance, shadowDrawDistance,
 					-shadowDrawDistance, shadowDrawDistance, false);
-			TaskManager.addTask(() -> setProjectionArray(shadowProjectionMatrix));
+			TaskManager.tm.addTask(() -> setProjectionArray(shadowProjectionMatrix));
 		});
 
 		int shadowDrawDistance = (int) REGISTRY
@@ -89,7 +89,7 @@ public class SunCamera extends CameraEntity {
 		super.dispose();
 		EventSubsystem.removeEvent("lightengine.renderer.resetshadowmatrix", shadowReset);
 	}
-	
+
 	@Override
 	public Vector3f getRotation() {
 		return localRotation;

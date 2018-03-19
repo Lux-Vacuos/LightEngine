@@ -72,7 +72,7 @@ public class SplashScreenState extends AbstractState {
 	@Override
 	public void update(float delta) {
 		if (tryLoad)
-			if (TaskManager.isEmpty()) {
+			if (TaskManager.tm.isEmpty()) {
 				try {
 					StateMachine.setCurrentState(StateNames.MAIN);
 				} catch (NullPointerException e) {

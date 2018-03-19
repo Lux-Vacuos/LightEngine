@@ -45,8 +45,7 @@ public class MainWindow extends ComponentWindow {
 
 		Button entityEditorButton = new Button(0, 0, 200, 40,
 				LANG.getRegistryItem("lightengine.mainwindow.btnentityeditor"));
-		Button optionsButton = new Button(0, -50, 200, 40,
-				LANG.getRegistryItem("lightengine.mainwindow.btnoptions"));
+		Button optionsButton = new Button(0, -50, 200, 40, LANG.getRegistryItem("lightengine.mainwindow.btnoptions"));
 		Button exitButton = new Button(0, 0, 200, 40, LANG.getRegistryItem("lightengine.mainwindow.btnexit"));
 
 		entityEditorButton.setAlignment(Alignment.RIGHT_BOTTOM);
@@ -92,7 +91,7 @@ public class MainWindow extends ComponentWindow {
 			case DO_NOTHING:
 				ModalWindow window = new ModalWindow(340, 200, "", "Exit Dev Tools");
 				GraphicalSubsystem.getWindowManager().addWindow(window);
-				TaskManager.addTask(() -> {
+				TaskManager.tm.addTask(() -> {
 					window.setOnAccept(() -> {
 						new Thread(() -> {
 							while (GraphicalSubsystem.getWindowManager().getTotalWindows() > 0)
@@ -101,7 +100,7 @@ public class MainWindow extends ComponentWindow {
 								} catch (InterruptedException e) {
 									e.printStackTrace();
 								}
-							TaskManager.addTask(() -> StateMachine.stop());
+							TaskManager.tm.addTask(() -> StateMachine.stop());
 						}).start();
 						super.setWindowClose(WindowClose.DISPOSE);
 						GraphicalSubsystem.getWindowManager().closeAllWindows();

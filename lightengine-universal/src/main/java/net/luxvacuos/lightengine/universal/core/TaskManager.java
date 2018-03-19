@@ -25,55 +25,38 @@ import java.util.Queue;
 
 import com.badlogic.gdx.utils.async.AsyncExecutor;
 
-public final class TaskManager {
+public class TaskManager {
+	
+	public static TaskManager tm;
 
-	private TaskManager() {
-	}
-
-	private static Queue<Runnable> tasks = new LinkedList<>(), tasksAsync = new LinkedList<>(),
+	protected Queue<Runnable> tasks = new LinkedList<>(), tasksAsync = new LinkedList<>(),
 			updateThreadTasks = new LinkedList<>();
-	private static AsyncExecutor asyncExecutor;
-	private static Thread asyncThread;
-	private static boolean syncInterrupt;
-
-	public static void init() {
+	protected AsyncExecutor asyncExecutor;
+	protected Thread asyncThread;
+	protected boolean syncInterrupt;
+	
+	public void init() {
 		asyncExecutor = new AsyncExecutor(2);
-		asyncThread = new Thread(() -> {
-			while (true) {
-				if (!tasksAsync.isEmpty()) {
-					tasksAsync.poll().run();
-				} else {
-					try {
-						syncInterrupt = false;
-						Thread.sleep(1000000l);
-					} catch (InterruptedException e) {
-					}
-				}
-			}
-		});
-		asyncThread.setDaemon(true);
-		asyncThread.setName("Async Thread");
-		asyncThread.start();
 	}
 
-	public static void update() {
+	public void update() {
 		if (!tasks.isEmpty()) {
 			tasks.poll().run();
 		}
 	}
 
-	public static void updateThread() {
+	public void updateThread() {
 		if (!updateThreadTasks.isEmpty()) {
 			updateThreadTasks.poll().run();
 		}
 	}
 
-	public static void addTask(Runnable task) {
+	public void addTask(Runnable task) {
 		if (task != null)
 			tasks.add(task);
 	}
 
-	public static void addTaskAsync(Runnable task) {
+	public void addTaskAsync(Runnable task) {
 		if (task != null) {
 			tasksAsync.add(task);
 			if (!syncInterrupt) {
@@ -83,20 +66,20 @@ public final class TaskManager {
 		}
 	}
 
-	public static void addTaskUpdate(Runnable task) {
+	public void addTaskUpdate(Runnable task) {
 		if (task != null)
 			updateThreadTasks.add(task);
 	}
 
-	public static boolean isEmpty() {
+	public boolean isEmpty() {
 		return tasks.isEmpty();
 	}
 
-	public static boolean isEmptyAsync() {
+	public boolean isEmptyAsync() {
 		return tasksAsync.isEmpty();
 	}
 
-	public static AsyncExecutor getAsyncExecutor() {
+	public AsyncExecutor getAsyncExecutor() {
 		return asyncExecutor;
 	}
 

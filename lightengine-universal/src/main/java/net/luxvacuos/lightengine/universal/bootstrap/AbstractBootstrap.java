@@ -27,17 +27,21 @@ import java.io.InputStreamReader;
 
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.universal.core.GlobalVariables;
+import net.luxvacuos.lightengine.universal.core.IEngineLoader;
 
 public abstract class AbstractBootstrap implements IBootstrap {
 
 	private static Platform platform;
 
-	public AbstractBootstrap(String[] args) {
+	protected IEngineLoader loader = new DummyEngineLoader();
+
+	public AbstractBootstrap(String[] args, IEngineLoader loader) {
+		this.loader = loader;
 		try (BufferedReader br = new BufferedReader(new FileReader("project"))) {
 			GlobalVariables.PROJECT = br.readLine();
 		} catch (IOException e1) {
-			try (BufferedReader br = new BufferedReader(new InputStreamReader(
-					getClass().getClassLoader().getResourceAsStream("project")))) {
+			try (BufferedReader br = new BufferedReader(
+					new InputStreamReader(getClass().getClassLoader().getResourceAsStream("project")))) {
 				GlobalVariables.PROJECT = br.lines().reduce("", String::concat);
 			} catch (Exception e) {
 			}

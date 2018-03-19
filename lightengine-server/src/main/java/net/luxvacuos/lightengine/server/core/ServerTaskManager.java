@@ -18,19 +18,31 @@
  * 
  */
 
-package net.luxvacuos.lightengine.universal.core.subsystems;
+package net.luxvacuos.lightengine.server.core;
 
-import net.luxvacuos.lightengine.universal.resources.IDisposable;
+import net.luxvacuos.lightengine.universal.core.TaskManager;
 
-public interface ISubsystem extends IDisposable {
+public class ServerTaskManager extends TaskManager {
 
-	public void init();
+	@Override
+	public void init() {
+		super.init();
+		asyncThread = new Thread(() -> {
+			while (true) {
+				if (!tasksAsync.isEmpty()) {
+					tasksAsync.poll().run();
+				} else {
+					try {
+						syncInterrupt = false;
+						Thread.sleep(1000000l);
+					} catch (InterruptedException e) {
+					}
+				}
+			}
+		});
+		asyncThread.setDaemon(true);
+		asyncThread.setName("Async Thread");
+		asyncThread.start();
+	}
 
-	public void restart();
-
-	public void update(float delta);
-	
-	public void updateMainThread(float delta);
-	
-	public void render(float delta);
 }

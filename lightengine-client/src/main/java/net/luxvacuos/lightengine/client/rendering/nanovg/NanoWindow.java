@@ -64,13 +64,14 @@ public abstract class NanoWindow implements IWindow {
 	private boolean draggable = true, decorations = true, resizable = true, maximized, hidden, exit, alwaysOnTop;
 	private boolean background, blurBehind = true, minimized, closeButton = true, afterResize, exiting;
 	private boolean transparentInput, resizingRight, resizingRightBottom, resizingBottom, resizingTop, resizingLeft;
-	private boolean fullScreen;
+	private boolean fullScreen, dragging;
 	private int ft, fb, fr, fl;
 	private BackgroundStyle backgroundStyle = BackgroundStyle.SOLID;
 	private NVGColor backgroundColor = Theme.rgba(0, 0, 0, 255);
 	protected int x, y, w, h, minW = 300, minH = 300;
 	protected int lfx, lfy, fx, fy, fh, fw;
 	private int oldX, oldY, oldW, oldH;
+	private int dragX, dragY;
 	private WindowClose windowClose = WindowClose.DISPOSE;
 	private ITitleBar titleBar;
 	private NVGLUFramebuffer fbo;
@@ -148,8 +149,21 @@ public abstract class NanoWindow implements IWindow {
 
 		titleBar.setOnDrag((window) -> {
 			if (draggable && !maximized) {
-				this.x += window.getMouseHandler().getDX();
-				this.y += window.getMouseHandler().getDY();
+				MouseHandler mh = window.getMouseHandler();
+				if (!dragging) {
+					dragX = x - mh.getXI();
+					dragY = y - mh.getYI();
+				}
+				if (mh.isButtonPressed(0) || dragging) {
+					if (!mh.isButtonPressed(0) && dragging) {
+						dragX = -1;
+						dragY = -1;
+					} else {
+						x = mh.getXI() + dragX;
+						y = mh.getYI() + dragY;
+					}
+					dragging = mh.isButtonPressed(0);
+				}
 				updateRenderSize();
 			}
 		});
@@ -321,7 +335,7 @@ public abstract class NanoWindow implements IWindow {
 								.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/shellHeight"));
 				if (compositor) {
 					updateRenderSize();
-					TaskManager.addTask(() -> {
+					TaskManager.tm.addTask(() -> {
 						nvgluDeleteFramebuffer(window.getNVGID(), fbo);
 						fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
 					});
@@ -337,7 +351,7 @@ public abstract class NanoWindow implements IWindow {
 				this.h = oldH;
 				if (compositor) {
 					updateRenderSize();
-					TaskManager.addTask(() -> {
+					TaskManager.tm.addTask(() -> {
 						nvgluDeleteFramebuffer(window.getNVGID(), fbo);
 						fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
 					});
@@ -372,7 +386,7 @@ public abstract class NanoWindow implements IWindow {
 								.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/shellHeight"));
 				if (compositor) {
 					updateRenderSize();
-					TaskManager.addTask(() -> {
+					TaskManager.tm.addTask(() -> {
 						nvgluDeleteFramebuffer(window.getNVGID(), fbo);
 						fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
 					});
@@ -384,7 +398,7 @@ public abstract class NanoWindow implements IWindow {
 				h = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
 				if (compositor) {
 					updateRenderSize();
-					TaskManager.addTask(() -> {
+					TaskManager.tm.addTask(() -> {
 						nvgluDeleteFramebuffer(window.getNVGID(), fbo);
 						fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
 					});
@@ -417,7 +431,7 @@ public abstract class NanoWindow implements IWindow {
 			break;
 		case WindowMessage.WM_COMPOSITOR_DISABLED:
 			compositor = false;
-			TaskManager.addTask(() -> {
+			TaskManager.tm.addTask(() -> {
 				nvgluDeleteFramebuffer(window.getNVGID(), fbo);
 				fbo = null;
 			});
@@ -425,11 +439,11 @@ public abstract class NanoWindow implements IWindow {
 		case WindowMessage.WM_COMPOSITOR_ENABLED:
 			compositor = true;
 			updateRenderSize();
-			TaskManager.addTask(() -> fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0));
+			TaskManager.tm.addTask(() -> fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0));
 			break;
 		case WindowMessage.WM_COMPOSITOR_RELOAD:
 			if (compositor) {
-				TaskManager.addTask(() -> {
+				TaskManager.tm.addTask(() -> {
 					nvgluDeleteFramebuffer(window.getNVGID(), fbo);
 					fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
 				});

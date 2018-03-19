@@ -56,11 +56,11 @@ public class SoundSubsystem implements ISubsystem {
 	}
 
 	@Override
-	public void preRender(float delta) {
+	public void render(float delta) {
 	}
 
 	@Override
-	public void postRender(float delta) {
+	public void updateMainThread(float delta) {
 	}
 
 	@Override

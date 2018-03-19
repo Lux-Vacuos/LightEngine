@@ -94,6 +94,7 @@ import org.lwjgl.opengl.EXTTextureFilterAnisotropic;
 import org.lwjgl.system.MemoryStack;
 
 import net.luxvacuos.igl.Logger;
+import net.luxvacuos.lightengine.client.core.ClientTaskManager;
 import net.luxvacuos.lightengine.client.core.exception.DecodeTextureException;
 import net.luxvacuos.lightengine.client.core.exception.LoadOBJModelException;
 import net.luxvacuos.lightengine.client.core.exception.LoadTextureException;
@@ -237,7 +238,8 @@ public class ResourceLoader implements IDisposable {
 
 	private int loadTexture(String file, int filter, int textureWarp, int format, boolean textureMipMapAF) {
 		RawTexture data = decodeTextureFile(file);
-		if (isMainThread()) {
+		if (isMainThread()
+				|| Thread.currentThread().getId() == ((ClientTaskManager) TaskManager.tm).getAsyncThreadID()) {
 			int textureID = createTexture(data, filter, textureWarp, format, textureMipMapAF);
 			data.dispose();
 			return textureID;
@@ -245,7 +247,7 @@ public class ResourceLoader implements IDisposable {
 			int[] textureID = new int[1];
 			boolean[] ready = new boolean[1];
 			textureID[0] = -1;
-			TaskManager.addTask(() -> {
+			TaskManager.tm.addTaskAsync(() -> {
 				textureID[0] = createTexture(data, filter, textureWarp, format, textureMipMapAF);
 				ready[0] = true;
 			});

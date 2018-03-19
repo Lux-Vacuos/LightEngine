@@ -354,7 +354,8 @@ public abstract class AbstractWindow implements IWindow {
 	@Override
 	public void dispose() {
 		nvgDelete(this.nvgID);
-		resourceLoader.dispose();
+		if (resourceLoader != null)
+			resourceLoader.dispose();
 	}
 
 	public void setWindowTitle(String text) {

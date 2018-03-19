@@ -138,7 +138,7 @@ public class NanoWindowManager implements IWindowManager {
 		for (IWindow window : new ArrayList<>(this.windows)) {
 			if (window.shouldClose()) {
 				notifyClose(window);
-				TaskManager.addTask(() -> {
+				TaskManager.tm.addTask(() -> {
 					window.dispose();
 				});
 				tmp.add(window);
@@ -195,7 +195,7 @@ public class NanoWindowManager implements IWindowManager {
 
 	@Override
 	public void addWindow(IWindow window) {
-		TaskManager.addTask(() -> {
+		TaskManager.tm.addTask(() -> {
 			window.init(this.window);
 			window.update(0, this);
 			window.alwaysUpdate(0, this);
@@ -207,7 +207,7 @@ public class NanoWindowManager implements IWindowManager {
 
 	@Override
 	public void addWindow(int ord, IWindow window) {
-		TaskManager.addTask(() -> {
+		TaskManager.tm.addTask(() -> {
 			window.init(this.window);
 			window.update(0, this);
 			window.alwaysUpdate(0, this);
@@ -257,7 +257,7 @@ public class NanoWindowManager implements IWindowManager {
 	public void enableCompositor() {
 		if (compositorEnabled)
 			return;
-		TaskManager.addTask(() -> {
+		TaskManager.tm.addTask(() -> {
 			compositor = new Compositor(window, width, height);
 			compositorEnabled = true;
 			REGISTRY.register(KeyCache.getKey("/Light Engine/Settings/WindowManager/compositor"), compositorEnabled);
@@ -269,7 +269,7 @@ public class NanoWindowManager implements IWindowManager {
 	public void disableCompositor() {
 		if (!compositorEnabled)
 			return;
-		TaskManager.addTask(() -> compositor.dispose());
+		TaskManager.tm.addTask(() -> compositor.dispose());
 		notifyAllWindows(WindowMessage.WM_COMPOSITOR_DISABLED, null);
 		compositorEnabled = false;
 		REGISTRY.register(KeyCache.getKey("/Light Engine/Settings/WindowManager/compositor"), compositorEnabled);

@@ -107,34 +107,34 @@ public class Renderer {
 			ResourceLoader loader = window.getResourceLoader();
 
 			frustum = new Frustum();
-			TaskManager.addTask(() -> shadowFBO = new ShadowFBO(shadowResolution, shadowResolution));
+			TaskManager.tm.addTask(() -> shadowFBO = new ShadowFBO(shadowResolution, shadowResolution));
 
-			TaskManager.addTask(() -> skyboxRenderer = new SkyboxRenderer(loader));
-			TaskManager.addTask(() -> deferredPipeline = new MultiPass(window));
-			TaskManager.addTask(() -> postProcessPipeline = new PostProcess(window));
-			TaskManager.addTask(() -> particleRenderer = new ParticleRenderer(loader));
-			TaskManager
+			TaskManager.tm.addTask(() -> skyboxRenderer = new SkyboxRenderer(loader));
+			TaskManager.tm.addTask(() -> deferredPipeline = new MultiPass(window));
+			TaskManager.tm.addTask(() -> postProcessPipeline = new PostProcess(window));
+			TaskManager.tm.addTask(() -> particleRenderer = new ParticleRenderer(loader));
+			TaskManager.tm
 					.addTask(() -> envRenderer = new EnvironmentRenderer(loader.createEmptyCubeMap(32, true, false)));
-			TaskManager.addTask(
+			TaskManager.tm.addTask(
 					() -> envRendererEntities = new EnvironmentRenderer(loader.createEmptyCubeMap(128, true, false)));
-			TaskManager.addTask(() -> preFilteredEnvironment = new PreFilteredEnvironment(
+			TaskManager.tm.addTask(() -> preFilteredEnvironment = new PreFilteredEnvironment(
 					loader.createEmptyCubeMap(128, true, true), window));
-			TaskManager.addTask(() -> irradianceCapture = new IrradianceCapture(loader));
-			TaskManager.addTask(() -> waterRenderer = new WaterRenderer(loader));
-			TaskManager.addTask(() -> renderingManager.addRenderer(new EntityRenderer(loader)));
+			TaskManager.tm.addTask(() -> irradianceCapture = new IrradianceCapture(loader));
+			TaskManager.tm.addTask(() -> waterRenderer = new WaterRenderer(loader));
+			TaskManager.tm.addTask(() -> renderingManager.addRenderer(new EntityRenderer(loader)));
 			lightRenderer = new LightRenderer();
 
 			shadowMap = EventSubsystem.addEvent("lightengine.renderer.resetshadowmap", () -> {
 				shadowResolution = (int) REGISTRY
 						.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/shadowsResolution"));
-				TaskManager.addTask(() -> {
+				TaskManager.tm.addTask(() -> {
 					shadowFBO.dispose();
 					shadowFBO = new ShadowFBO(shadowResolution, shadowResolution);
 				});
 			});
 			reload = EventSubsystem.addEvent("lightengine.renderer.resize", () -> {
 				reloading = true;
-				TaskManager.addTask(() -> {
+				TaskManager.tm.addTask(() -> {
 					deferredPipeline.resize();
 					postProcessPipeline.resize();
 					reloading = false;
@@ -142,7 +142,7 @@ public class Renderer {
 				});
 			});
 		}
-		TaskManager.addTask(() -> {
+		TaskManager.tm.addTask(() -> {
 			enabled = true;
 			EventSubsystem.triggerEvent("lightengine.renderer.initialized");
 		});
@@ -295,27 +295,27 @@ public class Renderer {
 		if (enabled) {
 			enabled = false;
 			if (envRenderer != null)
-				TaskManager.addTask(() -> envRenderer.cleanUp());
+				TaskManager.tm.addTask(() -> envRenderer.cleanUp());
 			if (envRendererEntities != null)
-				TaskManager.addTask(() -> envRendererEntities.cleanUp());
+				TaskManager.tm.addTask(() -> envRendererEntities.cleanUp());
 			if (shadowFBO != null)
-				TaskManager.addTask(() -> shadowFBO.dispose());
+				TaskManager.tm.addTask(() -> shadowFBO.dispose());
 			if (deferredPipeline != null)
-				TaskManager.addTask(() -> deferredPipeline.dispose());
+				TaskManager.tm.addTask(() -> deferredPipeline.dispose());
 			if (postProcessPipeline != null)
-				TaskManager.addTask(() -> postProcessPipeline.dispose());
+				TaskManager.tm.addTask(() -> postProcessPipeline.dispose());
 			if (particleRenderer != null)
-				TaskManager.addTask(() -> particleRenderer.cleanUp());
+				TaskManager.tm.addTask(() -> particleRenderer.cleanUp());
 			if (irradianceCapture != null)
-				TaskManager.addTask(() -> irradianceCapture.dispose());
+				TaskManager.tm.addTask(() -> irradianceCapture.dispose());
 			if (preFilteredEnvironment != null)
-				TaskManager.addTask(() -> preFilteredEnvironment.dispose());
+				TaskManager.tm.addTask(() -> preFilteredEnvironment.dispose());
 			if (waterRenderer != null)
-				TaskManager.addTask(() -> waterRenderer.dispose());
+				TaskManager.tm.addTask(() -> waterRenderer.dispose());
 			if (renderingManager != null)
-				TaskManager.addTask(() -> renderingManager.dispose());
+				TaskManager.tm.addTask(() -> renderingManager.dispose());
 			if (lightRenderer != null)
-				TaskManager.addTask(() -> lightRenderer.dispose());
+				TaskManager.tm.addTask(() -> lightRenderer.dispose());
 			EventSubsystem.removeEvent("lightengine.renderer.resetshadowmap", shadowMap);
 			EventSubsystem.removeEvent("lightengine.renderer.resize", reload);
 		}

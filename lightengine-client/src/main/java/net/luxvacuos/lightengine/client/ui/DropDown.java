@@ -47,7 +47,7 @@ public class DropDown<E> extends Button {
 	@Override
 	public void init(Window window) {
 		super.setOnButtonPress(() -> {
-			TaskManager.addTask(() -> GraphicalSubsystem.getWindowManager()
+			TaskManager.tm.addTask(() -> GraphicalSubsystem.getWindowManager()
 					.addWindow(new ComponentWindow((int) (rootComponent.rootX + alignedX),
 							(int) (rootComponent.rootY + alignedY), (int) w, 300, "Dropdown") {
 
@@ -105,7 +105,7 @@ public class DropDown<E> extends Button {
 	public void render(Window window) {
 		if (!enabled)
 			return;
-		if(setSelected)
+		if (setSelected)
 			componentState = ComponentState.SELECTED;
 		Theme.renderDropDownButton(window.getNVGID(), componentState, rootComponent.rootX + alignedX,
 				window.getHeight() - rootComponent.rootY - alignedY - h, w, h, fontSize, font, entypo, text, false);

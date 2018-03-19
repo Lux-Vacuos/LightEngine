@@ -27,6 +27,7 @@ import java.util.Map;
 
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
+import net.luxvacuos.lightengine.universal.core.TaskManager;
 
 public class CachedAssets {
 
@@ -81,11 +82,13 @@ public class CachedAssets {
 					if (tex.totalCached <= 0)
 						toRemove.add(tex);
 			}
-			for (CachedTexture cachedTexture : toRemove) {
-				Logger.log("Removing Texture from cache: " + cachedTexture.path);
-				TEXTURES.remove(cachedTexture.path);
-				cachedTexture.trueDispose();
-			}
+			TaskManager.tm.addTaskAsync(() -> {
+				for (CachedTexture cachedTexture : toRemove) {
+					Logger.log("Removing Texture from cache: " + cachedTexture.path);
+					TEXTURES.remove(cachedTexture.path);
+					cachedTexture.trueDispose();
+				}
+			});
 			timer = 0;
 		}
 	}

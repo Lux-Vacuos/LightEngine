@@ -85,8 +85,8 @@ public class LightEngineServer extends AbstractEngine {
 		float accumulator = 0f;
 		float interval = 1f / ups;
 		while (StateMachine.isRunning()) {
-			TaskManager.update();
-			TaskManager.updateThread();
+			TaskManager.tm.update();
+			TaskManager.tm.updateThread();
 			if (timeCount > 1f) {
 				CoreSubsystem.ups = CoreSubsystem.upsCount;
 				CoreSubsystem.upsCount = 0;

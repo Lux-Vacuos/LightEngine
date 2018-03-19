@@ -20,17 +20,20 @@
 
 package net.luxvacuos.lightengine.client.bootstrap;
 
+import net.luxvacuos.lightengine.client.core.ClientTaskManager;
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.core.LightEngineClient;
 import net.luxvacuos.lightengine.universal.bootstrap.AbstractBootstrap;
 import net.luxvacuos.lightengine.universal.bootstrap.Platform;
 import net.luxvacuos.lightengine.universal.core.GlobalVariables;
+import net.luxvacuos.lightengine.universal.core.IEngineLoader;
+import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.TempVariables;
 
 public class Bootstrap extends AbstractBootstrap {
 
-	public Bootstrap(String[] args) {
-		super(args);
+	public Bootstrap(String[] args, IEngineLoader loader) {
+		super(args, loader);
 	}
 
 	@Override
@@ -47,6 +50,9 @@ public class Bootstrap extends AbstractBootstrap {
 		}
 		prefix += "/." + GlobalVariables.PROJECT;
 		TempVariables.userDir = prefix;
+		
+		TaskManager.tm = new ClientTaskManager();
+		loader.loadExternal();
 		new LightEngineClient();
 	}
 
@@ -95,7 +101,7 @@ public class Bootstrap extends AbstractBootstrap {
 	}
 	
 	public static void main(String[] args) {
-		new Bootstrap(args);
+		new Bootstrap(args, null);
 	}
 
 }

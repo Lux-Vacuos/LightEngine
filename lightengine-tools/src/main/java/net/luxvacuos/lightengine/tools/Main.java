@@ -23,15 +23,22 @@ package net.luxvacuos.lightengine.tools;
 import net.luxvacuos.lightengine.client.bootstrap.Bootstrap;
 import net.luxvacuos.lightengine.tools.states.ToolsState;
 import net.luxvacuos.lightengine.universal.core.GlobalVariables;
+import net.luxvacuos.lightengine.universal.core.IEngineLoader;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 
 public class Main {
-	
+
 	public static void main(String[] args) {
 		GlobalVariables.PROJECT = "Light Engine Tools";
-		TaskManager.addTask(() -> StateMachine.registerState(new ToolsState()));
-		new Bootstrap(args);
+		new Bootstrap(args, new IEngineLoader() {
+
+			@Override
+			public void loadExternal() {
+				TaskManager.tm.addTask(() -> StateMachine.registerState(new ToolsState()));
+			}
+
+		});
 	}
 
 }

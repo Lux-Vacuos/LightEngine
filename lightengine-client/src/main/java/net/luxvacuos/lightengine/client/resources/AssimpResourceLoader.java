@@ -87,7 +87,7 @@ public class AssimpResourceLoader {
 	}
 
 	public AsyncResult<Model> loadAsyncModel(String filePath) {
-		AsyncResult<Model> res = TaskManager.getAsyncExecutor().submit(new AsyncModelTask(filePath));
+		AsyncResult<Model> res = TaskManager.tm.getAsyncExecutor().submit(new AsyncModelTask(filePath));
 		tasks.add(res);
 		return res;
 	}

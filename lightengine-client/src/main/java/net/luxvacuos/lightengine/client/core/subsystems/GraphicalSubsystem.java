@@ -47,6 +47,7 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 
 import net.luxvacuos.igl.Logger;
+import net.luxvacuos.lightengine.client.core.ClientTaskManager;
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.core.states.SplashScreenState;
 import net.luxvacuos.lightengine.client.rendering.glfw.Icon;
@@ -98,10 +99,13 @@ public class GraphicalSubsystem implements ISubsystem {
 		PixelBufferHandle pb = new PixelBufferHandle();
 		pb.setSrgbCapable(1);
 		handle.setPixelBuffer(pb);
-		long gameWindowID = WindowManager.createWindow(handle,
+
+		window = WindowManager.generateWindow(handle);
+		WindowManager.createWindow(handle, window,
 				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/vsync")));
 
-		window = WindowManager.getWindow(gameWindowID);
+		((ClientTaskManager) TaskManager.tm).switchToSharedContext(); // GL Context available, switch to shared context
+
 		window.setOnRefresh(() -> {
 			Renderer.clearColors(0, 0, 0, 1);
 			Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -136,11 +140,11 @@ public class GraphicalSubsystem implements ISubsystem {
 		poppinsSemiBold = loader.loadNVGFont("Poppins-SemiBold", "Poppins-SemiBold");
 		entypo = loader.loadNVGFont("Entypo", "Entypo", 40);
 
-		TaskManager.addTaskAsync(() -> ShaderIncludes.processIncludeFile("common.isl"));
-		TaskManager.addTaskAsync(() -> ShaderIncludes.processIncludeFile("lighting.isl"));
-		TaskManager.addTaskAsync(() -> ShaderIncludes.processIncludeFile("materials.isl"));
-		TaskManager.addTaskAsync(() -> ShaderIncludes.processIncludeFile("global.isl"));
-		TaskManager.addTaskAsync(() -> DefaultData.init(loader));
+		TaskManager.tm.addTaskAsync(() -> ShaderIncludes.processIncludeFile("common.isl"));
+		TaskManager.tm.addTaskAsync(() -> ShaderIncludes.processIncludeFile("lighting.isl"));
+		TaskManager.tm.addTaskAsync(() -> ShaderIncludes.processIncludeFile("materials.isl"));
+		TaskManager.tm.addTaskAsync(() -> ShaderIncludes.processIncludeFile("global.isl"));
+		TaskManager.tm.addTaskAsync(() -> DefaultData.init(loader));
 		StateMachine.registerState(new SplashScreenState());
 		window.setVisible(true);
 	}
@@ -163,30 +167,32 @@ public class GraphicalSubsystem implements ISubsystem {
 	}
 
 	@Override
-	public void preRender(float delta) {
+	public void updateMainThread(float delta) {
 		WindowManager.update();
-		if (!window.isIconified())
+		if (!window.isIconified()) {
 			if (window.wasResized()) {
 				REGISTRY.register(new Key("/Light Engine/Display/width"), window.getWidth());
 				REGISTRY.register(new Key("/Light Engine/Display/height"), window.getHeight());
 				windowManager.reloadCompositor();
 				EventSubsystem.triggerEvent("lightengine.renderer.resize");
 			}
+			GraphicalSubsystem.getWindowManager().update(delta);
+		}
+		CachedAssets.update(delta);
 	}
 
 	@Override
-	public void postRender(float delta) {
+	public void render(float delta) {
 		if (!window.isIconified()) {
-			CachedAssets.update(delta);
 			Renderer.clearColors(0, 0, 0, 1);
 			Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			GraphicalSubsystem.getWindowManager().update(delta);
 			GraphicalSubsystem.getWindowManager().render(delta);
 		}
 	}
 
 	@Override
 	public void dispose() {
+		((ClientTaskManager) TaskManager.tm).stopAsyncThread();
 		robotoRegular.dispose();
 		robotoBold.dispose();
 		poppinsRegular.dispose();
@@ -199,6 +205,7 @@ public class GraphicalSubsystem implements ISubsystem {
 		Renderer.cleanUp();
 		CachedAssets.dispose();
 		windowManager.dispose();
+		window.dispose();
 		WindowManager.closeAllDisplays();
 		GLFW.glfwTerminate();
 	}
