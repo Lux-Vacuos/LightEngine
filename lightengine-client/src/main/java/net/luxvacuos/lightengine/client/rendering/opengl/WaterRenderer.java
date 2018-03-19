@@ -20,20 +20,13 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl;
 
-import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
 import static org.lwjgl.opengl.GL11.glBindTexture;
-import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glDrawElements;
-import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE1;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE2;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE3;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE4;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE_CUBE_MAP;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
@@ -41,11 +34,8 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 
 import java.util.List;
 
-import org.joml.Vector3f;
-
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CachedAssets;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.CubeMapTexture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.WaterTile;
@@ -75,11 +65,11 @@ public class WaterRenderer implements IDisposable {
 		prepareRender(camera, time);
 		for (WaterTile tile : water) {
 			float halfTileSize = WaterTile.TILE_SIZE * 2;
-			if (!frustum.cubeInFrustum(tile.getX() + halfTileSize, tile.getY(), tile.getZ() - halfTileSize,
-					halfTileSize))
+			if (!frustum.cubeInFrustum(tile.getPosition().x() + halfTileSize, tile.getPosition().y(),
+					tile.getPosition().z() - halfTileSize, halfTileSize))
 				continue;
-			shader.loadTransformationMatrix(Maths.createTransformationMatrix(
-					new Vector3f(tile.getX(), tile.getY(), tile.getZ()), 0, 0, 0, WaterTile.TILE_SIZE));
+			shader.loadTransformationMatrix(
+					Maths.createTransformationMatrix(tile.getPosition(), 0, 0, 0, WaterTile.TILE_SIZE));
 			glDrawElements(GL_TRIANGLES, quad.getVertexCount(), GL_UNSIGNED_INT, 0);
 		}
 		unbind();

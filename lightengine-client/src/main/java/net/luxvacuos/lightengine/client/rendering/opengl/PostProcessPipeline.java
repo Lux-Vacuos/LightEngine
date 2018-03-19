@@ -72,10 +72,6 @@ public abstract class PostProcessPipeline implements IPostProcessPipeline {
 		width = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"));
 		height = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
 
-		if (width > GLUtil.GL_MAX_TEXTURE_SIZE)
-			width = GLUtil.GL_MAX_TEXTURE_SIZE;
-		if (height > GLUtil.GL_MAX_TEXTURE_SIZE)
-			height = GLUtil.GL_MAX_TEXTURE_SIZE;
 		float[] positions = { -1, 1, -1, -1, 1, 1, 1, -1 };
 		if (quad == null)
 			quad = window.getResourceLoader().loadToVAO(positions, 2);

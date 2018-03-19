@@ -36,7 +36,6 @@ import net.luxvacuos.lightengine.client.rendering.glfw.WindowManager;
 import net.luxvacuos.lightengine.client.rendering.nanovg.IWindow.WindowClose;
 import net.luxvacuos.lightengine.client.rendering.nanovg.compositor.Compositor;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.Theme;
-import net.luxvacuos.lightengine.client.rendering.opengl.GLUtil;
 import net.luxvacuos.lightengine.client.rendering.opengl.GPUProfiler;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem;
@@ -57,13 +56,9 @@ public class NanoWindowManager implements IWindowManager {
 		compositorEnabled = (boolean) REGISTRY
 				.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/compositor"));
 		windows = new ArrayList<>();
-		width = (int) (win.getWidth() * win.getPixelRatio());
-		height = (int) (win.getHeight() * win.getPixelRatio());
+		width = win.getWidth();
+		height = win.getHeight();
 
-		if (width > GLUtil.GL_MAX_TEXTURE_SIZE)
-			width = GLUtil.GL_MAX_TEXTURE_SIZE;
-		if (height > GLUtil.GL_MAX_TEXTURE_SIZE)
-			height = GLUtil.GL_MAX_TEXTURE_SIZE;
 		compositor = new Compositor(win, width, height);
 		REGISTRY.register(KeyCache.getKey("/Light Engine/Settings/WindowManager/shellHeight"), 0);
 		shell = new DummyShell();
@@ -291,11 +286,11 @@ public class NanoWindowManager implements IWindowManager {
 			window.notifyWindow(message, param);
 		}
 	}
-	
+
 	@Override
 	public IWindow getWindowByClass(String clazz) {
 		for (IWindow window : windows) {
-			if(window.getClass().getSimpleName().equals(clazz))
+			if (window.getClass().getSimpleName().equals(clazz))
 				return window;
 		}
 		return null;
@@ -332,10 +327,6 @@ public class NanoWindowManager implements IWindowManager {
 		height = (int) (window.getHeight() * window.getPixelRatio());
 		if (compositorEnabled) {
 			compositor.dispose();
-			if (width > GLUtil.GL_MAX_TEXTURE_SIZE)
-				width = GLUtil.GL_MAX_TEXTURE_SIZE;
-			if (height > GLUtil.GL_MAX_TEXTURE_SIZE)
-				height = GLUtil.GL_MAX_TEXTURE_SIZE;
 			compositor = new Compositor(window, width, height);
 		}
 		notifyAllWindows(WindowMessage.WM_RESIZE, null);

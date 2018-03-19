@@ -59,7 +59,6 @@ import net.luxvacuos.lightengine.client.rendering.nanovg.NanoWindowManager;
 import net.luxvacuos.lightengine.client.rendering.nanovg.Timers;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.NanoTheme;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.ThemeManager;
-import net.luxvacuos.lightengine.client.rendering.opengl.GLUtil;
 import net.luxvacuos.lightengine.client.rendering.opengl.Renderer;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CachedAssets;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.DefaultData;
@@ -109,7 +108,6 @@ public class GraphicalSubsystem implements ISubsystem {
 			GraphicalSubsystem.getWindowManager().update(window.getDelta());
 			GraphicalSubsystem.getWindowManager().render(window.getDelta());
 		});
-		GLUtil.init();
 		initGL();
 
 		REGISTRY.register(new Key("/Light Engine/System/lwjgl"), Version.getVersion());

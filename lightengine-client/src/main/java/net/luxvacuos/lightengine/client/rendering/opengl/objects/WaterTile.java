@@ -20,26 +20,18 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl.objects;
 
+import org.joml.Vector3f;
+
 public class WaterTile {
 	public static final float TILE_SIZE = 8;
 
-	private float x, y, z;
+	private Vector3f position;
 
 	public WaterTile(float x, float y, float z) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
+		position = new Vector3f(x, y, z);
 	}
 
-	public float getY() {
-		return y;
-	}
-
-	public float getX() {
-		return x;
-	}
-
-	public float getZ() {
-		return z;
+	public Vector3f getPosition() {
+		return position;
 	}
 }

@@ -110,7 +110,7 @@ public class Material implements IDisposable {
 			this.metallic = pbr.g();
 			if (pbr.b() > 0f) {
 				this.type = MaterialType.TRANSPARENT;
-				this.diffuse.set(3, pbr.b());
+				this.diffuse.setComponent(3, pbr.b());
 			}
 		}
 		diffuse.free();

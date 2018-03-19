@@ -24,10 +24,12 @@ import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.
 import static org.lwjgl.opengl.GL11.GL_BACK;
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11.GL_FRONT;
+import static org.lwjgl.opengl.GL11.GL_GREATER;
+import static org.lwjgl.opengl.GL11.GL_LESS;
 import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
 import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
 import static org.lwjgl.opengl.GL11.glBlendFunc;
@@ -35,6 +37,7 @@ import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.opengl.GL11.glClearDepth;
 import static org.lwjgl.opengl.GL11.glCullFace;
+import static org.lwjgl.opengl.GL11.glDepthFunc;
 import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
 
@@ -103,9 +106,6 @@ public class Renderer {
 					.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/shadowsResolution"));
 			ResourceLoader loader = window.getResourceLoader();
 
-			if (shadowResolution > GLUtil.GL_MAX_TEXTURE_SIZE)
-				shadowResolution = GLUtil.GL_MAX_TEXTURE_SIZE;
-
 			frustum = new Frustum();
 			TaskManager.addTask(() -> shadowFBO = new ShadowFBO(shadowResolution, shadowResolution));
 
@@ -127,8 +127,6 @@ public class Renderer {
 			shadowMap = EventSubsystem.addEvent("lightengine.renderer.resetshadowmap", () -> {
 				shadowResolution = (int) REGISTRY
 						.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/shadowsResolution"));
-				if (shadowResolution > GLUtil.GL_MAX_TEXTURE_SIZE)
-					shadowResolution = GLUtil.GL_MAX_TEXTURE_SIZE;
 				TaskManager.addTask(() -> {
 					shadowFBO.dispose();
 					shadowFBO = new ShadowFBO(shadowResolution, shadowResolution);
@@ -388,7 +386,6 @@ public class Renderer {
 			proj.m23(-1);
 			proj.m32(nearPlane);
 			proj.m33(0);
-			proj.assumePerspective();
 		} else {
 			proj.setPerspective((float) Math.toRadians(fov), (float) width / (float) height, nearPlane, farPlane,
 					zZeroToOne);

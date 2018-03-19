@@ -8,7 +8,7 @@ plugins {
 
 mainClassName = 'net.luxvacuos.lightengine.client.bootstrap.Bootstrap'
 sourceCompatibility = '9'
-project.ext.lwjglVersion = "3.1.5"
+project.ext.lwjglVersion = "3.1.6"
 
 sourceSets {
 	main {
