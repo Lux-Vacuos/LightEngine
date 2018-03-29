@@ -91,7 +91,7 @@ public class Mesh implements IDisposable {
 		int[] ind = new int[elementCount];
 		elementArrayBufferData.get(ind);
 		memFree(elementArrayBufferData);
-		TaskManager.tm.addTask(() -> {
+		TaskManager.tm.addTaskRenderThread(() -> {
 			mesh = VAO.create();
 			mesh.bind();
 			loadData(pos, tex, nor, tan);

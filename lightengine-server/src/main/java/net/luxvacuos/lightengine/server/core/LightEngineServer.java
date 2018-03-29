@@ -26,7 +26,7 @@ import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.server.bootstrap.Bootstrap;
 import net.luxvacuos.lightengine.server.core.subsystems.NetworkSubsystem;
 import net.luxvacuos.lightengine.server.core.subsystems.ServerCoreSubsystem;
-import net.luxvacuos.lightengine.universal.core.AbstractEngine;
+import net.luxvacuos.lightengine.universal.core.UniversalEngine;
 import net.luxvacuos.lightengine.universal.core.EngineType;
 import net.luxvacuos.lightengine.universal.core.Sync;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
@@ -37,9 +37,8 @@ import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
 import net.luxvacuos.lightengine.universal.core.subsystems.ScriptSubsystem;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
-public class LightEngineServer extends AbstractEngine {
+public class LightEngineServer extends UniversalEngine {
 
-	private double lastLoopTime;
 	private float timeCount;
 	private Sync sync;
 
@@ -66,7 +65,6 @@ public class LightEngineServer extends AbstractEngine {
 		Logger.log("Running on: " + Bootstrap.getPlatform());
 
 		sync = new Sync();
-		lastLoopTime = System.currentTimeMillis() / 1000l;
 		StateMachine.setCurrentState(StateNames.SPLASH_SCREEN);
 		try {
 			StateMachine.run();
@@ -85,14 +83,13 @@ public class LightEngineServer extends AbstractEngine {
 		float accumulator = 0f;
 		float interval = 1f / ups;
 		while (StateMachine.isRunning()) {
-			TaskManager.tm.update();
-			TaskManager.tm.updateThread();
+			TaskManager.tm.updateMainThread();
 			if (timeCount > 1f) {
 				CoreSubsystem.ups = CoreSubsystem.upsCount;
 				CoreSubsystem.upsCount = 0;
 				timeCount--;
 			}
-			delta = getDelta();
+			delta = sync.getDelta();
 			accumulator += delta;
 			while (accumulator >= interval) {
 				StateMachine.update(interval);
@@ -110,18 +107,14 @@ public class LightEngineServer extends AbstractEngine {
 	}
 
 	@Override
-	public void dispose() {
-		super.dispose();
-		Logger.log("Cleaning Resources");
-		StateMachine.dispose();
+	public void restart() {
 	}
 
-	public float getDelta() {
-		double time = System.currentTimeMillis() / 1000l;
-		float delta = (float) (time - this.lastLoopTime);
-		this.lastLoopTime = time;
-		this.timeCount += delta;
-		return delta;
+	@Override
+	public void dispose() {
+		Logger.log("Cleaning Resources");
+		super.disposeSubsystems();
+		StateMachine.dispose();
 	}
 
 }

@@ -20,54 +20,55 @@
 
 package net.luxvacuos.lightengine.client.core;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
-import net.luxvacuos.lightengine.client.rendering.glfw.WindowHandle;
 import net.luxvacuos.lightengine.client.rendering.glfw.WindowManager;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 
 public class ClientTaskManager extends TaskManager {
 
-	private boolean asyncTmp = true;
-
 	private Window asyncWindow;
 
-	private long asyncThreadID;
+	private Queue<Runnable> tasksRenderThread = new LinkedList<>(), tasksRenderBackgroundThread = new LinkedList<>();
+	private Thread renderBackgroundThread;
+	private boolean runBackgroundThread = true, syncInterrupt;
+	private long renderBackgroundThreadID;
 
 	@Override
-	public void init() {
-		super.init();
-		asyncThread = new Thread(() -> {
-			while (asyncTmp) {
-				if (!tasksAsync.isEmpty()) {
-					tasksAsync.poll().run();
-				} else {
-					try {
-						syncInterrupt = false;
-						Thread.sleep(1000000l);
-					} catch (InterruptedException e) {
-					}
-				}
+	public void addTaskRenderThread(Runnable task) {
+		if (task != null)
+			tasksRenderThread.add(task);
+	}
+
+	@Override
+	public void addTaskRenderBackgroundThread(Runnable task) {
+		if (task != null) {
+			tasksRenderBackgroundThread.add(task);
+			if (!syncInterrupt) {
+				syncInterrupt = true;
+				renderBackgroundThread.interrupt();
 			}
-		});
-		asyncThread.setDaemon(true);
-		asyncThread.setName("Async Thread");
-		asyncThread.start();
+		}
+	}
+
+	public void updateRenderThread() {
+		if (!tasksRenderThread.isEmpty()) {
+			tasksRenderThread.poll().run();
+		}
 	}
 
 	public void switchToSharedContext() {
-		asyncTmp = false;
-		asyncThread.interrupt();
-
-		WindowHandle handle = WindowManager.generateHandle(800, 600, "Async Window");
+		var handle = WindowManager.generateHandle(800, 600, "Async Window");
 		handle.isVisible(false);
 		asyncWindow = WindowManager.generateWindow(handle, GraphicalSubsystem.getMainWindow().getID());
-		asyncThread = new Thread(() -> {
+		renderBackgroundThread = new Thread(() -> {
 			WindowManager.createWindow(handle, asyncWindow, true);
-			asyncTmp = true;
-			while (asyncTmp) {
-				if (!tasksAsync.isEmpty()) {
-					tasksAsync.poll().run();
+			while (runBackgroundThread) {
+				if (!tasksRenderBackgroundThread.isEmpty()) {
+					tasksRenderBackgroundThread.poll().run();
 				} else {
 					try {
 						syncInterrupt = false;
@@ -78,18 +79,23 @@ public class ClientTaskManager extends TaskManager {
 			}
 			asyncWindow.dispose();
 		});
-		asyncThread.setName("Async Thread");
-		asyncThread.start();
-		asyncThreadID = asyncThread.getId();
+		renderBackgroundThread.setName("Render Background Thread");
+		renderBackgroundThread.start();
+		renderBackgroundThreadID = renderBackgroundThread.getId();
 	}
 
-	public long getAsyncThreadID() {
-		return asyncThreadID;
+	public void stopRenderBackgroundThread() {
+		runBackgroundThread = false;
+		renderBackgroundThread.interrupt();
 	}
 
-	public void stopAsyncThread() {
-		asyncTmp = false;
-		asyncThread.interrupt();
+	public long getRenderBackgroundThreadID() {
+		return renderBackgroundThreadID;
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return super.isEmpty() && tasksRenderThread.isEmpty() && tasksRenderBackgroundThread.isEmpty();
 	}
 
 }

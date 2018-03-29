@@ -18,22 +18,12 @@
  * 
  */
 
-package net.luxvacuos.lightengine.universal.core.subsystems;
+package net.luxvacuos.lightengine.client.core;
 
-public interface ISubsystem {
+public interface IClientEngine {
+	public void initRenderSubsystems();
 
-	public void init();
+	public void renderSubsystems(float delta);
 
-	public void restart();
-
-	public void update(float delta);
-
-	public void dispose();
-
-	public void initRender();
-
-	public void render(float delta);
-
-	public void disposeRender();
-
+	public void disposeRenderSubsystems();
 }

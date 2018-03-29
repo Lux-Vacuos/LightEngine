@@ -61,7 +61,7 @@ public class SunCamera extends CameraEntity {
 					-shadowDrawDistance, shadowDrawDistance, false);
 			shadowProjectionMatrix[3] = Maths.orthoSymmetric(-shadowDrawDistance, shadowDrawDistance,
 					-shadowDrawDistance, shadowDrawDistance, false);
-			TaskManager.tm.addTask(() -> setProjectionArray(shadowProjectionMatrix));
+			TaskManager.tm.addTaskRenderThread(() -> setProjectionArray(shadowProjectionMatrix));
 		});
 
 		int shadowDrawDistance = (int) REGISTRY

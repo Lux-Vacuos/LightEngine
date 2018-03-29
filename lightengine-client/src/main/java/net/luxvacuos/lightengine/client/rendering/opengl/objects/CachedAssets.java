@@ -82,7 +82,7 @@ public class CachedAssets {
 					if (tex.totalCached <= 0)
 						toRemove.add(tex);
 			}
-			TaskManager.tm.addTaskAsync(() -> {
+			TaskManager.tm.addTaskRenderBackgroundThread(() -> {
 				for (CachedTexture cachedTexture : toRemove) {
 					Logger.log("Removing Texture from cache: " + cachedTexture.path);
 					TEXTURES.remove(cachedTexture.path);

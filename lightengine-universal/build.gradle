@@ -5,8 +5,8 @@ plugins {
 	id 'java'
 }
 
-sourceCompatibility = '9'
-project.ext.jomlVersion = "1.9.8"
+sourceCompatibility = '10'
+project.ext.jomlVersion = "1.9.9"
 
 sourceSets {
 	main {

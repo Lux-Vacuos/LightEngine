@@ -31,7 +31,7 @@ import net.luxvacuos.lightengine.universal.core.TempVariables;
 import net.luxvacuos.lightengine.universal.util.registry.LanguageRegistry;
 import net.luxvacuos.lightengine.universal.util.registry.SystemRegistry;
 
-public class CoreSubsystem implements ISubsystem {
+public class CoreSubsystem extends UniversalSubsystem {
 
 	protected static AbstractGameSettings gameSettings;
 	public static LanguageRegistry LANG;
@@ -65,22 +65,6 @@ public class CoreSubsystem implements ISubsystem {
 		REGISTRY.register(getKey("/Light Engine/System/userDir"), TempVariables.userDir);
 		REGISTRY.register(getKey("/Light Engine/System/systemDir"), TempVariables.systemDir);
 		LANG = new LanguageRegistry();
-	}
-
-	@Override
-	public void restart() {
-	}
-
-	@Override
-	public void update(float delta) {
-	}
-
-	@Override
-	public void render(float delta) {
-	}
-
-	@Override
-	public void updateMainThread(float delta) {
 	}
 
 	@Override

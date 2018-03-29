@@ -81,12 +81,12 @@ public class OptionsWindow extends ComponentWindow {
 		graphics.setAlignment(Alignment.RIGHT_BOTTOM);
 
 		graphics.setOnButtonPress(() -> {
-			TaskManager.tm.addTask(() -> {
+			TaskManager.tm.addTaskRenderThread(() -> {
 				super.disposeApp();
 				graphicOptions();
 				super.initApp();
 				backButton.setOnButtonPress(() -> {
-					TaskManager.tm.addTask(() -> {
+					TaskManager.tm.addTaskRenderThread(() -> {
 						super.disposeApp();
 						backButton.setEnabled(false);
 						mainMenu();
@@ -101,12 +101,12 @@ public class OptionsWindow extends ComponentWindow {
 		wm.setAlignment(Alignment.RIGHT_BOTTOM);
 
 		wm.setOnButtonPress(() -> {
-			TaskManager.tm.addTask(() -> {
+			TaskManager.tm.addTaskRenderThread(() -> {
 				super.disposeApp();
 				wmOptions();
 				super.initApp();
 				backButton.setOnButtonPress(() -> {
-					TaskManager.tm.addTask(() -> {
+					TaskManager.tm.addTaskRenderThread(() -> {
 						super.disposeApp();
 						backButton.setEnabled(false);
 						mainMenu();

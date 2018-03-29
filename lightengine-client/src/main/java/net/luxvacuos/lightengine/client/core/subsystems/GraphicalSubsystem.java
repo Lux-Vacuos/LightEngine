@@ -64,19 +64,20 @@ import net.luxvacuos.lightengine.client.rendering.opengl.Renderer;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CachedAssets;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.DefaultData;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.ShaderIncludes;
-import net.luxvacuos.lightengine.client.resources.ResourceLoader;
 import net.luxvacuos.lightengine.client.ui.Font;
 import net.luxvacuos.lightengine.universal.core.GlobalVariables;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
-import net.luxvacuos.lightengine.universal.core.subsystems.ISubsystem;
+import net.luxvacuos.lightengine.universal.core.subsystems.UniversalSubsystem;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
-public class GraphicalSubsystem implements ISubsystem {
+public class GraphicalSubsystem extends UniversalSubsystem {
 
 	private static IWindowManager windowManager;
 	private static Window window;
+	private static WindowHandle handle;
+	private static long renderThreadID;
 
 	private static Font robotoRegular, robotoBold, poppinsRegular, poppinsLight, poppinsMedium, poppinsBold,
 			poppinsSemiBold, entypo;
@@ -85,33 +86,26 @@ public class GraphicalSubsystem implements ISubsystem {
 	public void init() {
 		REGISTRY.register(new Key("/Light Engine/Display/width"), ClientVariables.WIDTH);
 		REGISTRY.register(new Key("/Light Engine/Display/height"), ClientVariables.HEIGHT);
-
 		GLFW.glfwSetErrorCallback(GLFWErrorCallback.createPrint(System.err));
-
 		if (!glfwInit())
 			throw new IllegalStateException("Unable to initialize GLFW");
-
-		Icon[] icons = new Icon[] { new Icon("icon32"), new Icon("icon64") };
-		WindowHandle handle = WindowManager.generateHandle(
-				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
+		var icons = new Icon[] { new Icon("icon32"), new Icon("icon64") };
+		handle = WindowManager.generateHandle((int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
 				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")), GlobalVariables.PROJECT);
 		handle.isVisible(false).setIcon(icons).setCursor("arrow").useDebugContext(GlobalVariables.debug);
-		PixelBufferHandle pb = new PixelBufferHandle();
+		var pb = new PixelBufferHandle();
 		pb.setSrgbCapable(1);
 		handle.setPixelBuffer(pb);
-
 		window = WindowManager.generateWindow(handle);
+	}
+
+	@Override
+	public void initRender() {
 		WindowManager.createWindow(handle, window,
 				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/vsync")));
 
 		((ClientTaskManager) TaskManager.tm).switchToSharedContext(); // GL Context available, switch to shared context
 
-		window.setOnRefresh(() -> {
-			Renderer.clearColors(0, 0, 0, 1);
-			Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			GraphicalSubsystem.getWindowManager().update(window.getDelta());
-			GraphicalSubsystem.getWindowManager().render(window.getDelta());
-		});
 		initGL();
 
 		REGISTRY.register(new Key("/Light Engine/System/lwjgl"), Version.getVersion());
@@ -130,7 +124,7 @@ public class GraphicalSubsystem implements ISubsystem {
 		setWindowManager(new NanoWindowManager(window));
 
 		Timers.initDebugDisplay();
-		ResourceLoader loader = window.getResourceLoader();
+		var loader = window.getResourceLoader();
 		robotoRegular = loader.loadNVGFont("Roboto-Regular", "Roboto-Regular");
 		robotoBold = loader.loadNVGFont("Roboto-Bold", "Roboto-Bold");
 		poppinsRegular = loader.loadNVGFont("Poppins-Regular", "Poppins-Regular");
@@ -140,13 +134,13 @@ public class GraphicalSubsystem implements ISubsystem {
 		poppinsSemiBold = loader.loadNVGFont("Poppins-SemiBold", "Poppins-SemiBold");
 		entypo = loader.loadNVGFont("Entypo", "Entypo", 40);
 
-		TaskManager.tm.addTaskAsync(() -> ShaderIncludes.processIncludeFile("common.isl"));
-		TaskManager.tm.addTaskAsync(() -> ShaderIncludes.processIncludeFile("lighting.isl"));
-		TaskManager.tm.addTaskAsync(() -> ShaderIncludes.processIncludeFile("materials.isl"));
-		TaskManager.tm.addTaskAsync(() -> ShaderIncludes.processIncludeFile("global.isl"));
-		TaskManager.tm.addTaskAsync(() -> DefaultData.init(loader));
+		TaskManager.tm.addTaskBackgroundThread(() -> ShaderIncludes.processIncludeFile("common.isl"));
+		TaskManager.tm.addTaskBackgroundThread(() -> ShaderIncludes.processIncludeFile("lighting.isl"));
+		TaskManager.tm.addTaskBackgroundThread(() -> ShaderIncludes.processIncludeFile("materials.isl"));
+		TaskManager.tm.addTaskBackgroundThread(() -> ShaderIncludes.processIncludeFile("global.isl"));
+		TaskManager.tm.addTaskBackgroundThread(() -> DefaultData.init(loader));
 		StateMachine.registerState(new SplashScreenState());
-		window.setVisible(true);
+		TaskManager.tm.addTaskMainThread(() -> window.setVisible(true));
 	}
 
 	private void initGL() {
@@ -159,26 +153,16 @@ public class GraphicalSubsystem implements ISubsystem {
 	}
 
 	@Override
-	public void restart() {
-	}
-
-	@Override
 	public void update(float delta) {
-	}
-
-	@Override
-	public void updateMainThread(float delta) {
 		WindowManager.update();
 		if (!window.isIconified()) {
 			if (window.wasResized()) {
 				REGISTRY.register(new Key("/Light Engine/Display/width"), window.getWidth());
 				REGISTRY.register(new Key("/Light Engine/Display/height"), window.getHeight());
-				windowManager.reloadCompositor();
 				EventSubsystem.triggerEvent("lightengine.renderer.resize");
 			}
 			GraphicalSubsystem.getWindowManager().update(delta);
 		}
-		CachedAssets.update(delta);
 	}
 
 	@Override
@@ -188,11 +172,12 @@ public class GraphicalSubsystem implements ISubsystem {
 			Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			GraphicalSubsystem.getWindowManager().render(delta);
 		}
+		CachedAssets.update(delta);
 	}
 
 	@Override
-	public void dispose() {
-		((ClientTaskManager) TaskManager.tm).stopAsyncThread();
+	public void disposeRender() {
+		((ClientTaskManager) TaskManager.tm).stopRenderBackgroundThread();
 		robotoRegular.dispose();
 		robotoBold.dispose();
 		poppinsRegular.dispose();
@@ -206,6 +191,10 @@ public class GraphicalSubsystem implements ISubsystem {
 		CachedAssets.dispose();
 		windowManager.dispose();
 		window.dispose();
+	}
+
+	@Override
+	public void dispose() {
 		WindowManager.closeAllDisplays();
 		GLFW.glfwTerminate();
 	}
@@ -223,6 +212,14 @@ public class GraphicalSubsystem implements ISubsystem {
 
 	public static Window getMainWindow() {
 		return window;
+	}
+
+	public static long getRenderThreadID() {
+		return renderThreadID;
+	}
+
+	public static void setRenderThreadID(long renderThreadID) {
+		GraphicalSubsystem.renderThreadID = renderThreadID;
 	}
 
 }

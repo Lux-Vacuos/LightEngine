@@ -33,7 +33,7 @@ import javax.script.ScriptException;
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.universal.core.exception.CompileGroovyException;
 
-public class ScriptSubsystem implements ISubsystem {
+public class ScriptSubsystem extends UniversalSubsystem {
 
 	private static ScriptEngineManager scriptEngineManager;
 	private static ScriptEngine scriptEngine;
@@ -48,26 +48,6 @@ public class ScriptSubsystem implements ISubsystem {
 		if (scriptEngine instanceof Compilable) {
 			compilableEngine = (Compilable) scriptEngine;
 		}
-	}
-
-	@Override
-	public void restart() {
-	}
-
-	@Override
-	public void update(float delta) {
-	}
-
-	@Override
-	public void render(float delta) {
-	}
-
-	@Override
-	public void updateMainThread(float delta) {
-	}
-
-	@Override
-	public void dispose() {
 	}
 
 	public static CompiledScript compile(String file) {

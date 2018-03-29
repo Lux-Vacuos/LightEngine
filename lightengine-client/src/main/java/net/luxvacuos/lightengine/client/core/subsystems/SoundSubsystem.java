@@ -21,14 +21,14 @@
 package net.luxvacuos.lightengine.client.core.subsystems;
 
 import net.luxvacuos.lightengine.client.util.LoggerSoundSystem;
-import net.luxvacuos.lightengine.universal.core.subsystems.ISubsystem;
+import net.luxvacuos.lightengine.universal.core.subsystems.UniversalSubsystem;
 import paulscode.sound.SoundSystem;
 import paulscode.sound.SoundSystemConfig;
 import paulscode.sound.SoundSystemException;
 import paulscode.sound.codecs.CodecJOgg;
 import paulscode.sound.libraries.LibraryLWJGLOpenAL;
 
-public class SoundSubsystem implements ISubsystem {
+public class SoundSubsystem extends UniversalSubsystem {
 
 	private static SoundSystem soundSystem;
 
@@ -49,18 +49,6 @@ public class SoundSubsystem implements ISubsystem {
 	public void restart() {
 		dispose();
 		init();
-	}
-
-	@Override
-	public void update(float delta) {
-	}
-
-	@Override
-	public void render(float delta) {
-	}
-
-	@Override
-	public void updateMainThread(float delta) {
 	}
 
 	@Override

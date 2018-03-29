@@ -121,7 +121,7 @@ public class MouseHandler {
 	}
 
 	public static void setGrabbed(long windowID, boolean grab) {
-		TaskManager.tm.addTask(() -> GLFW.glfwSetInputMode(windowID, GLFW.GLFW_CURSOR,
+		TaskManager.tm.addTaskMainThread(() -> GLFW.glfwSetInputMode(windowID, GLFW.GLFW_CURSOR,
 				grab ? GLFW.GLFW_CURSOR_DISABLED : GLFW.GLFW_CURSOR_NORMAL));
 	}
 

@@ -26,61 +26,69 @@ import java.util.Queue;
 import com.badlogic.gdx.utils.async.AsyncExecutor;
 
 public class TaskManager {
-	
+
 	public static TaskManager tm;
 
-	protected Queue<Runnable> tasks = new LinkedList<>(), tasksAsync = new LinkedList<>(),
-			updateThreadTasks = new LinkedList<>();
-	protected AsyncExecutor asyncExecutor;
-	protected Thread asyncThread;
-	protected boolean syncInterrupt;
-	
+	private Queue<Runnable> tasksMainThread = new LinkedList<>(), tasksBackgroundThread = new LinkedList<>();
+	private AsyncExecutor asyncExecutor;
+	private Thread backgroundThread;
+	private boolean syncInterrupt;
+
 	public void init() {
 		asyncExecutor = new AsyncExecutor(2);
+		backgroundThread = new Thread(() -> {
+			while (true) {
+				if (!tasksBackgroundThread.isEmpty()) {
+					tasksBackgroundThread.poll().run();
+				} else {
+					try {
+						syncInterrupt = false;
+						Thread.sleep(1000000l);
+					} catch (InterruptedException e) {
+					}
+				}
+			}
+		});
+		backgroundThread.setDaemon(true);
+		backgroundThread.setName("Background Thread");
+		backgroundThread.start();
 	}
 
-	public void update() {
-		if (!tasks.isEmpty()) {
-			tasks.poll().run();
-		}
-	}
-
-	public void updateThread() {
-		if (!updateThreadTasks.isEmpty()) {
-			updateThreadTasks.poll().run();
-		}
-	}
-
-	public void addTask(Runnable task) {
+	public void addTaskMainThread(Runnable task) {
 		if (task != null)
-			tasks.add(task);
+			tasksMainThread.add(task);
 	}
 
-	public void addTaskAsync(Runnable task) {
+	public void addTaskBackgroundThread(Runnable task) {
 		if (task != null) {
-			tasksAsync.add(task);
+			tasksBackgroundThread.add(task);
 			if (!syncInterrupt) {
 				syncInterrupt = true;
-				asyncThread.interrupt();
+				backgroundThread.interrupt();
 			}
 		}
 	}
 
-	public void addTaskUpdate(Runnable task) {
-		if (task != null)
-			updateThreadTasks.add(task);
+	public void addTaskRenderThread(Runnable task) {
+		throw new UnsupportedOperationException();
 	}
 
-	public boolean isEmpty() {
-		return tasks.isEmpty();
+	public void addTaskRenderBackgroundThread(Runnable task) {
+		throw new UnsupportedOperationException();
 	}
 
-	public boolean isEmptyAsync() {
-		return tasksAsync.isEmpty();
+	public void updateMainThread() {
+		if (!tasksMainThread.isEmpty()) {
+			tasksMainThread.poll().run();
+		}
 	}
 
 	public AsyncExecutor getAsyncExecutor() {
 		return asyncExecutor;
+	}
+
+	public boolean isEmpty() {
+		return tasksMainThread.isEmpty() && tasksBackgroundThread.isEmpty();
 	}
 
 }

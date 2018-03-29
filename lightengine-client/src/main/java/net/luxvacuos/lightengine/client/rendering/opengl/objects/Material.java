@@ -120,7 +120,7 @@ public class Material implements IDisposable {
 			AIString path = AIString.create();
 			if (aiGetMaterialTexture(material, aiTextureType_DIFFUSE, 0, path, (IntBuffer) null, (IntBuffer) null,
 					(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS) {
-				TaskManager.tm.addTaskAsync(() -> this.diffuseTexture = loadTexture(path, rootPath));
+				TaskManager.tm.addTaskRenderBackgroundThread(() -> this.diffuseTexture = loadTexture(path, rootPath));
 				this.diffuse.set(1, 1, 1, 1);
 			}
 		}
@@ -128,14 +128,14 @@ public class Material implements IDisposable {
 			AIString path = AIString.create();
 			if (aiGetMaterialTexture(material, aiTextureType_AMBIENT, 0, path, (IntBuffer) null, (IntBuffer) null,
 					(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS)
-				TaskManager.tm.addTaskAsync(() -> this.normalTexture = loadTextureMisc(path, rootPath));
+				TaskManager.tm.addTaskRenderBackgroundThread(() -> this.normalTexture = loadTextureMisc(path, rootPath));
 
 		}
 		if (aiGetMaterialTextureCount(material, aiTextureType_SPECULAR) > 0) {
 			AIString path = AIString.create();
 			if (aiGetMaterialTexture(material, aiTextureType_SPECULAR, 0, path, (IntBuffer) null, (IntBuffer) null,
 					(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS) {
-				TaskManager.tm.addTaskAsync(() -> this.roughnessTexture = loadTextureMisc(path, rootPath));
+				TaskManager.tm.addTaskRenderBackgroundThread(() -> this.roughnessTexture = loadTextureMisc(path, rootPath));
 				this.roughness = 1f;
 			}
 
@@ -144,7 +144,7 @@ public class Material implements IDisposable {
 			AIString path = AIString.create();
 			if (aiGetMaterialTexture(material, aiTextureType_REFLECTION, 0, path, (IntBuffer) null, (IntBuffer) null,
 					(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS) {
-				TaskManager.tm.addTaskAsync(() -> this.metallicTexture = loadTextureMisc(path, rootPath));
+				TaskManager.tm.addTaskRenderBackgroundThread(() -> this.metallicTexture = loadTextureMisc(path, rootPath));
 				this.metallic = 1f;
 			}
 

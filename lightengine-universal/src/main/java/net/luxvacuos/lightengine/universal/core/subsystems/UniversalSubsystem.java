@@ -20,20 +20,34 @@
 
 package net.luxvacuos.lightengine.universal.core.subsystems;
 
-public interface ISubsystem {
+public abstract class UniversalSubsystem implements ISubsystem {
 
-	public void init();
+	@Override
+	public void restart() {
+	}
 
-	public void restart();
+	@Override
+	public void init() {
+	}
 
-	public void update(float delta);
+	@Override
+	public void update(float delta) {
+	}
 
-	public void dispose();
+	@Override
+	public void dispose() {
+	}
 
-	public void initRender();
+	@Override
+	public void initRender() {
+	}
 
-	public void render(float delta);
+	@Override
+	public void render(float delta) {
+	}
 
-	public void disposeRender();
+	@Override
+	public void disposeRender() {
+	}
 
 }

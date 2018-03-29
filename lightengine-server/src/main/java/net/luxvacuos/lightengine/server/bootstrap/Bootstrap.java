@@ -53,6 +53,7 @@ public class Bootstrap extends AbstractBootstrap {
 		}
 
 		TaskManager.tm = new ServerTaskManager();
+		TaskManager.tm.init();
 		loader.loadExternal();
 		new LightEngineServer();
 	}

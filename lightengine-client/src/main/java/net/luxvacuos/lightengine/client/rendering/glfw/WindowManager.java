@@ -76,26 +76,7 @@ public final class WindowManager {
 		Window window = new Window(windowID, handle.width, handle.height);
 		GLFWVidMode vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
 		GLFW.glfwSetWindowPos(windowID, (vidmode.width() - window.width) / 2, (vidmode.height() - window.height) / 2);
-
-		int[] h = new int[1];
-		int[] w = new int[1];
-
-		GLFW.glfwGetFramebufferSize(windowID, w, h);
-		window.framebufferHeight = h[0];
-		window.framebufferWidth = w[0];
-		GLFW.glfwGetWindowSize(windowID, w, h);
-		window.height = h[0];
-		window.width = w[0];
-		window.pixelRatio = (float) window.framebufferWidth / (float) window.width;
-		return window;
-	}
-
-	public static void createWindow(WindowHandle handle, Window window, boolean vsync) {
-		long windowID = window.getID();
-
-		GLFW.glfwMakeContextCurrent(windowID);
-		GLFW.glfwSwapInterval(vsync ? 1 : 0);
-
+		
 		try (MemoryStack stack = stackPush()) {
 			IntBuffer w = stack.callocInt(1);
 			IntBuffer h = stack.callocInt(1);
@@ -156,6 +137,26 @@ public final class WindowManager {
 
 			}
 		}
+
+		int[] h = new int[1];
+		int[] w = new int[1];
+
+		GLFW.glfwGetFramebufferSize(windowID, w, h);
+		window.framebufferHeight = h[0];
+		window.framebufferWidth = w[0];
+		GLFW.glfwGetWindowSize(windowID, w, h);
+		window.height = h[0];
+		window.width = w[0];
+		window.pixelRatio = (float) window.framebufferWidth / (float) window.width;
+		
+		return window;
+	}
+
+	public static void createWindow(WindowHandle handle, Window window, boolean vsync) {
+		long windowID = window.getID();
+
+		GLFW.glfwMakeContextCurrent(windowID);
+		GLFW.glfwSwapInterval(vsync ? 1 : 0);
 
 		window.capabilities = GL.createCapabilities(true);
 

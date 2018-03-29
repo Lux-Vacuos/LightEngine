@@ -47,7 +47,7 @@ public class DropDown<E> extends Button {
 	@Override
 	public void init(Window window) {
 		super.setOnButtonPress(() -> {
-			TaskManager.tm.addTask(() -> GraphicalSubsystem.getWindowManager()
+			TaskManager.tm.addTaskRenderThread(() -> GraphicalSubsystem.getWindowManager()
 					.addWindow(new ComponentWindow((int) (rootComponent.rootX + alignedX),
 							(int) (rootComponent.rootY + alignedY), (int) w, 300, "Dropdown") {
 

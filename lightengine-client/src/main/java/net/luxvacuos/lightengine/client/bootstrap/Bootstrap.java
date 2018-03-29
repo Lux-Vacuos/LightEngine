@@ -52,6 +52,7 @@ public class Bootstrap extends AbstractBootstrap {
 		TempVariables.userDir = prefix;
 		
 		TaskManager.tm = new ClientTaskManager();
+		TaskManager.tm.init();
 		loader.loadExternal();
 		new LightEngineClient();
 	}

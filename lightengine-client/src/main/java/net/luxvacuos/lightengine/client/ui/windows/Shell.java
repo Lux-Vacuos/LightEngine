@@ -162,7 +162,7 @@ public class Shell extends ComponentWindow implements IShell {
 	public void toggleShell() {
 		enabled = !enabled;
 		if (enabled) {
-			TaskManager.tm.addTask(() -> GraphicalSubsystem.getWindowManager().bringToFront(this));
+			TaskManager.tm.addTaskMainThread(() -> GraphicalSubsystem.getWindowManager().bringToFront(this));
 			fadeIn = true;
 			fadeOut = false;
 			super.setHidden(!enabled);

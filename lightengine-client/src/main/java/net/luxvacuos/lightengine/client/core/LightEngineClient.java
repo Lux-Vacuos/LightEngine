@@ -24,7 +24,6 @@ import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.
 
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.client.bootstrap.Bootstrap;
-import net.luxvacuos.lightengine.client.core.exception.UpdateThreadException;
 import net.luxvacuos.lightengine.client.core.states.CrashState;
 import net.luxvacuos.lightengine.client.core.subsystems.ClientCoreSubsystem;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
@@ -34,21 +33,21 @@ import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.nanovg.Timers;
 import net.luxvacuos.lightengine.client.rendering.opengl.GPUProfiler;
-import net.luxvacuos.lightengine.universal.core.AbstractEngine;
 import net.luxvacuos.lightengine.universal.core.EngineType;
 import net.luxvacuos.lightengine.universal.core.Sync;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
+import net.luxvacuos.lightengine.universal.core.UniversalEngine;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.core.states.StateNames;
 import net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem;
 import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
+import net.luxvacuos.lightengine.universal.core.subsystems.ISubsystem;
 import net.luxvacuos.lightengine.universal.core.subsystems.ScriptSubsystem;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
-public class LightEngineClient extends AbstractEngine {
+public class LightEngineClient extends UniversalEngine implements IClientEngine {
 
-	private Thread watchdog;
-	private Thread updateThread;
+	private Thread renderThread;
 
 	public LightEngineClient() {
 		StateMachine.setEngineType(EngineType.CLIENT);
@@ -67,7 +66,44 @@ public class LightEngineClient extends AbstractEngine {
 		super.addSubsystem(new ScriptSubsystem());
 		super.addSubsystem(new EventSubsystem());
 
+		Thread mainTh = Thread.currentThread();
+
 		super.initSubsystems();
+		renderThread = new Thread(() -> {
+			this.initRenderSubsystems();
+			mainTh.interrupt();
+			Window window = GraphicalSubsystem.getMainWindow();
+			int fps = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/fps"));
+			float deltaR = 0f;
+			ClientTaskManager tm = (ClientTaskManager) TaskManager.tm;
+			try {
+				Thread.sleep(Long.MAX_VALUE);
+			} catch (InterruptedException e) {
+			}
+			while (StateMachine.isRunning()) {
+				tm.updateRenderThread();
+				deltaR = window.getDelta();
+				Timers.startGPUTimer();
+				GPUProfiler.startFrame();
+				GPUProfiler.start("Render");
+				this.renderSubsystems(deltaR);
+				StateMachine.render(deltaR);
+				GPUProfiler.end();
+				GPUProfiler.endFrame();
+				Timers.stopGPUTimer();
+				Timers.update();
+				window.updateDisplay(fps);
+				if (window.isCloseRequested())
+					TaskManager.tm.addTaskMainThread(() -> StateMachine.dispose());
+			}
+			this.disposeRenderSubsystems();
+		});
+		renderThread.setName("Render Thread");
+		renderThread.start();
+		try {
+			Thread.sleep(Long.MAX_VALUE);
+		} catch (InterruptedException e) {
+		}
 
 		Logger.log("Light Engine Client Version: " + REGISTRY.getRegistryItem(new Key("/Light Engine/version")));
 		Logger.log("Light Engine Universal Version: "
@@ -94,71 +130,42 @@ public class LightEngineClient extends AbstractEngine {
 
 	@Override
 	public void update() {
-		int fps = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/fps"));
 		int ups = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/ups"));
-		updateThread = new Thread(() -> {
-			float delta = 0;
-			float accumulator = 0f;
-			float interval = 1f / ups;
-			Sync sync = new Sync();
-			while (StateMachine.isRunning()) {
-				Timers.startCPUTimer();
-				TaskManager.tm.updateThread();
-				if (sync.timeCount > 1f) {
-					CoreSubsystem.ups = CoreSubsystem.upsCount;
-					CoreSubsystem.upsCount = 0;
-					sync.timeCount--;
-				}
-				delta = sync.getDelta();
-				accumulator += delta;
-				while (accumulator >= interval) {
-					super.updateSubsystems(interval);
-					StateMachine.update(interval);
-					CoreSubsystem.upsCount++;
-					accumulator -= interval;
-				}
-				Timers.stopCPUTimer();
-				sync.sync(ups);
-			}
-		});
-		updateThread.setName("Update Thread");
-		updateThread.start();
-
 		watchdog = new Thread(() -> {
 			while (true) {
 				try {
 					Thread.sleep(5000);
 				} catch (InterruptedException e) {
 				}
-				if (!updateThread.isAlive()) {
-					TaskManager.tm.addTask(() -> {
-						throw new UpdateThreadException("Update Thread died");
-					});
-				}
 			}
 		});
 		watchdog.setDaemon(true);
 		watchdog.setName("WatchDog Thread");
 		watchdog.start();
-
-		Window window = GraphicalSubsystem.getMainWindow();
-		float delta = 0f;
+		
+		renderThread.interrupt();
+		float delta = 0;
+		float accumulator = 0f;
+		float interval = 1f / ups;
+		Sync sync = new Sync();
 		while (StateMachine.isRunning()) {
-			TaskManager.tm.update();
-			delta = window.getDelta();
-			Timers.startGPUTimer();
-			GPUProfiler.startFrame();
-			GPUProfiler.start("Render");
-			super.updateSubsystemsMainThread(delta);
-			super.render(delta);
-			StateMachine.render(delta);
-			GPUProfiler.end();
-			GPUProfiler.endFrame();
-			Timers.stopGPUTimer();
-			Timers.update();
-			window.updateDisplay(fps);
-			if (window.isCloseRequested())
-				TaskManager.tm.addTaskUpdate(() -> StateMachine.dispose());
+			Timers.startCPUTimer();
+			TaskManager.tm.updateMainThread();
+			if (sync.timeCount > 1f) {
+				CoreSubsystem.ups = CoreSubsystem.upsCount;
+				CoreSubsystem.upsCount = 0;
+				sync.timeCount--;
+			}
+			delta = sync.getDelta();
+			accumulator += delta;
+			while (accumulator >= interval) {
+				super.updateSubsystems(interval);
+				StateMachine.update(interval);
+				CoreSubsystem.upsCount++;
+				accumulator -= interval;
+			}
+			Timers.stopCPUTimer();
+			sync.sync(ups);
 		}
 	}
 
@@ -179,8 +186,34 @@ public class LightEngineClient extends AbstractEngine {
 	}
 
 	@Override
+	public void initRenderSubsystems() {
+		for (ISubsystem subsystem : subsystems) {
+			subsystem.initRender();
+		}
+	}
+
+	@Override
+	public void renderSubsystems(float delta) {
+		for (ISubsystem subsystem : subsystems) {
+			subsystem.render(delta);
+		}
+	}
+
+	@Override
+	public void disposeRenderSubsystems() {
+		for (ISubsystem subsystem : subsystems) {
+			subsystem.disposeRender();
+		}
+	}
+
+	@Override
+	public void restart() {
+	}
+
+	@Override
 	public void dispose() {
-		super.dispose();
+		Logger.log("Cleaning Resources");
+		super.disposeSubsystems();
 		StateMachine.dispose();
 	}
 

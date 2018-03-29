@@ -98,6 +98,7 @@ import net.luxvacuos.lightengine.client.core.ClientTaskManager;
 import net.luxvacuos.lightengine.client.core.exception.DecodeTextureException;
 import net.luxvacuos.lightengine.client.core.exception.LoadOBJModelException;
 import net.luxvacuos.lightengine.client.core.exception.LoadTextureException;
+import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.rendering.glfw.WindowManager;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CubeMapTexture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.RawModel;
@@ -238,8 +239,8 @@ public class ResourceLoader implements IDisposable {
 
 	private int loadTexture(String file, int filter, int textureWarp, int format, boolean textureMipMapAF) {
 		RawTexture data = decodeTextureFile(file);
-		if (isMainThread()
-				|| Thread.currentThread().getId() == ((ClientTaskManager) TaskManager.tm).getAsyncThreadID()) {
+		if (isThread(((ClientTaskManager) TaskManager.tm).getRenderBackgroundThreadID())
+				|| isThread(GraphicalSubsystem.getRenderThreadID())) {
 			int textureID = createTexture(data, filter, textureWarp, format, textureMipMapAF);
 			data.dispose();
 			return textureID;
@@ -247,7 +248,7 @@ public class ResourceLoader implements IDisposable {
 			int[] textureID = new int[1];
 			boolean[] ready = new boolean[1];
 			textureID[0] = -1;
-			TaskManager.tm.addTaskAsync(() -> {
+			TaskManager.tm.addTaskRenderBackgroundThread(() -> {
 				textureID[0] = createTexture(data, filter, textureWarp, format, textureMipMapAF);
 				ready[0] = true;
 			});
@@ -638,10 +639,8 @@ public class ResourceLoader implements IDisposable {
 		return newBuffer;
 	}
 
-	private static long mainThreadId = Thread.currentThread().getId();
-
-	public static boolean isMainThread() {
-		return Thread.currentThread().getId() == mainThreadId;
+	public static boolean isThread(long id) {
+		return Thread.currentThread().getId() == id;
 	}
 
 	/**

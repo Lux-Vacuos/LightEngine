@@ -39,6 +39,8 @@ import net.luxvacuos.lightengine.client.rendering.nanovg.themes.Theme;
 import net.luxvacuos.lightengine.client.rendering.opengl.GPUProfiler;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem;
+import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
+import net.luxvacuos.lightengine.universal.util.IEvent;
 import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
 public class NanoWindowManager implements IWindowManager {
@@ -50,6 +52,7 @@ public class NanoWindowManager implements IWindowManager {
 	private IWindow focused;
 	private IShell shell;
 	private boolean compositorEnabled;
+	private IEvent resizeEvent;
 
 	public NanoWindowManager(Window win) {
 		this.window = win;
@@ -62,6 +65,7 @@ public class NanoWindowManager implements IWindowManager {
 		compositor = new Compositor(win, width, height);
 		REGISTRY.register(KeyCache.getKey("/Light Engine/Settings/WindowManager/shellHeight"), 0);
 		shell = new DummyShell();
+		resizeEvent = EventSubsystem.addEvent("lightengine.renderer.resize", () -> this.reloadCompositor());
 	}
 
 	@Override
@@ -138,7 +142,7 @@ public class NanoWindowManager implements IWindowManager {
 		for (IWindow window : new ArrayList<>(this.windows)) {
 			if (window.shouldClose()) {
 				notifyClose(window);
-				TaskManager.tm.addTask(() -> {
+				TaskManager.tm.addTaskRenderThread(() -> {
 					window.dispose();
 				});
 				tmp.add(window);
@@ -187,6 +191,7 @@ public class NanoWindowManager implements IWindowManager {
 			window.dispose();
 		}
 		windows.clear();
+		EventSubsystem.removeEvent("lightengine.renderer.resize", resizeEvent);
 	}
 
 	public List<IWindow> getWindows() {
@@ -195,7 +200,7 @@ public class NanoWindowManager implements IWindowManager {
 
 	@Override
 	public void addWindow(IWindow window) {
-		TaskManager.tm.addTask(() -> {
+		TaskManager.tm.addTaskRenderThread(() -> {
 			window.init(this.window);
 			window.update(0, this);
 			window.alwaysUpdate(0, this);
@@ -207,7 +212,7 @@ public class NanoWindowManager implements IWindowManager {
 
 	@Override
 	public void addWindow(int ord, IWindow window) {
-		TaskManager.tm.addTask(() -> {
+		TaskManager.tm.addTaskRenderThread(() -> {
 			window.init(this.window);
 			window.update(0, this);
 			window.alwaysUpdate(0, this);
@@ -257,7 +262,7 @@ public class NanoWindowManager implements IWindowManager {
 	public void enableCompositor() {
 		if (compositorEnabled)
 			return;
-		TaskManager.tm.addTask(() -> {
+		TaskManager.tm.addTaskRenderThread(() -> {
 			compositor = new Compositor(window, width, height);
 			compositorEnabled = true;
 			REGISTRY.register(KeyCache.getKey("/Light Engine/Settings/WindowManager/compositor"), compositorEnabled);
@@ -269,7 +274,7 @@ public class NanoWindowManager implements IWindowManager {
 	public void disableCompositor() {
 		if (!compositorEnabled)
 			return;
-		TaskManager.tm.addTask(() -> compositor.dispose());
+		TaskManager.tm.addTaskRenderThread(() -> compositor.dispose());
 		notifyAllWindows(WindowMessage.WM_COMPOSITOR_DISABLED, null);
 		compositorEnabled = false;
 		REGISTRY.register(KeyCache.getKey("/Light Engine/Settings/WindowManager/compositor"), compositorEnabled);
@@ -325,13 +330,13 @@ public class NanoWindowManager implements IWindowManager {
 	public void reloadCompositor() {
 		width = (int) (window.getWidth() * window.getPixelRatio());
 		height = (int) (window.getHeight() * window.getPixelRatio());
-		if (compositorEnabled) {
-			compositor.dispose();
-			compositor = new Compositor(window, width, height);
-		}
 		notifyAllWindows(WindowMessage.WM_RESIZE, null);
-		if (compositorEnabled)
-			notifyAllWindows(WindowMessage.WM_COMPOSITOR_RELOAD, null);
+		if (compositorEnabled) {
+			TaskManager.tm.addTaskRenderThread(() -> {
+				compositor.dispose();
+				compositor = new Compositor(window, width, height);
+			});
+		}
 	}
 
 }

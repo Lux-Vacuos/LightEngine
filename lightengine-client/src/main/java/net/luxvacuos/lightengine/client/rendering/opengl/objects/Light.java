@@ -83,7 +83,7 @@ public class Light extends LEEntity {
 			camera = new SpotlightCamera(radius * 2f, 1024, 1024);
 			super.addEntity(camera);
 			if (shadow)
-				TaskManager.tm.addTask(() -> {
+				TaskManager.tm.addTaskRenderThread(() -> {
 					shadowMap = new LightShadowMap(1024, 1024);
 					shadowMapCreated = true;
 				});
@@ -94,7 +94,7 @@ public class Light extends LEEntity {
 
 	@Override
 	public void dispose() {
-		TaskManager.tm.addTask(() -> shadowMap.dispose());
+		TaskManager.tm.addTaskRenderThread(() -> shadowMap.dispose());
 		Renderer.getLightRenderer().removeLight(this);
 		super.dispose();
 	}

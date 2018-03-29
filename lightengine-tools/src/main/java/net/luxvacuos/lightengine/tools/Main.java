@@ -35,7 +35,7 @@ public class Main {
 
 			@Override
 			public void loadExternal() {
-				TaskManager.tm.addTask(() -> StateMachine.registerState(new ToolsState()));
+				TaskManager.tm.addTaskMainThread(() -> StateMachine.registerState(new ToolsState()));
 			}
 
 		});

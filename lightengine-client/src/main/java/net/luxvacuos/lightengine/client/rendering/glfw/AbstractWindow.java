@@ -55,6 +55,7 @@ import net.luxvacuos.lightengine.client.input.KeyboardHandler;
 import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.resources.AssimpResourceLoader;
 import net.luxvacuos.lightengine.client.resources.ResourceLoader;
+import net.luxvacuos.lightengine.universal.core.TaskManager;
 
 public abstract class AbstractWindow implements IWindow {
 
@@ -123,7 +124,7 @@ public abstract class AbstractWindow implements IWindow {
 				width = ww;
 				height = wh;
 				pixelRatio = (float) framebufferWidth / (float) width;
-				resetViewport();
+				TaskManager.tm.addTaskRenderThread(() -> resetViewport());
 				resized = true;
 			}
 		};
@@ -142,7 +143,6 @@ public abstract class AbstractWindow implements IWindow {
 				dirty = true;
 				if (onRefresh != null)
 					onRefresh.onRefresh();
-				GLFW.glfwSwapBuffers(windowID);
 			}
 		};
 

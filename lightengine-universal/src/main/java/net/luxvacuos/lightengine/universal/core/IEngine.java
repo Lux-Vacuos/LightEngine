@@ -21,22 +21,23 @@
 package net.luxvacuos.lightengine.universal.core;
 
 import net.luxvacuos.lightengine.universal.core.subsystems.ISubsystem;
+import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
-public interface IEngine {
+public interface IEngine extends IDisposable {
 
 	public void init();
 
-	public void initSubsystems();
+	public void update();
 
 	public void restart();
 
-	public void update();
+	public void initSubsystems();
+
+	public void restartSubsystems();
 
 	public void updateSubsystems(float delta);
 
-	public void updateSubsystemsMainThread(float delta);
-
-	public void render(float delta);
+	public void disposeSubsystems();
 
 	public void handleError(Throwable e);
 

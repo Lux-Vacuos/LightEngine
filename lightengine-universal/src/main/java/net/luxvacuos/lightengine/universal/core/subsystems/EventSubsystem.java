@@ -28,7 +28,7 @@ import java.util.Map;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.util.IEvent;
 
-public class EventSubsystem implements ISubsystem {
+public class EventSubsystem extends UniversalSubsystem {
 
 	private static Map<String, List<IEvent>> events;
 
@@ -38,28 +38,12 @@ public class EventSubsystem implements ISubsystem {
 	}
 
 	@Override
-	public void restart() {
-	}
-
-	@Override
-	public void update(float delta) {
-	}
-
-	@Override
-	public void render(float delta) {
-	}
-
-	@Override
-	public void updateMainThread(float delta) {
-	}
-
-	@Override
 	public void dispose() {
 		events.clear();
 	}
 
 	public static IEvent addEvent(String key, IEvent event) {
-		List<IEvent> eventList = events.get(key);
+		var eventList = events.get(key);
 		if (eventList != null)
 			eventList.add(event);
 		else {
@@ -71,7 +55,7 @@ public class EventSubsystem implements ISubsystem {
 	}
 
 	public static boolean removeEvent(String key, IEvent event) {
-		List<IEvent> eventList = events.get(key);
+		var eventList = events.get(key);
 		if (eventList != null)
 			return eventList.remove(event);
 		else
@@ -79,8 +63,8 @@ public class EventSubsystem implements ISubsystem {
 	}
 
 	public static void triggerEvent(String key) {
-		TaskManager.tm.addTaskUpdate(() -> {
-			List<IEvent> eventList = events.get(key);
+		TaskManager.tm.addTaskBackgroundThread(() -> {
+			var eventList = events.get(key);
 			if (eventList != null)
 				for (IEvent event : eventList)
 					event.onTrigger();

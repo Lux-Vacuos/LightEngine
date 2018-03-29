@@ -27,11 +27,13 @@ import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.universal.core.subsystems.ISubsystem;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
-public abstract class AbstractEngine implements IEngine, IDisposable {
+public abstract class UniversalEngine implements IEngine, IDisposable {
 
-	private List<ISubsystem> subsystems;
+	protected List<ISubsystem> subsystems;
 
-	public AbstractEngine() {
+	protected Thread watchdog;
+
+	public UniversalEngine() {
 		subsystems = new ArrayList<>();
 		TaskManager.tm.init();
 	}
@@ -47,7 +49,7 @@ public abstract class AbstractEngine implements IEngine, IDisposable {
 	}
 
 	@Override
-	public void restart() {
+	public void restartSubsystems() {
 		Logger.log("Restarting Subsystems");
 		for (ISubsystem subsystem : subsystems) {
 			Logger.log("--- " + subsystem.getClass().getSimpleName());
@@ -64,21 +66,7 @@ public abstract class AbstractEngine implements IEngine, IDisposable {
 	}
 
 	@Override
-	public void updateSubsystemsMainThread(float delta) {
-		for (ISubsystem subsystem : subsystems) {
-			subsystem.updateMainThread(delta);
-		}
-	}
-
-	@Override
-	public void render(float delta) {
-		for (ISubsystem subsystem : subsystems) {
-			subsystem.render(delta);
-		}
-	}
-
-	@Override
-	public void dispose() {
+	public void disposeSubsystems() {
 		Logger.log("Stopping Subsystems");
 		for (ISubsystem subsystem : subsystems) {
 			Logger.log("--- " + subsystem.getClass().getSimpleName());

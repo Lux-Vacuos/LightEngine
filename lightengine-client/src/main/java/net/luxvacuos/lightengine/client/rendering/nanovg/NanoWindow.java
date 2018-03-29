@@ -335,7 +335,7 @@ public abstract class NanoWindow implements IWindow {
 								.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/shellHeight"));
 				if (compositor) {
 					updateRenderSize();
-					TaskManager.tm.addTask(() -> {
+					TaskManager.tm.addTaskRenderThread(() -> {
 						nvgluDeleteFramebuffer(window.getNVGID(), fbo);
 						fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
 					});
@@ -351,7 +351,7 @@ public abstract class NanoWindow implements IWindow {
 				this.h = oldH;
 				if (compositor) {
 					updateRenderSize();
-					TaskManager.tm.addTask(() -> {
+					TaskManager.tm.addTaskRenderThread(() -> {
 						nvgluDeleteFramebuffer(window.getNVGID(), fbo);
 						fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
 					});
@@ -386,7 +386,7 @@ public abstract class NanoWindow implements IWindow {
 								.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/WindowManager/shellHeight"));
 				if (compositor) {
 					updateRenderSize();
-					TaskManager.tm.addTask(() -> {
+					TaskManager.tm.addTaskRenderThread(() -> {
 						nvgluDeleteFramebuffer(window.getNVGID(), fbo);
 						fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
 					});
@@ -398,7 +398,7 @@ public abstract class NanoWindow implements IWindow {
 				h = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
 				if (compositor) {
 					updateRenderSize();
-					TaskManager.tm.addTask(() -> {
+					TaskManager.tm.addTaskRenderThread(() -> {
 						nvgluDeleteFramebuffer(window.getNVGID(), fbo);
 						fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
 					});
@@ -431,7 +431,7 @@ public abstract class NanoWindow implements IWindow {
 			break;
 		case WindowMessage.WM_COMPOSITOR_DISABLED:
 			compositor = false;
-			TaskManager.tm.addTask(() -> {
+			TaskManager.tm.addTaskRenderThread(() -> {
 				nvgluDeleteFramebuffer(window.getNVGID(), fbo);
 				fbo = null;
 			});
@@ -439,11 +439,11 @@ public abstract class NanoWindow implements IWindow {
 		case WindowMessage.WM_COMPOSITOR_ENABLED:
 			compositor = true;
 			updateRenderSize();
-			TaskManager.tm.addTask(() -> fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0));
+			TaskManager.tm.addTaskRenderThread(() -> fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0));
 			break;
 		case WindowMessage.WM_COMPOSITOR_RELOAD:
 			if (compositor) {
-				TaskManager.tm.addTask(() -> {
+				TaskManager.tm.addTaskRenderThread(() -> {
 					nvgluDeleteFramebuffer(window.getNVGID(), fbo);
 					fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
 				});

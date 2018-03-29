@@ -72,14 +72,6 @@ public class NetworkSubsystem extends AbstractNettyNetworkHandler implements ISu
 	}
 
 	@Override
-	public void render(float delta) {
-	}
-
-	@Override
-	public void updateMainThread(float delta) {
-	}
-
-	@Override
 	public void dispose() {
 		bossGroup.shutdownGracefully();
 	}
@@ -98,5 +90,17 @@ public class NetworkSubsystem extends AbstractNettyNetworkHandler implements ISu
 
 	public static ManagerChannelHandler getManagerChannelHandler() {
 		return mch;
+	}
+
+	@Override
+	public void initRender() {
+	}
+
+	@Override
+	public void render(float delta) {
+	}
+
+	@Override
+	public void disposeRender() {
 	}
 }

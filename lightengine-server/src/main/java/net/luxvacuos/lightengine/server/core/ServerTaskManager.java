@@ -24,25 +24,4 @@ import net.luxvacuos.lightengine.universal.core.TaskManager;
 
 public class ServerTaskManager extends TaskManager {
 
-	@Override
-	public void init() {
-		super.init();
-		asyncThread = new Thread(() -> {
-			while (true) {
-				if (!tasksAsync.isEmpty()) {
-					tasksAsync.poll().run();
-				} else {
-					try {
-						syncInterrupt = false;
-						Thread.sleep(1000000l);
-					} catch (InterruptedException e) {
-					}
-				}
-			}
-		});
-		asyncThread.setDaemon(true);
-		asyncThread.setName("Async Thread");
-		asyncThread.start();
-	}
-
 }
