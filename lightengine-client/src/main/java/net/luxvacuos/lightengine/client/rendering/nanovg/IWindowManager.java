@@ -56,7 +56,7 @@ public interface IWindowManager extends IDisposable {
 
 	public IShell getShell();
 
-	public void reloadCompositor();
+	public void resize(int width, int height);
 
 	public int getTotalWindows();
 

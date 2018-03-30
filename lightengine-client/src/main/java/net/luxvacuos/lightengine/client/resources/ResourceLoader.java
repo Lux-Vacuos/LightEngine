@@ -245,21 +245,16 @@ public class ResourceLoader implements IDisposable {
 			data.dispose();
 			return textureID;
 		} else {
+			Thread main = Thread.currentThread();
 			int[] textureID = new int[1];
-			boolean[] ready = new boolean[1];
 			textureID[0] = -1;
 			TaskManager.tm.addTaskRenderBackgroundThread(() -> {
 				textureID[0] = createTexture(data, filter, textureWarp, format, textureMipMapAF);
-				ready[0] = true;
+				main.interrupt();
 			});
-			while (true) {
-				if (ready[0])
-					break;
-				else
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-					}
+			try {
+				Thread.sleep(Long.MAX_VALUE);
+			} catch (InterruptedException e) {
 			}
 			data.dispose();
 			return textureID[0];

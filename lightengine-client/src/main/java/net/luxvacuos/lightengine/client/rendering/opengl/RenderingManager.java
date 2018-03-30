@@ -43,14 +43,14 @@ import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
 public class RenderingManager implements IDisposable {
 
-	private final IntMap<IRenderer> renderers = new IntMap<>();
+	private final IntMap<IObjectRenderer> objectRenderers = new IntMap<>();
 	private final ObjectIntMap<List<BasicEntity>> entitiesToRenderers = new ObjectIntMap<>();
 
 	public RenderingManager() {
 	}
 
-	public void addRenderer(IRenderer renderer) {
-		renderers.put(renderer.getID(), renderer);
+	public void addRenderer(IObjectRenderer objectRenderer) {
+		objectRenderers.put(objectRenderer.getID(), objectRenderer);
 	}
 
 	public void preProcess(ImmutableArray<Entity> entities, CameraEntity camera) {
@@ -64,45 +64,45 @@ public class RenderingManager implements IDisposable {
 						process((BasicEntity) entity);
 				}
 		}
-		for (Entry<IRenderer> rendererEntry : renderers) {
-			IRenderer renderer = rendererEntry.value;
-			List<BasicEntity> batch = entitiesToRenderers.findKey(renderer.getID());
+		for (Entry<IObjectRenderer> rendererEntry : objectRenderers) {
+			IObjectRenderer objectRenderer = rendererEntry.value;
+			List<BasicEntity> batch = entitiesToRenderers.findKey(objectRenderer.getID());
 			if (batch != null)
-				renderer.preProcess(batch);
+				objectRenderer.preProcess(batch);
 		}
 	}
 
 	public void render(CameraEntity camera) {
-		for (Entry<IRenderer> rendererEntry : renderers)
+		for (Entry<IObjectRenderer> rendererEntry : objectRenderers)
 			rendererEntry.value.render(camera);
 	}
 
 	public void renderReflections(CameraEntity camera, Sun sun, ShadowFBO shadow, CubeMapTexture irradiance,
 			CubeMapTexture environmentMap, Texture brdfLUT) {
-		for (Entry<IRenderer> rendererEntry : renderers)
+		for (Entry<IObjectRenderer> rendererEntry : objectRenderers)
 			rendererEntry.value.renderReflections(camera, sun, shadow, irradiance, environmentMap, brdfLUT);
 	}
 
 	public void renderForward(CameraEntity camera, Sun sun, ShadowFBO shadow, CubeMapTexture irradiance,
 			CubeMapTexture environmentMap, Texture brdfLUT) {
 		glEnable(GL_BLEND);
-		for (Entry<IRenderer> rendererEntry : renderers)
+		for (Entry<IObjectRenderer> rendererEntry : objectRenderers)
 			rendererEntry.value.renderForward(camera, sun, shadow, irradiance, environmentMap, brdfLUT);
 		glDisable(GL_BLEND);
 	}
 
 	public void renderShadow(CameraEntity sun) {
-		for (Entry<IRenderer> rendererEntry : renderers)
+		for (Entry<IObjectRenderer> rendererEntry : objectRenderers)
 			rendererEntry.value.renderShadow(sun);
 	}
 
 	public void end() {
-		for (Entry<IRenderer> rendererEntry : renderers) {
-			IRenderer renderer = rendererEntry.value;
-			List<BasicEntity> batch = entitiesToRenderers.findKey(renderer.getID());
+		for (Entry<IObjectRenderer> rendererEntry : objectRenderers) {
+			IObjectRenderer objectRenderer = rendererEntry.value;
+			List<BasicEntity> batch = entitiesToRenderers.findKey(objectRenderer.getID());
 			if (batch != null)
 				batch.clear();
-			renderer.end();
+			objectRenderer.end();
 		}
 	}
 
@@ -120,7 +120,7 @@ public class RenderingManager implements IDisposable {
 
 	@Override
 	public void dispose() {
-		for (Entry<IRenderer> rendererEntry : renderers)
+		for (Entry<IObjectRenderer> rendererEntry : objectRenderers)
 			rendererEntry.value.dispose();
 	}
 

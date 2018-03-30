@@ -29,7 +29,7 @@ import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
 import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
-public interface IRenderer extends IDisposable {
+public interface IObjectRenderer extends IDisposable {
 
 	public void preProcess(List<BasicEntity> entities);
 

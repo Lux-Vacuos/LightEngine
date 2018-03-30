@@ -54,7 +54,7 @@ import net.luxvacuos.lightengine.client.resources.ResourceLoader;
 import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
 
-public class EntityRenderer implements IRenderer {
+public class EntityRenderer implements IObjectRenderer {
 
 	public static final int ENTITY_RENDERER_ID = 10;
 	/**

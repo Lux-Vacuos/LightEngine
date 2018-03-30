@@ -44,23 +44,26 @@ import static org.lwjgl.opengl.GL11.glEnable;
 import java.util.List;
 import java.util.Map;
 
-import org.joml.Matrix4f;
 import org.lwjgl.opengl.ARBClipControl;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.utils.Array;
 
+import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.Sun;
 import net.luxvacuos.lightengine.client.ecs.entities.SunCamera;
+import net.luxvacuos.lightengine.client.network.ClientNetworkHandler;
+import net.luxvacuos.lightengine.client.rendering.IRenderer;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
+import net.luxvacuos.lightengine.client.rendering.nanovg.IWindow;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Light;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.ParticleTexture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.WaterTile;
 import net.luxvacuos.lightengine.client.rendering.opengl.pipeline.MultiPass;
 import net.luxvacuos.lightengine.client.rendering.opengl.pipeline.PostProcess;
-import net.luxvacuos.lightengine.client.resources.ResourceLoader;
+import net.luxvacuos.lightengine.client.ui.windows.GLGameWindow;
 import net.luxvacuos.lightengine.client.world.particles.Particle;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
@@ -68,108 +71,104 @@ import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
 import net.luxvacuos.lightengine.universal.util.IEvent;
 import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
-public class Renderer {
+public class GLRenderer implements IRenderer {
 
-	private static SkyboxRenderer skyboxRenderer;
-	private static IDeferredPipeline deferredPipeline;
-	private static IPostProcessPipeline postProcessPipeline;
-	private static EnvironmentRenderer envRenderer;
-	private static EnvironmentRenderer envRendererEntities;
-	private static ParticleRenderer particleRenderer;
-	private static IrradianceCapture irradianceCapture;
-	private static PreFilteredEnvironment preFilteredEnvironment;
-	private static WaterRenderer waterRenderer;
-	private static LightRenderer lightRenderer;
+	private boolean enabled;
 
+	private EnvironmentRenderer envRenderer;
+	private EnvironmentRenderer envRendererEntities;
+	private IrradianceCapture irradianceCapture;
+	private PreFilteredEnvironment preFilteredEnvironment;
+
+	private ParticleRenderer particleRenderer;
+	private SkyboxRenderer skyboxRenderer;
+	private WaterRenderer waterRenderer;
+	private LightRenderer lightRenderer;
+	private RenderingManager renderingManager;
+
+	private IDeferredPipeline deferredPipeline;
+	private IPostProcessPipeline postProcessPipeline;
 	private static ShadowFBO shadowFBO;
 
-	private static Frustum frustum;
-	private static Window window;
+	private Frustum frustum;
+	private Window window;
 
-	private static IRenderPass shadowPass, deferredPass, forwardPass, occlusionPass;
+	private IRenderPass shadowPass, deferredPass, forwardPass, occlusionPass;
 
-	private static float exposure = 1;
+	private float exposure = 1;
 
-	private static int shadowResolution;
+	private int shadowResolution;
 
-	private static boolean reloading, enabled;
+	private IEvent shadowMap;
 
-	private static RenderingManager renderingManager;
+	private GLGameWindow gameWindow;
 
-	private static IEvent shadowMap, reload;
+	@Override
+	public void init() {
+		if (enabled)
+			return;
 
-	private static void init(Window window) {
-		if (!enabled) {
-			renderingManager = new RenderingManager();
-			Renderer.window = window;
+		shadowResolution = (int) REGISTRY
+				.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/shadowsResolution"));
+
+		window = GraphicalSubsystem.getMainWindow();
+		var loader = window.getResourceLoader();
+
+		renderingManager = new RenderingManager();
+		lightRenderer = new LightRenderer();
+		frustum = new Frustum();
+
+		TaskManager.tm.addTaskRenderThread(
+				() -> envRenderer = new EnvironmentRenderer(loader.createEmptyCubeMap(32, true, false)));
+		TaskManager.tm.addTaskRenderThread(
+				() -> envRendererEntities = new EnvironmentRenderer(loader.createEmptyCubeMap(128, true, false)));
+		TaskManager.tm.addTaskRenderThread(() -> irradianceCapture = new IrradianceCapture(loader));
+		TaskManager.tm.addTaskRenderThread(
+				() -> preFilteredEnvironment = new PreFilteredEnvironment(loader.createEmptyCubeMap(128, true, true),
+						window));
+
+		TaskManager.tm.addTaskRenderThread(() -> particleRenderer = new ParticleRenderer(loader));
+		TaskManager.tm.addTaskRenderThread(() -> skyboxRenderer = new SkyboxRenderer(loader));
+		TaskManager.tm.addTaskRenderThread(() -> waterRenderer = new WaterRenderer(loader));
+		TaskManager.tm.addTaskRenderThread(() -> renderingManager.addRenderer(new EntityRenderer(loader)));
+
+		TaskManager.tm.addTaskRenderThread(() -> deferredPipeline = new MultiPass(window));
+		TaskManager.tm.addTaskRenderThread(() -> postProcessPipeline = new PostProcess(window));
+		TaskManager.tm.addTaskRenderThread(() -> shadowFBO = new ShadowFBO(shadowResolution, shadowResolution));
+
+		shadowMap = EventSubsystem.addEvent("lightengine.renderer.resetshadowmap", () -> {
 			shadowResolution = (int) REGISTRY
 					.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/shadowsResolution"));
-			ResourceLoader loader = window.getResourceLoader();
-
-			frustum = new Frustum();
-			TaskManager.tm.addTaskRenderThread(() -> shadowFBO = new ShadowFBO(shadowResolution, shadowResolution));
-
-			TaskManager.tm.addTaskRenderThread(() -> skyboxRenderer = new SkyboxRenderer(loader));
-			TaskManager.tm.addTaskRenderThread(() -> deferredPipeline = new MultiPass(window));
-			TaskManager.tm.addTaskRenderThread(() -> postProcessPipeline = new PostProcess(window));
-			TaskManager.tm.addTaskRenderThread(() -> particleRenderer = new ParticleRenderer(loader));
-			TaskManager.tm
-					.addTaskRenderThread(() -> envRenderer = new EnvironmentRenderer(loader.createEmptyCubeMap(32, true, false)));
-			TaskManager.tm.addTaskRenderThread(
-					() -> envRendererEntities = new EnvironmentRenderer(loader.createEmptyCubeMap(128, true, false)));
-			TaskManager.tm.addTaskRenderThread(() -> preFilteredEnvironment = new PreFilteredEnvironment(
-					loader.createEmptyCubeMap(128, true, true), window));
-			TaskManager.tm.addTaskRenderThread(() -> irradianceCapture = new IrradianceCapture(loader));
-			TaskManager.tm.addTaskRenderThread(() -> waterRenderer = new WaterRenderer(loader));
-			TaskManager.tm.addTaskRenderThread(() -> renderingManager.addRenderer(new EntityRenderer(loader)));
-			lightRenderer = new LightRenderer();
-
-			shadowMap = EventSubsystem.addEvent("lightengine.renderer.resetshadowmap", () -> {
-				shadowResolution = (int) REGISTRY
-						.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/shadowsResolution"));
-				TaskManager.tm.addTaskRenderThread(() -> {
-					shadowFBO.dispose();
-					shadowFBO = new ShadowFBO(shadowResolution, shadowResolution);
-				});
+			TaskManager.tm.addTaskRenderThread(() -> {
+				shadowFBO.dispose();
+				shadowFBO = new ShadowFBO(shadowResolution, shadowResolution);
 			});
-			reload = EventSubsystem.addEvent("lightengine.renderer.resize", () -> {
-				reloading = true;
-				TaskManager.tm.addTaskRenderThread(() -> {
-					deferredPipeline.resize();
-					postProcessPipeline.resize();
-					reloading = false;
-					EventSubsystem.triggerEvent("lightengine.renderer.postresize");
-				});
-			});
-		}
+		});
+
 		TaskManager.tm.addTaskRenderThread(() -> {
 			enabled = true;
+			gameWindow = new GLGameWindow();
+			gameWindow.setImageID(postProcessPipeline.getNVGImage());
+			GraphicalSubsystem.getWindowManager().addWindow(0, gameWindow);
 			EventSubsystem.triggerEvent("lightengine.renderer.initialized");
 		});
 	}
 
-	private static void render(ImmutableArray<Entity> entitiesT, Map<ParticleTexture, List<Particle>> particles,
-			List<WaterTile> waterTiles, CameraEntity camera, IWorldSimulation worldSimulation, Sun sun, float delta) {
-		if (!enabled || reloading)
+	@Override
+	public void render(ClientNetworkHandler nh, float delta) {
+		if (!enabled)
 			return;
+		ImmutableArray<Entity> entitiesT = nh.getEngine().getEntities();
+		Map<ParticleTexture, List<Particle>> particles = ParticleDomain.getParticles();
+		List<WaterTile> waterTiles = null;
+		CameraEntity camera = nh.getCamera();
+		IWorldSimulation worldSimulation = nh.getWorldSimulation();
+		Sun sun = nh.getSun();
+
 		Array<Entity> entitiesR = new Array<>(entitiesT.toArray(Entity.class));
 		ImmutableArray<Entity> entities = new ImmutableArray<>(entitiesR);
 		resetState();
 		renderingManager.preProcess(entities, camera);
-		GPUProfiler.start("Main Renderer");
-		GPUProfiler.start("IrradianceMap");
-		envRenderer.renderEnvironmentMap(camera.getPosition(), skyboxRenderer, worldSimulation, sun.getSunPosition(),
-				window);
-		irradianceCapture.render(window, envRenderer.getCubeMapTexture().getID());
-		GPUProfiler.end();
-		GPUProfiler.start("EnvironmentMap");
-		envRendererEntities.renderEnvironmentMap(camera.getPosition(), skyboxRenderer, renderingManager,
-				worldSimulation, sun, shadowFBO, irradianceCapture.getCubeMapTexture(),
-				preFilteredEnvironment.getCubeMapTexture(), preFilteredEnvironment.getBRDFLUT(), window);
-		GPUProfiler.start("PreFilteredEnvironment");
-		preFilteredEnvironment.render(window, envRendererEntities.getCubeMapTexture().getID());
-		GPUProfiler.end();
-		GPUProfiler.end();
 		GPUProfiler.start("Shadows");
 		SunCamera sunCamera = sun.getCamera();
 		if ((boolean) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/shadows"))) {
@@ -229,6 +228,20 @@ public class Renderer {
 			glCullFace(GL_BACK);
 			GPUProfiler.end();
 		}
+		GPUProfiler.end();
+		GPUProfiler.start("Main Renderer");
+		GPUProfiler.start("IrradianceMap");
+		envRenderer.renderEnvironmentMap(camera.getPosition(), skyboxRenderer, worldSimulation, sun.getSunPosition(),
+				window);
+		irradianceCapture.render(window, envRenderer.getCubeMapTexture().getID());
+		GPUProfiler.end();
+		GPUProfiler.start("EnvironmentMap");
+		envRendererEntities.renderEnvironmentMap(camera.getPosition(), skyboxRenderer, renderingManager,
+				worldSimulation, sun, shadowFBO, irradianceCapture.getCubeMapTexture(),
+				preFilteredEnvironment.getCubeMapTexture(), preFilteredEnvironment.getBRDFLUT(), window);
+		GPUProfiler.start("PreFilteredEnvironment");
+		preFilteredEnvironment.render(window, envRendererEntities.getCubeMapTexture().getID());
+		GPUProfiler.end();
 		GPUProfiler.end();
 		GPUProfiler.start("Occlusion");
 		frustum.calculateFrustum(camera);
@@ -291,62 +304,78 @@ public class Renderer {
 		renderingManager.end();
 	}
 
-	private static void cleanUp() {
-		if (enabled) {
-			enabled = false;
-			if (envRenderer != null)
-				TaskManager.tm.addTaskRenderThread(() -> envRenderer.cleanUp());
-			if (envRendererEntities != null)
-				TaskManager.tm.addTaskRenderThread(() -> envRendererEntities.cleanUp());
-			if (shadowFBO != null)
-				TaskManager.tm.addTaskRenderThread(() -> shadowFBO.dispose());
-			if (deferredPipeline != null)
-				TaskManager.tm.addTaskRenderThread(() -> deferredPipeline.dispose());
-			if (postProcessPipeline != null)
-				TaskManager.tm.addTaskRenderThread(() -> postProcessPipeline.dispose());
-			if (particleRenderer != null)
-				TaskManager.tm.addTaskRenderThread(() -> particleRenderer.cleanUp());
-			if (irradianceCapture != null)
-				TaskManager.tm.addTaskRenderThread(() -> irradianceCapture.dispose());
-			if (preFilteredEnvironment != null)
-				TaskManager.tm.addTaskRenderThread(() -> preFilteredEnvironment.dispose());
-			if (waterRenderer != null)
-				TaskManager.tm.addTaskRenderThread(() -> waterRenderer.dispose());
-			if (renderingManager != null)
-				TaskManager.tm.addTaskRenderThread(() -> renderingManager.dispose());
-			if (lightRenderer != null)
-				TaskManager.tm.addTaskRenderThread(() -> lightRenderer.dispose());
-			EventSubsystem.removeEvent("lightengine.renderer.resetshadowmap", shadowMap);
-			EventSubsystem.removeEvent("lightengine.renderer.resize", reload);
-		}
+	@Override
+	public void resize(int width, int height) {
+		deferredPipeline.resize();
+		postProcessPipeline.resize();
+		EventSubsystem.triggerEvent("lightengine.renderer.postresize");
+		gameWindow.setImageID(postProcessPipeline.getNVGImage());
 	}
 
-	private static int getNVGImage() {
-		return postProcessPipeline.getNVGImage();
+	@Override
+	public void dispose() {
+		if (!enabled)
+			return;
+		enabled = false;
+		gameWindow.closeWindow();
+		if (envRenderer != null)
+			TaskManager.tm.addTaskRenderThread(() -> envRenderer.cleanUp());
+		if (envRendererEntities != null)
+			TaskManager.tm.addTaskRenderThread(() -> envRendererEntities.cleanUp());
+		if (shadowFBO != null)
+			TaskManager.tm.addTaskRenderThread(() -> shadowFBO.dispose());
+		if (deferredPipeline != null)
+			TaskManager.tm.addTaskRenderThread(() -> deferredPipeline.dispose());
+		if (postProcessPipeline != null)
+			TaskManager.tm.addTaskRenderThread(() -> postProcessPipeline.dispose());
+		if (particleRenderer != null)
+			TaskManager.tm.addTaskRenderThread(() -> particleRenderer.cleanUp());
+		if (irradianceCapture != null)
+			TaskManager.tm.addTaskRenderThread(() -> irradianceCapture.dispose());
+		if (preFilteredEnvironment != null)
+			TaskManager.tm.addTaskRenderThread(() -> preFilteredEnvironment.dispose());
+		if (waterRenderer != null)
+			TaskManager.tm.addTaskRenderThread(() -> waterRenderer.dispose());
+		if (renderingManager != null)
+			TaskManager.tm.addTaskRenderThread(() -> renderingManager.dispose());
+		if (lightRenderer != null)
+			TaskManager.tm.addTaskRenderThread(() -> lightRenderer.dispose());
+		EventSubsystem.removeEvent("lightengine.renderer.resetshadowmap", shadowMap);
 	}
 
-	private static void setShadowPass(IRenderPass shadowPass) {
-		Renderer.shadowPass = shadowPass;
+	@Override
+	public void setShadowPass(IRenderPass shadowPass) {
+		this.shadowPass = shadowPass;
 	}
 
-	private static void setDeferredPass(IRenderPass deferredPass) {
-		Renderer.deferredPass = deferredPass;
+	@Override
+	public void setDeferredPass(IRenderPass deferredPass) {
+		this.deferredPass = deferredPass;
 	}
 
-	private static void setForwardPass(IRenderPass forwardPass) {
-		Renderer.forwardPass = forwardPass;
+	@Override
+	public void setForwardPass(IRenderPass forwardPass) {
+		this.forwardPass = forwardPass;
 	}
 
-	private static void setOcclusionPass(IRenderPass occlusionPass) {
-		Renderer.occlusionPass = occlusionPass;
+	@Override
+	public void setOcclusionPass(IRenderPass occlusionPass) {
+		this.occlusionPass = occlusionPass;
 	}
 
-	private static Frustum getFrustum() {
+	@Override
+	public Frustum getFrustum() {
 		return frustum;
 	}
 
-	private static LightRenderer getLightRenderer() {
+	@Override
+	public LightRenderer getLightRenderer() {
 		return lightRenderer;
+	}
+
+	@Override
+	public IWindow getWindow() {
+		return gameWindow;
 	}
 
 	public static void resetState() {
@@ -363,34 +392,6 @@ public class Renderer {
 
 	public static void clearBuffer(int values) {
 		glClear(values);
-	}
-
-	public static Matrix4f createProjectionMatrix(int width, int height, float fov, float nearPlane, float farPlane) {
-		return createProjectionMatrix(new Matrix4f(), width, height, fov, nearPlane, farPlane, false);
-	}
-
-	public static Matrix4f createProjectionMatrix(int width, int height, float fov, float nearPlane, float farPlane,
-			boolean zZeroToOne) {
-		return createProjectionMatrix(new Matrix4f(), width, height, fov, nearPlane, farPlane, zZeroToOne);
-	}
-
-	public static Matrix4f createProjectionMatrix(Matrix4f proj, int width, int height, float fov, float nearPlane,
-			float farPlane, boolean zZeroToOne) {
-		if (zZeroToOne && farPlane > 0 && Float.isInfinite(farPlane)) {
-			float y_scale = (float) (1f / Math.tan(Math.toRadians(fov / 2f)));
-			float x_scale = y_scale / ((float) width / (float) height);
-			proj.identity();
-			proj.m00(x_scale);
-			proj.m11(y_scale);
-			proj.m22(0);
-			proj.m23(-1);
-			proj.m32(nearPlane);
-			proj.m33(0);
-		} else {
-			proj.setPerspective((float) Math.toRadians(fov), (float) width / (float) height, nearPlane, farPlane,
-					zZeroToOne);
-		}
-		return proj;
 	}
 
 }

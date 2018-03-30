@@ -39,8 +39,6 @@ import net.luxvacuos.lightengine.client.rendering.nanovg.themes.Theme;
 import net.luxvacuos.lightengine.client.rendering.opengl.GPUProfiler;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem;
-import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
-import net.luxvacuos.lightengine.universal.util.IEvent;
 import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
 public class NanoWindowManager implements IWindowManager {
@@ -52,7 +50,6 @@ public class NanoWindowManager implements IWindowManager {
 	private IWindow focused;
 	private IShell shell;
 	private boolean compositorEnabled;
-	private IEvent resizeEvent;
 
 	public NanoWindowManager(Window win) {
 		this.window = win;
@@ -65,7 +62,6 @@ public class NanoWindowManager implements IWindowManager {
 		compositor = new Compositor(win, width, height);
 		REGISTRY.register(KeyCache.getKey("/Light Engine/Settings/WindowManager/shellHeight"), 0);
 		shell = new DummyShell();
-		resizeEvent = EventSubsystem.addEvent("lightengine.renderer.resize", () -> this.reloadCompositor());
 	}
 
 	@Override
@@ -191,7 +187,6 @@ public class NanoWindowManager implements IWindowManager {
 			window.dispose();
 		}
 		windows.clear();
-		EventSubsystem.removeEvent("lightengine.renderer.resize", resizeEvent);
 	}
 
 	public List<IWindow> getWindows() {
@@ -200,7 +195,7 @@ public class NanoWindowManager implements IWindowManager {
 
 	@Override
 	public void addWindow(IWindow window) {
-		TaskManager.tm.addTaskRenderThread(() -> {
+		TaskManager.tm.addTaskMainThread(() -> {
 			window.init(this.window);
 			window.update(0, this);
 			window.alwaysUpdate(0, this);
@@ -212,7 +207,7 @@ public class NanoWindowManager implements IWindowManager {
 
 	@Override
 	public void addWindow(int ord, IWindow window) {
-		TaskManager.tm.addTaskRenderThread(() -> {
+		TaskManager.tm.addTaskMainThread(() -> {
 			window.init(this.window);
 			window.update(0, this);
 			window.alwaysUpdate(0, this);
@@ -229,6 +224,8 @@ public class NanoWindowManager implements IWindowManager {
 
 	@Override
 	public void bringToFront(IWindow window) {
+		if (windows.size() <= 1)
+			return;
 		IWindow top = windows.get(windows.size() - 1);
 		if (top != window)
 			if (!top.isAlwaysOnTop() && !top.isHidden()) {
@@ -281,6 +278,17 @@ public class NanoWindowManager implements IWindowManager {
 	}
 
 	@Override
+	public void resize(int width, int height) {
+		this.width = width;
+		this.height = height;
+		notifyAllWindows(WindowMessage.WM_RESIZE, null);
+		if (compositorEnabled) {
+			compositor.dispose();
+			compositor = new Compositor(window, width, height);
+		}
+	}
+
+	@Override
 	public void closeAllWindows() {
 		notifyAllWindows(WindowMessage.WM_CLOSE, WindowClose.DISPOSE);
 	}
@@ -324,19 +332,6 @@ public class NanoWindowManager implements IWindowManager {
 	@Override
 	public IShell getShell() {
 		return shell;
-	}
-
-	@Override
-	public void reloadCompositor() {
-		width = (int) (window.getWidth() * window.getPixelRatio());
-		height = (int) (window.getHeight() * window.getPixelRatio());
-		notifyAllWindows(WindowMessage.WM_RESIZE, null);
-		if (compositorEnabled) {
-			TaskManager.tm.addTaskRenderThread(() -> {
-				compositor.dispose();
-				compositor = new Compositor(window, width, height);
-			});
-		}
 	}
 
 }

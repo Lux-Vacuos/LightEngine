@@ -68,7 +68,8 @@ public class ClientTaskManager extends TaskManager {
 			WindowManager.createWindow(handle, asyncWindow, true);
 			while (runBackgroundThread) {
 				if (!tasksRenderBackgroundThread.isEmpty()) {
-					tasksRenderBackgroundThread.poll().run();
+					while (!tasksRenderBackgroundThread.isEmpty())
+						tasksRenderBackgroundThread.poll().run();
 				} else {
 					try {
 						syncInterrupt = false;

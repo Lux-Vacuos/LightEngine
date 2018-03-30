@@ -173,7 +173,7 @@ public abstract class NanoWindow implements IWindow {
 			animationState = AnimationState.OPEN;
 		if (compositor) {
 			updateRenderSize();
-			fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
+			TaskManager.tm.addTaskRenderThread(() -> fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0));
 		}
 	}
 
@@ -290,7 +290,7 @@ public abstract class NanoWindow implements IWindow {
 	@Override
 	public void dispose() {
 		if (compositor)
-			nvgluDeleteFramebuffer(window.getNVGID(), fbo);
+			TaskManager.tm.addTaskRenderThread(() -> nvgluDeleteFramebuffer(window.getNVGID(), fbo));
 		disposeApp();
 	}
 
@@ -404,8 +404,13 @@ public abstract class NanoWindow implements IWindow {
 					});
 				}
 			} else {
-				if (compositor)
+				if (compositor) {
 					updateRenderSize();
+					TaskManager.tm.addTaskRenderThread(() -> {
+						nvgluDeleteFramebuffer(window.getNVGID(), fbo);
+						fbo = nvgluCreateFramebuffer(window.getNVGID(), fw, fh, 0);
+					});
+				}
 			}
 			break;
 		case WindowMessage.WM_EXTEND_FRAME:

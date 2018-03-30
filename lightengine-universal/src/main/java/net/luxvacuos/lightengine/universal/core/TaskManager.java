@@ -39,7 +39,8 @@ public class TaskManager {
 		backgroundThread = new Thread(() -> {
 			while (true) {
 				if (!tasksBackgroundThread.isEmpty()) {
-					tasksBackgroundThread.poll().run();
+					while (!tasksBackgroundThread.isEmpty())
+						tasksBackgroundThread.poll().run();
 				} else {
 					try {
 						syncInterrupt = false;

@@ -26,9 +26,9 @@ import static org.lwjgl.assimp.Assimp.aiLightSource_SPOT;
 import org.joml.Vector3f;
 import org.lwjgl.assimp.AILight;
 
+import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.ecs.entities.SpotlightCamera;
 import net.luxvacuos.lightengine.client.rendering.opengl.LightShadowMap;
-import net.luxvacuos.lightengine.client.rendering.opengl.Renderer;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.ecs.entities.LEEntity;
 
@@ -88,14 +88,14 @@ public class Light extends LEEntity {
 					shadowMapCreated = true;
 				});
 		}
-		Renderer.getLightRenderer().addLight(this);
+		GraphicalSubsystem.getRenderer().getLightRenderer().addLight(this);
 		super.init();
 	}
 
 	@Override
 	public void dispose() {
 		TaskManager.tm.addTaskRenderThread(() -> shadowMap.dispose());
-		Renderer.getLightRenderer().removeLight(this);
+		GraphicalSubsystem.getRenderer().getLightRenderer().removeLight(this);
 		super.dispose();
 	}
 

@@ -24,6 +24,7 @@ import static org.lwjgl.nanovg.NanoVG.nvgDeleteImage;
 
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.Theme;
+import net.luxvacuos.lightengine.universal.core.TaskManager;
 
 public class Image extends Component {
 
@@ -57,7 +58,7 @@ public class Image extends Component {
 	public void dispose(Window window) {
 		super.dispose(window);
 		if (deleteOnClose)
-			nvgDeleteImage(window.getNVGID(), image);
+			TaskManager.tm.addTaskRenderThread(() -> nvgDeleteImage(window.getNVGID(), image));
 	}
 
 	public void setImage(int image) {

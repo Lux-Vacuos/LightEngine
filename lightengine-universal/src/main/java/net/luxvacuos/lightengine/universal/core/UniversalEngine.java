@@ -35,7 +35,6 @@ public abstract class UniversalEngine implements IEngine, IDisposable {
 
 	public UniversalEngine() {
 		subsystems = new ArrayList<>();
-		TaskManager.tm.init();
 	}
 
 	@Override

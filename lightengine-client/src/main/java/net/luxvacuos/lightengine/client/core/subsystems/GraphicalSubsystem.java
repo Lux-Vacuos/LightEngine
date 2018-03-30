@@ -50,6 +50,7 @@ import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.client.core.ClientTaskManager;
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.core.states.SplashScreenState;
+import net.luxvacuos.lightengine.client.rendering.IRenderer;
 import net.luxvacuos.lightengine.client.rendering.glfw.Icon;
 import net.luxvacuos.lightengine.client.rendering.glfw.PixelBufferHandle;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
@@ -60,6 +61,7 @@ import net.luxvacuos.lightengine.client.rendering.nanovg.NanoWindowManager;
 import net.luxvacuos.lightengine.client.rendering.nanovg.Timers;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.NanoTheme;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.ThemeManager;
+import net.luxvacuos.lightengine.client.rendering.opengl.GLRenderer;
 import net.luxvacuos.lightengine.client.rendering.opengl.Renderer;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CachedAssets;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.DefaultData;
@@ -78,9 +80,12 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 	private static Window window;
 	private static WindowHandle handle;
 	private static long renderThreadID;
+	private static IRenderer renderer;
 
 	private static Font robotoRegular, robotoBold, poppinsRegular, poppinsLight, poppinsMedium, poppinsBold,
 			poppinsSemiBold, entypo;
+
+	private static boolean resized;
 
 	@Override
 	public void init() {
@@ -139,6 +144,7 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 		TaskManager.tm.addTaskBackgroundThread(() -> ShaderIncludes.processIncludeFile("materials.isl"));
 		TaskManager.tm.addTaskBackgroundThread(() -> ShaderIncludes.processIncludeFile("global.isl"));
 		TaskManager.tm.addTaskBackgroundThread(() -> DefaultData.init(loader));
+		TaskManager.tm.addTaskBackgroundThread(() -> renderer = new GLRenderer());
 		StateMachine.registerState(new SplashScreenState());
 		TaskManager.tm.addTaskMainThread(() -> window.setVisible(true));
 	}
@@ -160,24 +166,30 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 				REGISTRY.register(new Key("/Light Engine/Display/width"), window.getWidth());
 				REGISTRY.register(new Key("/Light Engine/Display/height"), window.getHeight());
 				EventSubsystem.triggerEvent("lightengine.renderer.resize");
+				resized = true;
 			}
-			GraphicalSubsystem.getWindowManager().update(delta);
+			windowManager.update(delta);
 		}
 	}
 
 	@Override
 	public void render(float delta) {
 		if (!window.isIconified()) {
+			if (resized) {
+				resized = false;
+				window.resetViewport();
+				renderer.resize(window.getWidth(), window.getHeight());
+				windowManager.resize(window.getWidth(), window.getHeight());
+			}
 			Renderer.clearColors(0, 0, 0, 1);
 			Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			GraphicalSubsystem.getWindowManager().render(delta);
+			windowManager.render(delta);
 		}
 		CachedAssets.update(delta);
 	}
 
 	@Override
 	public void disposeRender() {
-		((ClientTaskManager) TaskManager.tm).stopRenderBackgroundThread();
 		robotoRegular.dispose();
 		robotoBold.dispose();
 		poppinsRegular.dispose();
@@ -187,8 +199,9 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 		poppinsSemiBold.dispose();
 		entypo.dispose();
 		DefaultData.dispose();
-		Renderer.cleanUp();
+		renderer.dispose();
 		CachedAssets.dispose();
+		((ClientTaskManager) TaskManager.tm).stopRenderBackgroundThread();
 		windowManager.dispose();
 		window.dispose();
 	}
@@ -212,6 +225,10 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 
 	public static Window getMainWindow() {
 		return window;
+	}
+	
+	public static IRenderer getRenderer() {
+		return renderer;
 	}
 
 	public static long getRenderThreadID() {
