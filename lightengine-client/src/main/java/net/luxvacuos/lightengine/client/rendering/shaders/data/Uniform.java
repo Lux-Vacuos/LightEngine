@@ -18,12 +18,30 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.nanovg.compositor;
+package net.luxvacuos.lightengine.client.rendering.shaders.data;
 
-public class Final extends CompositorEffect {
+import net.luxvacuos.lightengine.client.rendering.GL;
 
-	public Final(int width, int height) {
-		super(width, height, "Final");
+public abstract class Uniform implements IUniform {
+
+	protected String name;
+	private int location;
+
+	protected Uniform(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public void storeUniformLocation(int programID) {
+		location = GL.glGetUniformLocation(programID, name);
+	}
+
+	@Override
+	public void dispose() {
+	}
+
+	protected int getLocation() {
+		return location;
 	}
 
 }

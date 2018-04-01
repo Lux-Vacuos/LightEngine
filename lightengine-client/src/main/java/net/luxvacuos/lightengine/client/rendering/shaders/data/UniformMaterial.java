@@ -18,12 +18,9 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.opengl.shaders.data;
+package net.luxvacuos.lightengine.client.rendering.shaders.data;
 
-import static org.lwjgl.opengl.GL20.glUniform1f;
-import static org.lwjgl.opengl.GL20.glUniform1i;
-import static org.lwjgl.opengl.GL20.glUniform4f;
-
+import net.luxvacuos.lightengine.client.rendering.GL;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Material;
 
 public class UniformMaterial extends UniformArray {
@@ -38,16 +35,16 @@ public class UniformMaterial extends UniformArray {
 
 	public void loadMaterial(Material value) {
 		if (!used || !currentValue.equals(value)) {
-			glUniform4f(super.getLocation()[0], value.getDiffuse().x(), value.getDiffuse().y(), value.getDiffuse().z(),
-					value.getDiffuse().w());
-			glUniform4f(super.getLocation()[1], value.getEmissive().x(), value.getEmissive().y(),
+			GL.glUniform4f(super.getLocation()[0], value.getDiffuse().x(), value.getDiffuse().y(),
+					value.getDiffuse().z(), value.getDiffuse().w());
+			GL.glUniform4f(super.getLocation()[1], value.getEmissive().x(), value.getEmissive().y(),
 					value.getEmissive().z(), value.getEmissive().w());
-			glUniform1f(super.getLocation()[2], value.getRoughness());
-			glUniform1f(super.getLocation()[3], value.getMetallic());
-			glUniform1i(super.getLocation()[4], 0);
-			glUniform1i(super.getLocation()[5], 1);
-			glUniform1i(super.getLocation()[6], 2);
-			glUniform1i(super.getLocation()[7], 3);
+			GL.glUniform1f(super.getLocation()[2], value.getRoughness());
+			GL.glUniform1f(super.getLocation()[3], value.getMetallic());
+			GL.glUniform1i(super.getLocation()[4], 0);
+			GL.glUniform1i(super.getLocation()[5], 1);
+			GL.glUniform1i(super.getLocation()[6], 2);
+			GL.glUniform1i(super.getLocation()[7], 3);
 			used = true;
 			currentValue = value;
 		}

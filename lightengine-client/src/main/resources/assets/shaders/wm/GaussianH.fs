@@ -18,8 +18,6 @@
 //
 //
 
-#version 330 core
-
 in vec2 textureCoords;
 in vec2 blurTexCoords[17];
 
@@ -31,7 +29,7 @@ uniform sampler2D window;
 void main() {
 	vec4 result = vec4(0.0);
 	vec4 mask = texture(image, textureCoords);
-	if (mask.a == 0) {
+	if (mask.a == 0.0) {
 		result.rgb += texture(image, blurTexCoords[0]).rgb * 0.024418;
 		result.rgb += texture(image, blurTexCoords[1]).rgb * 0.032928;
 		result.rgb += texture(image, blurTexCoords[2]).rgb * 0.042669;
@@ -50,9 +48,9 @@ void main() {
 		result.rgb += texture(image, blurTexCoords[15]).rgb * 0.032928;
 		result.rgb += texture(image, blurTexCoords[16]).rgb * 0.024418;
 		out_Color.rgb = result.rgb;
-		out_Color.a = 0;
+		out_Color.a = 0.0;
 	} else {
 		out_Color = mask;
-		out_Color.a = 1;
+		out_Color.a = 1.0;
 	}
 }

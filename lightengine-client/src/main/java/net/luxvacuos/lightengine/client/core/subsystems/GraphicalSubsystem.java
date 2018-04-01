@@ -25,47 +25,36 @@ import static org.lwjgl.assimp.Assimp.aiGetVersionMajor;
 import static org.lwjgl.assimp.Assimp.aiGetVersionMinor;
 import static org.lwjgl.assimp.Assimp.aiGetVersionRevision;
 import static org.lwjgl.glfw.GLFW.glfwInit;
-import static org.lwjgl.opengl.GL11.GL_BACK;
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
-import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
-import static org.lwjgl.opengl.GL11.GL_RENDERER;
-import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
-import static org.lwjgl.opengl.GL11.GL_VENDOR;
-import static org.lwjgl.opengl.GL11.GL_VERSION;
-import static org.lwjgl.opengl.GL11.glBlendFunc;
-import static org.lwjgl.opengl.GL11.glCullFace;
-import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL11.glGetString;
-import static org.lwjgl.opengl.GL20.GL_SHADING_LANGUAGE_VERSION;
-import static org.lwjgl.opengl.GL32.GL_TEXTURE_CUBE_MAP_SEAMLESS;
 
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengles.GLES20;
 
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.client.core.ClientTaskManager;
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.core.states.SplashScreenState;
+import net.luxvacuos.lightengine.client.rendering.GL;
 import net.luxvacuos.lightengine.client.rendering.IRenderer;
 import net.luxvacuos.lightengine.client.rendering.glfw.Icon;
 import net.luxvacuos.lightengine.client.rendering.glfw.PixelBufferHandle;
+import net.luxvacuos.lightengine.client.rendering.glfw.RenderingAPI;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.glfw.WindowHandle;
 import net.luxvacuos.lightengine.client.rendering.glfw.WindowManager;
 import net.luxvacuos.lightengine.client.rendering.nanovg.IWindowManager;
+import net.luxvacuos.lightengine.client.rendering.nanovg.NVGFramebuffers;
 import net.luxvacuos.lightengine.client.rendering.nanovg.NanoWindowManager;
 import net.luxvacuos.lightengine.client.rendering.nanovg.Timers;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.NanoTheme;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.ThemeManager;
 import net.luxvacuos.lightengine.client.rendering.opengl.GLRenderer;
-import net.luxvacuos.lightengine.client.rendering.opengl.Renderer;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CachedAssets;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.DefaultData;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.ShaderIncludes;
+import net.luxvacuos.lightengine.client.rendering.opengles.GLESRenderer;
 import net.luxvacuos.lightengine.client.ui.Font;
 import net.luxvacuos.lightengine.universal.core.GlobalVariables;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
@@ -81,6 +70,7 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 	private static WindowHandle handle;
 	private static long renderThreadID;
 	private static IRenderer renderer;
+	private static RenderingAPI api;
 
 	private static Font robotoRegular, robotoBold, poppinsRegular, poppinsLight, poppinsMedium, poppinsBold,
 			poppinsSemiBold, entypo;
@@ -91,6 +81,11 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 	public void init() {
 		REGISTRY.register(new Key("/Light Engine/Display/width"), ClientVariables.WIDTH);
 		REGISTRY.register(new Key("/Light Engine/Display/height"), ClientVariables.HEIGHT);
+		if (ClientVariables.GLES)
+			api = RenderingAPI.GLES;
+		else
+			api = RenderingAPI.GL;
+
 		GLFW.glfwSetErrorCallback(GLFWErrorCallback.createPrint(System.err));
 		if (!glfwInit())
 			throw new IllegalStateException("Unable to initialize GLFW");
@@ -108,20 +103,37 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 	public void initRender() {
 		WindowManager.createWindow(handle, window,
 				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/vsync")));
+		NVGFramebuffers.init(api);
+		GL.init(api);
 
-		((ClientTaskManager) TaskManager.tm).switchToSharedContext(); // GL Context available, switch to shared context
-
-		initGL();
+		((ClientTaskManager) TaskManager.tm).switchToSharedContext(); // GL/GLES Context available, switch to shared
+																		// context
 
 		REGISTRY.register(new Key("/Light Engine/System/lwjgl"), Version.getVersion());
 		REGISTRY.register(new Key("/Light Engine/System/glfw"), GLFW.glfwGetVersionString());
-		REGISTRY.register(new Key("/Light Engine/System/opengl"), glGetString(GL_VERSION));
-		REGISTRY.register(new Key("/Light Engine/System/glsl"), glGetString(GL_SHADING_LANGUAGE_VERSION));
-		REGISTRY.register(new Key("/Light Engine/System/vendor"), glGetString(GL_VENDOR));
-		REGISTRY.register(new Key("/Light Engine/System/renderer"), glGetString(GL_RENDERER));
 		REGISTRY.register(new Key("/Light Engine/System/assimp"),
 				aiGetVersionMajor() + "." + aiGetVersionMinor() + "." + aiGetVersionRevision());
 		REGISTRY.register(new Key("/Light Engine/System/vk"), "Not Available");
+
+		switch (api) {
+		case GL:
+			REGISTRY.register(new Key("/Light Engine/System/opengl"), GL11.glGetString(GL11.GL_VERSION));
+			REGISTRY.register(new Key("/Light Engine/System/glsl"), GL11.glGetString(GL20.GL_SHADING_LANGUAGE_VERSION));
+			REGISTRY.register(new Key("/Light Engine/System/vendor"), GL11.glGetString(GL11.GL_VENDOR));
+			REGISTRY.register(new Key("/Light Engine/System/renderer"), GL11.glGetString(GL11.GL_RENDERER));
+			TaskManager.tm.addTaskRenderThread(() -> renderer = new GLRenderer());
+			break;
+		case GLES:
+			REGISTRY.register(new Key("/Light Engine/System/opengl"), GLES20.glGetString(GLES20.GL_VERSION));
+			REGISTRY.register(new Key("/Light Engine/System/glsl"),
+					GLES20.glGetString(GLES20.GL_SHADING_LANGUAGE_VERSION));
+			REGISTRY.register(new Key("/Light Engine/System/vendor"), GLES20.glGetString(GLES20.GL_VENDOR));
+			REGISTRY.register(new Key("/Light Engine/System/renderer"), GLES20.glGetString(GLES20.GL_RENDERER));
+			TaskManager.tm.addTaskRenderThread(() -> renderer = new GLESRenderer());
+			break;
+		default:
+			break;
+		}
 
 		ThemeManager.addTheme(new NanoTheme());
 		ThemeManager.setTheme((String) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/theme")));
@@ -143,19 +155,9 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 		TaskManager.tm.addTaskBackgroundThread(() -> ShaderIncludes.processIncludeFile("lighting.isl"));
 		TaskManager.tm.addTaskBackgroundThread(() -> ShaderIncludes.processIncludeFile("materials.isl"));
 		TaskManager.tm.addTaskBackgroundThread(() -> ShaderIncludes.processIncludeFile("global.isl"));
-		TaskManager.tm.addTaskBackgroundThread(() -> DefaultData.init(loader));
-		TaskManager.tm.addTaskBackgroundThread(() -> renderer = new GLRenderer());
+		// TaskManager.tm.addTaskBackgroundThread(() -> DefaultData.init(loader));
 		StateMachine.registerState(new SplashScreenState());
 		TaskManager.tm.addTaskMainThread(() -> window.setVisible(true));
-	}
-
-	private void initGL() {
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-
 	}
 
 	@Override
@@ -181,8 +183,8 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 				renderer.resize(window.getWidth(), window.getHeight());
 				windowManager.resize(window.getWidth(), window.getHeight());
 			}
-			Renderer.clearColors(0, 0, 0, 1);
-			Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			GL.glClearColor(0, 0, 0, 1);
+			GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 			windowManager.render(delta);
 		}
 		CachedAssets.update(delta);
@@ -198,7 +200,7 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 		poppinsBold.dispose();
 		poppinsSemiBold.dispose();
 		entypo.dispose();
-		DefaultData.dispose();
+		// DefaultData.dispose();
 		renderer.dispose();
 		CachedAssets.dispose();
 		((ClientTaskManager) TaskManager.tm).stopRenderBackgroundThread();
@@ -226,9 +228,13 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 	public static Window getMainWindow() {
 		return window;
 	}
-	
+
 	public static IRenderer getRenderer() {
 		return renderer;
+	}
+
+	public static RenderingAPI getAPI() {
+		return api;
 	}
 
 	public static long getRenderThreadID() {

@@ -18,8 +18,6 @@
 //
 //
 
-#version 330 core
-
 in vec2 textureCoords;
 
 out vec4 out_Color;
@@ -31,8 +29,8 @@ uniform vec4 frame;
 
 void main() {
 	out_Color = texture(image, textureCoords);
-	out_Color.a = 1;
+	out_Color.a = 1.0;
 	if (blurBehind == 1)
-		if (texture(window, textureCoords).a > 0)
-			out_Color.a = 0;
+		if (texture(window, textureCoords).a > 0.0)
+			out_Color.a = 0.0;
 }

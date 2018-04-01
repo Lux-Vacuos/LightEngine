@@ -28,15 +28,16 @@ import org.joml.Vector3f;
 
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Light;
-import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.Attribute;
-import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformBoolean;
-import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformFloat;
-import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformInteger;
-import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformLight;
-import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformMatrix;
-import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformSampler;
-import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformVec2;
-import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformVec3;
+import net.luxvacuos.lightengine.client.rendering.shaders.ShaderProgram;
+import net.luxvacuos.lightengine.client.rendering.shaders.data.Attribute;
+import net.luxvacuos.lightengine.client.rendering.shaders.data.UniformBoolean;
+import net.luxvacuos.lightengine.client.rendering.shaders.data.UniformFloat;
+import net.luxvacuos.lightengine.client.rendering.shaders.data.UniformInteger;
+import net.luxvacuos.lightengine.client.rendering.shaders.data.UniformLight;
+import net.luxvacuos.lightengine.client.rendering.shaders.data.UniformMatrix;
+import net.luxvacuos.lightengine.client.rendering.shaders.data.UniformSampler;
+import net.luxvacuos.lightengine.client.rendering.shaders.data.UniformVec2;
+import net.luxvacuos.lightengine.client.rendering.shaders.data.UniformVec3;
 
 /**
  * Post Processing Shader

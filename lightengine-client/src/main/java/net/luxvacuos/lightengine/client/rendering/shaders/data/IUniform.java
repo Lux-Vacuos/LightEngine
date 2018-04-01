@@ -18,12 +18,12 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.nanovg.compositor;
+package net.luxvacuos.lightengine.client.rendering.shaders.data;
 
-public class GaussianH extends CompositorEffect {
+import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
-	public GaussianH(int width, int height) {
-		super(width, height, "GaussianH");
-	}
+public interface IUniform extends IDisposable {
 
+	public void storeUniformLocation(int programID);
+	
 }

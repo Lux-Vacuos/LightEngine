@@ -36,8 +36,6 @@ import static org.lwjgl.glfw.GLFW.glfwShowWindow;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 import static org.lwjgl.nanovg.NanoVG.nvgBeginFrame;
 import static org.lwjgl.nanovg.NanoVG.nvgEndFrame;
-import static org.lwjgl.nanovg.NanoVGGL3.nvgDelete;
-import static org.lwjgl.opengl.GL11.glViewport;
 
 import org.lwjgl.glfw.Callbacks;
 import org.lwjgl.glfw.GLFW;
@@ -49,7 +47,12 @@ import org.lwjgl.glfw.GLFWWindowMaximizeCallback;
 import org.lwjgl.glfw.GLFWWindowPosCallback;
 import org.lwjgl.glfw.GLFWWindowRefreshCallback;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
+import org.lwjgl.nanovg.NanoVGGL3;
+import org.lwjgl.nanovg.NanoVGGLES3;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLCapabilities;
+import org.lwjgl.opengles.GLES20;
+import org.lwjgl.opengles.GLESCapabilities;
 
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
 import net.luxvacuos.lightengine.client.input.MouseHandler;
@@ -66,7 +69,9 @@ public abstract class AbstractWindow implements IWindow {
 	protected DisplayUtils displayUtils;
 
 	protected GLCapabilities capabilities;
+	protected GLESCapabilities glesCapabilities;
 
+	protected RenderingAPI api;
 	protected boolean created = false;
 	protected boolean dirty = false;
 
@@ -201,11 +206,29 @@ public abstract class AbstractWindow implements IWindow {
 	}
 
 	public void resetViewport() {
-		glViewport(0, 0, width, height);
+		switch (api) {
+		case GL:
+			GL11.glViewport(0, 0, width, height);
+			break;
+		case GLES:
+			GLES20.glViewport(0, 0, width, height);
+			break;
+		default:
+			break;
+		}
 	}
 
 	public void setViewport(int x, int y, int width, int height) {
-		glViewport(0, 0, width, height);
+		switch (api) {
+		case GL:
+			GL11.glViewport(x, y, width, height);
+			break;
+		case GLES:
+			GLES20.glViewport(x, y, width, height);
+			break;
+		default:
+			break;
+		}
 	}
 
 	public void setOnRefresh(OnRefresh onRefresh) {
@@ -288,7 +311,7 @@ public abstract class AbstractWindow implements IWindow {
 	public long getNVGID() {
 		return this.nvgID;
 	}
-
+	
 	public ResourceLoader getResourceLoader() {
 		if (this.resourceLoader == null)
 			this.resourceLoader = new ResourceLoader(this.windowID, this.nvgID);
@@ -329,6 +352,10 @@ public abstract class AbstractWindow implements IWindow {
 		return this.capabilities;
 	}
 
+	public GLESCapabilities getGLESCapabilities() {
+		return glesCapabilities;
+	}
+
 	@Override
 	public void beingNVGFrame() {
 		nvgBeginFrame(this.nvgID, this.width, this.height, this.pixelRatio);
@@ -350,7 +377,16 @@ public abstract class AbstractWindow implements IWindow {
 
 	@Override
 	public void dispose() {
-		nvgDelete(this.nvgID);
+		switch (this.api) {
+		case GL:
+			NanoVGGL3.nvgDelete(this.nvgID);
+			break;
+		case GLES:
+			NanoVGGLES3.nvgDelete(this.nvgID);
+			break;
+		default:
+			break;
+		}
 		if (resourceLoader != null)
 			resourceLoader.dispose();
 	}

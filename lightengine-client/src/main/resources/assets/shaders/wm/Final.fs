@@ -18,8 +18,6 @@
 //
 //
 
-#version 330 core
-
 in vec2 textureCoords;
 
 out vec4 out_Color;
@@ -68,8 +66,8 @@ void main() {
 	vec4 source = texture(image, textureCoords);
 	vec4 window = texture(window, textureCoords);
 	if (blurBehind == 1)
-		if (window.a > 0)
+		if (window.a > 0.0)
 			source.rgb *= 1.0 - vec3(noise((gl_FragCoord.xy + windowPosition.xy * 0.10))) * 0.10;
 	out_Color.rgb = mix(source.rgb, window.rgb, window.a);
-	out_Color.a = 1;
+	out_Color.a = 1.0;
 }

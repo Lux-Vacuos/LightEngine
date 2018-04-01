@@ -30,6 +30,7 @@ import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLE_STRIP;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
 import static org.lwjgl.opengl.GL11.glBindTexture;
+import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glDrawArrays;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE6;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
@@ -75,7 +76,7 @@ public abstract class PostProcessPipeline implements IPostProcessPipeline {
 		float[] positions = { -1, 1, -1, -1, 1, 1, 1, -1 };
 		if (quad == null)
 			quad = window.getResourceLoader().loadToVAO(positions, 2);
-		
+
 		fbo = new FBO(width, height, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE, true);
 
 		previousCameraPosition = new Vector3f();
@@ -110,7 +111,7 @@ public abstract class PostProcessPipeline implements IPostProcessPipeline {
 			deferredPass.process(camera, previousViewMatrix, previousCameraPosition, auxs, quad);
 		}
 		fbo.begin();
-		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		finalShader.start();
 		glActiveTexture(GL_TEXTURE6);
 		glBindTexture(GL_TEXTURE_2D, auxs[0].getTexture());
@@ -122,7 +123,7 @@ public abstract class PostProcessPipeline implements IPostProcessPipeline {
 		previousViewMatrix = Maths.createViewMatrix(camera);
 		previousCameraPosition.set(camera.getPosition());
 	}
-	
+
 	@Override
 	public void resize() {
 		width = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"));

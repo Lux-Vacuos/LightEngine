@@ -18,22 +18,22 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.opengl.shaders.data;
+package net.luxvacuos.lightengine.client.rendering.shaders.data;
 
-import static org.lwjgl.opengl.GL20.*;
+import net.luxvacuos.lightengine.client.rendering.GL;
 
-public class UniformInteger extends Uniform {
+public class UniformFloat extends Uniform {
 
-	private int currentValue;
+	private float currentValue;
 	private boolean used = false;
 
-	public UniformInteger(String name) {
+	public UniformFloat(String name) {
 		super(name);
 	}
 
-	public void loadInteger(int value) {
+	public void loadFloat(float value) {
 		if (!used || currentValue != value) {
-			glUniform1i(super.getLocation(), value);
+			GL.glUniform1f(super.getLocation(), value);
 			used = true;
 			currentValue = value;
 		}

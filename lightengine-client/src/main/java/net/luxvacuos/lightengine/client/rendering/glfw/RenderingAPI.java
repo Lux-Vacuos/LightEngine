@@ -18,33 +18,8 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.opengl.shaders.data;
+package net.luxvacuos.lightengine.client.rendering.glfw;
 
-import static org.lwjgl.opengl.GL20.glGetUniformLocation;
-
-public class UniformArray implements IUniform {
-
-	protected String[] names;
-	private int[] location;
-
-	protected UniformArray(String... names) {
-		this.names = names;
-		location = new int[names.length];
-	}
-
-	@Override
-	public void storeUniformLocation(int programID) {
-		for (int x = 0; x < names.length; x++) {
-			location[x] = glGetUniformLocation(programID, names[x]);
-		}
-	}
-	
-	protected int[] getLocation() {
-		return location;
-	}
-	
-	@Override
-	public void dispose() {
-	}
-
+public enum RenderingAPI {
+	GL, GLES;
 }

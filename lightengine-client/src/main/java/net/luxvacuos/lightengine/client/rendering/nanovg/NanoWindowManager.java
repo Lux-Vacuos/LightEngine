@@ -31,10 +31,12 @@ import java.util.List;
 import org.lwjgl.glfw.GLFW;
 
 import net.luxvacuos.lightengine.client.core.ClientVariables;
+import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
-import net.luxvacuos.lightengine.client.rendering.glfw.WindowManager;
 import net.luxvacuos.lightengine.client.rendering.nanovg.IWindow.WindowClose;
-import net.luxvacuos.lightengine.client.rendering.nanovg.compositor.Compositor;
+import net.luxvacuos.lightengine.client.rendering.nanovg.compositor.GLCompositor;
+import net.luxvacuos.lightengine.client.rendering.nanovg.compositor.GLESCompositor;
+import net.luxvacuos.lightengine.client.rendering.nanovg.compositor.ICompositor;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.Theme;
 import net.luxvacuos.lightengine.client.rendering.opengl.GPUProfiler;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
@@ -45,7 +47,7 @@ public class NanoWindowManager implements IWindowManager {
 
 	private List<IWindow> windows;
 	private Window window;
-	private Compositor compositor;
+	private ICompositor compositor;
 	private int width, height;
 	private IWindow focused;
 	private IShell shell;
@@ -58,8 +60,18 @@ public class NanoWindowManager implements IWindowManager {
 		windows = new ArrayList<>();
 		width = win.getWidth();
 		height = win.getHeight();
-
-		compositor = new Compositor(win, width, height);
+		if (compositorEnabled) {
+			switch (GraphicalSubsystem.getAPI()) {
+			case GL:
+				compositor = new GLCompositor(win, width, height);
+				break;
+			case GLES:
+				compositor = new GLESCompositor(win, width, height);
+				break;
+			default:
+				break;
+			}
+		}
 		REGISTRY.register(KeyCache.getKey("/Light Engine/Settings/WindowManager/shellHeight"), 0);
 		shell = new DummyShell();
 	}
@@ -88,10 +100,8 @@ public class NanoWindowManager implements IWindowManager {
 				Theme.renderText(window.getNVGID(), "Light Engine " + " (" + ClientVariables.version + ")",
 						"Roboto-Bold", NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 12, 20,
 						Theme.rgba(220, 220, 220, 255, Theme.colorA));
-				Theme.renderText(window.getNVGID(),
-						"Used VRam: " + WindowManager.getUsedVRAM() + "KB " + " UPS: " + CoreSubsystem.ups,
-						"Roboto-Bold", NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 95, 20,
-						Theme.rgba(220, 220, 220, 255, Theme.colorA));
+				Theme.renderText(window.getNVGID(), "UPS: " + CoreSubsystem.ups, "Roboto-Bold",
+						NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 95, 20, Theme.rgba(220, 220, 220, 255, Theme.colorA));
 				Theme.renderText(window.getNVGID(), "Used RAM: " + Runtime.getRuntime().totalMemory() / 1024 + "MB ",
 						"Roboto-Bold", NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 110, 20,
 						Theme.rgba(220, 220, 220, 255, Theme.colorA));
@@ -115,10 +125,8 @@ public class NanoWindowManager implements IWindowManager {
 				Theme.renderText(window.getNVGID(), "Light Engine " + " (" + ClientVariables.version + ")",
 						"Roboto-Bold", NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 12, 20,
 						Theme.rgba(220, 220, 220, 255, Theme.colorA));
-				Theme.renderText(window.getNVGID(),
-						"Used VRam: " + WindowManager.getUsedVRAM() + "KB " + " UPS: " + CoreSubsystem.ups,
-						"Roboto-Bold", NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 95, 20,
-						Theme.rgba(220, 220, 220, 255, Theme.colorA));
+				Theme.renderText(window.getNVGID(), "UPS: " + CoreSubsystem.ups, "Roboto-Bold",
+						NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 95, 20, Theme.rgba(220, 220, 220, 255, Theme.colorA));
 				Theme.renderText(window.getNVGID(), "Used RAM: " + Runtime.getRuntime().totalMemory() / 1024 + "MB ",
 						"Roboto-Bold", NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE, 5, 110, 20,
 						Theme.rgba(220, 220, 220, 255, Theme.colorA));
@@ -260,7 +268,16 @@ public class NanoWindowManager implements IWindowManager {
 		if (compositorEnabled)
 			return;
 		TaskManager.tm.addTaskRenderThread(() -> {
-			compositor = new Compositor(window, width, height);
+			switch (GraphicalSubsystem.getAPI()) {
+			case GL:
+				compositor = new GLCompositor(window, width, height);
+				break;
+			case GLES:
+				compositor = new GLESCompositor(window, width, height);
+				break;
+			default:
+				break;
+			}
 			compositorEnabled = true;
 			REGISTRY.register(KeyCache.getKey("/Light Engine/Settings/WindowManager/compositor"), compositorEnabled);
 		});
@@ -284,7 +301,16 @@ public class NanoWindowManager implements IWindowManager {
 		notifyAllWindows(WindowMessage.WM_RESIZE, null);
 		if (compositorEnabled) {
 			compositor.dispose();
-			compositor = new Compositor(window, width, height);
+			switch (GraphicalSubsystem.getAPI()) {
+			case GL:
+				compositor = new GLCompositor(window, width, height);
+				break;
+			case GLES:
+				compositor = new GLESCompositor(window, width, height);
+				break;
+			default:
+				break;
+			}
 		}
 	}
 

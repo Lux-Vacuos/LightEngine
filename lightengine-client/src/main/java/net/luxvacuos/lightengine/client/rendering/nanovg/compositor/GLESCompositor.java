@@ -20,21 +20,23 @@
 
 package net.luxvacuos.lightengine.client.rendering.nanovg.compositor;
 
-import static org.lwjgl.nanovg.NanoVGGL3.nvgluBindFramebuffer;
-import static org.lwjgl.nanovg.NanoVGGL3.nvgluCreateFramebuffer;
-import static org.lwjgl.nanovg.NanoVGGL3.nvgluDeleteFramebuffer;
-import static org.lwjgl.opengl.GL11.GL_BLEND;
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLE_STRIP;
-import static org.lwjgl.opengl.GL11.glBindTexture;
-import static org.lwjgl.opengl.GL11.glDisable;
-import static org.lwjgl.opengl.GL11.glDrawArrays;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
-import static org.lwjgl.opengl.GL13.glActiveTexture;
-import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
+import static org.lwjgl.nanovg.NanoVGGLES3.nvgluBindFramebuffer;
+import static org.lwjgl.nanovg.NanoVGGLES3.nvgluCreateFramebuffer;
+import static org.lwjgl.nanovg.NanoVGGLES3.nvgluDeleteFramebuffer;
+import static org.lwjgl.opengles.GLES20.GL_BLEND;
+import static org.lwjgl.opengles.GLES20.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengles.GLES20.GL_TEXTURE0;
+import static org.lwjgl.opengles.GLES20.GL_TEXTURE_2D;
+import static org.lwjgl.opengles.GLES20.GL_TRIANGLE_STRIP;
+import static org.lwjgl.opengles.GLES20.glActiveTexture;
+import static org.lwjgl.opengles.GLES20.glBindTexture;
+import static org.lwjgl.opengles.GLES20.glClear;
+import static org.lwjgl.opengles.GLES20.glClearColor;
+import static org.lwjgl.opengles.GLES20.glDisable;
+import static org.lwjgl.opengles.GLES20.glDisableVertexAttribArray;
+import static org.lwjgl.opengles.GLES20.glDrawArrays;
+import static org.lwjgl.opengles.GLES20.glEnableVertexAttribArray;
+import static org.lwjgl.opengles.GLES30.glBindVertexArray;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,7 +58,7 @@ import net.luxvacuos.lightengine.client.rendering.opengl.Renderer;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.client.util.Maths;
 
-public class Compositor {
+public class GLESCompositor implements ICompositor {
 
 	private static RawModel quad, quadFull;
 	private CameraEntity camera;
@@ -65,10 +67,10 @@ public class Compositor {
 
 	private Window3DShader shader;
 	private Window window;
-	private List<CompositorEffect> effects = new ArrayList<>();
+	private List<GLESCompositorEffect> effects = new ArrayList<>();
 	private Map<IWindow, AnimationData> animationData = new HashMap<>();
 
-	public Compositor(Window window, int width, int height) {
+	public GLESCompositor(Window window, int width, int height) {
 		this.window = window;
 		fbos = new NVGLUFramebuffer[2];
 		fbos[0] = nvgluCreateFramebuffer(window.getNVGID(), width, height, 0);
@@ -92,12 +94,13 @@ public class Compositor {
 		 */
 		camera.setProjectionMatrix(
 				Renderer.createProjectionMatrix(this.window.getWidth(), this.window.getHeight(), 45, 0.1f, 1000f));
-		effects.add(new MaskBlur(width, height));
-		effects.add(new GaussianV(width / 2, height / 2));
-		effects.add(new GaussianH(width / 2, height / 2));
-		effects.add(new Final(width, height));
+		effects.add(new GLESCompositorEffect(width, height, "MaskBlur"));
+		effects.add(new GLESCompositorEffect(width / 2, height / 2, "GaussianV"));
+		effects.add(new GLESCompositorEffect(width / 2, height / 2, "GaussianH"));
+		effects.add(new GLESCompositorEffect(width, height, "Final"));
 	}
 
+	@Override
 	public void render(List<IWindow> windows, float delta) {
 		camera.setProjectionMatrix(
 				Renderer.createProjectionMatrix(this.window.getWidth(), this.window.getHeight(), 45, 0.1f, 1000f));
@@ -105,8 +108,8 @@ public class Compositor {
 		GPUProfiler.start("Compositing");
 		glDisable(GL_BLEND);
 		nvgluBindFramebuffer(this.window.getNVGID(), fbos[0]);
-		Renderer.clearColors(0f, 0f, 0f, 0);
-		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT);
+		glClearColor(0, 0, 0, 0);
+		glClear(GL_COLOR_BUFFER_BIT);
 		nvgluBindFramebuffer(this.window.getNVGID(), null);
 		for (int z = 0; z < windows.size(); z++) {
 			IWindow window = windows.get(z);
@@ -114,7 +117,7 @@ public class Compositor {
 				GPUProfiler.start(window.getTitle());
 				if (!window.isHidden() && !window.isMinimized()) {
 					render(window, windows.size() - z, delta);
-					for (CompositorEffect compositorEffect : effects) {
+					for (GLESCompositorEffect compositorEffect : effects) {
 						NVGLUFramebuffer tmp = fbos[0];
 						fbos[0] = fbos[1];
 						fbos[1] = tmp;
@@ -272,7 +275,7 @@ public class Compositor {
 		scaleY *= 2;
 		scaleY *= offsetScaleY;
 		nvgluBindFramebuffer(this.window.getNVGID(), currentWindow);
-		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT);
 		shader.start();
 		shader.loadProjectionMatrix(camera.getProjectionMatrix());
 		shader.loadViewMatrix(camera);
@@ -290,17 +293,19 @@ public class Compositor {
 		nvgluBindFramebuffer(this.window.getNVGID(), null);
 	}
 
+	@Override
 	public void dispose() {
 		nvgluDeleteFramebuffer(window.getNVGID(), fbos[0]);
 		nvgluDeleteFramebuffer(window.getNVGID(), fbos[1]);
 		nvgluDeleteFramebuffer(window.getNVGID(), currentWindow);
-		for (CompositorEffect compositorEffect : effects) {
+		for (GLESCompositorEffect compositorEffect : effects) {
 			compositorEffect.dispose();
 		}
 		effects.clear();
 		shader.dispose();
 	}
 
+	@Override
 	public NVGLUFramebuffer[] getFbos() {
 		return fbos;
 	}

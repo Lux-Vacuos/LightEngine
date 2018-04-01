@@ -18,34 +18,24 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.opengl.shaders.data;
+package net.luxvacuos.lightengine.client.rendering.shaders.data;
 
-import static org.lwjgl.opengl.GL20.glUniform3f;
+public class Attribute {
 
-import org.joml.Vector3f;
+	private int id;
+	private String name;
 
-public class UniformVec3 extends Uniform {
-	private float currentX;
-	private float currentY;
-	private float currentZ;
-	private boolean used = false;
-
-	public UniformVec3(String name) {
-		super(name);
+	public Attribute(int id, String name) {
+		this.id = id;
+		this.name = name;
 	}
 
-	public void loadVec3(Vector3f vector) {
-		loadVec3(vector.x, vector.y, vector.z);
+	public int getId() {
+		return id;
 	}
 
-	public void loadVec3(float x, float y, float z) {
-		if (!used || x != currentX || y != currentY || z != currentZ) {
-			this.currentX = x;
-			this.currentY = y;
-			this.currentZ = z;
-			used = true;
-			glUniform3f(super.getLocation(), x, y, z);
-		}
+	public String getName() {
+		return name;
 	}
 
 }

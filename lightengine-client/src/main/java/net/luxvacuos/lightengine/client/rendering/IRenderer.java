@@ -36,6 +36,8 @@ public interface IRenderer {
 
 	public void dispose();
 
+	public void resetState();
+
 	public void setShadowPass(IRenderPass shadowPass);
 
 	public void setDeferredPass(IRenderPass deferredPass);

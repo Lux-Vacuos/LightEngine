@@ -18,27 +18,27 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.opengl.shaders;
+package net.luxvacuos.lightengine.client.rendering.shaders;
 
-import static org.lwjgl.opengl.GL11.GL_FALSE;
-import static org.lwjgl.opengl.GL20.GL_COMPILE_STATUS;
-import static org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER;
-import static org.lwjgl.opengl.GL20.GL_VERTEX_SHADER;
-import static org.lwjgl.opengl.GL20.glAttachShader;
-import static org.lwjgl.opengl.GL20.glBindAttribLocation;
-import static org.lwjgl.opengl.GL20.glCompileShader;
-import static org.lwjgl.opengl.GL20.glCreateProgram;
-import static org.lwjgl.opengl.GL20.glCreateShader;
-import static org.lwjgl.opengl.GL20.glDeleteProgram;
-import static org.lwjgl.opengl.GL20.glDeleteShader;
-import static org.lwjgl.opengl.GL20.glDetachShader;
-import static org.lwjgl.opengl.GL20.glGetShaderInfoLog;
-import static org.lwjgl.opengl.GL20.glGetShaderi;
-import static org.lwjgl.opengl.GL20.glLinkProgram;
-import static org.lwjgl.opengl.GL20.glShaderSource;
-import static org.lwjgl.opengl.GL20.glUseProgram;
-import static org.lwjgl.opengl.GL20.glValidateProgram;
-import static org.lwjgl.opengl.GL32.GL_GEOMETRY_SHADER;
+import static net.luxvacuos.lightengine.client.rendering.GL.GL_COMPILE_STATUS;
+import static net.luxvacuos.lightengine.client.rendering.GL.GL_FALSE;
+import static net.luxvacuos.lightengine.client.rendering.GL.GL_FRAGMENT_SHADER;
+import static net.luxvacuos.lightengine.client.rendering.GL.GL_GEOMETRY_SHADER;
+import static net.luxvacuos.lightengine.client.rendering.GL.GL_VERTEX_SHADER;
+import static net.luxvacuos.lightengine.client.rendering.GL.glAttachShader;
+import static net.luxvacuos.lightengine.client.rendering.GL.glBindAttribLocation;
+import static net.luxvacuos.lightengine.client.rendering.GL.glCompileShader;
+import static net.luxvacuos.lightengine.client.rendering.GL.glCreateProgram;
+import static net.luxvacuos.lightengine.client.rendering.GL.glCreateShader;
+import static net.luxvacuos.lightengine.client.rendering.GL.glDeleteProgram;
+import static net.luxvacuos.lightengine.client.rendering.GL.glDeleteShader;
+import static net.luxvacuos.lightengine.client.rendering.GL.glDetachShader;
+import static net.luxvacuos.lightengine.client.rendering.GL.glGetShaderInfoLog;
+import static net.luxvacuos.lightengine.client.rendering.GL.glGetShaderi;
+import static net.luxvacuos.lightengine.client.rendering.GL.glLinkProgram;
+import static net.luxvacuos.lightengine.client.rendering.GL.glShaderSource;
+import static net.luxvacuos.lightengine.client.rendering.GL.glUseProgram;
+import static net.luxvacuos.lightengine.client.rendering.GL.glValidateProgram;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -51,15 +51,18 @@ import java.util.List;
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.client.core.exception.CompileShaderException;
 import net.luxvacuos.lightengine.client.core.exception.LoadShaderException;
-import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.Attribute;
-import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.IUniform;
+import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
+import net.luxvacuos.lightengine.client.rendering.glfw.RenderingAPI;
+import net.luxvacuos.lightengine.client.rendering.opengl.shaders.ShaderIncludes;
+import net.luxvacuos.lightengine.client.rendering.shaders.data.Attribute;
+import net.luxvacuos.lightengine.client.rendering.shaders.data.IUniform;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
 public abstract class ShaderProgram implements IDisposable {
 	private int programID;
 	private boolean loaded;
 	private List<IUniform> uniforms = new ArrayList<>();
-	
+
 	private static boolean bound = false;
 
 	public ShaderProgram(String vertexFile, String fragmentFile, Attribute... inVariables) {
@@ -177,6 +180,12 @@ public abstract class ShaderProgram implements IDisposable {
 		try {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(filet));
 			Logger.log("Loading Shader: " + file);
+
+			if (GraphicalSubsystem.getAPI() == RenderingAPI.GLES) {
+				shaderSource.append("#version 300 es").append("//\n");
+				shaderSource.append(ShaderIncludes.getVariable("GLES")).append("//\n");
+			} else
+				shaderSource.append("#version 330 core").append("//\n");
 			String line;
 			while ((line = reader.readLine()) != null) {
 				if (line.startsWith("#include")) {

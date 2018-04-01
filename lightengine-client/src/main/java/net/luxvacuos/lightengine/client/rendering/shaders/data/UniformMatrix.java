@@ -18,12 +18,27 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.nanovg.compositor;
+package net.luxvacuos.lightengine.client.rendering.shaders.data;
 
-public class GaussianV extends CompositorEffect {
+import org.joml.Matrix4f;
 
-	public GaussianV(int width, int height) {
-		super(width, height, "GaussianV");
+import net.luxvacuos.lightengine.client.rendering.GL;
+
+public class UniformMatrix extends Uniform {
+
+	private Matrix4f current;
+	private boolean used = false;
+	private float[] fm = new float[16];
+
+	public UniformMatrix(String name) {
+		super(name);
+	}
+
+	public void loadMatrix(Matrix4f matrix) {
+		if (!used || !matrix.equals(current)) {
+			matrix.get(fm);
+			GL.glUniformMatrix4fv(super.getLocation(), false, fm);
+		}
 	}
 
 }

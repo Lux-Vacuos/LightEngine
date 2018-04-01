@@ -33,6 +33,7 @@ public class ClientVariables extends GlobalVariables {
 	 */
 	public static int WIDTH = 1280;
 	public static int HEIGHT = 720;
+	public static boolean GLES = false;
 	/**
 	 * Shader Files
 	 */

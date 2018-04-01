@@ -21,7 +21,8 @@
 package net.luxvacuos.lightengine.client.rendering.opengl.shaders;
 
 import net.luxvacuos.lightengine.client.core.ClientVariables;
-import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.Attribute;
+import net.luxvacuos.lightengine.client.rendering.shaders.ShaderProgram;
+import net.luxvacuos.lightengine.client.rendering.shaders.data.Attribute;
 
 public class BRDFIntegrationMapShader extends ShaderProgram {
 

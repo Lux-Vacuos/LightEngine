@@ -24,3 +24,7 @@
 #define MAX_DISTANCE_VOLUME 1000
 #define MAX_DISTANCE_REFLECTION 1000
 #end
+
+#variable GLES
+precision highp float;
+#end

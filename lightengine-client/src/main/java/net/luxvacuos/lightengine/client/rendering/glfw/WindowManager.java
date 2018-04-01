@@ -20,9 +20,8 @@
 
 package net.luxvacuos.lightengine.client.rendering.glfw;
 
-import static org.lwjgl.opengl.GL11.GL_VENDOR;
-import static org.lwjgl.opengl.GL11.glGetIntegerv;
-import static org.lwjgl.opengl.GL11.glGetString;
+import static org.lwjgl.egl.EGL10.eglGetError;
+import static org.lwjgl.egl.EGL10.eglInitialize;
 import static org.lwjgl.stb.STBImage.stbi_failure_reason;
 import static org.lwjgl.stb.STBImage.stbi_image_free;
 import static org.lwjgl.stb.STBImage.stbi_info_from_memory;
@@ -32,15 +31,17 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 
+import org.lwjgl.egl.EGL;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWImage;
-import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.glfw.GLFWNativeEGL;
 import org.lwjgl.nanovg.NanoVGGL3;
+import org.lwjgl.nanovg.NanoVGGLES3;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.NVXGPUMemoryInfo;
-import org.lwjgl.opengl.WGLAMDGPUAssociation;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengles.GLES;
+import org.lwjgl.opengles.GLES20;
 import org.lwjgl.system.MemoryStack;
 
 import com.badlogic.gdx.utils.Array;
@@ -49,6 +50,7 @@ import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.core.exception.DecodeTextureException;
 import net.luxvacuos.lightengine.client.core.exception.GLFWException;
+import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.resources.ResourceLoader;
 
 public final class WindowManager {
@@ -73,14 +75,14 @@ public final class WindowManager {
 		if (windowID == NULL)
 			throw new GLFWException("Failed to create GLFW Window '" + handle.title + "'");
 
-		Window window = new Window(windowID, handle.width, handle.height);
-		GLFWVidMode vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
+		var window = new Window(windowID, handle.width, handle.height);
+		var vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
 		GLFW.glfwSetWindowPos(windowID, (vidmode.width() - window.width) / 2, (vidmode.height() - window.height) / 2);
-		
+
 		try (MemoryStack stack = stackPush()) {
-			IntBuffer w = stack.callocInt(1);
-			IntBuffer h = stack.callocInt(1);
-			IntBuffer comp = stack.callocInt(1);
+			var w = stack.callocInt(1);
+			var h = stack.callocInt(1);
+			var comp = stack.callocInt(1);
 
 			if (handle.cursor != null) {
 
@@ -95,7 +97,7 @@ public final class WindowManager {
 				if (!stbi_info_from_memory(imageBuffer, w, h, comp))
 					throw new DecodeTextureException("Failed to read image information: " + stbi_failure_reason());
 
-				ByteBuffer image = stbi_load_from_memory(imageBuffer, w, h, comp, 0);
+				var image = stbi_load_from_memory(imageBuffer, w, h, comp, 0);
 				if (image == null)
 					throw new DecodeTextureException("Failed to load image: " + stbi_failure_reason());
 
@@ -106,7 +108,7 @@ public final class WindowManager {
 			}
 
 			if (handle.icons.size != 0) {
-				GLFWImage.Buffer iconsbuff = GLFWImage.malloc(handle.icons.size);
+				var iconsbuff = GLFWImage.malloc(handle.icons.size);
 				int i = 0;
 				for (Icon icon : handle.icons) {
 					ByteBuffer imageBuffer;
@@ -138,8 +140,8 @@ public final class WindowManager {
 			}
 		}
 
-		int[] h = new int[1];
-		int[] w = new int[1];
+		var h = new int[1];
+		var w = new int[1];
 
 		GLFW.glfwGetFramebufferSize(windowID, w, h);
 		window.framebufferHeight = h[0];
@@ -148,7 +150,7 @@ public final class WindowManager {
 		window.height = h[0];
 		window.width = w[0];
 		window.pixelRatio = (float) window.framebufferWidth / (float) window.width;
-		
+
 		return window;
 	}
 
@@ -158,12 +160,39 @@ public final class WindowManager {
 		GLFW.glfwMakeContextCurrent(windowID);
 		GLFW.glfwSwapInterval(vsync ? 1 : 0);
 
-		window.capabilities = GL.createCapabilities(true);
+		int nvgFlags;
+		switch (GraphicalSubsystem.getAPI()) {
+		case GL:
+			window.capabilities = GL.createCapabilities(true);
+			nvgFlags = NanoVGGL3.NVG_ANTIALIAS | NanoVGGL3.NVG_STENCIL_STROKES;
+			if (ClientVariables.debug)
+				nvgFlags = (nvgFlags | NanoVGGL3.NVG_DEBUG);
+			window.nvgID = NanoVGGL3.nvgCreate(nvgFlags);
+			break;
+		case GLES:
+			long dpy = GLFWNativeEGL.glfwGetEGLDisplay();
 
-		int nvgFlags = NanoVGGL3.NVG_ANTIALIAS | NanoVGGL3.NVG_STENCIL_STROKES;
-		if (ClientVariables.debug)
-			nvgFlags = (nvgFlags | NanoVGGL3.NVG_DEBUG);
-		window.nvgID = NanoVGGL3.nvgCreate(nvgFlags);
+			try (MemoryStack stack = stackPush()) {
+				var major = stack.mallocInt(1);
+				var minor = stack.mallocInt(1);
+
+				if (!eglInitialize(dpy, major, minor)) {
+					throw new IllegalStateException(String.format("Failed to initialize EGL [0x%X]", eglGetError()));
+				}
+				EGL.createDisplayCapabilities(dpy, major.get(0), minor.get(0));
+			}
+
+			window.glesCapabilities = GLES.createCapabilities();
+
+			nvgFlags = NanoVGGLES3.NVG_ANTIALIAS | NanoVGGLES3.NVG_STENCIL_STROKES;
+			if (ClientVariables.debug)
+				nvgFlags = (nvgFlags | NanoVGGLES3.NVG_DEBUG);
+			window.nvgID = NanoVGGLES3.nvgCreate(nvgFlags);
+			break;
+		default:
+			break;
+		}
+		window.api = GraphicalSubsystem.getAPI();
 
 		if (window.nvgID == NULL)
 			throw new GLFWException("Fail to create NanoVG context for Window '" + handle.title + "'");
@@ -204,7 +233,7 @@ public final class WindowManager {
 		}
 		GLFW.glfwPollEvents();
 	}
-	
+
 	public static double getTime() {
 		return GLFW.glfwGetTime();
 	}
@@ -213,20 +242,9 @@ public final class WindowManager {
 		return (long) (getTime() * (1000L * 1000L * 1000L));
 	}
 
-	private static int[] maxVram = new int[1];
-	private static int[] usedVram = new int[1];
 	private static boolean nvidia = false;
 	private static boolean amd = false;
 	private static boolean detected = false;
-
-	public static int getUsedVRAM() {
-		if (!detected)
-			detectGraphicsCard();
-
-		if (nvidia)
-			glGetIntegerv(NVXGPUMemoryInfo.GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, usedVram);
-		return maxVram[0] - usedVram[0];
-	}
 
 	public static boolean isNvidia() {
 		if (!detected)
@@ -241,16 +259,21 @@ public final class WindowManager {
 	}
 
 	private static void detectGraphicsCard() {
-		if (glGetString(GL_VENDOR).contains("NVIDIA")) {
-			nvidia = true;
-			glGetIntegerv(NVXGPUMemoryInfo.GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, maxVram);
-			Logger.log("Max VRam: " + maxVram[0] + "KB");
-		} else if (glGetString(GL_VENDOR).contains("AMD")) {
-			amd = true;
-			glGetIntegerv(WGLAMDGPUAssociation.WGL_GPU_RAM_AMD, maxVram);
-			Logger.log("Max VRam: " + maxVram[0] + "MB");
+		var vendor = "";
+		switch (GraphicalSubsystem.getAPI()) {
+		case GL:
+			vendor = GL11.glGetString(GL11.GL_VENDOR);
+			break;
+		case GLES:
+			vendor = GLES20.glGetString(GLES20.GL_VENDOR);
+			break;
+		default:
+			break;
 		}
-
+		if (vendor.contains("NVIDIA"))
+			nvidia = true;
+		else if (vendor.contains("AMD"))
+			amd = true;
 		detected = true;
 	}
 

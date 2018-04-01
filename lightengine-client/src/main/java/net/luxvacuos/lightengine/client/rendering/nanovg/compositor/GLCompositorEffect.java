@@ -42,12 +42,12 @@ import net.luxvacuos.lightengine.client.rendering.opengl.GPUProfiler;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
-public abstract class CompositorEffect implements IDisposable {
+public class GLCompositorEffect implements IDisposable {
 
 	private WindowManagerShader shader;
 	private String name;
 
-	public CompositorEffect(int width, int height, String name) {
+	public GLCompositorEffect(int width, int height, String name) {
 		this.name = name;
 		shader = new WindowManagerShader(name);
 		shader.start();

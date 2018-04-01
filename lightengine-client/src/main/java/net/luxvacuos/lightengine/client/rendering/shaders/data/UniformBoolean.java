@@ -18,30 +18,25 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.opengl.shaders.data;
+package net.luxvacuos.lightengine.client.rendering.shaders.data;
 
-import static org.lwjgl.opengl.GL20.glGetUniformLocation;
+import net.luxvacuos.lightengine.client.rendering.GL;
 
-public abstract class Uniform implements IUniform {
+public class UniformBoolean extends Uniform {
 
-	protected String name;
-	private int location;
+	private boolean currentBool;
+	private boolean used = false;
 
-	protected Uniform(String name) {
-		this.name = name;
+	public UniformBoolean(String name) {
+		super(name);
 	}
 
-	@Override
-	public void storeUniformLocation(int programID) {
-		location = glGetUniformLocation(programID, name);
-	}
-	
-	@Override
-	public void dispose() {
-	}
-
-	protected int getLocation() {
-		return location;
+	public void loadBoolean(boolean bool) {
+		if (!used || currentBool != bool) {
+			GL.glUniform1i(super.getLocation(), bool ? 1 : 0);
+			used = true;
+			currentBool = bool;
+		}
 	}
 
 }

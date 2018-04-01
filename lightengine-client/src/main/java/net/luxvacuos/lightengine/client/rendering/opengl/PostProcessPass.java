@@ -26,6 +26,7 @@ import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_RGB;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLE_STRIP;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
+import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glDrawArrays;
 
 import org.joml.Matrix4f;
@@ -87,7 +88,7 @@ public abstract class PostProcessPass implements IPostProcessPass {
 			RawModel quad) {
 		GPUProfiler.start(name);
 		fbo.begin();
-		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		shader.start();
 		shader.loadMotionBlurData(camera, previousViewMatrix, previousCameraPosition);
 		shader.loadviewMatrix(camera);
@@ -106,7 +107,7 @@ public abstract class PostProcessPass implements IPostProcessPass {
 		auxs[0] = getFbo();
 		GPUProfiler.end();
 	}
-	
+
 	@Override
 	public void resize(int width, int height) {
 		fbo.dispose();

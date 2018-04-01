@@ -20,10 +20,18 @@
 
 package net.luxvacuos.lightengine.client.rendering.nanovg.compositor;
 
-public class MaskBlur extends CompositorEffect {
+import java.util.List;
 
-	public MaskBlur(int width, int height) {
-		super(width, height, "MaskBlur");
-	}
+import org.lwjgl.nanovg.NVGLUFramebuffer;
+
+import net.luxvacuos.lightengine.client.rendering.nanovg.IWindow;
+
+public interface ICompositor {
+
+	public void render(List<IWindow> windows, float delta);
+
+	public void dispose();
+
+	public NVGLUFramebuffer[] getFbos();
 
 }

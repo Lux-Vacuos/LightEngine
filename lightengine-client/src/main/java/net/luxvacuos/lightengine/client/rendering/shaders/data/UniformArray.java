@@ -18,25 +18,33 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.opengl.shaders.data;
+package net.luxvacuos.lightengine.client.rendering.shaders.data;
 
-import static org.lwjgl.opengl.GL20.*;
+import net.luxvacuos.lightengine.client.rendering.GL;
 
-public class UniformSampler extends Uniform {
+public class UniformArray implements IUniform {
 
-	private int currentValue;
-	private boolean used = false;
+	protected String[] names;
+	private int[] location;
 
-	public UniformSampler(String name) {
-		super(name);
+	protected UniformArray(String... names) {
+		this.names = names;
+		location = new int[names.length];
 	}
 
-	public void loadTexUnit(int texUnit) {
-		if (!used || currentValue != texUnit) {
-			glUniform1i(super.getLocation(), texUnit);
-			used = true;
-			currentValue = texUnit;
+	@Override
+	public void storeUniformLocation(int programID) {
+		for (int x = 0; x < names.length; x++) {
+			location[x] = GL.glGetUniformLocation(programID, names[x]);
 		}
+	}
+
+	protected int[] getLocation() {
+		return location;
+	}
+
+	@Override
+	public void dispose() {
 	}
 
 }

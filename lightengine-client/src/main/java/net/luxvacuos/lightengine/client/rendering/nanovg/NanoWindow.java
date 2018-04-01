@@ -20,6 +20,9 @@
 
 package net.luxvacuos.lightengine.client.rendering.nanovg;
 
+import static net.luxvacuos.lightengine.client.rendering.nanovg.NVGFramebuffers.nvgluBindFramebuffer;
+import static net.luxvacuos.lightengine.client.rendering.nanovg.NVGFramebuffers.nvgluCreateFramebuffer;
+import static net.luxvacuos.lightengine.client.rendering.nanovg.NVGFramebuffers.nvgluDeleteFramebuffer;
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_CENTER;
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_MIDDLE;
@@ -28,11 +31,6 @@ import static org.lwjgl.nanovg.NanoVG.nvgEndFrame;
 import static org.lwjgl.nanovg.NanoVG.nvgRestore;
 import static org.lwjgl.nanovg.NanoVG.nvgSave;
 import static org.lwjgl.nanovg.NanoVG.nvgScissor;
-import static org.lwjgl.nanovg.NanoVGGL3.nvgluBindFramebuffer;
-import static org.lwjgl.nanovg.NanoVGGL3.nvgluCreateFramebuffer;
-import static org.lwjgl.nanovg.NanoVGGL3.nvgluDeleteFramebuffer;
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.glViewport;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -42,12 +40,12 @@ import org.lwjgl.nanovg.NVGLUFramebuffer;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.input.MouseHandler;
+import net.luxvacuos.lightengine.client.rendering.GL;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.nanovg.objects.Frame;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.Theme;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.Theme.BackgroundStyle;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.Theme.ButtonStyle;
-import net.luxvacuos.lightengine.client.rendering.opengl.Renderer;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.Direction;
 import net.luxvacuos.lightengine.client.ui.FlowLayout;
@@ -182,9 +180,9 @@ public abstract class NanoWindow implements IWindow {
 		if (!hidden && !minimized) {
 			if (compositor) {
 				nvgluBindFramebuffer(window.getNVGID(), fbo);
-				glViewport(0, 0, fw, fh);
-				Renderer.clearColors(0, 0, 0, 0);
-				Renderer.clearBuffer(GL_COLOR_BUFFER_BIT);
+				window.setViewport(0, 0, fw, fh);
+				GL.glClearColor(0, 0, 0, 0);
+				GL.glClear(GL.GL_COLOR_BUFFER_BIT);
 				nvgBeginFrame(window.getNVGID(), fw, fh, 1);
 				nvgSave(window.getNVGID());
 				Theme.renderWindow(window.getNVGID(), lfx, lfy, w, h, backgroundStyle, backgroundColor, decorations,

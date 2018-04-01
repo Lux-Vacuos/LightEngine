@@ -26,6 +26,7 @@ import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.GL_RGBA;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLE_STRIP;
+import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glDrawArrays;
 import static org.lwjgl.opengl.GL30.GL_RGBA16F;
 
@@ -115,7 +116,7 @@ public abstract class DeferredPass implements IDeferredPass {
 		shader.loadTime(clientWorldSimulation.getGlobalTime());
 		shader.loadLightMatrix(sun.getCamera().getViewMatrix());
 		shader.loadBiasMatrix(sun.getCamera().getProjectionArray());
-		Renderer.clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		render(auxs, pipe, irradianceCapture, environmentMap, brdfLUT, shadowFBO);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, quad.getVertexCount());
 		shader.stop();

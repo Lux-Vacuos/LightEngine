@@ -34,12 +34,12 @@ import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
 import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
 import static org.lwjgl.opengl.GL11.glBlendFunc;
 import static org.lwjgl.opengl.GL11.glClear;
-import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.opengl.GL11.glClearDepth;
 import static org.lwjgl.opengl.GL11.glCullFace;
 import static org.lwjgl.opengl.GL11.glDepthFunc;
 import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL32.GL_TEXTURE_CUBE_MAP_SEAMLESS;
 
 import java.util.List;
 import java.util.Map;
@@ -102,6 +102,14 @@ public class GLRenderer implements IRenderer {
 	private IEvent shadowMap;
 
 	private GLGameWindow gameWindow;
+
+	public GLRenderer() {
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+	}
 
 	@Override
 	public void init() {
@@ -178,7 +186,7 @@ public class GLRenderer implements IRenderer {
 
 			shadowFBO.begin();
 			shadowFBO.changeTexture(0);
-			clearBuffer(GL_DEPTH_BUFFER_BIT);
+			glClear(GL_DEPTH_BUFFER_BIT);
 			if (shadowPass != null)
 				shadowPass.render(camera, sunCamera, frustum, shadowFBO);
 			renderingManager.renderShadow(sunCamera);
@@ -187,7 +195,7 @@ public class GLRenderer implements IRenderer {
 			frustum.calculateFrustum(sunCamera);
 
 			shadowFBO.changeTexture(1);
-			clearBuffer(GL_DEPTH_BUFFER_BIT);
+			glClear(GL_DEPTH_BUFFER_BIT);
 			if (shadowPass != null)
 				shadowPass.render(camera, sunCamera, frustum, shadowFBO);
 			renderingManager.renderShadow(sunCamera);
@@ -196,7 +204,7 @@ public class GLRenderer implements IRenderer {
 			frustum.calculateFrustum(sunCamera);
 
 			shadowFBO.changeTexture(2);
-			clearBuffer(GL_DEPTH_BUFFER_BIT);
+			glClear(GL_DEPTH_BUFFER_BIT);
 			if (shadowPass != null)
 				shadowPass.render(camera, sunCamera, frustum, shadowFBO);
 			renderingManager.renderShadow(sunCamera);
@@ -205,7 +213,7 @@ public class GLRenderer implements IRenderer {
 			frustum.calculateFrustum(sunCamera);
 
 			shadowFBO.changeTexture(3);
-			clearBuffer(GL_DEPTH_BUFFER_BIT);
+			glClear(GL_DEPTH_BUFFER_BIT);
 			if (shadowPass != null)
 				shadowPass.render(camera, sunCamera, frustum, shadowFBO);
 			renderingManager.renderShadow(sunCamera);
@@ -218,7 +226,7 @@ public class GLRenderer implements IRenderer {
 					if (!light.isShadowMapCreated())
 						continue;
 					light.getShadowMap().begin();
-					clearBuffer(GL_DEPTH_BUFFER_BIT);
+					glClear(GL_DEPTH_BUFFER_BIT);
 					if (shadowPass != null)
 						shadowPass.render(camera, light.getCamera(), frustum, null);
 					renderingManager.renderShadow(light.getCamera());
@@ -245,7 +253,7 @@ public class GLRenderer implements IRenderer {
 		GPUProfiler.end();
 		GPUProfiler.start("Occlusion");
 		frustum.calculateFrustum(camera);
-		clearBuffer(GL_DEPTH_BUFFER_BIT);
+		glClear(GL_DEPTH_BUFFER_BIT);
 		if (occlusionPass != null)
 			occlusionPass.render(camera, sunCamera, frustum, shadowFBO);
 		GPUProfiler.end();
@@ -254,7 +262,7 @@ public class GLRenderer implements IRenderer {
 		deferredPipeline.begin();
 		glDepthFunc(GL_GREATER);
 		glClearDepth(0.0);
-		clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		GPUProfiler.start("External");
 		if (deferredPass != null)
 			deferredPass.render(camera, sunCamera, frustum, shadowFBO);
@@ -283,7 +291,7 @@ public class GLRenderer implements IRenderer {
 		postProcessPipeline.begin();
 		glDepthFunc(GL_GREATER);
 		glClearDepth(0.0);
-		clearBuffer(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		deferredPipeline.render(postProcessPipeline.getFBO());
 		GPUProfiler.start("Forward");
 		if (forwardPass != null)
@@ -306,6 +314,8 @@ public class GLRenderer implements IRenderer {
 
 	@Override
 	public void resize(int width, int height) {
+		if (!enabled)
+			return;
 		deferredPipeline.resize();
 		postProcessPipeline.resize();
 		EventSubsystem.triggerEvent("lightengine.renderer.postresize");
@@ -344,6 +354,15 @@ public class GLRenderer implements IRenderer {
 	}
 
 	@Override
+	public void resetState() {
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+
+	@Override
 	public void setShadowPass(IRenderPass shadowPass) {
 		this.shadowPass = shadowPass;
 	}
@@ -376,22 +395,6 @@ public class GLRenderer implements IRenderer {
 	@Override
 	public IWindow getWindow() {
 		return gameWindow;
-	}
-
-	public static void resetState() {
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-		glEnable(GL_DEPTH_TEST);
-		glDisable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	}
-
-	public static void clearColors(float r, float g, float b, float a) {
-		glClearColor(r, g, b, a);
-	}
-
-	public static void clearBuffer(int values) {
-		glClear(values);
 	}
 
 }

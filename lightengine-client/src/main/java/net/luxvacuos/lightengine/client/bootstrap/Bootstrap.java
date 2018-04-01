@@ -60,7 +60,7 @@ public class Bootstrap extends AbstractBootstrap {
 	@Override
 	public void parseArgs(String[] args) {
 		// Booleans to prevent setting a previously set value
-		boolean gaveWidth = false, gaveHeight = false, gaveSysDir = false;
+		boolean gaveWidth = false, gaveHeight = false, gaveSysDir = false, gaveGLES = false;
 		// Iterate through array
 		for (int i = 0; i < args.length; i++) {
 			switch (args[i]) {
@@ -89,6 +89,11 @@ public class Bootstrap extends AbstractBootstrap {
 					throw new IllegalStateException("SystemDir already given");
 				TempVariables.systemDir = args[++i];
 				gaveSysDir = true;
+				break;
+			case "-gles":
+				if(gaveGLES)
+					throw new IllegalStateException("GLES already given");
+				ClientVariables.GLES = true;
 				break;
 			default:
 				// If there is an unknown arg throw exception
