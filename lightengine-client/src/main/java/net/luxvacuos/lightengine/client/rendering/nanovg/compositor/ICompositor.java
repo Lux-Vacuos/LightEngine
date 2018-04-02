@@ -32,6 +32,6 @@ public interface ICompositor {
 
 	public void dispose();
 
-	public NVGLUFramebuffer[] getFbos();
+	public NVGLUFramebuffer getFinal();
 
 }

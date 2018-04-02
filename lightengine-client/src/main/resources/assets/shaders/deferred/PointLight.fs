@@ -18,8 +18,6 @@
 //
 //
 
-#version 330 core
-
 #include struct Light
 
 in vec2 textureCoords;

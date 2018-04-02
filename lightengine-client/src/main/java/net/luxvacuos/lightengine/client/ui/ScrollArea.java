@@ -73,8 +73,8 @@ public class ScrollArea extends Component {
 
 	@Override
 	public void update(float delta, Window window) {
-		comp.update(delta);
 		super.update(delta, window);
+		comp.update(delta);
 		MouseHandler mh = window.getMouseHandler();
 		int scrollBarSize = (int) REGISTRY
 				.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/scrollBarSize"));
@@ -101,9 +101,9 @@ public class ScrollArea extends Component {
 
 	@Override
 	public void alwaysUpdate(float delta, Window window) {
+		super.alwaysUpdate(delta, window);
 		comp.alwaysUpdate(delta, rootComponent.rootX + alignedX, rootComponent.rootY - alignedY + h + scrollH, w, h);
 		maxH = Maths.clamp(-h + -comp.getFinalH(), 0);
-		super.alwaysUpdate(delta, window);
 	}
 
 	@Override

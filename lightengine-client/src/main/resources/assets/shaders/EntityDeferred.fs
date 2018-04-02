@@ -18,8 +18,6 @@
 //
 //
 
-#version 330 core
-
 #include struct Material
 
 in vec2 pass_textureCoords;

@@ -35,12 +35,12 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import java.util.List;
 
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
+import net.luxvacuos.lightengine.client.rendering.IResourceLoader;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CachedAssets;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.WaterTile;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.WaterShader;
-import net.luxvacuos.lightengine.client.resources.ResourceLoader;
 import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
@@ -50,9 +50,9 @@ public class WaterRenderer implements IDisposable {
 	private WaterShader shader;
 	private Texture dudv, foamMask;;
 
-	public WaterRenderer(ResourceLoader loader) {
+	public WaterRenderer(IResourceLoader loader) {
 		shader = new WaterShader();
-		setUpVAO(loader);
+		quad = loader.loadObjModel("water");
 		dudv = CachedAssets.loadTextureMisc("textures/waterDUDV.png");
 		foamMask = CachedAssets.loadTextureMisc("textures/foamMask.png");
 	}
@@ -102,10 +102,6 @@ public class WaterRenderer implements IDisposable {
 		shader.dispose();
 		dudv.dispose();
 		foamMask.dispose();
-	}
-
-	private void setUpVAO(ResourceLoader loader) {
-		quad = loader.loadObjModel("water");
 	}
 
 }

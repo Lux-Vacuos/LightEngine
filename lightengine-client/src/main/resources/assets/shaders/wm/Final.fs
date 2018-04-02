@@ -22,8 +22,9 @@ in vec2 textureCoords;
 
 out vec4 out_Color;
 
-uniform sampler2D image;
+uniform sampler2D composite1;
 uniform sampler2D window;
+uniform sampler2D accumulator;
 uniform int blurBehind;
 uniform vec2 windowPosition;
 
@@ -63,11 +64,14 @@ float noise(vec2 x) {
 }
 
 void main() {
-	vec4 source = texture(image, textureCoords);
+	vec4 source = texture(accumulator, textureCoords);
+	vec4 blur = texture(composite1, textureCoords);
 	vec4 window = texture(window, textureCoords);
 	if (blurBehind == 1)
-		if (window.a > 0.0)
-			source.rgb *= 1.0 - vec3(noise((gl_FragCoord.xy + windowPosition.xy * 0.10))) * 0.10;
+		if (window.a > 0.0) {
+			source = blur;
+			source.rgb *= 1.0 - vec3(noise(gl_FragCoord.xy - windowPosition.xy)) * 0.10;
+		}
 	out_Color.rgb = mix(source.rgb, window.rgb, window.a);
 	out_Color.a = 1.0;
 }

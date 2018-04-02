@@ -94,7 +94,7 @@ public class NanoWindowManager implements IWindowManager {
 			GPUProfiler.start("Render To Screen");
 			window.beingNVGFrame();
 			Theme.renderImage(this.window.getNVGID(), 0, 0, window.getWidth(), window.getHeight(),
-					compositor.getFbos()[0].image(), 1f);
+					compositor.getFinal().image(), 1f);
 			if (ClientVariables.debug) {
 				Timers.renderDebugDisplay(5, 24, 200, 55);
 				Theme.renderText(window.getNVGID(), "Light Engine " + " (" + ClientVariables.version + ")",

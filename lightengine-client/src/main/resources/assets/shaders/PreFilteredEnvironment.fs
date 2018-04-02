@@ -18,8 +18,6 @@
 //
 //
 
-#version 330 core
-
 in vec3 pass_Position;
 
 out vec4 out_color;

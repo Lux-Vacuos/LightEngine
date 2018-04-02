@@ -18,8 +18,6 @@
 //
 //
 
-#version 330 core
-
 in vec2 pass_textureCoords;
 
 uniform sampler2D texture0;

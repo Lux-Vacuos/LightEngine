@@ -138,7 +138,7 @@ public class GLRenderer implements IRenderer {
 		TaskManager.tm.addTaskRenderThread(() -> particleRenderer = new ParticleRenderer(loader));
 		TaskManager.tm.addTaskRenderThread(() -> skyboxRenderer = new SkyboxRenderer(loader));
 		TaskManager.tm.addTaskRenderThread(() -> waterRenderer = new WaterRenderer(loader));
-		TaskManager.tm.addTaskRenderThread(() -> renderingManager.addRenderer(new EntityRenderer(loader)));
+		TaskManager.tm.addTaskRenderThread(() -> renderingManager.addRenderer(new EntityRenderer()));
 
 		TaskManager.tm.addTaskRenderThread(() -> deferredPipeline = new MultiPass(window));
 		TaskManager.tm.addTaskRenderThread(() -> postProcessPipeline = new PostProcess(window));

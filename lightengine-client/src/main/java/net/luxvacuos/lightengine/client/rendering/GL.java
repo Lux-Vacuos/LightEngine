@@ -144,6 +144,10 @@ public class GL {
 		glAPI.glUniformMatrix4fv(location, transpose, value);
 	}
 
+	public static void glDeleteTextures(int texture) {
+		glAPI.glDeleteTextures(texture);
+	}
+
 	public static void init(RenderingAPI api) {
 		GL r = new GL();
 		switch (api) {
@@ -211,6 +215,8 @@ public class GL {
 		public void glUniform4f(int location, float v0, float v1, float v2, float v3);
 
 		public void glUniformMatrix4fv(int location, boolean transpose, float[] value);
+
+		public void glDeleteTextures(int texture);
 	}
 
 	private class GLAPI implements IGLAPI {
@@ -355,6 +361,11 @@ public class GL {
 			GL20.glUniformMatrix4fv(location, transpose, value);
 		}
 
+		@Override
+		public void glDeleteTextures(int texture) {
+			GL11.glDeleteTextures(texture);
+		}
+
 	}
 
 	private class GLESAPI implements IGLAPI {
@@ -497,6 +508,11 @@ public class GL {
 		@Override
 		public void glUniformMatrix4fv(int location, boolean transpose, float[] value) {
 			GLES20.glUniformMatrix4fv(location, transpose, value);
+		}
+
+		@Override
+		public void glDeleteTextures(int texture) {
+			GLES20.glDeleteTextures(texture);
 		}
 	}
 

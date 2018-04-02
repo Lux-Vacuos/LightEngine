@@ -53,6 +53,7 @@ import net.luxvacuos.lightengine.client.rendering.nanovg.themes.NanoTheme;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.ThemeManager;
 import net.luxvacuos.lightengine.client.rendering.opengl.GLRenderer;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CachedAssets;
+import net.luxvacuos.lightengine.client.rendering.opengl.objects.DefaultData;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.ShaderIncludes;
 import net.luxvacuos.lightengine.client.rendering.opengles.GLESRenderer;
 import net.luxvacuos.lightengine.client.ui.Font;
@@ -105,9 +106,7 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/vsync")));
 		NVGFramebuffers.init(api);
 		GL.init(api);
-
-		((ClientTaskManager) TaskManager.tm).switchToSharedContext(); // GL/GLES Context available, switch to shared
-																		// context
+		((ClientTaskManager) TaskManager.tm).switchToSharedContext();
 
 		REGISTRY.register(new Key("/Light Engine/System/lwjgl"), Version.getVersion());
 		REGISTRY.register(new Key("/Light Engine/System/glfw"), GLFW.glfwGetVersionString());
@@ -134,6 +133,11 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 		default:
 			break;
 		}
+		TaskManager.tm.addTaskBackgroundThread(() -> ShaderIncludes.processIncludeFile("common.isl"));
+		TaskManager.tm.addTaskBackgroundThread(() -> ShaderIncludes.processIncludeFile("lighting.isl"));
+		TaskManager.tm.addTaskBackgroundThread(() -> ShaderIncludes.processIncludeFile("materials.isl"));
+		TaskManager.tm.addTaskBackgroundThread(() -> ShaderIncludes.processIncludeFile("global.isl"));
+		TaskManager.tm.addTaskMainThread(() -> DefaultData.init());
 
 		ThemeManager.addTheme(new NanoTheme());
 		ThemeManager.setTheme((String) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/theme")));
@@ -151,11 +155,6 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 		poppinsSemiBold = loader.loadNVGFont("Poppins-SemiBold", "Poppins-SemiBold");
 		entypo = loader.loadNVGFont("Entypo", "Entypo", 40);
 
-		TaskManager.tm.addTaskBackgroundThread(() -> ShaderIncludes.processIncludeFile("common.isl"));
-		TaskManager.tm.addTaskBackgroundThread(() -> ShaderIncludes.processIncludeFile("lighting.isl"));
-		TaskManager.tm.addTaskBackgroundThread(() -> ShaderIncludes.processIncludeFile("materials.isl"));
-		TaskManager.tm.addTaskBackgroundThread(() -> ShaderIncludes.processIncludeFile("global.isl"));
-		// TaskManager.tm.addTaskBackgroundThread(() -> DefaultData.init(loader));
 		StateMachine.registerState(new SplashScreenState());
 		TaskManager.tm.addTaskMainThread(() -> window.setVisible(true));
 	}
@@ -200,7 +199,7 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 		poppinsBold.dispose();
 		poppinsSemiBold.dispose();
 		entypo.dispose();
-		// DefaultData.dispose();
+		DefaultData.dispose();
 		renderer.dispose();
 		CachedAssets.dispose();
 		((ClientTaskManager) TaskManager.tm).stopRenderBackgroundThread();

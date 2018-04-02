@@ -30,22 +30,29 @@ import net.luxvacuos.lightengine.client.rendering.shaders.data.UniformVec2;
 
 public class WindowManagerShader extends ShaderProgram {
 
-	private UniformSampler image = new UniformSampler("image");
 	private UniformSampler window = new UniformSampler("window");
+	private UniformSampler accumulator = new UniformSampler("accumulator");
+	private UniformSampler composite1 = new UniformSampler("composite1");
+	private UniformSampler composite2 = new UniformSampler("composite2");
+	private UniformSampler composite3 = new UniformSampler("composite3");
 	private UniformVec2 resolution = new UniformVec2("resolution");
 	private UniformVec2 windowPosition = new UniformVec2("windowPosition");
 	private UniformBoolean blurBehind = new UniformBoolean("blurBehind");
 
 	public WindowManagerShader(String type) {
 		super("wm/" + type + ".vs", "wm/" + type + ".fs", new Attribute(0, "position"));
-		super.storeAllUniformLocations(image, window, resolution, blurBehind, windowPosition);
+		super.storeAllUniformLocations(window, accumulator, resolution, blurBehind, windowPosition, composite1, composite2,
+				composite3);
 		connectTextureUnits();
 	}
 
 	private void connectTextureUnits() {
 		super.start();
-		image.loadTexUnit(0);
-		window.loadTexUnit(1);
+		window.loadTexUnit(0);
+		accumulator.loadTexUnit(1);
+		composite1.loadTexUnit(2);
+		composite2.loadTexUnit(3);
+		composite3.loadTexUnit(4);
 		super.stop();
 	}
 

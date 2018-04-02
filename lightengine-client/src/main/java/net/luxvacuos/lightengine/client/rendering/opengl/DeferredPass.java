@@ -100,6 +100,7 @@ public abstract class DeferredPass implements IDeferredPass {
 			ShadowFBO shadowFBO, float exposure) {
 		GPUProfiler.start(name);
 		fbo.begin();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		shader.start();
 		shader.loadMotionBlurData(camera, previousViewMatrix, previousCameraPosition);
 		shader.loadLightPosition(sun.getSunPosition(), sun.getInvertedSunPosition());
@@ -116,12 +117,11 @@ public abstract class DeferredPass implements IDeferredPass {
 		shader.loadTime(clientWorldSimulation.getGlobalTime());
 		shader.loadLightMatrix(sun.getCamera().getViewMatrix());
 		shader.loadBiasMatrix(sun.getCamera().getProjectionArray());
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		render(auxs, pipe, irradianceCapture, environmentMap, brdfLUT, shadowFBO);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, quad.getVertexCount());
 		shader.stop();
 		fbo.end();
-		auxs[0] = getFbo();
+		auxs[0] = fbo;
 		GPUProfiler.end();
 	}
 
@@ -144,8 +144,5 @@ public abstract class DeferredPass implements IDeferredPass {
 		fbo.dispose();
 	}
 
-	public FBO getFbo() {
-		return fbo;
-	}
 
 }

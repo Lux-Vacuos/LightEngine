@@ -48,6 +48,7 @@ import org.lwjgl.assimp.AIScene;
 import com.badlogic.gdx.utils.async.AsyncResult;
 
 import net.luxvacuos.igl.Logger;
+import net.luxvacuos.lightengine.client.rendering.opengl.GLResourceLoader;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Model;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 
@@ -71,7 +72,7 @@ public class AssimpResourceLoader {
 		String ext = fileName.split("\\.")[1];
 		ByteBuffer bFile = null;
 		try {
-			bFile = ResourceLoader.ioResourceToByteBuffer(fileName, 512);
+			bFile = GLResourceLoader.ioResourceToByteBuffer(fileName, 512);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

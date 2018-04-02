@@ -42,10 +42,10 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
+import net.luxvacuos.lightengine.client.rendering.IResourceLoader;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.ParticleTexture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.ParticleShader;
-import net.luxvacuos.lightengine.client.resources.ResourceLoader;
 import net.luxvacuos.lightengine.client.world.particles.Particle;
 
 public class ParticleRenderer {
@@ -57,11 +57,11 @@ public class ParticleRenderer {
 	private RawModel quad;
 	private ParticleShader shader;
 
-	private ResourceLoader loader;
+	private IResourceLoader loader;
 	private int vbo;
 	private int pointer = 0;
 
-	public ParticleRenderer(ResourceLoader loader) {
+	public ParticleRenderer(IResourceLoader loader) {
 		this.loader = loader;
 		this.vbo = loader.createEmptyVBO(INSTANCE_DATA_LENGHT * MAX_INSTANCES);
 		quad = loader.loadToVAO(VERTICES, 2);

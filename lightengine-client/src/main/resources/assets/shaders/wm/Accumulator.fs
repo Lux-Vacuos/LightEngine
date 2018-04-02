@@ -20,17 +20,10 @@
 
 in vec2 textureCoords;
 
-out vec4 out_Color;
+out vec4 outColor;
 
-uniform sampler2D image;
-uniform sampler2D window;
-uniform int blurBehind;
-uniform vec4 frame;
+uniform sampler2D composite1;
 
 void main() {
-	out_Color = texture(image, textureCoords);
-	out_Color.a = 1.0;
-	if (blurBehind == 1)
-		if (texture(window, textureCoords).a > 0.0)
-			out_Color.a = 0.0;
+	outColor = texture(composite1, textureCoords);
 }

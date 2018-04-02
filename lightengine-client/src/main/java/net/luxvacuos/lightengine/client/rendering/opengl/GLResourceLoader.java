@@ -18,7 +18,7 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.resources;
+package net.luxvacuos.lightengine.client.rendering.opengl;
 
 import static org.lwjgl.nanovg.NanoVG.nvgCreateFontMem;
 import static org.lwjgl.nanovg.NanoVG.nvgCreateImageMem;
@@ -99,7 +99,8 @@ import net.luxvacuos.lightengine.client.core.exception.DecodeTextureException;
 import net.luxvacuos.lightengine.client.core.exception.LoadOBJModelException;
 import net.luxvacuos.lightengine.client.core.exception.LoadTextureException;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
-import net.luxvacuos.lightengine.client.rendering.glfw.WindowManager;
+import net.luxvacuos.lightengine.client.rendering.IResourceLoader;
+import net.luxvacuos.lightengine.client.rendering.glfw.AbstractWindow;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CubeMapTexture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.RawTexture;
@@ -107,7 +108,6 @@ import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.VertexNM;
 import net.luxvacuos.lightengine.client.ui.Font;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
-import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
 /**
  * This objects handles all loading methods from any type of data, models,
@@ -116,7 +116,7 @@ import net.luxvacuos.lightengine.universal.resources.IDisposable;
  * @author Guerra24 <pablo230699@hotmail.com>
  * @category Assets
  */
-public class ResourceLoader implements IDisposable {
+public class GLResourceLoader implements IResourceLoader {
 	/**
 	 * VAOs List
 	 */
@@ -125,11 +125,10 @@ public class ResourceLoader implements IDisposable {
 	 * VBOs List
 	 */
 	private List<Integer> vbos = new ArrayList<Integer>();
-	private long windowID, nvgID;
+	private AbstractWindow window;
 
-	public ResourceLoader(long windowID, long nvgID) {
-		this.windowID = windowID;
-		this.nvgID = nvgID;
+	public GLResourceLoader(AbstractWindow abstractWindow) {
+		this.window = abstractWindow;
 	}
 
 	/**
@@ -145,6 +144,7 @@ public class ResourceLoader implements IDisposable {
 	 *            Array of Indices
 	 * @return A RawModel
 	 */
+	@Override
 	public RawModel loadToVAO(float[] positions, float[] textureCoords, float[] normals, float[] tangents,
 			int[] indices) {
 		int vaoID = createVAO();
@@ -157,6 +157,7 @@ public class ResourceLoader implements IDisposable {
 		return new RawModel(vaoID, indices.length);
 	}
 
+	@Override
 	public int loadToVAO(float[] positions, float[] textureCoords) {
 		int vaoID = createVAO();
 		storeDataInAttributeList(0, 2, positions);
@@ -174,6 +175,7 @@ public class ResourceLoader implements IDisposable {
 	 *            Dimension
 	 * @return RawModel
 	 */
+	@Override
 	public RawModel loadToVAO(float[] positions, int dimensions) {
 		int vaoID = createVAO();
 		this.storeDataInAttributeList(0, dimensions, positions);
@@ -181,6 +183,7 @@ public class ResourceLoader implements IDisposable {
 		return new RawModel(vaoID, positions.length / dimensions);
 	}
 
+	@Override
 	public int createEmptyVBO(int floatCount) {
 		int vbo = glGenBuffers();
 		vbos.add(vbo);
@@ -190,6 +193,7 @@ public class ResourceLoader implements IDisposable {
 		return vbo;
 	}
 
+	@Override
 	public void updateVBO(int vbo, float[] data) {
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		glBufferData(GL_ARRAY_BUFFER, data.length * 4, GL_STREAM_DRAW);
@@ -197,6 +201,7 @@ public class ResourceLoader implements IDisposable {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
+	@Override
 	public void addInstacedAttribute(int vao, int vbo, int attribute, int dataSize, int instancedDataLenght,
 			int offset) {
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -207,10 +212,12 @@ public class ResourceLoader implements IDisposable {
 		glBindVertexArray(0);
 	}
 
+	@Override
 	public Texture loadTextureMisc(String fileName) {
 		return loadTextureMisc(fileName, GL_LINEAR, true);
 	}
 
+	@Override
 	public Texture loadTextureMisc(String fileName, int filter, boolean textureMipMapAF) {
 		int texture_id = 0;
 		try {
@@ -222,10 +229,12 @@ public class ResourceLoader implements IDisposable {
 		return new Texture(texture_id);
 	}
 
+	@Override
 	public Texture loadTexture(String fileName) {
 		return loadTexture(fileName, GL_LINEAR, true);
 	}
 
+	@Override
 	public Texture loadTexture(String fileName, int filter, boolean textureMipMapAF) {
 		int texture = 0;
 		try {
@@ -261,6 +270,7 @@ public class ResourceLoader implements IDisposable {
 		}
 	}
 
+	@Override
 	public int createTexture(RawTexture data, int filter, int textureWarp, int format, boolean textureMipMapAF) {
 		int textureID = glGenTextures();
 		glBindTexture(GL_TEXTURE_2D, textureID);
@@ -288,7 +298,7 @@ public class ResourceLoader implements IDisposable {
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0);
 			glGenerateMipmap(GL_TEXTURE_2D);
 
-			if (WindowManager.getWindow(windowID).getCapabilities().GL_EXT_texture_filter_anisotropic) {
+			if (window.getCapabilities().GL_EXT_texture_filter_anisotropic) {
 				float amount = Math.min(16f, EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT);
 				glTexParameterf(GL_TEXTURE_2D, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT, amount);
 			} else
@@ -298,36 +308,40 @@ public class ResourceLoader implements IDisposable {
 		return textureID;
 	}
 
+	@Override
 	public Font loadNVGFont(String filename, String name) {
 		return loadNVGFont(filename, name, 150);
 	}
 
+	@Override
 	public Font loadNVGFont(String filename, String name, int size) {
 		Logger.log("Loading NVGFont: " + filename + ".ttf");
 		int font = 0;
 		ByteBuffer buffer = null;
 		try {
 			buffer = ioResourceToByteBuffer("assets/fonts/" + filename + ".ttf", size * 1024);
-			font = nvgCreateFontMem(nvgID, name, buffer, 0);
+			font = nvgCreateFontMem(window.getNVGID(), name, buffer, 0);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return new Font(name, buffer, font);
 	}
 
+	@Override
 	public int loadNVGTexture(String file) {
 		ByteBuffer buffer = null;
 		int tex = 0;
 		try {
 			Logger.log("Loading NVGTexture: " + file + ".png");
 			buffer = ioResourceToByteBuffer("assets/textures/menu/" + file + ".png", 1024 * 1024);
-			tex = nvgCreateImageMem(nvgID, 0, buffer);
+			tex = nvgCreateImageMem(window.getNVGID(), 0, buffer);
 		} catch (Exception e) {
 			throw new LoadTextureException(file, e);
 		}
 		return tex;
 	}
 
+	@Override
 	public int loadCubeMap(String[] textureFiles) {
 		int texID = glGenTextures();
 		glBindTexture(GL_TEXTURE_CUBE_MAP, texID);
@@ -344,6 +358,7 @@ public class ResourceLoader implements IDisposable {
 		return texID;
 	}
 
+	@Override
 	public CubeMapTexture createEmptyCubeMap(int size, boolean hdr, boolean mipmap) {
 		int texID = glGenTextures();
 		glBindTexture(GL_TEXTURE_CUBE_MAP, texID);
@@ -411,9 +426,8 @@ public class ResourceLoader implements IDisposable {
 	 * @param fileName
 	 *            OBJ File name
 	 * @return RawModel that contains all the data loaded to the GPU
-	 * @throws LoadOBJModelException
-	 *             Exception in case of error
 	 */
+	@Override
 	public RawModel loadObjModel(String fileName) {
 		InputStream file = getClass().getClassLoader().getResourceAsStream("assets/models/" + fileName + ".obj");
 		Logger.log("Loading Model: " + fileName + ".obj");
@@ -696,7 +710,7 @@ public class ResourceLoader implements IDisposable {
 	 */
 	@Override
 	public void dispose() {
-		Logger.log("Cleaning Resources for: " + windowID);
+		Logger.log("Cleaning Resources for: " + window.getID());
 		for (int vao : vaos) {
 			glDeleteVertexArrays(vao);
 		}

@@ -42,6 +42,7 @@ import org.lwjgl.assimp.AIScene;
 import com.badlogic.gdx.utils.async.AsyncTask;
 
 import net.luxvacuos.igl.Logger;
+import net.luxvacuos.lightengine.client.rendering.opengl.GLResourceLoader;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Model;
 
 public class AsyncModelTask implements AsyncTask<Model> {
@@ -58,7 +59,7 @@ public class AsyncModelTask implements AsyncTask<Model> {
 		String ext = fileName.split("\\.")[1];
 		ByteBuffer bFile = null;
 		try {
-			bFile = ResourceLoader.ioResourceToByteBuffer(fileName, 1024 * 1024);
+			bFile = GLResourceLoader.ioResourceToByteBuffer(fileName, 1024 * 1024);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

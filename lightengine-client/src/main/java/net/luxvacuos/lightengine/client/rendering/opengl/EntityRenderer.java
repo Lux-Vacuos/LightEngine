@@ -50,7 +50,6 @@ import net.luxvacuos.lightengine.client.rendering.opengl.objects.Mesh;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Model;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.EntityDeferredShader;
-import net.luxvacuos.lightengine.client.resources.ResourceLoader;
 import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
 
@@ -65,7 +64,7 @@ public class EntityRenderer implements IObjectRenderer {
 	private EntityShadowRenderer shadowRenderer;
 	private EntityForwardRenderer forwardRenderer;
 
-	public EntityRenderer(ResourceLoader loader) {
+	public EntityRenderer() {
 		shader = new EntityDeferredShader();
 		shadowRenderer = new EntityShadowRenderer();
 		forwardRenderer = new EntityForwardRenderer();

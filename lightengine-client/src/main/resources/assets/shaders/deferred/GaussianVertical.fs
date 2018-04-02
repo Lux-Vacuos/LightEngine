@@ -18,8 +18,6 @@
 //
 //
 
-#version 330 core
-
 in vec2 blurTexCoords[17];
 
 out vec4 out_Color;

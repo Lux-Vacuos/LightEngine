@@ -18,8 +18,6 @@
 //
 //
 
-#version 330 core
-
 in vec2 textureCoords;
 
 out vec2 out_color;

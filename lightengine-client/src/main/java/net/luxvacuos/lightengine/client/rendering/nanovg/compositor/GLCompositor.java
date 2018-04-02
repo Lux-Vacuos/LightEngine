@@ -29,10 +29,10 @@ import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLE_STRIP;
 import static org.lwjgl.opengl.GL11.glBindTexture;
 import static org.lwjgl.opengl.GL11.glClear;
-import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glDrawArrays;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE2;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
@@ -53,6 +53,7 @@ import net.luxvacuos.lightengine.client.rendering.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.nanovg.AnimationState;
 import net.luxvacuos.lightengine.client.rendering.nanovg.IWindow;
 import net.luxvacuos.lightengine.client.rendering.nanovg.shaders.Window3DShader;
+import net.luxvacuos.lightengine.client.rendering.nanovg.shaders.WindowManagerShader;
 import net.luxvacuos.lightengine.client.rendering.opengl.GPUProfiler;
 import net.luxvacuos.lightengine.client.rendering.opengl.Renderer;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.RawModel;
@@ -63,54 +64,76 @@ public class GLCompositor implements ICompositor {
 	private static RawModel quad, quadFull;
 	private CameraEntity camera;
 	private NVGLUFramebuffer fbos[];
-	private NVGLUFramebuffer currentWindow;
+	private NVGLUFramebuffer currentWindow, accumulator;
 
 	private Window3DShader shader;
-	private Window window;
+	private WindowManagerShader accumulatorShader;
 	private List<GLCompositorEffect> effects = new ArrayList<>();
 	private Map<IWindow, AnimationData> animationData = new HashMap<>();
+	private int width, height;
+	private long nvg;
 
 	public GLCompositor(Window window, int width, int height) {
-		this.window = window;
-		fbos = new NVGLUFramebuffer[2];
-		fbos[0] = nvgluCreateFramebuffer(window.getNVGID(), width, height, 0);
-		fbos[1] = nvgluCreateFramebuffer(window.getNVGID(), width, height, 0);
-		currentWindow = nvgluCreateFramebuffer(window.getNVGID(), width, height, 0);
+		this.width = width;
+		this.height = height;
+		this.nvg = window.getNVGID();
 		float[] positions = { -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, -0.5f };
 		if (quad == null)
 			quad = window.getResourceLoader().loadToVAO(positions, 2);
 		float[] positionsFull = { -1, 1, -1, -1, 1, 1, 1, -1 };
 		if (quadFull == null)
 			quadFull = window.getResourceLoader().loadToVAO(positionsFull, 2);
+		
+		fbos = new NVGLUFramebuffer[2];
+		accumulator = nvgluCreateFramebuffer(nvg, width, height, 0);
+		currentWindow = nvgluCreateFramebuffer(nvg, width, height, 0);
+		fbos[0] = accumulator;
+		
 		shader = new Window3DShader();
+		accumulatorShader = new WindowManagerShader("Accumulator");
 		camera = new CameraEntity("");
+		
 		// Orthographic mode
 		/*
-		 * float aspectY = (float) this.window.getWidth() / (float)
-		 * this.window.getHeight(); float aspectX = (float) this.window.getHeight() /
-		 * (float) this.window.getWidth(); camera.setProjectionMatrix(
+		 * float aspectY = (float) width / (float) height; float aspectX = (float)
+		 * height / (float) width; camera.setProjectionMatrix(
 		 * Maths.orthographic(-aspectY, aspectY, -aspectY * aspectX, aspectY * aspectX,
 		 * 0.1f, 100, true));
 		 */
-		camera.setProjectionMatrix(
-				Renderer.createProjectionMatrix(this.window.getWidth(), this.window.getHeight(), 45, 0.1f, 1000f));
-		effects.add(new GLCompositorEffect(width, height, "MaskBlur"));
-		effects.add(new GLCompositorEffect(width / 2, height / 2, "GaussianV"));
-		effects.add(new GLCompositorEffect(width / 2, height / 2, "GaussianH"));
-		effects.add(new GLCompositorEffect(width, height, "Final"));
+		camera.setProjectionMatrix(Renderer.createProjectionMatrix(width, height, 45, 0.1f, 1000f));
+		effects.add(new GLCompositorEffect(width / 2, height / 2, "GaussianV", nvg) {
+			@Override
+			protected void prepareTextures(NVGLUFramebuffer[] fbos) {
+			}
+
+		});
+		effects.add(new GLCompositorEffect(width / 2, height / 2, "GaussianH", nvg) {
+			@Override
+			protected void prepareTextures(NVGLUFramebuffer[] fbos) {
+				glActiveTexture(GL_TEXTURE2);
+				glBindTexture(GL_TEXTURE_2D, fbos[0].texture());
+			}
+
+		});
+		effects.add(new GLCompositorEffect(width, height, "Final", nvg) {
+			@Override
+			protected void prepareTextures(NVGLUFramebuffer[] fbos) {
+				glActiveTexture(GL_TEXTURE2);
+				glBindTexture(GL_TEXTURE_2D, fbos[0].texture());
+			}
+
+		});
 	}
 
 	@Override
 	public void render(List<IWindow> windows, float delta) {
-		camera.setProjectionMatrix(
-				Renderer.createProjectionMatrix(this.window.getWidth(), this.window.getHeight(), 45, 0.1f, 1000f));
+		camera.setProjectionMatrix(Renderer.createProjectionMatrix(width, height, 45, 0.1f, 1000f));
 		camera.afterUpdate(delta);
 		GPUProfiler.start("Compositing");
 		glDisable(GL_BLEND);
-		nvgluBindFramebuffer(this.window.getNVGID(), fbos[0]);
-		glClearColor(0, 0, 0, 0);
+		nvgluBindFramebuffer(nvg, accumulator);
 		glClear(GL_COLOR_BUFFER_BIT);
-		nvgluBindFramebuffer(this.window.getNVGID(), null);
+		nvgluBindFramebuffer(nvg, null);
 		for (int z = 0; z < windows.size(); z++) {
 			IWindow window = windows.get(z);
 			if (window.getFBO() != null) {
@@ -118,11 +141,20 @@ public class GLCompositor implements ICompositor {
 				if (!window.isHidden() && !window.isMinimized()) {
 					render(window, windows.size() - z, delta);
 					for (GLCompositorEffect compositorEffect : effects) {
-						NVGLUFramebuffer tmp = fbos[0];
-						fbos[0] = fbos[1];
-						fbos[1] = tmp;
-						compositorEffect.render(fbos, quadFull, this.window, window, currentWindow.texture());
+						compositorEffect.render(fbos, quadFull, window, currentWindow.texture(), accumulator.texture());
 					}
+					nvgluBindFramebuffer(nvg, accumulator);
+					glClear(GL_COLOR_BUFFER_BIT);
+					accumulatorShader.start();
+					glBindVertexArray(quadFull.getVaoID());
+					glEnableVertexAttribArray(0);
+					glActiveTexture(GL_TEXTURE2);
+					glBindTexture(GL_TEXTURE_2D, fbos[0].texture());
+					glDrawArrays(GL_TRIANGLE_STRIP, 0, quadFull.getVertexCount());
+					glDisableVertexAttribArray(0);
+					glBindVertexArray(0);
+					accumulatorShader.stop();
+					nvgluBindFramebuffer(nvg, null);
 				}
 				GPUProfiler.end();
 			}
@@ -257,24 +289,24 @@ public class GLCompositor implements ICompositor {
 			}
 			break;
 		}
-		float aspect = (float) this.window.getWidth() / (float) this.window.getHeight();
+		float aspect = (float) width / (float) height;
 		float x = 0, y = 0;
 		float divX = (float) window.getFW() / 2f;
 		float divY = (float) window.getFH() / 2f;
-		x = (float) (window.getFX() + divX) / (float) this.window.getWidth();
-		y = (float) (window.getFY() - divY) / (float) this.window.getHeight();
+		x = (float) (window.getFX() + divX) / (float) width;
+		y = (float) (window.getFY() - divY) / (float) height;
 		x *= aspect;
 		x *= 2f;
 		y -= 0.5f;
 		y *= 2;
-		float scaleY = (float) window.getFH() / (float) this.window.getHeight();
-		float scaleX = (float) window.getFW() / (float) this.window.getWidth();
+		float scaleY = (float) window.getFH() / (float) height;
+		float scaleX = (float) window.getFW() / (float) width;
 		scaleX *= aspect;
 		scaleX *= 2;
 		scaleX *= offsetScaleX;
 		scaleY *= 2;
 		scaleY *= offsetScaleY;
-		nvgluBindFramebuffer(this.window.getNVGID(), currentWindow);
+		nvgluBindFramebuffer(nvg, currentWindow);
 		glClear(GL_COLOR_BUFFER_BIT);
 		shader.start();
 		shader.loadProjectionMatrix(camera.getProjectionMatrix());
@@ -290,24 +322,24 @@ public class GLCompositor implements ICompositor {
 		glDisableVertexAttribArray(0);
 		glBindVertexArray(0);
 		shader.stop();
-		nvgluBindFramebuffer(this.window.getNVGID(), null);
+		nvgluBindFramebuffer(nvg, null);
 	}
 
 	@Override
 	public void dispose() {
-		nvgluDeleteFramebuffer(window.getNVGID(), fbos[0]);
-		nvgluDeleteFramebuffer(window.getNVGID(), fbos[1]);
-		nvgluDeleteFramebuffer(window.getNVGID(), currentWindow);
+		nvgluDeleteFramebuffer(nvg, accumulator);
+		nvgluDeleteFramebuffer(nvg, currentWindow);
 		for (GLCompositorEffect compositorEffect : effects) {
 			compositorEffect.dispose();
 		}
 		effects.clear();
 		shader.dispose();
+		accumulatorShader.dispose();
 	}
 
 	@Override
-	public NVGLUFramebuffer[] getFbos() {
-		return fbos;
+	public NVGLUFramebuffer getFinal() {
+		return accumulator;
 	}
 
 }

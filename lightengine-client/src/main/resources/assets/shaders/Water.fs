@@ -18,8 +18,6 @@
 //
 //
 
-#version 330 core
-
 in vec3 passPositionOut;
 in vec4 clipSpaceOut;
 in vec2 textureCoordsOut;

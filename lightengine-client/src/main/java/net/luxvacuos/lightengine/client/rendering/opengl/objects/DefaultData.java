@@ -20,13 +20,11 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl.objects;
 
-import net.luxvacuos.lightengine.client.resources.ResourceLoader;
-
 public final class DefaultData {
 
 	public static CachedTexture diffuse, normal, roughness, metallic;
 
-	public static void init(ResourceLoader loader) {
+	public static void init() {
 		diffuse = CachedAssets.loadTexture("textures/def/d.png", true);
 		normal = CachedAssets.loadTextureMisc("textures/def/d_n.png", true);
 		roughness = CachedAssets.loadTextureMisc("textures/def/d_r.png", true);

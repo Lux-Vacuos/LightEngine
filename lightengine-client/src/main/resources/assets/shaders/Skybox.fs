@@ -18,8 +18,6 @@
 //
 //
 
-#version 330 core
-
 in vec2 pass_textureCoords;
 in vec3 pass_position;
 in vec3 pass_normal;

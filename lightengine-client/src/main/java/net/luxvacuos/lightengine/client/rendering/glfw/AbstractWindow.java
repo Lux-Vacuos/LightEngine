@@ -56,8 +56,10 @@ import org.lwjgl.opengles.GLESCapabilities;
 
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
 import net.luxvacuos.lightengine.client.input.MouseHandler;
+import net.luxvacuos.lightengine.client.rendering.IResourceLoader;
+import net.luxvacuos.lightengine.client.rendering.opengl.GLResourceLoader;
+import net.luxvacuos.lightengine.client.rendering.opengles.GLESResourceLoader;
 import net.luxvacuos.lightengine.client.resources.AssimpResourceLoader;
-import net.luxvacuos.lightengine.client.resources.ResourceLoader;
 
 public abstract class AbstractWindow implements IWindow {
 
@@ -92,7 +94,7 @@ public abstract class AbstractWindow implements IWindow {
 	protected boolean maximized = false;
 
 	protected long nvgID;
-	protected ResourceLoader resourceLoader;
+	protected IResourceLoader resourceLoader;
 	protected AssimpResourceLoader assimpResourceLoader;
 
 	protected double lastLoopTime;
@@ -311,10 +313,19 @@ public abstract class AbstractWindow implements IWindow {
 	public long getNVGID() {
 		return this.nvgID;
 	}
-	
-	public ResourceLoader getResourceLoader() {
+
+	public IResourceLoader getResourceLoader() {
 		if (this.resourceLoader == null)
-			this.resourceLoader = new ResourceLoader(this.windowID, this.nvgID);
+			switch (api) {
+			case GL:
+				this.resourceLoader = new GLResourceLoader(this);
+				break;
+			case GLES:
+				this.resourceLoader = new GLESResourceLoader(this);
+				break;
+			default:
+				break;
+			}
 		return this.resourceLoader;
 	}
 

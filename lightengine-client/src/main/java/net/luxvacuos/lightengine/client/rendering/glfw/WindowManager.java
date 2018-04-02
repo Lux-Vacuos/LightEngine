@@ -51,7 +51,7 @@ import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.core.exception.DecodeTextureException;
 import net.luxvacuos.lightengine.client.core.exception.GLFWException;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
-import net.luxvacuos.lightengine.client.resources.ResourceLoader;
+import net.luxvacuos.lightengine.client.rendering.opengl.GLResourceLoader;
 
 public final class WindowManager {
 
@@ -88,7 +88,7 @@ public final class WindowManager {
 
 				ByteBuffer imageBuffer;
 				try {
-					imageBuffer = ResourceLoader.ioResourceToByteBuffer("assets/cursors/" + handle.cursor + ".png",
+					imageBuffer = GLResourceLoader.ioResourceToByteBuffer("assets/cursors/" + handle.cursor + ".png",
 							1 * 1024);
 				} catch (IOException e) {
 					throw new GLFWException(e);
@@ -113,7 +113,7 @@ public final class WindowManager {
 				for (Icon icon : handle.icons) {
 					ByteBuffer imageBuffer;
 					try {
-						imageBuffer = ResourceLoader.ioResourceToByteBuffer("assets/icons/" + icon.path + ".png",
+						imageBuffer = GLResourceLoader.ioResourceToByteBuffer("assets/icons/" + icon.path + ".png",
 								16 * 1024);
 					} catch (IOException e) {
 						throw new GLFWException(e);

@@ -35,9 +35,9 @@ import org.joml.Vector3f;
 
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
+import net.luxvacuos.lightengine.client.rendering.IResourceLoader;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.SkyboxShader;
-import net.luxvacuos.lightengine.client.resources.ResourceLoader;
 import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
 
@@ -48,7 +48,7 @@ public class SkyboxRenderer {
 	private float scale;
 	private Vector3f pos;
 
-	public SkyboxRenderer(ResourceLoader loader) {
+	public SkyboxRenderer(IResourceLoader loader) {
 		if (ClientVariables.FAR_PLANE > 0 && Float.isInfinite(ClientVariables.FAR_PLANE))
 			scale = 100000; // Arbitrary number
 		else

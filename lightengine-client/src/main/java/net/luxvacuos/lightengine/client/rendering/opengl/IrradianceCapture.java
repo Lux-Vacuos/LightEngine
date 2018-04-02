@@ -53,11 +53,11 @@ import org.joml.Vector3f;
 
 import net.luxvacuos.lightengine.client.core.exception.FrameBufferException;
 import net.luxvacuos.lightengine.client.ecs.entities.CubeMapCamera;
+import net.luxvacuos.lightengine.client.rendering.IResourceLoader;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CubeMapTexture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.IrradianceCaptureShader;
-import net.luxvacuos.lightengine.client.resources.ResourceLoader;
 import net.luxvacuos.lightengine.universal.ecs.entities.RootEntity;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
@@ -79,7 +79,7 @@ public class IrradianceCapture implements IDisposable {
 	private CubeMapCamera camera;
 	private RawModel cube;
 
-	public IrradianceCapture(ResourceLoader loader) {
+	public IrradianceCapture(IResourceLoader loader) {
 		shader = new IrradianceCaptureShader();
 		camera = new CubeMapCamera(new Vector3f());
 		camera.setRootEntity(new RootEntity());
