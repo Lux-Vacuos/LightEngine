@@ -106,12 +106,22 @@ public class GLESCompositor implements ICompositor {
 			protected void prepareTextures(NVGLUFramebuffer[] fbos) {
 			}
 
+			@Override
+			public void resize(int width, int height) {
+				super.resize(width / 4, height / 4);
+			}
+
 		});
 		effects.add(new GLESCompositorEffect(width / 2, height / 2, "GaussianH", nvg) {
 			@Override
 			protected void prepareTextures(NVGLUFramebuffer[] fbos) {
 				glActiveTexture(GL_TEXTURE2);
 				glBindTexture(GL_TEXTURE_2D, fbos[0].texture());
+			}
+
+			@Override
+			public void resize(int width, int height) {
+				super.resize(width / 4, height / 4);
 			}
 
 		});
@@ -323,6 +333,19 @@ public class GLESCompositor implements ICompositor {
 		glBindVertexArray(0);
 		shader.stop();
 		nvgluBindFramebuffer(nvg, null);
+	}
+
+	@Override
+	public void resize(int width, int height) {
+		this.width = width;
+		this.height = height;
+		nvgluDeleteFramebuffer(nvg, accumulator);
+		nvgluDeleteFramebuffer(nvg, currentWindow);
+		accumulator = nvgluCreateFramebuffer(nvg, width, height, 0);
+		currentWindow = nvgluCreateFramebuffer(nvg, width, height, 0);
+		for (GLESCompositorEffect compositorEffect : effects) {
+			compositorEffect.resize(width, height);
+		}
 	}
 
 	@Override

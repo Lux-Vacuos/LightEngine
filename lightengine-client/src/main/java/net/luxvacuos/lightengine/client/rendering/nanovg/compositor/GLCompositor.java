@@ -83,16 +83,16 @@ public class GLCompositor implements ICompositor {
 		float[] positionsFull = { -1, 1, -1, -1, 1, 1, 1, -1 };
 		if (quadFull == null)
 			quadFull = window.getResourceLoader().loadToVAO(positionsFull, 2);
-		
+
 		fbos = new NVGLUFramebuffer[2];
 		accumulator = nvgluCreateFramebuffer(nvg, width, height, 0);
 		currentWindow = nvgluCreateFramebuffer(nvg, width, height, 0);
 		fbos[0] = accumulator;
-		
+
 		shader = new Window3DShader();
 		accumulatorShader = new WindowManagerShader("Accumulator");
 		camera = new CameraEntity("");
-		
+
 		// Orthographic mode
 		/*
 		 * float aspectY = (float) width / (float) height; float aspectX = (float)
@@ -101,17 +101,27 @@ public class GLCompositor implements ICompositor {
 		 * 0.1f, 100, true));
 		 */
 		camera.setProjectionMatrix(Renderer.createProjectionMatrix(width, height, 45, 0.1f, 1000f));
-		effects.add(new GLCompositorEffect(width / 2, height / 2, "GaussianV", nvg) {
+		effects.add(new GLCompositorEffect(width / 4, height / 4, "GaussianV", nvg) {
 			@Override
 			protected void prepareTextures(NVGLUFramebuffer[] fbos) {
 			}
 
+			@Override
+			public void resize(int width, int height) {
+				super.resize(width / 4, height / 4);
+			}
+			
 		});
-		effects.add(new GLCompositorEffect(width / 2, height / 2, "GaussianH", nvg) {
+		effects.add(new GLCompositorEffect(width / 4, height / 4, "GaussianH", nvg) {
 			@Override
 			protected void prepareTextures(NVGLUFramebuffer[] fbos) {
 				glActiveTexture(GL_TEXTURE2);
 				glBindTexture(GL_TEXTURE_2D, fbos[0].texture());
+			}
+
+			@Override
+			public void resize(int width, int height) {
+				super.resize(width / 4, height / 4);
 			}
 
 		});
@@ -323,6 +333,19 @@ public class GLCompositor implements ICompositor {
 		glBindVertexArray(0);
 		shader.stop();
 		nvgluBindFramebuffer(nvg, null);
+	}
+
+	@Override
+	public void resize(int width, int height) {
+		this.width = width;
+		this.height = height;
+		nvgluDeleteFramebuffer(nvg, accumulator);
+		nvgluDeleteFramebuffer(nvg, currentWindow);
+		accumulator = nvgluCreateFramebuffer(nvg, width, height, 0);
+		currentWindow = nvgluCreateFramebuffer(nvg, width, height, 0);
+		for (GLCompositorEffect compositorEffect : effects) {
+			compositorEffect.resize(width, height);
+		}
 	}
 
 	@Override

@@ -299,19 +299,8 @@ public class NanoWindowManager implements IWindowManager {
 		this.width = width;
 		this.height = height;
 		notifyAllWindows(WindowMessage.WM_RESIZE, null);
-		if (compositorEnabled) {
-			compositor.dispose();
-			switch (GraphicalSubsystem.getAPI()) {
-			case GL:
-				compositor = new GLCompositor(window, width, height);
-				break;
-			case GLES:
-				compositor = new GLESCompositor(window, width, height);
-				break;
-			default:
-				break;
-			}
-		}
+		if (compositorEnabled)
+			compositor.resize(width, height);
 	}
 
 	@Override

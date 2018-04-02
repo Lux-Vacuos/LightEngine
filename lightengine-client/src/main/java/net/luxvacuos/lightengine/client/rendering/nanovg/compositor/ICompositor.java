@@ -30,6 +30,8 @@ public interface ICompositor {
 
 	public void render(List<IWindow> windows, float delta);
 
+	public void resize(int width, int height);
+
 	public void dispose();
 
 	public NVGLUFramebuffer getFinal();
