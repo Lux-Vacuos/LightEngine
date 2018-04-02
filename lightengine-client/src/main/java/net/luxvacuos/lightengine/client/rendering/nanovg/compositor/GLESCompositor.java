@@ -101,7 +101,7 @@ public class GLESCompositor implements ICompositor {
 		 * 0.1f, 100, true));
 		 */
 		camera.setProjectionMatrix(Renderer.createProjectionMatrix(width, height, 45, 0.1f, 1000f));
-		effects.add(new GLESCompositorEffect(width, height, "GaussianV", nvg) {
+		effects.add(new GLESCompositorEffect(width / 4, height / 4, "GaussianV", nvg) {
 			@Override
 			protected void prepareTextures(NVGLUFramebuffer[] fbos) {
 			}
@@ -112,7 +112,7 @@ public class GLESCompositor implements ICompositor {
 			}
 
 		});
-		effects.add(new GLESCompositorEffect(width / 2, height / 2, "GaussianH", nvg) {
+		effects.add(new GLESCompositorEffect(width / 4, height / 4, "GaussianH", nvg) {
 			@Override
 			protected void prepareTextures(NVGLUFramebuffer[] fbos) {
 				glActiveTexture(GL_TEXTURE2);
@@ -125,7 +125,7 @@ public class GLESCompositor implements ICompositor {
 			}
 
 		});
-		effects.add(new GLESCompositorEffect(width / 2, height / 2, "Final", nvg) {
+		effects.add(new GLESCompositorEffect(width, height, "Final", nvg) {
 			@Override
 			protected void prepareTextures(NVGLUFramebuffer[] fbos) {
 				glActiveTexture(GL_TEXTURE2);
