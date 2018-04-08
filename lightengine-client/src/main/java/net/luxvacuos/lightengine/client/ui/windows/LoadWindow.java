@@ -20,33 +20,28 @@
 
 package net.luxvacuos.lightengine.client.ui.windows;
 
-import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_CENTER;
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_MIDDLE;
 
 import java.io.File;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
-import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.Image;
 import net.luxvacuos.lightengine.client.ui.Spinner;
 import net.luxvacuos.lightengine.client.ui.Text;
 import net.luxvacuos.lightengine.universal.core.PackageLoader;
-import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
 public class LoadWindow extends ComponentWindow {
 	private Text message;
 
-	public LoadWindow(int x, int y, int w, int h) {
-		super(x, y, w, h, "System Loader");
+	public LoadWindow() {
+		super("System Loader");
 	}
 
 	@Override
 	public void initApp() {
-		super.setResizable(false);
-		super.setDecorations(false);
 		super.setBlurBehind(false);
 		super.setBackgroundColor("#FFFFFFFF");
 
@@ -87,16 +82,6 @@ public class LoadWindow extends ComponentWindow {
 			message.setText("Package not found");
 			return false;
 		}
-	}
-
-	@Override
-	public void processWindowMessage(int message, Object param) {
-		if (message == WindowMessage.WM_RESIZE) {
-			y = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
-			w = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"));
-			h = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
-		}
-		super.processWindowMessage(message, param);
 	}
 
 }

@@ -48,9 +48,7 @@ public class SplashScreenState extends AbstractState {
 
 	@Override
 	public void start() {
-		window = new LoadWindow(0, (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height")),
-				(int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width")),
-				(int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height")));
+		window = new LoadWindow();
 		GraphicalSubsystem.getWindowManager().addWindow(window);
 		super.start();
 	}
