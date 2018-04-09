@@ -34,7 +34,7 @@ public class ClientTaskManager extends TaskManager {
 
 	private Queue<Runnable> tasksRenderThread = new LinkedList<>(), tasksRenderBackgroundThread = new LinkedList<>();
 	private Thread renderBackgroundThread;
-	private boolean runBackgroundThread = true, syncInterrupt;
+	private boolean runBackgroundThread = true, syncInterrupt = true;
 	private long renderBackgroundThreadID;
 
 	@Override
