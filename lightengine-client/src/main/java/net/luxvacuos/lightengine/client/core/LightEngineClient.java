@@ -100,6 +100,7 @@ public class LightEngineClient extends UniversalEngine implements IClientEngine 
 		});
 		renderThread.setName("Render Thread");
 		renderThread.start();
+		GraphicalSubsystem.setRenderThreadID(renderThread.getId());
 		try {
 			Thread.sleep(Long.MAX_VALUE);
 		} catch (InterruptedException e) {

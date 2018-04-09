@@ -70,7 +70,7 @@ public class DummyShell implements IShell {
 	}
 
 	@Override
-	public void render(IWindowManager nanoWindowManager) {
+	public void render(float delta, IWindowManager nanoWindowManager) {
 	}
 
 	@Override

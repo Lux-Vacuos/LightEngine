@@ -43,6 +43,8 @@ public class WindowMessage {
 	public static final int WM_COMPOSITOR_DISABLED = 20;
 	public static final int WM_COMPOSITOR_ENABLED = 21;
 	public static final int WM_COMPOSITOR_RELOAD = 22;
+	public static final int WM_FADE_IN = 23;
+	public static final int WM_FADE_OUT = 24;
 	public static final int WM_SHELL_WINDOW_CREATED = 80;
 	public static final int WM_SHELL_WINDOW_CLOSED = 81;
 	public static final int WM_SHELL_WINDOW_FOCUS = 82;

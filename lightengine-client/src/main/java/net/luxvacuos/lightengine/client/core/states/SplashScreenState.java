@@ -23,6 +23,8 @@ package net.luxvacuos.lightengine.client.core.states;
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
+import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
+import net.luxvacuos.lightengine.client.ui.OnAction;
 import net.luxvacuos.lightengine.client.ui.windows.LoadWindow;
 import net.luxvacuos.lightengine.client.ui.windows.Shell;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
@@ -64,32 +66,36 @@ public class SplashScreenState extends AbstractState {
 		shell.toggleShell();
 	}
 
-	public void render(float alpha) {
-	}
-
 	@Override
 	public void update(float delta) {
 		if (tryLoad)
 			if (TaskManager.tm.isEmpty()) {
-				try {
-					StateMachine.setCurrentState(StateNames.MAIN);
-				} catch (NullPointerException e) {
+				if (StateMachine.hasState(StateNames.MAIN)) {
 					tryLoad = false;
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e1) {
-					}
+					TaskManager.tm.addTaskBackgroundThread(() -> {
+						try {
+							Thread.sleep(4000);
+						} catch (InterruptedException e) {
+						}
+						window.notifyWindow(WindowMessage.WM_FADE_OUT,
+								(OnAction) () -> StateMachine.setCurrentState(StateNames.MAIN));
+					});
+				} else {
 					if (window.onLoadFailed())
 						tryLoad = true;
 					else {
-						try {
-							Thread.sleep(3000);
-						} catch (InterruptedException e1) {
-						}
-						StateMachine.stop();
+						tryLoad = false;
+						TaskManager.tm.addTaskBackgroundThread(() -> {
+							try {
+								Thread.sleep(4000);
+							} catch (InterruptedException e) {
+							}
+							window.notifyWindow(WindowMessage.WM_FADE_OUT,
+									(OnAction) () -> TaskManager.tm.addTaskBackgroundThread(() -> StateMachine.stop()));
+						});
 					}
-
 				}
+
 			}
 	}
 

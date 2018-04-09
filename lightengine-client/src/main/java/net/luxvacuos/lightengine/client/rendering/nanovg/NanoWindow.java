@@ -28,6 +28,7 @@ import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_CENTER;
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_MIDDLE;
 import static org.lwjgl.nanovg.NanoVG.nvgBeginFrame;
 import static org.lwjgl.nanovg.NanoVG.nvgEndFrame;
+import static org.lwjgl.nanovg.NanoVG.nvgGlobalAlpha;
 import static org.lwjgl.nanovg.NanoVG.nvgRestore;
 import static org.lwjgl.nanovg.NanoVG.nvgSave;
 import static org.lwjgl.nanovg.NanoVG.nvgScissor;
@@ -50,6 +51,7 @@ import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.Direction;
 import net.luxvacuos.lightengine.client.ui.FlowLayout;
 import net.luxvacuos.lightengine.client.ui.ITitleBar;
+import net.luxvacuos.lightengine.client.ui.OnAction;
 import net.luxvacuos.lightengine.client.ui.TitleBar;
 import net.luxvacuos.lightengine.client.ui.TitleBarButton;
 import net.luxvacuos.lightengine.client.ui.TitleBarText;
@@ -62,7 +64,7 @@ public abstract class NanoWindow implements IWindow {
 	private boolean draggable = true, decorations = true, resizable = true, maximized, hidden, exit, alwaysOnTop;
 	private boolean background, blurBehind = true, minimized, closeButton = true, afterResize, exiting;
 	private boolean transparentInput, resizingRight, resizingRightBottom, resizingBottom, resizingTop, resizingLeft;
-	private boolean fullScreen, dragging;
+	private boolean fullScreen, dragging, fadeIn, fadeOut;
 	private int ft, fb, fr, fl;
 	private BackgroundStyle backgroundStyle = BackgroundStyle.SOLID;
 	private NVGColor backgroundColor = Theme.rgba(0, 0, 0, 255);
@@ -76,6 +78,8 @@ public abstract class NanoWindow implements IWindow {
 	private String title;
 	private int reY, reX;
 	private AnimationState animationState = AnimationState.NONE;
+	private float globalAlpha = 1f;
+	private OnAction onFadeOut, onFadeIn;
 
 	private Queue<WindowMessage> messageQueue = new ConcurrentLinkedQueue<>();
 
@@ -176,7 +180,25 @@ public abstract class NanoWindow implements IWindow {
 	}
 
 	@Override
-	public void render(IWindowManager nanoWindowManager) {
+	public void render(float delta, IWindowManager nanoWindowManager) {
+		if (fadeIn) {
+			globalAlpha += 4 * delta;
+			if (globalAlpha >= 1) {
+				globalAlpha = 1;
+				fadeIn = false;
+				if (onFadeIn != null)
+					onFadeIn.onAction();
+			}
+		}
+		if (fadeOut) {
+			globalAlpha -= 4 * delta;
+			if (globalAlpha <= 0) {
+				globalAlpha = 0;
+				fadeOut = false;
+				if (onFadeOut != null)
+					onFadeOut.onAction();
+			}
+		}
 		if (!hidden && !minimized) {
 			if (compositor) {
 				nvgluBindFramebuffer(window.getNVGID(), fbo);
@@ -185,6 +207,7 @@ public abstract class NanoWindow implements IWindow {
 				GL.glClear(GL.GL_COLOR_BUFFER_BIT);
 				nvgBeginFrame(window.getNVGID(), fw, fh, 1);
 				nvgSave(window.getNVGID());
+				nvgGlobalAlpha(window.getNVGID(), globalAlpha);
 				Theme.renderWindow(window.getNVGID(), lfx, lfy, w, h, backgroundStyle, backgroundColor, decorations,
 						titleBar.isEnabled(), maximized, ft, fb, fr, fl);
 				if (decorations)
@@ -197,6 +220,7 @@ public abstract class NanoWindow implements IWindow {
 				window.resetViewport();
 			} else {
 				nvgSave(window.getNVGID());
+				nvgGlobalAlpha(window.getNVGID(), globalAlpha);
 				Theme.renderWindow(window.getNVGID(), x, window.getHeight() - y, w, h, backgroundStyle, backgroundColor,
 						decorations, titleBar.isEnabled(), maximized, ft, fb, fr, fl);
 				if (decorations)
@@ -438,6 +462,18 @@ public abstract class NanoWindow implements IWindow {
 				nvgluDeleteFramebuffer(window.getNVGID(), fbo);
 				fbo = null;
 			});
+			break;
+		case WindowMessage.WM_FADE_IN:
+			fadeOut = false;
+			globalAlpha = 0;
+			fadeIn = true;
+			onFadeIn = (OnAction) param;
+			break;
+		case WindowMessage.WM_FADE_OUT:
+			fadeIn = false;
+			globalAlpha = 1;
+			fadeOut = true;
+			onFadeOut = (OnAction) param;
 			break;
 		case WindowMessage.WM_COMPOSITOR_ENABLED:
 			compositor = true;

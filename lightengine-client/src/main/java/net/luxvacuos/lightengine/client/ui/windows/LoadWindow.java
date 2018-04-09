@@ -26,10 +26,10 @@ import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_MIDDLE;
 import java.io.File;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
+import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.Image;
-import net.luxvacuos.lightengine.client.ui.Spinner;
 import net.luxvacuos.lightengine.client.ui.Text;
 import net.luxvacuos.lightengine.universal.core.PackageLoader;
 
@@ -51,11 +51,8 @@ public class LoadWindow extends ComponentWindow {
 		lv.setWindowAlignment(Alignment.CENTER);
 		super.addComponent(lv);
 
-		Spinner load = new Spinner(0, -186, 16);
-		load.setWindowAlignment(Alignment.CENTER);
-		super.addComponent(load);
-
 		super.initApp();
+		this.notifyWindow(WindowMessage.WM_FADE_IN, null);
 	}
 
 	public boolean onLoadFailed() {

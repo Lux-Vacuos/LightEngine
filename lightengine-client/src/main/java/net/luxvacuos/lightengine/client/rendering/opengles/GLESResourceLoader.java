@@ -320,29 +320,58 @@ public class GLESResourceLoader implements IResourceLoader {
 	@Override
 	public Font loadNVGFont(String filename, String name, int size) {
 		Logger.log("Loading NVGFont: " + filename + ".ttf");
-		int font = 0;
-		ByteBuffer buffer = null;
+		int font[] = new int[1];
+		ByteBuffer buffer[] = new ByteBuffer[1];
 		try {
-			buffer = ioResourceToByteBuffer("assets/fonts/" + filename + ".ttf", size * 1024);
-			font = nvgCreateFontMem(window.getNVGID(), name, buffer, 0);
+			buffer[0] = ioResourceToByteBuffer("assets/fonts/" + filename + ".ttf", size * 1024);
+
+			if (isThread(GraphicalSubsystem.getRenderThreadID()))
+				font[0] = nvgCreateFontMem(window.getNVGID(), name, buffer[0], 0);
+			else {
+				Thread main = Thread.currentThread();
+				TaskManager.tm.addTaskRenderThread(() -> {
+					font[0] = nvgCreateFontMem(window.getNVGID(), name, buffer[0], 0);
+					main.interrupt();
+				});
+				try {
+					Thread.sleep(Long.MAX_VALUE);
+				} catch (InterruptedException e) {
+				}
+			}
+
+			font[0] = nvgCreateFontMem(window.getNVGID(), name, buffer[0], 0);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return new Font(name, buffer, font);
+		return new Font(name, buffer[0], font[0]);
 	}
 
 	@Override
 	public int loadNVGTexture(String file) {
-		ByteBuffer buffer = null;
-		int tex = 0;
+		Logger.log("Loading NVGTexture: " + file + ".png");
+		ByteBuffer buffer[] = new ByteBuffer[1];
+		int tex[] = new int[1];
 		try {
-			Logger.log("Loading NVGTexture: " + file + ".png");
-			buffer = ioResourceToByteBuffer("assets/textures/menu/" + file + ".png", 1024 * 1024);
-			tex = nvgCreateImageMem(window.getNVGID(), 0, buffer);
+			buffer[0] = ioResourceToByteBuffer("assets/textures/menu/" + file + ".png", 1024 * 1024);
+
+			if (isThread(GraphicalSubsystem.getRenderThreadID()))
+				tex[0] = nvgCreateImageMem(window.getNVGID(), 0, buffer[0]);
+			else {
+				Thread main = Thread.currentThread();
+				TaskManager.tm.addTaskRenderThread(() -> {
+					tex[0] = nvgCreateImageMem(window.getNVGID(), 0, buffer[0]);
+					main.interrupt();
+				});
+				try {
+					Thread.sleep(Long.MAX_VALUE);
+				} catch (InterruptedException e) {
+				}
+			}
+
 		} catch (Exception e) {
 			throw new LoadTextureException(file, e);
 		}
-		return tex;
+		return tex[0];
 	}
 
 	@Override

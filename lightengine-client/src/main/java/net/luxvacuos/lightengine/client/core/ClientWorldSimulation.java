@@ -55,6 +55,7 @@ public final class ClientWorldSimulation extends WorldSimulation {
 		this.rotation = res - 90;
 	}
 
+	@Override
 	public float getRotation() {
 		return this.rotation;
 	}

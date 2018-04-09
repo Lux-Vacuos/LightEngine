@@ -62,6 +62,10 @@ public final class StateMachine {
 		} else
 			return false;
 	}
+	
+	public static boolean hasState(String state) {
+		return registeredStates.containsKey(state);
+	}
 
 	public static boolean update(float deltaTime) {
 		if (currentState == null)

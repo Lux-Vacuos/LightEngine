@@ -85,7 +85,7 @@ public class NanoWindowManager implements IWindowManager {
 			for (IWindow window : windows) {
 				if (window.getFBO() != null) {
 					GPUProfiler.start(window.getTitle());
-					window.render(this);
+					window.render(delta, this);
 					GPUProfiler.end();
 				}
 			}
@@ -117,7 +117,7 @@ public class NanoWindowManager implements IWindowManager {
 			window.beingNVGFrame();
 			for (IWindow window : windows) {
 				GPUProfiler.start(window.getTitle());
-				window.render(this);
+				window.render(delta, this);
 				GPUProfiler.end();
 			}
 			if (ClientVariables.debug) {

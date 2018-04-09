@@ -20,46 +20,23 @@
 
 package net.luxvacuos.lightengine.client.network;
 
-import java.util.Map;
-import java.util.UUID;
-
 import org.joml.Vector3f;
 
-import com.badlogic.ashley.core.Engine;
-
 import io.netty.channel.ChannelHandlerContext;
-import net.luxvacuos.lightengine.client.core.ClientWorldSimulation;
 import net.luxvacuos.lightengine.client.core.subsystems.NetworkSubsystem;
-import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.RenderPlayerEntity;
-import net.luxvacuos.lightengine.client.ecs.entities.Sun;
-import net.luxvacuos.lightengine.client.world.ClientPhysicsSystem;
-import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
 import net.luxvacuos.lightengine.universal.ecs.Components;
 import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
 import net.luxvacuos.lightengine.universal.ecs.entities.PlayerEntity;
-import net.luxvacuos.lightengine.universal.network.AbstractChannelHandler;
 import net.luxvacuos.lightengine.universal.network.packets.ClientConnect;
 import net.luxvacuos.lightengine.universal.network.packets.ClientDisconnect;
 import net.luxvacuos.lightengine.universal.network.packets.Time;
 import net.luxvacuos.lightengine.universal.network.packets.UpdateBasicEntity;
 
-public class ClientNetworkHandler extends AbstractChannelHandler {
-
-	private BasicEntity player;
-	private CameraEntity camera;
-	private Sun sun;
+public class ClientNetworkHandler extends LocalNetworkHandler {
 
 	public ClientNetworkHandler(BasicEntity player) {
-		worldSimulation = new ClientWorldSimulation(10000);
-		engine = new Engine();
-		engine.addSystem(new ClientPhysicsSystem());
-		this.player = player;
-		if (player instanceof CameraEntity)
-			this.camera = (CameraEntity) player;
-		sun = new Sun();
-		engine.addEntity(this.player);
-		this.player.addEntity(sun.getCamera());
+		super(player);
 	}
 
 	@Override
@@ -78,16 +55,9 @@ public class ClientNetworkHandler extends AbstractChannelHandler {
 
 	@Override
 	public void update(float delta) {
-		engine.update(delta);
-		worldSimulation.update(delta);
-		sun.update(worldSimulation.getRotation(), delta);
+		super.update(delta);
 		NetworkSubsystem.sendPacket(new UpdateBasicEntity(Components.UUID.get(player).getUUID(), player.getPosition(),
 				player.getRotation(), new Vector3f(), player.getScale()));
-	}
-
-	@Override
-	public void dispose() {
-		engine.removeAllEntities();
 	}
 
 	private void handleTime(Time time) {
@@ -116,37 +86,6 @@ public class ClientNetworkHandler extends AbstractChannelHandler {
 		PlayerEntity e = players.get(ube.getUUID());
 		e.setPosition(ube.getPosition());
 		e.setRotation(ube.getRotation());
-	}
-
-	@Override
-	public Map<UUID, PlayerEntity> getPlayers() {
-		return players;
-	}
-
-	@Override
-	public Engine getEngine() {
-		return engine;
-	}
-
-	@Override
-	public IWorldSimulation getWorldSimulation() {
-		return worldSimulation;
-	}
-
-	public BasicEntity getPlayer() {
-		return player;
-	}
-
-	public CameraEntity getCamera() {
-		return camera;
-	}
-
-	public void setCamera(CameraEntity camera) {
-		this.camera = camera;
-	}
-
-	public Sun getSun() {
-		return sun;
 	}
 
 }

@@ -18,12 +18,22 @@
  * 
  */
 
-package net.luxvacuos.lightengine.universal.core.states;
+package net.luxvacuos.lightengine.client.network;
 
-public class StateNames {
+import com.badlogic.ashley.core.Engine;
 
-	public static final String SPLASH_SCREEN = "_sys_splash_screen";
-	public static final String MAIN = "_sys_main";
-	public static final String CRASH = "_sys_crash";
+import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
+import net.luxvacuos.lightengine.client.ecs.entities.Sun;
+import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
+
+public interface IRenderData {
+
+	public Engine getEngine();
+
+	public CameraEntity getCamera();
+
+	public IWorldSimulation getWorldSimulation();
+
+	public Sun getSun();
 
 }

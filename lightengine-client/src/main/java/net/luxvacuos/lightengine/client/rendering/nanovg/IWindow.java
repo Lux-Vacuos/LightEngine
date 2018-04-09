@@ -44,7 +44,7 @@ public interface IWindow {
 
 	public void disposeApp();
 
-	public void render(IWindowManager nanoWindowManager);
+	public void render(float delta, IWindowManager nanoWindowManager);
 
 	public void update(float delta, IWindowManager nanoWindowManager);
 

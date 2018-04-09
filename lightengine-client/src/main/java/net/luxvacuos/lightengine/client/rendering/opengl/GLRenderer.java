@@ -54,7 +54,7 @@ import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.Sun;
 import net.luxvacuos.lightengine.client.ecs.entities.SunCamera;
-import net.luxvacuos.lightengine.client.network.ClientNetworkHandler;
+import net.luxvacuos.lightengine.client.network.IRenderData;
 import net.luxvacuos.lightengine.client.rendering.IRenderer;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.nanovg.IWindow;
@@ -163,15 +163,15 @@ public class GLRenderer implements IRenderer {
 	}
 
 	@Override
-	public void render(ClientNetworkHandler nh, float delta) {
+	public void render(IRenderData renderData, float delta) {
 		if (!enabled)
 			return;
-		ImmutableArray<Entity> entitiesT = nh.getEngine().getEntities();
+		ImmutableArray<Entity> entitiesT = renderData.getEngine().getEntities();
 		Map<ParticleTexture, List<Particle>> particles = ParticleDomain.getParticles();
 		List<WaterTile> waterTiles = null;
-		CameraEntity camera = nh.getCamera();
-		IWorldSimulation worldSimulation = nh.getWorldSimulation();
-		Sun sun = nh.getSun();
+		CameraEntity camera = renderData.getCamera();
+		IWorldSimulation worldSimulation = renderData.getWorldSimulation();
+		Sun sun = renderData.getSun();
 
 		Array<Entity> entitiesR = new Array<>(entitiesT.toArray(Entity.class));
 		ImmutableArray<Entity> entities = new ImmutableArray<>(entitiesR);
@@ -225,6 +225,7 @@ public class GLRenderer implements IRenderer {
 				if (light.isShadow()) {
 					if (!light.isShadowMapCreated())
 						continue;
+					frustum.calculateFrustum(light.getCamera());
 					light.getShadowMap().begin();
 					glClear(GL_DEPTH_BUFFER_BIT);
 					if (shadowPass != null)
@@ -263,12 +264,12 @@ public class GLRenderer implements IRenderer {
 		glDepthFunc(GL_GREATER);
 		glClearDepth(0.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		GPUProfiler.start("Skybox");
+		skyboxRenderer.render(camera, worldSimulation, sun.getSunPosition(), true);
+		GPUProfiler.end();
 		GPUProfiler.start("External");
 		if (deferredPass != null)
 			deferredPass.render(camera, sunCamera, frustum, shadowFBO);
-		GPUProfiler.end();
-		GPUProfiler.start("Skybox");
-		skyboxRenderer.render(camera, worldSimulation, sun.getSunPosition(), true);
 		GPUProfiler.end();
 		GPUProfiler.start("RenderingManager");
 		renderingManager.render(camera);

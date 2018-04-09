@@ -29,7 +29,7 @@ import static org.lwjgl.opengles.GLES20.glBlendFunc;
 import static org.lwjgl.opengles.GLES20.glCullFace;
 import static org.lwjgl.opengles.GLES20.glEnable;
 
-import net.luxvacuos.lightengine.client.network.ClientNetworkHandler;
+import net.luxvacuos.lightengine.client.network.IRenderData;
 import net.luxvacuos.lightengine.client.rendering.IRenderer;
 import net.luxvacuos.lightengine.client.rendering.nanovg.IWindow;
 import net.luxvacuos.lightengine.client.rendering.opengl.Frustum;
@@ -51,7 +51,7 @@ public class GLESRenderer implements IRenderer {
 	}
 
 	@Override
-	public void render(ClientNetworkHandler nh, float delta) {
+	public void render(IRenderData renderData, float delta) {
 	}
 
 	@Override
