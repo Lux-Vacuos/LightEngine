@@ -48,7 +48,7 @@ public class Bootstrap extends AbstractBootstrap {
 			prefix = System.getProperty("user.home");
 			prefix += "/Library/Application Support";
 		}
-		prefix += "/." + GlobalVariables.PROJECT;
+		prefix += "/." + GlobalVariables.PROJECT.toLowerCase();
 		TempVariables.userDir = prefix;
 		
 		TaskManager.tm = new ClientTaskManager();
