@@ -42,7 +42,8 @@ import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 public class SplashScreenState extends AbstractState {
 
 	private LoadWindow window;
-	private boolean tryLoad = true;
+	private boolean ready, showSpinner;
+	private float timer;
 
 	public SplashScreenState() {
 		super(StateNames.SPLASH_SCREEN);
@@ -68,35 +69,29 @@ public class SplashScreenState extends AbstractState {
 
 	@Override
 	public void update(float delta) {
-		if (tryLoad)
-			if (TaskManager.tm.isEmpty()) {
-				if (StateMachine.hasState(StateNames.MAIN)) {
-					tryLoad = false;
-					TaskManager.tm.addTaskBackgroundThread(() -> {
-						try {
-							Thread.sleep(4000);
-						} catch (InterruptedException e) {
-						}
-						window.notifyWindow(WindowMessage.WM_FADE_OUT,
-								(OnAction) () -> StateMachine.setCurrentState(StateNames.MAIN));
-					});
+		if (ready)
+			return;
+		timer += delta;
+		if (timer > 4) {
+			if (StateMachine.hasState(StateNames.MAIN)) {
+				if (TaskManager.tm.isEmpty()) {
+					ready = true;
+					window.notifyWindow(WindowMessage.WM_FADE_OUT,
+							(OnAction) () -> StateMachine.setCurrentState(StateNames.MAIN));
 				} else {
-					if (window.onLoadFailed())
-						tryLoad = true;
-					else {
-						tryLoad = false;
-						TaskManager.tm.addTaskBackgroundThread(() -> {
-							try {
-								Thread.sleep(4000);
-							} catch (InterruptedException e) {
-							}
-							window.notifyWindow(WindowMessage.WM_FADE_OUT,
-									(OnAction) () -> TaskManager.tm.addTaskBackgroundThread(() -> StateMachine.stop()));
-						});
+					if (!showSpinner) {
+						window.addSpinner();
+						showSpinner = true;
 					}
 				}
-
+			} else {
+				if (!window.onLoadFailed()) {
+					ready = true;
+					window.notifyWindow(WindowMessage.WM_FADE_OUT,
+							(OnAction) () -> TaskManager.tm.addTaskBackgroundThread(() -> StateMachine.stop()));
+				}
 			}
+		}
 	}
 
 }

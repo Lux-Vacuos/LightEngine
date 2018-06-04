@@ -52,10 +52,11 @@ import net.luxvacuos.lightengine.client.rendering.nanovg.Timers;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.NanoTheme;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.ThemeManager;
 import net.luxvacuos.lightengine.client.rendering.opengl.GLRenderer;
+import net.luxvacuos.lightengine.client.rendering.opengl.GLResourcesManagerBackend;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CachedAssets;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.DefaultData;
-import net.luxvacuos.lightengine.client.rendering.opengl.shaders.ShaderIncludes;
 import net.luxvacuos.lightengine.client.rendering.opengles.GLESRenderer;
+import net.luxvacuos.lightengine.client.resources.DefaultData;
+import net.luxvacuos.lightengine.client.resources.ResourcesManager;
 import net.luxvacuos.lightengine.client.ui.Font;
 import net.luxvacuos.lightengine.universal.core.GlobalVariables;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
@@ -120,7 +121,8 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 			REGISTRY.register(new Key("/Light Engine/System/glsl"), GL11.glGetString(GL20.GL_SHADING_LANGUAGE_VERSION));
 			REGISTRY.register(new Key("/Light Engine/System/vendor"), GL11.glGetString(GL11.GL_VENDOR));
 			REGISTRY.register(new Key("/Light Engine/System/renderer"), GL11.glGetString(GL11.GL_RENDERER));
-			TaskManager.tm.addTaskRenderThread(() -> renderer = new GLRenderer());
+			renderer = new GLRenderer();
+			ResourcesManager.setBackend(new GLResourcesManagerBackend(window));
 			break;
 		case GLES:
 			REGISTRY.register(new Key("/Light Engine/System/opengl"), GLES20.glGetString(GLES20.GL_VERSION));
@@ -128,16 +130,16 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 					GLES20.glGetString(GLES20.GL_SHADING_LANGUAGE_VERSION));
 			REGISTRY.register(new Key("/Light Engine/System/vendor"), GLES20.glGetString(GLES20.GL_VENDOR));
 			REGISTRY.register(new Key("/Light Engine/System/renderer"), GLES20.glGetString(GLES20.GL_RENDERER));
-			TaskManager.tm.addTaskRenderThread(() -> renderer = new GLESRenderer());
+			renderer = new GLESRenderer();
 			break;
 		default:
 			break;
 		}
-		TaskManager.tm.addTaskBackgroundThread(() -> ShaderIncludes.processIncludeFile("common.isl"));
-		TaskManager.tm.addTaskBackgroundThread(() -> ShaderIncludes.processIncludeFile("lighting.isl"));
-		TaskManager.tm.addTaskBackgroundThread(() -> ShaderIncludes.processIncludeFile("materials.isl"));
-		TaskManager.tm.addTaskBackgroundThread(() -> ShaderIncludes.processIncludeFile("global.isl"));
-		TaskManager.tm.addTaskMainThread(() -> DefaultData.init());
+		ResourcesManager.processShaderIncludes("common.isl");
+		ResourcesManager.processShaderIncludes("lighting.isl");
+		ResourcesManager.processShaderIncludes("materials.isl");
+		ResourcesManager.processShaderIncludes("global.isl");
+		DefaultData.init();
 
 		ThemeManager.addTheme(new NanoTheme());
 		ThemeManager.setTheme((String) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/theme")));

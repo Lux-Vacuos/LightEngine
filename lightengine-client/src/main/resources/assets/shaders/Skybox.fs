@@ -163,7 +163,7 @@ void main() {
 			clamp((pass_textureCoords.y - SUN_LOWER_LIMIT) / (SUN_UPPER_LIMIT - SUN_LOWER_LIMIT),
 				  0.0, 1.0);
 		if (vl > 0.999)
-			color = mix(color, mix(color, vec3(100.0), smoothstep(0.9998, 0.9999, vl)), factorSun);
+			color = mix(color, mix(color, vec3(100.0), smoothstep(0.9992, 0.9993, vl)), factorSun);
 	}
 
 	out_Color[0].rgb = color;

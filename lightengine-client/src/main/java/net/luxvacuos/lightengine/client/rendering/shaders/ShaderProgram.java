@@ -53,9 +53,9 @@ import net.luxvacuos.lightengine.client.core.exception.CompileShaderException;
 import net.luxvacuos.lightengine.client.core.exception.LoadShaderException;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.rendering.glfw.RenderingAPI;
-import net.luxvacuos.lightengine.client.rendering.opengl.shaders.ShaderIncludes;
 import net.luxvacuos.lightengine.client.rendering.shaders.data.Attribute;
 import net.luxvacuos.lightengine.client.rendering.shaders.data.IUniform;
+import net.luxvacuos.lightengine.client.resources.ShaderIncludes;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
 public abstract class ShaderProgram implements IDisposable {

@@ -18,7 +18,7 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.opengl.shaders;
+package net.luxvacuos.lightengine.client.resources;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

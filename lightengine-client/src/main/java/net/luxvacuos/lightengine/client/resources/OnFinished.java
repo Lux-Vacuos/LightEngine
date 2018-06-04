@@ -18,10 +18,9 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.nanovg.compositor;
+package net.luxvacuos.lightengine.client.resources;
 
-public class AnimationData {
+public interface OnFinished<V> {
 
-	protected float x, y, z, scaleX, scaleY, rotX, rotY, rotZ;
-
+	public void onFinished(V value);
 }

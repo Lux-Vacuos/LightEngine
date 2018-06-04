@@ -110,7 +110,7 @@ public class GLCompositor implements ICompositor {
 			public void resize(int width, int height) {
 				super.resize(width / 4, height / 4);
 			}
-			
+
 		});
 		effects.add(new GLCompositorEffect(width / 4, height / 4, "GaussianH", nvg) {
 			@Override
@@ -173,7 +173,7 @@ public class GLCompositor implements ICompositor {
 	}
 
 	private void render(IWindow window, int z, float delta) {
-		float offsetX = 0, offsetY = 0, offsetScaleX = 1, offsetScaleY = 1, offsetRotX = 0, offsetRotY = 0,
+		float offsetX = 0, offsetY = 0, offsetZ = 0, offsetScaleX = 1, offsetScaleY = 1, offsetRotX = 0, offsetRotY = 0,
 				offsetRotZ = 0;
 		switch (window.getAnimationState()) {
 		case CLOSE:
@@ -185,10 +185,9 @@ public class GLCompositor implements ICompositor {
 					window.setAnimationState(AnimationState.AFTER_CLOSE);
 					animationData.remove(window);
 				}
-				data.scaleX = Interpolation.exp5Out.apply(1, 0.25f, 1 - (1 + data.y / 2f));
-				data.scaleY = Interpolation.exp5Out.apply(1, 0.25f, 1 - (1 + data.y / 2f));
-				data.rotX = Interpolation.sineOut.apply(0, -90, 1 - (1 + data.y / 2f));
-				offsetY = data.y;
+				data.scaleX = Interpolation.exp5Out.apply(1, 0.70f, 1 - (1 + data.y / 2f));
+				data.scaleY = Interpolation.exp5Out.apply(1, 0.70f, 1 - (1 + data.y / 2f));
+				data.rotX = Interpolation.sineOut.apply(0, -10, 1 - (1 + data.y / 2f));
 				offsetScaleX = data.scaleX;
 				offsetScaleY = data.scaleY;
 				offsetRotX = data.rotX;
@@ -216,10 +215,9 @@ public class GLCompositor implements ICompositor {
 					window.setAnimationState(AnimationState.NONE);
 					animationData.remove(window);
 				}
-				data.scaleX = Interpolation.exp5In.apply(0.25f, 1, 1 - data.y / 2f);
-				data.scaleY = Interpolation.exp5In.apply(0.25f, 1, 1 - data.y / 2f);
-				data.rotX = Interpolation.sineIn.apply(90, 0, 1 - data.y / 2f);
-				offsetY = data.y;
+				data.scaleX = Interpolation.exp5In.apply(0.70f, 1, 1 - data.y / 2f);
+				data.scaleY = Interpolation.exp5In.apply(0.70f, 1, 1 - data.y / 2f);
+				data.rotX = Interpolation.sineIn.apply(10, 0, 1 - data.y / 2f);
 				offsetScaleX = data.scaleX;
 				offsetScaleY = data.scaleY;
 				offsetRotX = data.rotX;
@@ -324,8 +322,8 @@ public class GLCompositor implements ICompositor {
 		glBindVertexArray(quad.getVaoID());
 		glEnableVertexAttribArray(0);
 		shader.loadTransformationMatrix(
-				Maths.createTransformationMatrix(new Vector3f(x - aspect + offsetX, y + offsetY, -2.414f), offsetRotX,
-						offsetRotY, offsetRotZ, scaleX, scaleY, 1));
+				Maths.createTransformationMatrix(new Vector3f(x - aspect + offsetX, y + offsetY, -2.414f + offsetZ),
+						offsetRotX, offsetRotY, offsetRotZ, scaleX, scaleY, 1));
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, window.getFBO().texture());
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, quad.getVertexCount());

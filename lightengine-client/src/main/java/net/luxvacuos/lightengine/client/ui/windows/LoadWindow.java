@@ -30,6 +30,7 @@ import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.Image;
+import net.luxvacuos.lightengine.client.ui.Spinner;
 import net.luxvacuos.lightengine.client.ui.Text;
 import net.luxvacuos.lightengine.universal.core.PackageLoader;
 
@@ -53,6 +54,12 @@ public class LoadWindow extends ComponentWindow {
 
 		super.initApp();
 		this.notifyWindow(WindowMessage.WM_FADE_IN, null);
+	}
+
+	public void addSpinner() {
+		Spinner load = new Spinner(-28, 8, 20);
+		load.setWindowAlignment(Alignment.RIGHT_BOTTOM);
+		super.addComponent(load);
 	}
 
 	public boolean onLoadFailed() {

@@ -18,10 +18,23 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.nanovg.compositor;
+package net.luxvacuos.lightengine.client.resources.tasks;
 
-public class AnimationData {
+import net.luxvacuos.lightengine.client.resources.ShaderIncludes;
+import net.luxvacuos.lightengine.universal.core.Task;
 
-	protected float x, y, z, scaleX, scaleY, rotX, rotY, rotZ;
+public class ShaderIncludeTask extends Task<Void> {
+
+	private String file;
+
+	public ShaderIncludeTask(String file) {
+		this.file = file;
+	}
+
+	@Override
+	protected Void call() {
+		ShaderIncludes.processIncludeFile(file);
+		return null;
+	}
 
 }

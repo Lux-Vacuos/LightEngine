@@ -32,9 +32,9 @@ import net.luxvacuos.lightengine.client.rendering.opengl.DeferredPass;
 import net.luxvacuos.lightengine.client.rendering.opengl.FBO;
 import net.luxvacuos.lightengine.client.rendering.opengl.IDeferredPipeline;
 import net.luxvacuos.lightengine.client.rendering.opengl.ShadowFBO;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.CachedAssets;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CubeMapTexture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
+import net.luxvacuos.lightengine.client.resources.ResourcesManager;
 
 public class LensFlareMod extends DeferredPass {
 
@@ -43,8 +43,8 @@ public class LensFlareMod extends DeferredPass {
 
 	public LensFlareMod(String name, int width, int height) {
 		super(name, width, height);
-		lensDirt = CachedAssets.loadTextureMisc("textures/lens/lens_dirt.png");
-		lensStar = CachedAssets.loadTextureMisc("textures/lens/lens_star.png");
+		lensDirt = ResourcesManager.loadTextureMisc("textures/lens/lens_dirt.png", null).get();
+		lensStar = ResourcesManager.loadTextureMisc("textures/lens/lens_star.png", null).get();
 	}
 
 	@Override

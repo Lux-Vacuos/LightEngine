@@ -55,13 +55,6 @@ public class Model implements IDisposable {
 	public Model(AIScene scene, String rootPath) {
 		this.scene = scene;
 		
-		int materialCount = scene.mNumMaterials();
-		PointerBuffer materialsBuffer = scene.mMaterials();
-		materials = new ArrayList<>();
-		for (int i = 0; i < materialCount; ++i) {
-			materials.add(new Material(AIMaterial.create(materialsBuffer.get(i)), rootPath));
-		}
-		
 		int meshCount = scene.mNumMeshes();
 		PointerBuffer meshesBuffer = scene.mMeshes();
 		meshes = new ArrayList<>();
@@ -117,6 +110,13 @@ public class Model implements IDisposable {
 		for (int id = 0; id < childrenCount; id++) {
 			AINode child = AINode.create(root.mChildren().get(id));
 			//System.out.println(child.mMeshes().get(0));
+		}
+		
+		int materialCount = scene.mNumMaterials();
+		PointerBuffer materialsBuffer = scene.mMaterials();
+		materials = new ArrayList<>();
+		for (int i = 0; i < materialCount; ++i) {
+			materials.add(new Material(AIMaterial.create(materialsBuffer.get(i)), rootPath));
 		}
 
 		shape = new BvhTriangleMeshShape(triangleIndexVertexArray, true);

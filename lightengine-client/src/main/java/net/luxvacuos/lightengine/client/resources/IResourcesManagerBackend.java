@@ -18,24 +18,12 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.opengl.objects;
+package net.luxvacuos.lightengine.client.resources;
 
-public final class DefaultData {
+import net.luxvacuos.lightengine.client.rendering.opengl.objects.RawTexture;
 
-	public static CachedTexture diffuse, normal, roughness, metallic;
+public interface IResourcesManagerBackend {
 
-	public static void init() {
-		diffuse = CachedAssets.loadTexture("textures/def/d.png", true);
-		normal = CachedAssets.loadTextureMisc("textures/def/d_n.png", true);
-		roughness = CachedAssets.loadTextureMisc("textures/def/d_r.png", true);
-		metallic = CachedAssets.loadTextureMisc("textures/def/d_m.png", true);
-	}
-
-	public static void dispose() {
-		diffuse.dispose();
-		normal.dispose();
-		roughness.dispose();
-		metallic.dispose();
-	}
+	public int loadTexture(int filter, int textureWarp, int format, boolean textureMipMapAF, RawTexture data);
 
 }

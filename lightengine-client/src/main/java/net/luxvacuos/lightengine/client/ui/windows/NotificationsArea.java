@@ -26,6 +26,8 @@ import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_TOP;
 
 import org.lwjgl.glfw.GLFW;
 
+import com.badlogic.gdx.math.Interpolation;
+
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
 import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
@@ -77,6 +79,7 @@ public class NotificationsArea extends ComponentWindow {
 					private float time;
 					private boolean fadeIn = true;
 					private boolean fadeOut;
+					private float timer;
 
 					@Override
 					public void initApp() {
@@ -105,8 +108,10 @@ public class NotificationsArea extends ComponentWindow {
 					@Override
 					public void updateApp(float delta) {
 						if (super.insideWindow() && window.getMouseHandler().isButtonPressed(0)) {
+							window.getMouseHandler().ignoreKeyUntilRelease(0);
 							time = 6;
 							fadeIn = false;
+							timer = timer * -1 + 1;
 						}
 						super.updateApp(delta);
 					}
@@ -114,22 +119,25 @@ public class NotificationsArea extends ComponentWindow {
 					@Override
 					public void alwaysUpdateApp(float delta) {
 						if (fadeIn) {
-							x -= 500 * delta;
-							int xt = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"))
-									- 295;
+							timer += delta;
+							int width = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"));
+							int xt = width - 300;
+							x = (int) Interpolation.exp5Out.apply(width, xt, timer);
 							updateRenderSize();
 							if (x <= xt) {
 								x = xt;
 								updateRenderSize();
 								fadeIn = false;
+								timer = 0;
 							}
 						}
 						if (fadeOut) {
-							x += 500 * delta;
-							int xt = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"))
-									+ 5;
+							timer += delta;
+							int width = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"));
+							int xt = width - 300;
+							x = (int) Interpolation.exp5In.apply(xt, width, timer);
 							updateRenderSize();
-							if (x >= xt) {
+							if (x >= width) {
 								fadeOut = false;
 								super.closeWindow();
 							}
@@ -138,6 +146,16 @@ public class NotificationsArea extends ComponentWindow {
 						if (time > 5)
 							fadeOut = true;
 						super.alwaysUpdateApp(delta);
+					}
+
+					@Override
+					public void processWindowMessage(int message, Object param) {
+						switch (message) {
+						case WindowMessage.WM_RESIZE:
+							x = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width")) - 295;
+							break;
+						}
+						super.processWindowMessage(message, param);
 					}
 				});
 	}

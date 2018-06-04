@@ -29,7 +29,7 @@ public class TaskManager {
 
 	public static TaskManager tm;
 
-	private Queue<Runnable> tasksMainThread = new LinkedList<>(), tasksBackgroundThread = new LinkedList<>();
+	private Queue<Task<?>> tasksMainThread = new LinkedList<>(), tasksBackgroundThread = new LinkedList<>();
 	private AsyncExecutor asyncExecutor;
 	private Thread backgroundThread;
 	private boolean syncInterrupt;
@@ -39,8 +39,11 @@ public class TaskManager {
 		backgroundThread = new Thread(() -> {
 			while (true) {
 				if (!tasksBackgroundThread.isEmpty()) {
-					while (!tasksBackgroundThread.isEmpty())
-						tasksBackgroundThread.poll().run();
+					while (!tasksBackgroundThread.isEmpty()) {
+						Task<?> t = tasksBackgroundThread.poll();
+						if (t != null)
+							t.callI();
+					}
 				} else {
 					try {
 						syncInterrupt = false;
@@ -57,12 +60,25 @@ public class TaskManager {
 
 	public void addTaskMainThread(Runnable task) {
 		if (task != null)
-			tasksMainThread.add(task);
+			tasksMainThread.add(new Task<Void>() {
+				@Override
+				protected Void call() {
+					task.run();
+					return null;
+				}
+
+			});
 	}
 
 	public void addTaskBackgroundThread(Runnable task) {
 		if (task != null) {
-			tasksBackgroundThread.add(task);
+			tasksBackgroundThread.add(new Task<Void>() {
+				@Override
+				protected Void call() {
+					task.run();
+					return null;
+				}
+			});
 			if (!syncInterrupt) {
 				syncInterrupt = true;
 				backgroundThread.interrupt();
@@ -78,9 +94,33 @@ public class TaskManager {
 		throw new UnsupportedOperationException();
 	}
 
+	public <T> Task<T> submitBackgroundThread(Task<T> t) {
+		tasksBackgroundThread.add(t);
+		if (!syncInterrupt) {
+			syncInterrupt = true;
+			backgroundThread.interrupt();
+		}
+		return t;
+	}
+
+	public <T> Task<T> submitMainThread(Task<T> t) {
+		tasksMainThread.add(t);
+		return t;
+	}
+
+	public <T> Task<T> submitRenderThread(Task<T> t) {
+		throw new UnsupportedOperationException();
+	}
+
+	public <T> Task<T> submitRenderBackgroundThread(Task<T> t) {
+		throw new UnsupportedOperationException();
+	}
+
 	public void updateMainThread() {
 		if (!tasksMainThread.isEmpty()) {
-			tasksMainThread.poll().run();
+			Task<?> t = tasksMainThread.poll();
+			if (t != null)
+				t.callI();
 		}
 	}
 

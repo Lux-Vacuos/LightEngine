@@ -18,10 +18,45 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.nanovg.compositor;
+package net.luxvacuos.lightengine.universal.core;
 
-public class AnimationData {
+public abstract class Task<V> {
 
-	protected float x, y, z, scaleX, scaleY, rotX, rotY, rotZ;
+	private volatile boolean done;
+	private V value;
+	private Thread t;
+
+	public boolean isDone() {
+		return done;
+	}
+
+	public V get() {
+		if (!done) {
+			t = Thread.currentThread();
+			try {
+				Thread.sleep(Long.MAX_VALUE);
+			} catch (InterruptedException e) {
+			}
+		}
+		return value;
+	}
+
+	public void onCompleted(V value) {
+	}
+
+	/**
+	 * <b>INTERNAL FUNCTION</b>
+	 */
+	public void callI() {
+		if (done)
+			return;
+		value = call();
+		done = true;
+		if (t != null)
+			t.interrupt();
+		onCompleted(value);
+	}
+
+	protected abstract V call();
 
 }

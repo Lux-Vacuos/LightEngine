@@ -72,11 +72,8 @@ public class AsyncModelTask implements AsyncTask<Model> {
 			Logger.error(aiGetErrorString());
 		}
 		Model m = new Model(scene, filePath.substring(0, filePath.lastIndexOf("/")));
-		while (true) {
-			if (m.isDoneLoading())
-				break;
-			else
-				Thread.sleep(500);
+		while (!m.isDoneLoading()) {
+			Thread.sleep(100);
 		}
 		return m;
 	}

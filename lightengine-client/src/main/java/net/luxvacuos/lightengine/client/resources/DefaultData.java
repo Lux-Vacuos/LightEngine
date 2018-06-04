@@ -18,10 +18,26 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.nanovg.compositor;
+package net.luxvacuos.lightengine.client.resources;
 
-public class AnimationData {
+import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
 
-	protected float x, y, z, scaleX, scaleY, rotX, rotY, rotZ;
+public final class DefaultData {
+
+	public static Texture diffuse, normal, roughness, metallic;
+
+	public static void init() {
+		ResourcesManager.loadTexture("textures/def/d.png", (value) -> diffuse = value);
+		ResourcesManager.loadTextureMisc("textures/def/d_n.png", (value) -> normal = value);
+		ResourcesManager.loadTextureMisc("textures/def/d_r.png", (value) -> roughness = value);
+		ResourcesManager.loadTextureMisc("textures/def/d_m.png", (value) -> metallic = value);
+	}
+
+	public static void dispose() {
+		diffuse.dispose();
+		normal.dispose();
+		roughness.dispose();
+		metallic.dispose();
+	}
 
 }

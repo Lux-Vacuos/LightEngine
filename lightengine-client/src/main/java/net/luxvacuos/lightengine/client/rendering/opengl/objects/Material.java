@@ -20,7 +20,7 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl.objects;
 
-import static org.lwjgl.assimp.Assimp.*;
+import static org.lwjgl.assimp.Assimp.AI_MATKEY_COLOR_DIFFUSE;
 import static org.lwjgl.assimp.Assimp.AI_MATKEY_COLOR_EMISSIVE;
 import static org.lwjgl.assimp.Assimp.AI_MATKEY_COLOR_SPECULAR;
 import static org.lwjgl.assimp.Assimp.aiGetMaterialColor;
@@ -41,7 +41,9 @@ import org.lwjgl.assimp.AIColor4D;
 import org.lwjgl.assimp.AIMaterial;
 import org.lwjgl.assimp.AIString;
 
-import net.luxvacuos.lightengine.universal.core.TaskManager;
+import net.luxvacuos.lightengine.client.resources.DefaultData;
+import net.luxvacuos.lightengine.client.resources.OnFinished;
+import net.luxvacuos.lightengine.client.resources.ResourcesManager;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
 /**
@@ -98,9 +100,9 @@ public class Material implements IDisposable {
 		this.roughnessTexture = DefaultData.roughness;
 		this.metallicTexture = DefaultData.metallic;
 
-		AIColor4D diffuse = AIColor4D.malloc();
-		AIColor4D emissive = AIColor4D.malloc();
-		AIColor4D pbr = AIColor4D.malloc();
+		var diffuse = AIColor4D.malloc();
+		var emissive = AIColor4D.malloc();
+		var pbr = AIColor4D.malloc();
 		if (aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, aiTextureType_NONE, 0, diffuse) == aiReturn_SUCCESS)
 			this.diffuse.set(diffuse.r(), diffuse.g(), diffuse.b(), diffuse.a());
 		if (aiGetMaterialColor(material, AI_MATKEY_COLOR_EMISSIVE, aiTextureType_NONE, 0, emissive) == aiReturn_SUCCESS)
@@ -117,37 +119,38 @@ public class Material implements IDisposable {
 		emissive.free();
 		pbr.free();
 		if (aiGetMaterialTextureCount(material, aiTextureType_DIFFUSE) > 0) {
-			AIString path = AIString.create();
+			AIString path = AIString.malloc();
 			if (aiGetMaterialTexture(material, aiTextureType_DIFFUSE, 0, path, (IntBuffer) null, (IntBuffer) null,
 					(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS) {
-				TaskManager.tm.addTaskRenderBackgroundThread(() -> this.diffuseTexture = loadTexture(path, rootPath));
+				loadTexture(path, rootPath, (value) -> this.diffuseTexture = value);
 				this.diffuse.set(1, 1, 1, 1);
 			}
+			path.free();
 		}
 		if (aiGetMaterialTextureCount(material, aiTextureType_AMBIENT) > 0) {
-			AIString path = AIString.create();
+			var path = AIString.malloc();
 			if (aiGetMaterialTexture(material, aiTextureType_AMBIENT, 0, path, (IntBuffer) null, (IntBuffer) null,
 					(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS)
-				TaskManager.tm.addTaskRenderBackgroundThread(() -> this.normalTexture = loadTextureMisc(path, rootPath));
-
+				loadTextureMisc(path, rootPath, (value) -> this.normalTexture = value);
+			path.free();
 		}
 		if (aiGetMaterialTextureCount(material, aiTextureType_SPECULAR) > 0) {
-			AIString path = AIString.create();
+			var path = AIString.malloc();
 			if (aiGetMaterialTexture(material, aiTextureType_SPECULAR, 0, path, (IntBuffer) null, (IntBuffer) null,
 					(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS) {
-				TaskManager.tm.addTaskRenderBackgroundThread(() -> this.roughnessTexture = loadTextureMisc(path, rootPath));
+				loadTextureMisc(path, rootPath, (value) -> this.roughnessTexture = value);
 				this.roughness = 1f;
 			}
-
+			path.free();
 		}
 		if (aiGetMaterialTextureCount(material, aiTextureType_REFLECTION) > 0) {
-			AIString path = AIString.create();
+			var path = AIString.malloc();
 			if (aiGetMaterialTexture(material, aiTextureType_REFLECTION, 0, path, (IntBuffer) null, (IntBuffer) null,
 					(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS) {
-				TaskManager.tm.addTaskRenderBackgroundThread(() -> this.metallicTexture = loadTextureMisc(path, rootPath));
+				loadTextureMisc(path, rootPath, (value) -> this.metallicTexture = value);
 				this.metallic = 1f;
 			}
-
+			path.free();
 		}
 	}
 
@@ -239,7 +242,7 @@ public class Material implements IDisposable {
 		return true;
 	}
 
-	private static Texture loadTexture(AIString path, String rootPath) {
+	private static void loadTexture(AIString path, String rootPath, OnFinished<Texture> dst) {
 		String file = path.dataString();
 		file = file.replace("\\", "/");
 		file = file.replace("//", "");
@@ -252,11 +255,10 @@ public class Material implements IDisposable {
 			file = file.substring(2);
 		} else
 			rootPath += "/";
-
-		return CachedAssets.loadTexture(rootPath + file);
+		ResourcesManager.loadTexture(rootPath + file, dst);
 	}
 
-	private static Texture loadTextureMisc(AIString path, String rootPath) {
+	private static void loadTextureMisc(AIString path, String rootPath, OnFinished<Texture> dst) {
 		String file = path.dataString();
 		file = file.replace("\\", "/");
 		file = file.replace("//", "");
@@ -269,7 +271,7 @@ public class Material implements IDisposable {
 			file = file.substring(2);
 		} else
 			rootPath += "/";
-		return CachedAssets.loadTextureMisc(rootPath + file);
+		ResourcesManager.loadTextureMisc(rootPath + file, dst);
 	}
 
 }

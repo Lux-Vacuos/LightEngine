@@ -26,13 +26,14 @@ import java.util.Queue;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.glfw.WindowManager;
+import net.luxvacuos.lightengine.universal.core.Task;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 
 public class ClientTaskManager extends TaskManager {
 
 	private Window asyncWindow;
 
-	private Queue<Runnable> tasksRenderThread = new LinkedList<>(), tasksRenderBackgroundThread = new LinkedList<>();
+	private Queue<Task<?>> tasksRenderThread = new LinkedList<>(), tasksRenderBackgroundThread = new LinkedList<>();
 	private Thread renderBackgroundThread;
 	private boolean runBackgroundThread = true, syncInterrupt = true;
 	private long renderBackgroundThreadID;
@@ -40,13 +41,25 @@ public class ClientTaskManager extends TaskManager {
 	@Override
 	public void addTaskRenderThread(Runnable task) {
 		if (task != null)
-			tasksRenderThread.add(task);
+			tasksRenderThread.add(new Task<Void>() {
+				@Override
+				protected Void call() {
+					task.run();
+					return null;
+				}
+			});
 	}
 
 	@Override
 	public void addTaskRenderBackgroundThread(Runnable task) {
 		if (task != null) {
-			tasksRenderBackgroundThread.add(task);
+			tasksRenderBackgroundThread.add(new Task<Void>() {
+				@Override
+				protected Void call() {
+					task.run();
+					return null;
+				}
+			});
 			if (!syncInterrupt) {
 				syncInterrupt = true;
 				renderBackgroundThread.interrupt();
@@ -54,9 +67,27 @@ public class ClientTaskManager extends TaskManager {
 		}
 	}
 
+	@Override
+	public <T> Task<T> submitRenderThread(Task<T> t) {
+		tasksRenderThread.add(t);
+		return t;
+	}
+
+	@Override
+	public <T> Task<T> submitRenderBackgroundThread(Task<T> t) {
+		tasksRenderBackgroundThread.add(t);
+		if (!syncInterrupt) {
+			syncInterrupt = true;
+			renderBackgroundThread.interrupt();
+		}
+		return t;
+	}
+
 	public void updateRenderThread() {
 		if (!tasksRenderThread.isEmpty()) {
-			tasksRenderThread.poll().run();
+			Task<?> t = tasksRenderThread.poll();
+			if (t != null)
+				t.callI();
 		}
 	}
 
@@ -68,8 +99,11 @@ public class ClientTaskManager extends TaskManager {
 			WindowManager.createWindow(handle, asyncWindow, true);
 			while (runBackgroundThread) {
 				if (!tasksRenderBackgroundThread.isEmpty()) {
-					while (!tasksRenderBackgroundThread.isEmpty())
-						tasksRenderBackgroundThread.poll().run();
+					while (!tasksRenderBackgroundThread.isEmpty()) {
+						Task<?> t = tasksRenderBackgroundThread.poll();
+						if (t != null)
+							t.callI();
+					}
 				} else {
 					try {
 						syncInterrupt = false;

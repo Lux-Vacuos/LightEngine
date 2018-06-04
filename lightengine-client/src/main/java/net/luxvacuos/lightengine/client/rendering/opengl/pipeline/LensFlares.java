@@ -31,9 +31,9 @@ import net.luxvacuos.lightengine.client.rendering.opengl.DeferredPass;
 import net.luxvacuos.lightengine.client.rendering.opengl.FBO;
 import net.luxvacuos.lightengine.client.rendering.opengl.IDeferredPipeline;
 import net.luxvacuos.lightengine.client.rendering.opengl.ShadowFBO;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.CachedAssets;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CubeMapTexture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
+import net.luxvacuos.lightengine.client.resources.ResourcesManager;
 
 public class LensFlares extends DeferredPass {
 
@@ -41,7 +41,7 @@ public class LensFlares extends DeferredPass {
 
 	public LensFlares(String name, int width, int height) {
 		super(name, width, height);
-		lensColor = CachedAssets.loadTextureMisc("textures/lens/lens_color.png");
+		lensColor = ResourcesManager.loadTextureMisc("textures/lens/lens_color.png", null).get();
 	}
 
 	@Override
