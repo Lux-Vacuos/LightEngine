@@ -1,13 +1,13 @@
 plugins {
-	id 'net.nemerosa.versioning' version '2.6.1'
-	id 'eclipse'
-	id 'idea'
-	id 'java'
-	id 'application'
+	id "net.nemerosa.versioning" version "2.7.1"
+	id "eclipse"
+	id "idea"
+	id "java"
+	id "application"
 }
 
-mainClassName = 'net.luxvacuos.lightengine.tools.Main'
-sourceCompatibility = '10'
+mainClassName = "net.luxvacuos.lightengine.tools.Main"
+sourceCompatibility = "10"
 
 sourceSets {
 	main {
@@ -22,22 +22,22 @@ sourceSets {
 }
 
 dependencies {
-	compile project(':lightengine-client')
-	compile project(':lightengine-server')
-	testCompile group: 'junit', name: 'junit', version: '4.12'
+	compile project(":lightengine-client")
+	compile project(":lightengine-server")
+	testCompile group: "junit", name: "junit", version: "4.12"
 }
 
 jar {
-	version = "0.0.1-" + versioning.info.full
+	version = "0.0.10-" + versioning.info.full
 	manifest {
 		attributes (
-				"Specification-Title": "Light Engine-Tools",
-				"Specification-Version": version,
-				"Specification-Vendor": "Lux Vacuos",
-				"Implementation-Title": "net.luxvacuos.lightengine.tools",
-				"Implementation-Version": versioning.info.full,
-				"Implementation-Vendor": "Lux Vacuos"
-				)
+			"Specification-Title": "Light Engine-Tools",
+			"Specification-Version": version,
+			"Specification-Vendor": "Lux Vacuos",
+			"Implementation-Title": "net.luxvacuos.lightengine.tools",
+			"Implementation-Version": versioning.info.full,
+			"Implementation-Vendor": "Lux Vacuos"
+		)
 	}
 }
 

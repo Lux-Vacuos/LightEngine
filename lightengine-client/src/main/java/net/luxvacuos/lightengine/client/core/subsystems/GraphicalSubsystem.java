@@ -25,6 +25,8 @@ import static org.lwjgl.assimp.Assimp.aiGetVersionMajor;
 import static org.lwjgl.assimp.Assimp.aiGetVersionMinor;
 import static org.lwjgl.assimp.Assimp.aiGetVersionRevision;
 import static org.lwjgl.glfw.GLFW.glfwInit;
+import static org.lwjgl.nanovg.NanoVG.nvgBeginFrame;
+import static org.lwjgl.nanovg.NanoVG.nvgEndFrame;
 
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
@@ -51,6 +53,7 @@ import net.luxvacuos.lightengine.client.rendering.nanovg.NanoWindowManager;
 import net.luxvacuos.lightengine.client.rendering.nanovg.Timers;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.NanoTheme;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.ThemeManager;
+import net.luxvacuos.lightengine.client.rendering.nanovg.v2.Surface;
 import net.luxvacuos.lightengine.client.rendering.opengl.GLRenderer;
 import net.luxvacuos.lightengine.client.rendering.opengl.GLResourcesManagerBackend;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CachedAssets;
@@ -73,6 +76,8 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 	private static long renderThreadID;
 	private static IRenderer renderer;
 	private static RenderingAPI api;
+
+	private static Surface rootSurface;
 
 	private static Font robotoRegular, robotoBold, poppinsRegular, poppinsLight, poppinsMedium, poppinsBold,
 			poppinsSemiBold, entypo;
@@ -159,6 +164,12 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 
 		StateMachine.registerState(new SplashScreenState());
 		TaskManager.tm.addTaskMainThread(() -> window.setVisible(true));
+
+		rootSurface = new Surface(window.getWidth(), window.getHeight());
+		rootSurface.init(window.getNVGID());
+		rootSurface.addSurface(new Surface(20,20));
+		rootSurface.updateLayout(window.getWidth(), window.getHeight());
+		rootSurface.updateLayoutData();
 	}
 
 	@Override
@@ -172,6 +183,7 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 				resized = true;
 			}
 			windowManager.update(delta);
+			rootSurface.update(delta);
 		}
 	}
 
@@ -187,6 +199,8 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 			GL.glClearColor(0, 0, 0, 1);
 			GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 			windowManager.render(delta);
+			rootSurface.render(delta);
+			window.resetViewport();
 		}
 		CachedAssets.update(delta);
 	}
@@ -206,6 +220,7 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 		CachedAssets.dispose();
 		((ClientTaskManager) TaskManager.tm).stopRenderBackgroundThread();
 		windowManager.dispose();
+		rootSurface.dispose();
 		window.dispose();
 	}
 

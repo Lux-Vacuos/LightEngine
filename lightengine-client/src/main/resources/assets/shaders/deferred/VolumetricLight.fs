@@ -39,9 +39,11 @@ uniform int useVolumetricLight;
 
 #include function computeShadow
 
+#include function random
+
 #include variable GLOBAL
 
-#define VOLUMETRIC_MULT 0.025
+#define VOLUMETRIC_MULT 0.08
 #define VOLUMETRIC_SUN 1.0
 
 void main() {
@@ -60,14 +62,20 @@ void main() {
 		float rays;
 		float bias = max(0.1 * (1.0 - dot(N, L)), 0.005);
 		int itr;
+		vec3 randSample, finalTrace;
 		do {
 			rayTrace += cameraToWorldNorm * incr;
 			incr *= 1.05;
-			rayDist = length(rayTrace - cameraPosition);
+
+			randSample =
+				vec3(random(rayTrace.x), random(rayTrace.y), random(rayTrace.z)) * 0.25 - 0.125;
+			finalTrace = rayTrace + randSample;
+			rayDist = length(finalTrace - cameraPosition);
 			if (rayDist > cameraToWorldDist - bias)
 				break;
 			itr++;
-			rays += computeShadow(rayTrace);
+
+			rays += computeShadow(finalTrace);
 			if (rayDist > MAX_DISTANCE_VOLUME)
 				break;
 		} while (rayDist < cameraToWorldDist);

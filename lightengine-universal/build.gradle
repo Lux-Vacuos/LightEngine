@@ -1,12 +1,12 @@
 plugins {
-	id 'net.nemerosa.versioning' version '2.6.1'
-	id 'eclipse'
-	id 'idea'
-	id 'java'
+	id "net.nemerosa.versioning" version "2.7.1"
+	id "eclipse"
+	id "idea"
+	id "java"
 }
 
-sourceCompatibility = '10'
-project.ext.jomlVersion = "1.9.9"
+sourceCompatibility = "10"
+project.ext.jomlVersion = "1.9.11"
 
 sourceSets {
 	main {
@@ -21,31 +21,30 @@ sourceSets {
 }
 
 dependencies {
-	compile project(':lightengine-jbullet')
-	compile project(':lightengine-utils')
+	compile project(":lightengine-jbullet")
+	compile project(":lightengine-utils")
 	
-	compile 'org.codehaus.groovy:groovy:2.4.14'
-	compile 'org.codehaus.groovy:groovy-jsr223:2.4.14'
-	compile 'io.netty:netty-all:4.1.22.Final'
-	compile 'com.google.code.gson:gson:2.8.2'
-	compile 'org.apache.commons:commons-vfs2:2.2'
+	compile "org.codehaus.groovy:groovy:2.4.14"
+	compile "org.codehaus.groovy:groovy-jsr223:2.4.14"
+	compile "io.netty:netty-all:4.1.22.Final"
+	compile "com.google.code.gson:gson:2.8.2"
+	compile "org.apache.commons:commons-vfs2:2.2"
 	
-	compile "org.joml:joml:${jomlVersion}"
-	
-	testCompile group: 'junit', name: 'junit', version: '4.12'
+	compile "org.joml:joml:$jomlVersion"
+
 }
 
 jar {
-	version = project.ext.globalVersion + "-" + versioning.info.branchId + "-" + 'git rev-list --count HEAD'.execute().text.trim()
+	version = project.ext.globalVersion + "-" + versioning.info.branchId + "-" + "git rev-list --count HEAD".execute().text.trim()
 	manifest {
 		attributes (
 			"Implementation-Title": "net.luxvacuos.lightengine.universal",
 			"Implementation-Version": version,
 			"Implementation-Vendor": "Lux Vacuos",
-			"LV-Build": 'git rev-list --count HEAD'.execute().text.trim(),
+			"LV-Build": "git rev-list --count HEAD".execute().text.trim(),
 			"LV-Branch": versioning.info.branchId,
 			"LV-Version": project.ext.globalVersion
-			)
+		)
 	}
 	manifest.writeTo("$buildDir/" + project.name + "-version.mf")
 	from "$buildDir/" + project.name + "-version.mf"

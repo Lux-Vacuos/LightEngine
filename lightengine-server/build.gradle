@@ -1,13 +1,13 @@
 plugins {
-	id 'net.nemerosa.versioning' version '2.6.1'
-	id 'eclipse'
-	id 'idea'
-	id 'java'
-	id 'application'
+	id "net.nemerosa.versioning" version "2.7.1"
+	id "eclipse"
+	id "idea"
+	id "java"
+	id "application"
 }
 
-mainClassName = 'net.luxvacuos.lightengine.server.bootstrap.Bootstrap'
-sourceCompatibility = '10'
+mainClassName = "net.luxvacuos.lightengine.server.bootstrap.Bootstrap"
+sourceCompatibility = "10"
 
 sourceSets {
 	main {
@@ -22,21 +22,20 @@ sourceSets {
 }
 
 dependencies {
-	compile project(':lightengine-universal')
-	testCompile group: 'junit', name: 'junit', version: '4.12'
+	compile project(":lightengine-universal")
 }
 
 jar {
-	version = project.ext.globalVersion + "-" + versioning.info.branchId + "-" + 'git rev-list --count HEAD'.execute().text.trim()
+	version = project.ext.globalVersion + "-" + versioning.info.branchId + "-" + "git rev-list --count HEAD".execute().text.trim()
 	manifest {
         attributes (
 			"Implementation-Title": "net.luxvacuos.lightengine.server",
 			"Implementation-Version": version,
 			"Implementation-Vendor": "Lux Vacuos",
-			"LV-Build": 'git rev-list --count HEAD'.execute().text.trim(),
+			"LV-Build": "git rev-list --count HEAD".execute().text.trim(),
 			"LV-Branch": versioning.info.branchId,
 			"LV-Version": project.ext.globalVersion
-			)
+		)
     }
 	manifest.writeTo("$buildDir/" + project.name + "-version.mf")
 	from "$buildDir/" + project.name + "-version.mf"

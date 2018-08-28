@@ -95,8 +95,9 @@ public class GLResourcesManagerBackend implements IResourcesManagerBackend {
 		if (textureMipMapAF)
 			glGenerateMipmap(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, 0);
+
 		long fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-		glClientWaitSync(fence, GL_SYNC_FLUSH_COMMANDS_BIT, 5000 * 1000000);
+		glClientWaitSync(fence, GL_SYNC_FLUSH_COMMANDS_BIT, 10000 * 1000000);
 		glDeleteSync(fence);
 		return textureID;
 	}
