@@ -18,8 +18,26 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.nanovg.v2;
+package net.luxvacuos.lightengine.client.rendering.nanovg.v2.layouts;
 
-public class SurfaceManager  {
+import org.joml.Vector4f;
+
+import net.luxvacuos.lightengine.client.rendering.nanovg.v2.Surface;
+
+public class GridLayout implements ILayout {
+
+	@Override
+	public Vector4f calculateLayout(int srf, Vector4f marginPos) {
+		Vector4f layout = new Vector4f();
+		return layout;
+	}
+
+	@Override
+	public void addSurface(Surface srf, Object... params) {
+	}
+
+	@Override
+	public void removeSurface(Surface srf) {
+	}
 
 }

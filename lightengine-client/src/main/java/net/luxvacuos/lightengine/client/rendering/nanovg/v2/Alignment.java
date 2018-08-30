@@ -20,6 +20,7 @@
 
 package net.luxvacuos.lightengine.client.rendering.nanovg.v2;
 
-public class SurfaceManager  {
+public enum Alignment {
+	LEFT, CENTER, RIGHT, TOP, BOTTOM, STRETCH
 
 }

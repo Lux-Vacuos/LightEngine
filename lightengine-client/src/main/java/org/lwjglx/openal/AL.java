@@ -46,7 +46,7 @@ public class AL {
 		Logger.log("caps.ALC_EXT_EFX = " + deviceCaps.ALC_EXT_EFX);
 
 		if (deviceCaps.OpenALC11) {
-			List<String> devices = ALUtil.getStringList(NULL, ALC_ALL_DEVICES_SPECIFIER);
+			List<String> devices = ALUtil.getStringList(device, ALC_ALL_DEVICES_SPECIFIER);
 			if (devices == null)
 				throw new IllegalStateException("Unable to initialize devices");
 			else {
@@ -55,7 +55,7 @@ public class AL {
 			}
 		}
 
-		String defaultDeviceSpecifier = alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
+		String defaultDeviceSpecifier = alcGetString(device, ALC_DEFAULT_DEVICE_SPECIFIER);
 		Logger.log("Default device: " + defaultDeviceSpecifier);
 
 		context = alcCreateContext(device, (IntBuffer) null);
