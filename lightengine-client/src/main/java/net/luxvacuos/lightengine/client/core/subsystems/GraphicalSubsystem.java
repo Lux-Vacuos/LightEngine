@@ -26,7 +26,6 @@ import static org.lwjgl.assimp.Assimp.aiGetVersionMinor;
 import static org.lwjgl.assimp.Assimp.aiGetVersionRevision;
 import static org.lwjgl.glfw.GLFW.glfwInit;
 
-import org.joml.Vector4f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -52,9 +51,7 @@ import net.luxvacuos.lightengine.client.rendering.nanovg.NanoWindowManager;
 import net.luxvacuos.lightengine.client.rendering.nanovg.Timers;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.NanoTheme;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.ThemeManager;
-import net.luxvacuos.lightengine.client.rendering.nanovg.v2.Alignment;
-import net.luxvacuos.lightengine.client.rendering.nanovg.v2.Surface;
-import net.luxvacuos.lightengine.client.rendering.nanovg.v2.layouts.FlowLayout;
+import net.luxvacuos.lightengine.client.rendering.nanovg.v2.SurfaceManager;
 import net.luxvacuos.lightengine.client.rendering.opengl.GLRenderer;
 import net.luxvacuos.lightengine.client.rendering.opengl.GLResourcesManagerBackend;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CachedAssets;
@@ -78,7 +75,7 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 	private static IRenderer renderer;
 	private static RenderingAPI api;
 
-	private static Surface rootSurface;
+	private static SurfaceManager surfaceManager;
 
 	private static Font robotoRegular, robotoBold, poppinsRegular, poppinsLight, poppinsMedium, poppinsBold,
 			poppinsSemiBold, entypo;
@@ -165,14 +162,7 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 
 		StateMachine.registerState(new SplashScreenState());
 		TaskManager.tm.addTaskMainThread(() -> window.setVisible(true));
-
-		rootSurface = new Surface();
-		rootSurface.setWidth(window.getWidth()).setHeight(window.getHeight()).setHorizontalAlignment(Alignment.STRETCH)
-				.setVerticalAlignment(Alignment.STRETCH).setPadding(10).setLayout(new FlowLayout());
-		rootSurface.init(window.getNVGID());
-		rootSurface.addSurface(new Surface().setWidth(200).setHeight(200).setMargin(20).setPadding(40).setBorder(5));
-		rootSurface.addSurface(new Surface().setWidth(300).setHeight(300).setPadding(20).setBorder(5));
-		rootSurface.updateLayout(new Vector4f(0, 0, window.getWidth(), window.getHeight()));
+		surfaceManager = new SurfaceManager(window);
 	}
 
 	@Override
@@ -186,8 +176,7 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 				resized = true;
 			}
 			windowManager.update(delta);
-			rootSurface.updateLayout(new Vector4f(0, 0, window.getWidth(), window.getHeight()));
-			rootSurface.update(delta);
+			surfaceManager.update(delta);
 		}
 	}
 
@@ -203,10 +192,7 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 			GL.glClearColor(0, 0, 0, 1);
 			GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 			windowManager.render(delta);
-			window.beingNVGFrame();
-			rootSurface.render(delta);
-			window.endNVGFrame();
-			window.resetViewport();
+			surfaceManager.render(delta);
 		}
 		CachedAssets.update(delta);
 	}
@@ -226,7 +212,7 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 		CachedAssets.dispose();
 		((ClientTaskManager) TaskManager.tm).stopRenderBackgroundThread();
 		windowManager.dispose();
-		rootSurface.dispose();
+		surfaceManager.dispose();
 		window.dispose();
 	}
 
@@ -265,6 +251,10 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 
 	public static void setRenderThreadID(long renderThreadID) {
 		GraphicalSubsystem.renderThreadID = renderThreadID;
+	}
+
+	public static SurfaceManager getSurfaceManager() {
+		return surfaceManager;
 	}
 
 }

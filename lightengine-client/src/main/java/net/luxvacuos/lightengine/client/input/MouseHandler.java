@@ -26,7 +26,6 @@ import net.luxvacuos.lightengine.client.input.callbacks.MouseButtonCallback;
 import net.luxvacuos.lightengine.client.input.callbacks.MouseEnterCallback;
 import net.luxvacuos.lightengine.client.input.callbacks.MousePosCallback;
 import net.luxvacuos.lightengine.client.input.callbacks.MouseScrollCallback;
-import net.luxvacuos.lightengine.client.rendering.glfw.AbstractWindow;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 
 public class MouseHandler {
@@ -37,10 +36,8 @@ public class MouseHandler {
 	private final MouseScrollCallback scrollCallback;
 
 	private final long windowID;
-	@Deprecated
-	private final AbstractWindow window; // Temporary
 
-	public MouseHandler(long windowID, AbstractWindow window) {
+	public MouseHandler(long windowID) {
 		this.enterCallback = new MouseEnterCallback(windowID);
 		this.posCallback = new MousePosCallback(windowID);
 		this.buttonCallback = new MouseButtonCallback(windowID);
@@ -52,8 +49,6 @@ public class MouseHandler {
 		GLFW.glfwSetCursorPosCallback(windowID, this.posCallback);
 		GLFW.glfwSetMouseButtonCallback(windowID, this.buttonCallback);
 		GLFW.glfwSetScrollCallback(windowID, this.scrollCallback);
-
-		this.window = window;
 	}
 
 	public void update() {
@@ -73,7 +68,7 @@ public class MouseHandler {
 
 	public float getY() {
 		if (this.isInside())
-			return (float) (window.getHeight() - this.posCallback.getY());
+			return (float) this.posCallback.getY();
 		else
 			return -1;
 	}
@@ -87,7 +82,7 @@ public class MouseHandler {
 
 	public int getYI() {
 		if (this.isInside())
-			return (int) (window.getHeight() - this.posCallback.getY());
+			return (int) this.posCallback.getY();
 		else
 			return -1;
 	}

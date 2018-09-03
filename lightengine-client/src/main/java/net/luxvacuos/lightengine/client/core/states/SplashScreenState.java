@@ -24,7 +24,9 @@ import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
+import net.luxvacuos.lightengine.client.rendering.nanovg.v2.Surface;
 import net.luxvacuos.lightengine.client.ui.OnAction;
+import net.luxvacuos.lightengine.client.ui.v2.surfaces.SplashSurface;
 import net.luxvacuos.lightengine.client.ui.windows.LoadWindow;
 import net.luxvacuos.lightengine.client.ui.windows.Shell;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
@@ -53,6 +55,8 @@ public class SplashScreenState extends AbstractState {
 	public void start() {
 		window = new LoadWindow();
 		GraphicalSubsystem.getWindowManager().addWindow(window);
+
+		GraphicalSubsystem.getSurfaceManager().setRootSurface(new SplashSurface());
 		super.start();
 	}
 
@@ -65,6 +69,7 @@ public class SplashScreenState extends AbstractState {
 		GraphicalSubsystem.getWindowManager().addWindow(shell);
 		GraphicalSubsystem.getWindowManager().setShell(shell);
 		shell.toggleShell();
+
 	}
 
 	@Override

@@ -122,7 +122,7 @@ public abstract class AbstractWindow implements IWindow {
 
 	protected void setCallbacks() {
 		this.kbHandle = new KeyboardHandler(this.windowID);
-		this.mHandle = new MouseHandler(this.windowID, this);
+		this.mHandle = new MouseHandler(this.windowID);
 
 		windowSizeCallback = new GLFWWindowSizeCallback() {
 			@Override
@@ -227,6 +227,19 @@ public abstract class AbstractWindow implements IWindow {
 			break;
 		case GLES:
 			GLES20.glViewport(x, y, width, height);
+			break;
+		default:
+			break;
+		}
+	}
+
+	public void setNanoVGViewport(int x, int y, int width, int height) {
+		switch (api) {
+		case GL:
+			GL11.glViewport(x, this.height - y - height, width, height);
+			break;
+		case GLES:
+			GLES20.glViewport(x, this.height - y - height, width, height);
 			break;
 		default:
 			break;

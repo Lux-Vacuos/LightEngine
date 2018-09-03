@@ -32,13 +32,11 @@ import static org.lwjgl.nanovg.NanoVG.nvgBeginPath;
 import static org.lwjgl.nanovg.NanoVG.nvgFill;
 import static org.lwjgl.nanovg.NanoVG.nvgFillColor;
 import static org.lwjgl.nanovg.NanoVG.nvgFontFace;
-import static org.lwjgl.nanovg.NanoVG.nvgFontSize;
+import static org.lwjgl.nanovg.NanoVG.*;
 import static org.lwjgl.nanovg.NanoVG.nvgPathWinding;
 import static org.lwjgl.nanovg.NanoVG.nvgRect;
-import static org.lwjgl.nanovg.NanoVG.nvgResetScissor;
 import static org.lwjgl.nanovg.NanoVG.nvgRestore;
 import static org.lwjgl.nanovg.NanoVG.nvgSave;
-import static org.lwjgl.nanovg.NanoVG.nvgScissor;
 import static org.lwjgl.nanovg.NanoVG.nvgText;
 import static org.lwjgl.nanovg.NanoVG.nvgTextAlign;
 
@@ -57,23 +55,26 @@ public class Surface {
 
 	private List<Surface> surfaces = new ArrayList<>();
 
-	protected Vector2f initialPos = new Vector2f(0);
-	protected Vector4f marginPos = new Vector4f(0);
+	protected Vector4f initialPos = new Vector4f(0);
+	private Vector4f calcPos = new Vector4f(0);
+	private Vector4f marginPos = new Vector4f(0);
+	private Vector4f borderPos = new Vector4f(0);
 	protected Vector4f elementPos = new Vector4f(0);
-	protected Vector4f paddingPos = new Vector4f(0);
-	protected Vector4f margin = new Vector4f(0);
-	protected Vector4f padding = new Vector4f(0);
-	protected Vector4f border = new Vector4f(0);
+	private Vector4f paddingPos = new Vector4f(0);
+	private Vector4f margin = new Vector4f(0);
+	private Vector4f padding = new Vector4f(0);
+	private Vector4f border = new Vector4f(0);
 
-	protected Alignment horizontal = Alignment.LEFT, vertical = Alignment.TOP;
+	private Alignment horizontal = Alignment.LEFT, vertical = Alignment.TOP;
 
-	private long ctx;
+	protected long ctx;
 
 	private ILayout layout = new EmptyLayout();
 
-	private NVGColor backgroundColor = Theme.setColor("#7F7F7FFF"), borderColor = Theme.setColor("#FFFFFFFF");
+	protected NVGColor backgroundColor = Theme.setColor("#00000000"), borderColor = Theme.setColor("#00000000");
+	protected NVGColor foregroundColor = Theme.setColor("#FFFFFFFF");
 
-	private static final boolean DEBUG = true;
+	protected static final boolean DEBUG = false;
 
 	public Surface() {
 	}
@@ -82,15 +83,14 @@ public class Surface {
 		this.ctx = ctx;
 	}
 
-	public void render(float delta) {
+	protected void renderSurface(float delta) {
 		nvgSave(ctx);
 
 		if (border.length() != 0) {
 			nvgBeginPath(ctx);
-			nvgRect(ctx, marginPos.x + border.x, marginPos.y + border.y, marginPos.z - border.x - border.z,
-					marginPos.w - border.y - border.w);
+			nvgRect(ctx, elementPos.x, elementPos.y, elementPos.z, elementPos.w);
 			nvgPathWinding(ctx, NVG_HOLE);
-			nvgRect(ctx, marginPos.x, marginPos.y, marginPos.z, marginPos.w);
+			nvgRect(ctx, borderPos.x, borderPos.y, borderPos.z, borderPos.w);
 			nvgFillColor(ctx, borderColor);
 			nvgFill(ctx);
 		}
@@ -103,22 +103,17 @@ public class Surface {
 		nvgRestore(ctx);
 
 		if (DEBUG) {
-
 			nvgSave(ctx);
-			nvgScissor(ctx, marginPos.x + border.x, marginPos.y + border.y, marginPos.z - border.x - border.z,
-					marginPos.w - border.y - border.w);
 			nvgBeginPath(ctx);
 			nvgRect(ctx, marginPos.x, marginPos.y, marginPos.z, marginPos.w);
 			nvgFillColor(ctx, Theme.rgba(0, 100, 0, 255, colorA));
 			nvgFill(ctx);
-			nvgResetScissor(ctx);
 
 			if (border.length() != 0) {
 				nvgBeginPath(ctx);
-				nvgRect(ctx, marginPos.x + border.x, marginPos.y + border.y, marginPos.z - border.x - border.z,
-						marginPos.w - border.y - border.w);
+				nvgRect(ctx, elementPos.x, elementPos.y, elementPos.z, elementPos.w);
 				nvgPathWinding(ctx, NVG_HOLE);
-				nvgRect(ctx, marginPos.x, marginPos.y, marginPos.z, marginPos.w);
+				nvgRect(ctx, borderPos.x, borderPos.y, borderPos.z, borderPos.w);
 				nvgFillColor(ctx, Theme.rgba(0, 0, 100, 255, colorA));
 				nvgFill(ctx);
 			}
@@ -151,11 +146,19 @@ public class Surface {
 			nvgText(ctx, elementPos.x + elementPos.z / 2f, elementPos.y + elementPos.w - 4f,
 					String.format("H %.2f", elementPos.w));
 			nvgRestore(ctx);
-
 		}
+	}
 
+	public void render(float delta) {
+		nvgSave(ctx);
+		this.renderSurface(delta);
+		nvgRestore(ctx);
+
+		nvgIntersectScissor(ctx, paddingPos.x, paddingPos.y, paddingPos.z, paddingPos.w);
 		for (Surface surface : surfaces) {
+			nvgSave(ctx);
 			surface.render(delta);
+			nvgRestore(ctx);
 		}
 	}
 
@@ -163,65 +166,100 @@ public class Surface {
 
 	}
 
+	public void preLayout(float delta) {
+		for (Surface srf : surfaces) {
+			nvgSave(ctx);
+			srf.preLayout(delta);
+			nvgRestore(ctx);
+		}
+	}
+
+	public Vector2f updateSize() {
+		Vector2f size = new Vector2f();
+		for (Surface srf : surfaces) {
+			size.add(srf.updateSize());
+		}
+		calcPos.z = size.x;
+		calcPos.w = size.y;
+
+		calcPos.max(initialPos);
+
+		marginPos.z = calcPos.z + margin.x + margin.z + border.x + border.z + padding.x + padding.z;
+		marginPos.w = calcPos.w + margin.y + margin.w + border.y + border.w + padding.y + padding.w;
+
+		return new Vector2f(marginPos.z, marginPos.w);
+	}
+
 	public void updateLayout(Vector4f root) {
-		marginPos.z = initialPos.x + margin.x + margin.z + border.x + border.z;
+
+		this.updateSize();
+
 		switch (horizontal) {
 		case LEFT:
-			marginPos.x = root.x;
+			marginPos.x = initialPos.x + root.x;
 			break;
 		case CENTER:
-			marginPos.x = root.x + root.z / 2f - marginPos.z / 2f;
+			marginPos.x = initialPos.x + root.x + root.z / 2f - marginPos.z / 2f;
 			break;
 		case RIGHT:
-			marginPos.x = root.x + root.z - marginPos.z;
+			marginPos.x = initialPos.x + root.x + root.z - marginPos.z;
 			break;
 		case STRETCH:
 			marginPos.x = root.x;
-			marginPos.z = root.x + root.z;
+			marginPos.z = root.z;
 			break;
 		default:
 			throw new UnsupportedOperationException("Only LEFT, CENTER, RIGHT and STRETCH are supported.");
 		}
-		elementPos.x = marginPos.x + margin.x + border.x;
-		elementPos.z = marginPos.z - margin.x - margin.z - border.x - border.z;
 
-		marginPos.w = initialPos.y + margin.y + margin.w + border.y + border.w;
 		switch (vertical) {
 		case TOP:
-			marginPos.y = root.y;
+			marginPos.y = initialPos.y + root.y;
 			break;
 		case CENTER:
-			marginPos.y = root.y + root.w / 2f - marginPos.w / 2f;
+			marginPos.y = initialPos.y + root.y + root.w / 2f - marginPos.w / 2f;
 			break;
 		case BOTTOM:
-			marginPos.y = root.y + root.w - marginPos.w;
+			marginPos.y = initialPos.y + root.y + root.w - marginPos.w;
 			break;
 		case STRETCH:
 			marginPos.y = root.y;
-			marginPos.w = root.y + root.w;
+			marginPos.w = root.w;
 			break;
 		default:
 			throw new UnsupportedOperationException("Only TOP, CENTER, BOTTOM and STRETCH are supported.");
 		}
-		elementPos.y = marginPos.y + margin.y + border.y;
-		elementPos.w = marginPos.w - margin.y - margin.w - border.y - border.w;
+
+		borderPos.x = marginPos.x + margin.x;
+		borderPos.y = marginPos.y + margin.y;
+		borderPos.z = marginPos.z - margin.x - margin.z;
+		borderPos.w = marginPos.w - margin.y - margin.w;
+
+		elementPos.x = borderPos.x + border.x;
+		elementPos.y = borderPos.y + border.y;
+		elementPos.z = borderPos.z - border.x - border.z;
+		elementPos.w = borderPos.w - border.y - border.w;
 
 		paddingPos.x = elementPos.x + padding.x;
 		paddingPos.y = elementPos.y + padding.y;
-		paddingPos.z = elementPos.z - padding.z - padding.x;
-		paddingPos.w = elementPos.w - padding.w - padding.y;
+		paddingPos.z = elementPos.z - padding.x - padding.z;
+		paddingPos.w = elementPos.w - padding.y - padding.w;
 
 		for (int i = 0; i < surfaces.size(); i++) {
 			Surface srf = surfaces.get(i);
-			srf.updateLayout(paddingPos.add(layout.calculateLayout(i, srf.marginPos), new Vector4f()));
+			srf.updateLayout(paddingPos.add(layout.calculateLayout(i, srf.marginPos), new Vector4f(0)));
 		}
 	}
 
 	public void dispose() {
+		for (Surface srf : surfaces) {
+			srf.dispose();
+		}
 	}
 
 	public void addSurface(Surface srf, Object... params) {
 		srf.init(ctx);
+		srf.setForegroundColor(foregroundColor);
 		this.surfaces.add(srf);
 		this.layout.addSurface(srf, params);
 	}
@@ -230,13 +268,23 @@ public class Surface {
 		return surfaces;
 	}
 
+	public Surface setX(float x) {
+		this.initialPos.x = x;
+		return this;
+	}
+
+	public Surface setY(float y) {
+		this.initialPos.y = y;
+		return this;
+	}
+
 	public Surface setWidth(float width) {
-		this.initialPos.x = width;
+		this.initialPos.z = width;
 		return this;
 	}
 
 	public Surface setHeight(float height) {
-		this.initialPos.y = height;
+		this.initialPos.w = height;
 		return this;
 	}
 
@@ -245,13 +293,43 @@ public class Surface {
 		return this;
 	}
 
+	public Surface setMargin(float h, float v) {
+		this.margin.set(h, v, h, v);
+		return this;
+	}
+
+	public Surface setMargin(float l, float t, float r, float b) {
+		this.margin.set(l, t, r, b);
+		return this;
+	}
+
 	public Surface setPadding(float padding) {
 		this.padding.set(padding);
 		return this;
 	}
 
+	public Surface setPadding(float h, float v) {
+		this.padding.set(h, v, h, v);
+		return this;
+	}
+
+	public Surface setPadding(float l, float t, float r, float b) {
+		this.padding.set(l, t, r, b);
+		return this;
+	}
+
 	public Surface setBorder(float border) {
 		this.border.set(border);
+		return this;
+	}
+
+	public Surface setBorder(float h, float v) {
+		this.border.set(h, v, h, v);
+		return this;
+	}
+
+	public Surface setBorder(float l, float t, float r, float b) {
+		this.border.set(l, t, r, b);
 		return this;
 	}
 
@@ -267,6 +345,26 @@ public class Surface {
 
 	public Surface setLayout(ILayout layout) {
 		this.layout = layout;
+		return this;
+	}
+
+	public Surface setBackgroundColor(String color) {
+		this.backgroundColor = Theme.setColor(color, backgroundColor);
+		return this;
+	}
+
+	public Surface setBorderColor(String color) {
+		this.borderColor = Theme.setColor(color, borderColor);
+		return this;
+	}
+
+	public Surface setForegroundColor(String color) {
+		this.foregroundColor = Theme.setColor(color, foregroundColor);
+		return this;
+	}
+
+	public Surface setForegroundColor(NVGColor color) {
+		this.foregroundColor = color;
 		return this;
 	}
 }
