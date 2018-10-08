@@ -18,36 +18,25 @@
  * 
  */
 
-package net.luxvacuos.lightengine.universal.core.subsystems;
+package net.luxvacuos.lightengine.client.loader;
 
-public abstract class UniversalSubsystem implements ISubsystem {
+import net.luxvacuos.lightengine.client.core.ClientEngine;
+import net.luxvacuos.lightengine.client.core.ClientTaskManager;
+import net.luxvacuos.lightengine.universal.core.IEngineLoader;
+import net.luxvacuos.lightengine.universal.core.TaskManager;
+import net.luxvacuos.lightengine.universal.loader.EngineData;
+import net.luxvacuos.lightengine.universal.loader.Loader;
 
-	@Override
-	public void restart() {
+public class ClientLoader extends Loader {
+
+	public ClientLoader(IEngineLoader el, String... args) {
+		super(el, args);
 	}
 
 	@Override
-	public void init() {
-	}
-
-	@Override
-	public void update(float delta) {
-	}
-
-	@Override
-	public void dispose() {
-	}
-
-	@Override
-	public void initRender() {
-	}
-
-	@Override
-	public void render(float delta) {
-	}
-
-	@Override
-	public void disposeRender() {
+	public void startEngine(IEngineLoader el, EngineData ed) {
+		TaskManager.tm = new ClientTaskManager();
+		new ClientEngine(el, ed);
 	}
 
 }

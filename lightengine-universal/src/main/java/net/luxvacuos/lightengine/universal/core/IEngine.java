@@ -27,11 +27,13 @@ public interface IEngine extends IDisposable {
 
 	public void init();
 
-	public void update();
+	public void run();
 
 	public void restart();
 
 	public void initSubsystems();
+	
+	public void runSubsystems();
 
 	public void restartSubsystems();
 

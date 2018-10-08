@@ -25,22 +25,20 @@ import static net.luxvacuos.lightengine.universal.util.registry.KeyCache.getKey;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-import net.luxvacuos.lightengine.universal.core.AbstractGameSettings;
 import net.luxvacuos.lightengine.universal.core.GlobalVariables;
-import net.luxvacuos.lightengine.universal.core.TempVariables;
+import net.luxvacuos.lightengine.universal.loader.EngineData;
 import net.luxvacuos.lightengine.universal.util.registry.LanguageRegistry;
 import net.luxvacuos.lightengine.universal.util.registry.SystemRegistry;
 
-public class CoreSubsystem extends UniversalSubsystem {
+public class CoreSubsystem extends Subsystem {
 
-	protected static AbstractGameSettings gameSettings;
 	public static LanguageRegistry LANG;
 	public static SystemRegistry REGISTRY;
 	public static int ups;
 	public static int upsCount;
 
 	@Override
-	public void init() {
+	public void init(EngineData ed) {
 		try {
 			Manifest manifest = new Manifest(
 					getClass().getClassLoader().getResourceAsStream("lightengine-universal-version.mf"));
@@ -57,23 +55,18 @@ public class CoreSubsystem extends UniversalSubsystem {
 		} catch (Exception e) {
 		}
 		REGISTRY = new SystemRegistry();
-		REGISTRY.register(getKey("/Light Engine/Settings/file"), TempVariables.userDir + "/config/registry.json");
-		REGISTRY.register(getKey("/Light Engine/System/os"),
-				System.getProperty("os.name") + " " + System.getProperty("os.arch").toUpperCase());
+		REGISTRY.register(getKey("/Light Engine/Settings/file"), ed.userDir + "/config/registry.json");
+		REGISTRY.register(getKey("/Light Engine/System/os"), ed.platform.toString());
 		REGISTRY.register(getKey("/Light Engine/universalVersion"), GlobalVariables.versionUniversal + "-"
 				+ GlobalVariables.branchUniversal + "-" + GlobalVariables.buildUniversal);
-		REGISTRY.register(getKey("/Light Engine/System/userDir"), TempVariables.userDir);
-		REGISTRY.register(getKey("/Light Engine/System/systemDir"), TempVariables.systemDir);
+		REGISTRY.register(getKey("/Light Engine/System/userDir"), ed.userDir);
+		REGISTRY.register(getKey("/Light Engine/System/systemDir"), ed.systemDir);
 		LANG = new LanguageRegistry();
 	}
 
 	@Override
 	public void dispose() {
 		REGISTRY.save();
-	}
-
-	public static AbstractGameSettings getGameSettings() {
-		return gameSettings;
 	}
 
 }

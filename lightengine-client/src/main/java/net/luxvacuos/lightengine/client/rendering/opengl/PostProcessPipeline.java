@@ -125,9 +125,9 @@ public abstract class PostProcessPipeline implements IPostProcessPipeline {
 	}
 
 	@Override
-	public void resize() {
-		width = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"));
-		height = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
+	public void resize(int width, int height) {
+		this.width = width;
+		this.height = height;
 		if (texture != -1)
 			nvgDeleteImage(window.getNVGID(), texture);
 		fbo.dispose();

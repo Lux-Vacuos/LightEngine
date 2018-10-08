@@ -70,10 +70,8 @@ public abstract class DeferredPass implements IDeferredPass {
 
 	/**
 	 * 
-	 * @param width
-	 *            Width
-	 * @param height
-	 *            Height
+	 * @param width  Width
+	 * @param height Height
 	 */
 	public DeferredPass(String name, int width, int height) {
 		this.name = name;
@@ -127,8 +125,9 @@ public abstract class DeferredPass implements IDeferredPass {
 
 	@Override
 	public void resize(int width, int height) {
-		if (fbo != null)
-			fbo.dispose();
+		this.width = width;
+		this.height = height;
+		fbo.dispose();
 		fbo = new FBO(width, height, GL_RGBA16F, GL_RGBA, GL_FLOAT);
 		shader.start();
 		shader.loadResolution(new Vector2f(width, height));
@@ -143,6 +142,5 @@ public abstract class DeferredPass implements IDeferredPass {
 		shader.dispose();
 		fbo.dispose();
 	}
-
 
 }

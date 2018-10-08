@@ -55,6 +55,7 @@ import org.lwjgl.opengles.GLES20;
 import org.lwjgl.opengles.GLESCapabilities;
 
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
+import net.luxvacuos.lightengine.client.input.LegacyMouseHandler;
 import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.rendering.IResourceLoader;
 import net.luxvacuos.lightengine.client.rendering.opengl.GLResourceLoader;
@@ -122,7 +123,7 @@ public abstract class AbstractWindow implements IWindow {
 
 	protected void setCallbacks() {
 		this.kbHandle = new KeyboardHandler(this.windowID);
-		this.mHandle = new MouseHandler(this.windowID);
+		this.mHandle = new LegacyMouseHandler(this.windowID, this); // TODO: Mouse Handler
 
 		windowSizeCallback = new GLFWWindowSizeCallback() {
 			@Override

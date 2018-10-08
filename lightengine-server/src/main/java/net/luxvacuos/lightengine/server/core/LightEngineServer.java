@@ -26,7 +26,7 @@ import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.server.bootstrap.Bootstrap;
 import net.luxvacuos.lightengine.server.core.subsystems.NetworkSubsystem;
 import net.luxvacuos.lightengine.server.core.subsystems.ServerCoreSubsystem;
-import net.luxvacuos.lightengine.universal.core.UniversalEngine;
+import net.luxvacuos.lightengine.universal.core.Engine;
 import net.luxvacuos.lightengine.universal.core.EngineType;
 import net.luxvacuos.lightengine.universal.core.Sync;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
@@ -37,7 +37,7 @@ import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
 import net.luxvacuos.lightengine.universal.core.subsystems.ScriptSubsystem;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
-public class LightEngineServer extends UniversalEngine {
+public class LightEngineServer extends Engine {
 
 	private float timeCount;
 	private Sync sync;

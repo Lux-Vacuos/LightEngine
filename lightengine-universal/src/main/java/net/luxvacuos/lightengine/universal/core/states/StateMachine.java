@@ -23,9 +23,10 @@ package net.luxvacuos.lightengine.universal.core.states;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.universal.core.EngineType;
-import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
 public final class StateMachine {
 
@@ -56,13 +57,13 @@ public final class StateMachine {
 	public static boolean registerState(IState state) {
 		if (!registeredStates.containsKey(state.getName())) {
 			Logger.log("Registering State: " + state.getName());
-			state.init(); // Initialize the state
+			state.init();
 			registeredStates.put(state.getName(), state);
 			return true;
 		} else
 			return false;
 	}
-	
+
 	public static boolean hasState(String state) {
 		return registeredStates.containsKey(state);
 	}
@@ -76,23 +77,25 @@ public final class StateMachine {
 		return true;
 	}
 
-	public static boolean render(float alpha) {
+	public static boolean render(float delta) {
 		if (currentState == null || engineType != EngineType.CLIENT)
 			return false;
 		if (internalState == InternalState.LOADING)
 			return false;
-		currentState.render(alpha);
+		currentState.render(delta);
 		return true;
 	}
 
-	public static boolean setCurrentState(String name) {
-		internalState = InternalState.LOADING;
-		if (name != null || registeredStates.containsKey(name)) {
+	public static boolean setCurrentState(@Nonnull String name) {
+		if (registeredStates.containsKey(name)) {
+			internalState = InternalState.LOADING;
 			IState state = registeredStates.get(name);
 			Logger.log("Setting current state to " + state.getName());
 			if (currentState != null) {
-				if (currentState.equals(state))
+				if (currentState.equals(state)) {
+					internalState = InternalState.RUNNING;
 					return false;
+				}
 
 				currentState.end();
 				previousState = currentState;
@@ -102,10 +105,8 @@ public final class StateMachine {
 			currentState.start();
 			internalState = InternalState.RUNNING;
 			return true;
-		} else {
-			internalState = InternalState.RUNNING;
+		} else
 			return false;
-		}
 	}
 
 	public static void setEngineType(EngineType type) {
@@ -122,12 +123,9 @@ public final class StateMachine {
 
 	public static void dispose() {
 		internalState = InternalState.STOPPED;
-		for (IState state : registeredStates.values()) {
+		for (IState state : registeredStates.values())
 			if (state.isRunning())
 				state.end();
-			if (state instanceof IDisposable)
-				((IDisposable) state).dispose();
-		}
 		registeredStates.clear();
 	}
 

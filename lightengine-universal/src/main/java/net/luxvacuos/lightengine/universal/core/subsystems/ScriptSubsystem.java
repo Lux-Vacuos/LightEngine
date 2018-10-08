@@ -32,15 +32,16 @@ import javax.script.ScriptException;
 
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.universal.core.exception.CompileGroovyException;
+import net.luxvacuos.lightengine.universal.loader.EngineData;
 
-public class ScriptSubsystem extends UniversalSubsystem {
+public class ScriptSubsystem extends Subsystem {
 
 	private static ScriptEngineManager scriptEngineManager;
 	private static ScriptEngine scriptEngine;
 	private static Compilable compilableEngine;
 
 	@Override
-	public void init() {
+	public void init(EngineData ed) {
 		scriptEngineManager = new ScriptEngineManager();
 		scriptEngine = scriptEngineManager.getEngineByName("groovy");
 		if (scriptEngine == null)

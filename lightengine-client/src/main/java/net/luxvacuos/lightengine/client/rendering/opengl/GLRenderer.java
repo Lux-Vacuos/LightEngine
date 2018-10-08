@@ -317,8 +317,8 @@ public class GLRenderer implements IRenderer {
 	public void resize(int width, int height) {
 		if (!enabled)
 			return;
-		deferredPipeline.resize();
-		postProcessPipeline.resize();
+		deferredPipeline.resize(width, height);
+		postProcessPipeline.resize(width, height);
 		EventSubsystem.triggerEvent("lightengine.renderer.postresize");
 		gameWindow.setImageID(postProcessPipeline.getNVGImage());
 	}
@@ -329,28 +329,17 @@ public class GLRenderer implements IRenderer {
 			return;
 		enabled = false;
 		gameWindow.closeWindow();
-		if (envRenderer != null)
-			TaskManager.tm.addTaskRenderThread(() -> envRenderer.cleanUp());
-		if (envRendererEntities != null)
-			TaskManager.tm.addTaskRenderThread(() -> envRendererEntities.cleanUp());
-		if (shadowFBO != null)
-			TaskManager.tm.addTaskRenderThread(() -> shadowFBO.dispose());
-		if (deferredPipeline != null)
-			TaskManager.tm.addTaskRenderThread(() -> deferredPipeline.dispose());
-		if (postProcessPipeline != null)
-			TaskManager.tm.addTaskRenderThread(() -> postProcessPipeline.dispose());
-		if (particleRenderer != null)
-			TaskManager.tm.addTaskRenderThread(() -> particleRenderer.cleanUp());
-		if (irradianceCapture != null)
-			TaskManager.tm.addTaskRenderThread(() -> irradianceCapture.dispose());
-		if (preFilteredEnvironment != null)
-			TaskManager.tm.addTaskRenderThread(() -> preFilteredEnvironment.dispose());
-		if (waterRenderer != null)
-			TaskManager.tm.addTaskRenderThread(() -> waterRenderer.dispose());
-		if (renderingManager != null)
-			TaskManager.tm.addTaskRenderThread(() -> renderingManager.dispose());
-		if (lightRenderer != null)
-			TaskManager.tm.addTaskRenderThread(() -> lightRenderer.dispose());
+		TaskManager.tm.addTaskRenderThread(() -> envRenderer.cleanUp());
+		TaskManager.tm.addTaskRenderThread(() -> envRendererEntities.cleanUp());
+		TaskManager.tm.addTaskRenderThread(() -> shadowFBO.dispose());
+		TaskManager.tm.addTaskRenderThread(() -> deferredPipeline.dispose());
+		TaskManager.tm.addTaskRenderThread(() -> postProcessPipeline.dispose());
+		TaskManager.tm.addTaskRenderThread(() -> particleRenderer.cleanUp());
+		TaskManager.tm.addTaskRenderThread(() -> irradianceCapture.dispose());
+		TaskManager.tm.addTaskRenderThread(() -> preFilteredEnvironment.dispose());
+		TaskManager.tm.addTaskRenderThread(() -> waterRenderer.dispose());
+		TaskManager.tm.addTaskRenderThread(() -> renderingManager.dispose());
+		lightRenderer.dispose();
 		EventSubsystem.removeEvent("lightengine.renderer.resetshadowmap", shadowMap);
 	}
 

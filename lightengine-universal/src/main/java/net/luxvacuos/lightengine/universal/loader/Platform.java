@@ -18,12 +18,8 @@
  * 
  */
 
-package net.luxvacuos.lightengine.universal.bootstrap;
+package net.luxvacuos.lightengine.universal.loader;
 
-public interface IBootstrap {
-
-	public void parseArgs(String[] args);
-
-	public void init();
-
+public enum Platform {
+	WINDOWS_32, WINDOWS_64, MACOS, LINUX_32, LINUX_64, UNKNOWN;
 }

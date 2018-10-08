@@ -37,6 +37,7 @@ public class SurfaceManager {
 		this.window = window;
 		this.ctx = window.getNVGID();
 		rootSurface = new Surface();
+		rootSurface.init(ctx);
 		rootSurface.setWidth(window.getWidth());
 		rootSurface.setHeight(window.getHeight());
 		rootSize = new Vector4f(0, 0, window.getWidth(), window.getHeight());

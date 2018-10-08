@@ -18,16 +18,24 @@
  * 
  */
 
-package net.luxvacuos.lightengine.universal.core;
+package net.luxvacuos.lightengine.universal.loader;
 
-public interface IInternalSubsystem {
+import java.util.HashMap;
+import java.util.Map;
 
-	public void preInit();
-
-	public void init();
-
-	public void postInit();
+/**
+ * 
+ * Contains all the information collected by the {@link Loader}
+ * 
+ * @author Guerra24
+ *
+ */
+public class EngineData {
 	
-	public void dispose();
+	public Platform platform;
+	public String project;
+	public String userDir, systemDir;
+	
+	public Map<String, Object> registry = new HashMap<>();
 
 }

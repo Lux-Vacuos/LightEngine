@@ -18,14 +18,18 @@
  * 
  */
 
-package net.luxvacuos.lightengine.universal.bootstrap;
+package net.luxvacuos.lightengine.universal.util;
 
-import net.luxvacuos.lightengine.universal.core.IEngineLoader;
-
-public class DummyEngineLoader implements IEngineLoader {
-
-	@Override
-	public void loadExternal() {
+public class ThreadUtils {
+	
+	private ThreadUtils() {
+	}
+	
+	public static void sleep(long millis) {
+		try {
+			Thread.sleep(millis);
+		} catch (InterruptedException e) {
+		}
 	}
 
 }

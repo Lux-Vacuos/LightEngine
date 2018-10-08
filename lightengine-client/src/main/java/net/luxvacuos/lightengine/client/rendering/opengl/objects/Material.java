@@ -63,14 +63,10 @@ public class Material implements IDisposable {
 
 	/**
 	 * 
-	 * @param diffuse
-	 *            Diffuse color
-	 * @param emissive
-	 *            Emissive Color
-	 * @param roughness
-	 *            Roughness
-	 * @param metallic
-	 *            Metallic
+	 * @param diffuse   Diffuse color
+	 * @param emissive  Emissive Color
+	 * @param roughness Roughness
+	 * @param metallic  Metallic
 	 */
 	public Material(Vector4f diffuse, Vector4f emissive, float roughness, float metallic) {
 		this.diffuse = diffuse;
@@ -85,10 +81,8 @@ public class Material implements IDisposable {
 
 	/**
 	 * 
-	 * @param material
-	 *            Assimp Material
-	 * @param rootPath
-	 *            internal
+	 * @param material Assimp Material
+	 * @param rootPath internal
 	 */
 	public Material(AIMaterial material, String rootPath) {
 		this.diffuse = new Vector4f(1, 1, 1, 1);
@@ -208,13 +202,13 @@ public class Material implements IDisposable {
 
 	@Override
 	public void dispose() {
-		if (diffuseTexture != null)
+		if (!diffuseTexture.equals(DefaultData.diffuse))
 			diffuseTexture.dispose();
-		if (metallicTexture != null)
+		if (!metallicTexture.equals(DefaultData.metallic))
 			metallicTexture.dispose();
-		if (normalTexture != null)
+		if (!normalTexture.equals(DefaultData.normal))
 			normalTexture.dispose();
-		if (roughnessTexture != null)
+		if (!roughnessTexture.equals(DefaultData.roughness))
 			roughnessTexture.dispose();
 	}
 

@@ -32,6 +32,7 @@ import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 import net.luxvacuos.lightengine.client.network.ClientHandler;
 import net.luxvacuos.lightengine.universal.core.subsystems.ISubsystem;
+import net.luxvacuos.lightengine.universal.loader.EngineData;
 import net.luxvacuos.lightengine.universal.network.AbstractNettyNetworkHandler;
 import net.luxvacuos.lightengine.universal.network.LastChannelHandler;
 import net.luxvacuos.lightengine.universal.network.ManagerChannelHandler;
@@ -42,7 +43,7 @@ public class NetworkSubsystem extends AbstractNettyNetworkHandler implements ISu
 	private static Bootstrap b;
 
 	@Override
-	public void init() {
+	public void init(EngineData ed) {
 		bossGroup = new NioEventLoopGroup();
 		mch = new ManagerChannelHandler();
 		b = new Bootstrap();
@@ -61,6 +62,10 @@ public class NetworkSubsystem extends AbstractNettyNetworkHandler implements ISu
 				pipeline.addLast(new LastChannelHandler());
 			}
 		});
+	}
+
+	@Override
+	public void run() {
 	}
 
 	@Override
@@ -103,4 +108,5 @@ public class NetworkSubsystem extends AbstractNettyNetworkHandler implements ISu
 	@Override
 	public void disposeRender() {
 	}
+
 }

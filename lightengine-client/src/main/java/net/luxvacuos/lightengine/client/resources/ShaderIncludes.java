@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.luxvacuos.igl.Logger;
-import net.luxvacuos.lightengine.client.core.LightEngineClient;
+import net.luxvacuos.lightengine.client.core.ClientEngine;
 import net.luxvacuos.lightengine.client.core.exception.IncludeShaderException;
 import net.luxvacuos.lightengine.client.core.exception.LoadShaderException;
 
@@ -46,7 +46,7 @@ public final class ShaderIncludes {
 		InputStream filet = null;
 		BufferedReader reader = null;
 		try {
-			filet = LightEngineClient.class.getClassLoader().getResourceAsStream("assets/shaders/includes/" + name);
+			filet = ClientEngine.class.getClassLoader().getResourceAsStream("assets/shaders/includes/" + name);
 			reader = new BufferedReader(new InputStreamReader(filet));
 			Logger.log("Processing Shader Include File: " + name);
 			String line;

@@ -25,16 +25,25 @@ import java.util.List;
 
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.universal.core.subsystems.ISubsystem;
+import net.luxvacuos.lightengine.universal.loader.EngineData;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
-public abstract class UniversalEngine implements IEngine, IDisposable {
+public abstract class Engine implements IEngine, IDisposable {
 
 	protected List<ISubsystem> subsystems;
 
-	protected Thread watchdog;
+	protected Thread main, watchdog;
 
-	public UniversalEngine() {
+	protected EngineData ed;
+
+	private IEngineLoader el;
+
+	public Engine(IEngineLoader el, EngineData ed) {
+		this.el = el;
+		this.ed = ed;
 		subsystems = new ArrayList<>();
+		main = Thread.currentThread();
+		init();
 	}
 
 	@Override
@@ -42,9 +51,20 @@ public abstract class UniversalEngine implements IEngine, IDisposable {
 		Logger.log("Initializing Subsystems");
 		for (ISubsystem subsystem : subsystems) {
 			Logger.log("--- " + subsystem.getClass().getSimpleName());
-			subsystem.init();
+			subsystem.init(ed);
 		}
 		Logger.log("--- ");
+	}
+
+	@Override
+	public void runSubsystems() {
+		Logger.log("Run Subsystems");
+		for (ISubsystem subsystem : subsystems) {
+			Logger.log("--- " + subsystem.getClass().getSimpleName());
+			subsystem.run();
+		}
+		Logger.log("--- ");
+		el.loadExternal();
 	}
 
 	@Override

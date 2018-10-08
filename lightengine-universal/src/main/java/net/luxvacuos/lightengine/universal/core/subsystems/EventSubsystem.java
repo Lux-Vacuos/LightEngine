@@ -26,15 +26,15 @@ import java.util.List;
 import java.util.Map;
 
 import net.luxvacuos.lightengine.universal.core.TaskManager;
+import net.luxvacuos.lightengine.universal.loader.EngineData;
 import net.luxvacuos.lightengine.universal.util.IEvent;
 
-public class EventSubsystem extends UniversalSubsystem {
+public class EventSubsystem extends Subsystem {
 
-	private static Map<String, List<IEvent>> events;
+	private static Map<String, List<IEvent>> events = new HashMap<>();
 
 	@Override
-	public void init() {
-		events = new HashMap<>();
+	public void init(EngineData ed) {
 	}
 
 	@Override

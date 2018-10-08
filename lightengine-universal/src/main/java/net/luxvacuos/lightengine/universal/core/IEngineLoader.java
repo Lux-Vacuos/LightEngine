@@ -18,11 +18,10 @@
  * 
  */
 
-
 package net.luxvacuos.lightengine.universal.core;
 
 public interface IEngineLoader {
-	
+
 	public void loadExternal();
 
 }

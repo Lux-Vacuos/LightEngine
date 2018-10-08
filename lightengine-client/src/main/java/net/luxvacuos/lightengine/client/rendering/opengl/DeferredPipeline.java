@@ -20,7 +20,6 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl;
 
-import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_NEAREST;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
@@ -54,7 +53,6 @@ import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.DeferredShadingShader;
 import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
-import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
 public abstract class DeferredPipeline implements IDeferredPipeline {
 
@@ -70,8 +68,8 @@ public abstract class DeferredPipeline implements IDeferredPipeline {
 
 	public DeferredPipeline(String name, Window window) {
 		this.name = name;
-		width = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"));
-		height = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
+		width = window.getWidth();
+		height = window.getHeight();
 
 		float[] positions = { -1, 1, -1, -1, 1, 1, 1, -1 };
 		if (quad == null)
@@ -140,9 +138,9 @@ public abstract class DeferredPipeline implements IDeferredPipeline {
 	}
 
 	@Override
-	public void resize() {
-		width = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"));
-		height = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
+	public void resize(int width, int height) {
+		this.width = width;
+		this.height = height;
 		mainFBO.dispose();
 		mainFBO = new RenderingPipelineFBO(width, height);
 		finalShader.start();

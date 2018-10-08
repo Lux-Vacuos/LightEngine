@@ -23,41 +23,44 @@ package net.luxvacuos.lightengine.client.core;
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 
 import net.luxvacuos.igl.Logger;
-import net.luxvacuos.lightengine.client.bootstrap.Bootstrap;
-import net.luxvacuos.lightengine.client.core.states.CrashState;
 import net.luxvacuos.lightengine.client.core.subsystems.ClientCoreSubsystem;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.core.subsystems.NetworkSubsystem;
 import net.luxvacuos.lightengine.client.core.subsystems.SoundSubsystem;
-import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.nanovg.Timers;
 import net.luxvacuos.lightengine.client.rendering.opengl.GPUProfiler;
+import net.luxvacuos.lightengine.universal.core.Engine;
 import net.luxvacuos.lightengine.universal.core.EngineType;
+import net.luxvacuos.lightengine.universal.core.IEngineLoader;
 import net.luxvacuos.lightengine.universal.core.Sync;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
-import net.luxvacuos.lightengine.universal.core.UniversalEngine;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.core.states.StateNames;
 import net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem;
 import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
 import net.luxvacuos.lightengine.universal.core.subsystems.ISubsystem;
 import net.luxvacuos.lightengine.universal.core.subsystems.ScriptSubsystem;
+import net.luxvacuos.lightengine.universal.loader.EngineData;
+import net.luxvacuos.lightengine.universal.util.ThreadUtils;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
-public class LightEngineClient extends UniversalEngine implements IClientEngine {
+public class ClientEngine extends Engine implements IClientEngine {
 
-	private Thread renderThread;
+	private Thread render;
 
-	public LightEngineClient() {
-		StateMachine.setEngineType(EngineType.CLIENT);
-		init();
+	public ClientEngine(IEngineLoader el, EngineData ed) {
+		super(el, ed);
 	}
 
 	@Override
 	public void init() {
+		main.setName("Main");
+
 		Logger.init();
 		Logger.log("Starting Client");
+
+		StateMachine.setEngineType(EngineType.CLIENT);
 
 		super.addSubsystem(new ClientCoreSubsystem());
 		super.addSubsystem(new GraphicalSubsystem());
@@ -66,28 +69,66 @@ public class LightEngineClient extends UniversalEngine implements IClientEngine 
 		super.addSubsystem(new ScriptSubsystem());
 		super.addSubsystem(new EventSubsystem());
 
-		Thread mainTh = Thread.currentThread();
-
 		super.initSubsystems();
-		renderThread = new Thread(() -> {
-			this.initRenderSubsystems();
-			mainTh.interrupt();
-			Window window = GraphicalSubsystem.getMainWindow();
-			int fps = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/fps"));
-			float deltaR = 0f;
-			ClientTaskManager tm = (ClientTaskManager) TaskManager.tm;
-			try {
-				Thread.sleep(Long.MAX_VALUE);
-			} catch (InterruptedException e) {
+
+		StateMachine.run();
+		try {
+			run();
+		} catch (Throwable t) {
+			handleError(t);
+		}
+		dispose();
+	}
+
+	@Override
+	public void run() {
+		watchdog = new Thread(() -> {
+			while (true) {
+				ThreadUtils.sleep(5000);
+				// TODO: Finish this watchdog lol
 			}
+		});
+		watchdog.setDaemon(true);
+		watchdog.setName("WatchDog");
+		watchdog.start();
+
+		// Simple wrapper for objects used in the init sync.
+		var wSync = new Object() {
+			boolean mainReady, renderReady, waitThreads;
+		};
+
+		// This thread is used to sync both render and main thread so they start at the
+		// same time regardless of init time.
+		Thread initThread = new Thread(() -> {
+			while (true) {
+				if (wSync.mainReady && wSync.renderReady) {
+					wSync.waitThreads = true;
+					return;
+				} else
+					ThreadUtils.sleep(1); // Let's sleep meanwhile
+			}
+		});
+		initThread.start();
+
+		render = new Thread(() -> {
+			this.initRenderSubsystems();
+			Window window = GraphicalSubsystem.getMainWindow();
+			ClientTaskManager tm = (ClientTaskManager) TaskManager.tm;
+			int fps = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/fps"));
+			float delta = 0f;
+
+			wSync.renderReady = true; // Thread ready
+			while (!wSync.waitThreads) // Wait for main thread
+				ThreadUtils.sleep(1);
+
 			while (StateMachine.isRunning()) {
 				tm.updateRenderThread();
-				deltaR = window.getDelta();
+				delta = window.getDelta();
 				Timers.startGPUTimer();
 				GPUProfiler.startFrame();
 				GPUProfiler.start("Render");
-				this.renderSubsystems(deltaR);
-				StateMachine.render(deltaR);
+				this.renderSubsystems(delta);
+				StateMachine.render(delta);
 				GPUProfiler.end();
 				GPUProfiler.endFrame();
 				Timers.stopGPUTimer();
@@ -98,18 +139,23 @@ public class LightEngineClient extends UniversalEngine implements IClientEngine 
 			}
 			this.disposeRenderSubsystems();
 		});
-		renderThread.setName("Render Thread");
-		renderThread.start();
-		GraphicalSubsystem.setRenderThreadID(renderThread.getId());
-		try {
-			Thread.sleep(Long.MAX_VALUE);
-		} catch (InterruptedException e) {
-		}
+		render.setName("Render");
+		render.start();
+		GraphicalSubsystem.setRenderThreadID(render.getId());
+
+		int ups = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/ups"));
+		float delta = 0;
+		float accumulator = 0f;
+		float interval = 1f / ups;
+
+		wSync.mainReady = true;
+		while (!wSync.waitThreads) // Wait for render thread
+			ThreadUtils.sleep(1);
 
 		Logger.log("Light Engine Client Version: " + REGISTRY.getRegistryItem(new Key("/Light Engine/version")));
 		Logger.log("Light Engine Universal Version: "
 				+ REGISTRY.getRegistryItem(new Key("/Light Engine/universalVersion")));
-		Logger.log("Running on: " + Bootstrap.getPlatform());
+		Logger.log("Running on: " + ed.platform);
 		Logger.log("LWJGL Version: " + REGISTRY.getRegistryItem(new Key("/Light Engine/System/lwjgl")));
 		Logger.log("GLFW Version: " + REGISTRY.getRegistryItem(new Key("/Light Engine/System/glfw")));
 		Logger.log("OpenGL Version: " + REGISTRY.getRegistryItem(new Key("/Light Engine/System/opengl")));
@@ -118,36 +164,10 @@ public class LightEngineClient extends UniversalEngine implements IClientEngine 
 		Logger.log("Vendor: " + REGISTRY.getRegistryItem(new Key("/Light Engine/System/vendor")));
 		Logger.log("Renderer: " + REGISTRY.getRegistryItem(new Key("/Light Engine/System/renderer")));
 
-		StateMachine.setCurrentState(StateNames.SPLASH_SCREEN);
-		try {
-			StateMachine.run();
-			update();
-			dispose();
-		} catch (Throwable t) {
-			t.printStackTrace(System.err);
-			handleError(t);
-		}
-	}
+		super.runSubsystems();
 
-	@Override
-	public void update() {
-		int ups = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/ups"));
-		watchdog = new Thread(() -> {
-			while (true) {
-				try {
-					Thread.sleep(5000);
-				} catch (InterruptedException e) {
-				}
-			}
-		});
-		watchdog.setDaemon(true);
-		watchdog.setName("WatchDog Thread");
-		watchdog.start();
-		
-		renderThread.interrupt();
-		float delta = 0;
-		float accumulator = 0f;
-		float interval = 1f / ups;
+		StateMachine.setCurrentState(StateNames.SPLASH_SCREEN);
+
 		Sync sync = new Sync();
 		while (StateMachine.isRunning()) {
 			Timers.startCPUTimer();
@@ -172,39 +192,25 @@ public class LightEngineClient extends UniversalEngine implements IClientEngine 
 
 	@Override
 	public void handleError(Throwable e) {
-		CrashState.t = e;
-		StateMachine.dispose();
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e1) {
-		}
-		StateMachine.registerState(new CrashState());
-		StateMachine.run();
-		StateMachine.setCurrentState(StateNames.CRASH);
-		MouseHandler.setGrabbed(GraphicalSubsystem.getMainWindow().getID(), false);
-		update();
-		dispose();
+		e.printStackTrace();
 	}
 
 	@Override
 	public void initRenderSubsystems() {
-		for (ISubsystem subsystem : subsystems) {
+		for (ISubsystem subsystem : subsystems)
 			subsystem.initRender();
-		}
 	}
 
 	@Override
 	public void renderSubsystems(float delta) {
-		for (ISubsystem subsystem : subsystems) {
+		for (ISubsystem subsystem : subsystems)
 			subsystem.render(delta);
-		}
 	}
 
 	@Override
 	public void disposeRenderSubsystems() {
-		for (ISubsystem subsystem : subsystems) {
+		for (ISubsystem subsystem : subsystems)
 			subsystem.disposeRender();
-		}
 	}
 
 	@Override

@@ -46,8 +46,6 @@ public class GlobalVariables {
 	/** Enable Test Mode */
 	public static boolean TEST_MODE = false;
 
-	public static String PROJECT;
-
 	protected GlobalVariables() {
 	}
 

@@ -21,19 +21,20 @@
 package net.luxvacuos.lightengine.client.core.subsystems;
 
 import net.luxvacuos.lightengine.client.util.LoggerSoundSystem;
-import net.luxvacuos.lightengine.universal.core.subsystems.UniversalSubsystem;
+import net.luxvacuos.lightengine.universal.core.subsystems.Subsystem;
+import net.luxvacuos.lightengine.universal.loader.EngineData;
 import paulscode.sound.SoundSystem;
 import paulscode.sound.SoundSystemConfig;
 import paulscode.sound.SoundSystemException;
 import paulscode.sound.codecs.CodecJOgg;
 import paulscode.sound.libraries.LibraryLWJGLOpenAL;
 
-public class SoundSubsystem extends UniversalSubsystem {
+public class SoundSubsystem extends Subsystem {
 
 	private static SoundSystem soundSystem;
 
 	@Override
-	public void init() {
+	public void init(EngineData ed) {
 		try {
 			SoundSystemConfig.addLibrary(LibraryLWJGLOpenAL.class);
 			SoundSystemConfig.setCodec("ogg", CodecJOgg.class);
@@ -43,12 +44,6 @@ public class SoundSubsystem extends UniversalSubsystem {
 		SoundSystemConfig.setSoundFilesPackage("assets/");
 		SoundSystemConfig.setLogger(new LoggerSoundSystem());
 		soundSystem = new SoundSystem();
-	}
-
-	@Override
-	public void restart() {
-		dispose();
-		init();
 	}
 
 	@Override

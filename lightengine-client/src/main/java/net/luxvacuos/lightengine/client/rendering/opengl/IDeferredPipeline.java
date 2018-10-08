@@ -44,7 +44,7 @@ public interface IDeferredPipeline extends IDisposable {
 
 	public void render(FBO postProcess);
 	
-	public void resize();
+	public void resize(int width, int height);
 
 	public RenderingPipelineFBO getMainFBO();
 	

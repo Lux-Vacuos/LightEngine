@@ -20,11 +20,14 @@
 
 package net.luxvacuos.lightengine.universal.core;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class Task<V> {
 
 	private volatile boolean done;
 	private V value;
-	private Thread t;
+	private List<Thread> ts = new ArrayList<>();
 
 	public boolean isDone() {
 		return done;
@@ -32,7 +35,9 @@ public abstract class Task<V> {
 
 	public V get() {
 		if (!done) {
-			t = Thread.currentThread();
+			synchronized (ts) {
+				ts.add(Thread.currentThread());
+			}
 			try {
 				Thread.sleep(Long.MAX_VALUE);
 			} catch (InterruptedException e) {
@@ -52,7 +57,7 @@ public abstract class Task<V> {
 			return;
 		value = call();
 		done = true;
-		if (t != null)
+		for (Thread t : ts)
 			t.interrupt();
 		onCompleted(value);
 	}

@@ -34,7 +34,11 @@ public class TaskManager {
 	private Thread backgroundThread;
 	private boolean syncInterrupt;
 
-	public void init() {
+	public TaskManager() {
+		init();
+	}
+
+	protected void init() {
 		asyncExecutor = new AsyncExecutor(2);
 		backgroundThread = new Thread(() -> {
 			while (true) {
@@ -54,13 +58,13 @@ public class TaskManager {
 			}
 		});
 		backgroundThread.setDaemon(true);
-		backgroundThread.setName("Background Thread");
+		backgroundThread.setName("Main Background");
 		backgroundThread.start();
 	}
 
 	public void addTaskMainThread(Runnable task) {
 		if (task != null)
-			tasksMainThread.add(new Task<Void>() {
+			this.submitMainThread(new Task<Void>() {
 				@Override
 				protected Void call() {
 					task.run();
@@ -71,19 +75,14 @@ public class TaskManager {
 	}
 
 	public void addTaskBackgroundThread(Runnable task) {
-		if (task != null) {
-			tasksBackgroundThread.add(new Task<Void>() {
+		if (task != null)
+			this.submitBackgroundThread(new Task<Void>() {
 				@Override
 				protected Void call() {
 					task.run();
 					return null;
 				}
 			});
-			if (!syncInterrupt) {
-				syncInterrupt = true;
-				backgroundThread.interrupt();
-			}
-		}
 	}
 
 	public void addTaskRenderThread(Runnable task) {
@@ -94,17 +93,17 @@ public class TaskManager {
 		throw new UnsupportedOperationException();
 	}
 
+	public <T> Task<T> submitMainThread(Task<T> t) {
+		tasksMainThread.add(t);
+		return t;
+	}
+
 	public <T> Task<T> submitBackgroundThread(Task<T> t) {
 		tasksBackgroundThread.add(t);
 		if (!syncInterrupt) {
 			syncInterrupt = true;
 			backgroundThread.interrupt();
 		}
-		return t;
-	}
-
-	public <T> Task<T> submitMainThread(Task<T> t) {
-		tasksMainThread.add(t);
 		return t;
 	}
 

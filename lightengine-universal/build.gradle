@@ -27,7 +27,7 @@ dependencies {
 	compile "org.codehaus.groovy:groovy:2.4.14"
 	compile "org.codehaus.groovy:groovy-jsr223:2.4.14"
 	compile "io.netty:netty-all:4.1.22.Final"
-	compile "com.google.code.gson:gson:2.8.2"
+	compile "com.google.code.gson:gson:2.8.5"
 	compile "org.apache.commons:commons-vfs2:2.2"
 	
 	compile "org.joml:joml:$jomlVersion"

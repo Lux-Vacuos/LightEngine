@@ -153,6 +153,19 @@ public class PointLightPass extends DeferredPass {
 	}
 
 	@Override
+	public void resize(int width, int height) {
+		this.width = width;
+		this.height = height;
+		fbos[0].dispose();
+		fbos[1].dispose();
+		fbos[0] = new FBO(width, height, GL_RGBA16F, GL_RGBA, GL_FLOAT);
+		fbos[1] = new FBO(width, height, GL_RGBA16F, GL_RGBA, GL_FLOAT);
+		shader.start();
+		shader.loadResolution(new Vector2f(width, height));
+		shader.stop();
+	}
+
+	@Override
 	public void dispose() {
 		fbos[0].dispose();
 		fbos[1].dispose();

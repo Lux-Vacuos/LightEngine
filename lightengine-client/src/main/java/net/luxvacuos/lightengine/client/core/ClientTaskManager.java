@@ -41,7 +41,7 @@ public class ClientTaskManager extends TaskManager {
 	@Override
 	public void addTaskRenderThread(Runnable task) {
 		if (task != null)
-			tasksRenderThread.add(new Task<Void>() {
+			this.submitRenderThread(new Task<Void>() {
 				@Override
 				protected Void call() {
 					task.run();
@@ -52,19 +52,14 @@ public class ClientTaskManager extends TaskManager {
 
 	@Override
 	public void addTaskRenderBackgroundThread(Runnable task) {
-		if (task != null) {
-			tasksRenderBackgroundThread.add(new Task<Void>() {
+		if (task != null)
+			this.submitRenderBackgroundThread(new Task<Void>() {
 				@Override
 				protected Void call() {
 					task.run();
 					return null;
 				}
 			});
-			if (!syncInterrupt) {
-				syncInterrupt = true;
-				renderBackgroundThread.interrupt();
-			}
-		}
 	}
 
 	@Override
@@ -114,7 +109,7 @@ public class ClientTaskManager extends TaskManager {
 			}
 			asyncWindow.dispose();
 		});
-		renderBackgroundThread.setName("Render Background Thread");
+		renderBackgroundThread.setName("Render Background");
 		renderBackgroundThread.start();
 		renderBackgroundThreadID = renderBackgroundThread.getId();
 	}

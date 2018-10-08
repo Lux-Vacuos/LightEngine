@@ -36,7 +36,6 @@ import org.lwjgl.opengles.GLES20;
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.client.core.ClientTaskManager;
 import net.luxvacuos.lightengine.client.core.ClientVariables;
-import net.luxvacuos.lightengine.client.core.states.SplashScreenState;
 import net.luxvacuos.lightengine.client.rendering.GL;
 import net.luxvacuos.lightengine.client.rendering.IRenderer;
 import net.luxvacuos.lightengine.client.rendering.glfw.Icon;
@@ -61,12 +60,12 @@ import net.luxvacuos.lightengine.client.resources.ResourcesManager;
 import net.luxvacuos.lightengine.client.ui.Font;
 import net.luxvacuos.lightengine.universal.core.GlobalVariables;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
-import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
-import net.luxvacuos.lightengine.universal.core.subsystems.UniversalSubsystem;
+import net.luxvacuos.lightengine.universal.core.subsystems.Subsystem;
+import net.luxvacuos.lightengine.universal.loader.EngineData;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
-public class GraphicalSubsystem extends UniversalSubsystem {
+public class GraphicalSubsystem extends Subsystem {
 
 	private static IWindowManager windowManager;
 	private static Window window;
@@ -83,7 +82,7 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 	private static boolean resized;
 
 	@Override
-	public void init() {
+	public void init(EngineData ed) {
 		REGISTRY.register(new Key("/Light Engine/Display/width"), ClientVariables.WIDTH);
 		REGISTRY.register(new Key("/Light Engine/Display/height"), ClientVariables.HEIGHT);
 		if (ClientVariables.GLES)
@@ -96,12 +95,13 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 			throw new IllegalStateException("Unable to initialize GLFW");
 		var icons = new Icon[] { new Icon("icon32"), new Icon("icon64") };
 		handle = WindowManager.generateHandle((int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
-				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")), GlobalVariables.PROJECT);
+				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")), ed.project);
 		handle.isVisible(false).setIcon(icons).setCursor("arrow").useDebugContext(GlobalVariables.debug);
 		var pb = new PixelBufferHandle();
 		pb.setSrgbCapable(1);
 		handle.setPixelBuffer(pb);
 		window = WindowManager.generateWindow(handle);
+		((ClientTaskManager) TaskManager.tm).switchToSharedContext();
 	}
 
 	@Override
@@ -110,7 +110,6 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/vsync")));
 		NVGFramebuffers.init(api);
 		GL.init(api);
-		((ClientTaskManager) TaskManager.tm).switchToSharedContext();
 
 		REGISTRY.register(new Key("/Light Engine/System/lwjgl"), Version.getVersion());
 		REGISTRY.register(new Key("/Light Engine/System/glfw"), GLFW.glfwGetVersionString());
@@ -142,7 +141,6 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 		ResourcesManager.processShaderIncludes("lighting.isl");
 		ResourcesManager.processShaderIncludes("materials.isl");
 		ResourcesManager.processShaderIncludes("global.isl");
-		DefaultData.init();
 
 		ThemeManager.addTheme(new NanoTheme());
 		ThemeManager.setTheme((String) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/theme")));
@@ -160,9 +158,13 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 		poppinsSemiBold = loader.loadNVGFont("Poppins-SemiBold", "Poppins-SemiBold");
 		entypo = loader.loadNVGFont("Entypo", "Entypo", 40);
 
-		StateMachine.registerState(new SplashScreenState());
-		TaskManager.tm.addTaskMainThread(() -> window.setVisible(true));
 		surfaceManager = new SurfaceManager(window);
+	}
+
+	@Override
+	public void run() {
+		TaskManager.tm.addTaskMainThread(() -> window.setVisible(true));
+		DefaultData.init();
 	}
 
 	@Override
@@ -176,7 +178,7 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 				resized = true;
 			}
 			windowManager.update(delta);
-			surfaceManager.update(delta);
+			// surfaceManager.update(delta);
 		}
 	}
 
@@ -192,7 +194,7 @@ public class GraphicalSubsystem extends UniversalSubsystem {
 			GL.glClearColor(0, 0, 0, 1);
 			GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 			windowManager.render(delta);
-			surfaceManager.render(delta);
+			// surfaceManager.render(delta);
 		}
 		CachedAssets.update(delta);
 	}

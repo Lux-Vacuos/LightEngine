@@ -33,7 +33,7 @@ public interface IPostProcessPipeline extends IDisposable {
 
 	public void preRender(CameraEntity camera);
 	
-	public void resize();
+	public void resize(int width, int height);
 
 	public FBO getFBO();
 

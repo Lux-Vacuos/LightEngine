@@ -20,11 +20,6 @@
 
 package net.luxvacuos.igl;
 
-/**
- * Logger
- * 
- * @author Guerra24 <pablo230699@hotmail.com>
- */
 public final class Logger {
 
 	private static org.apache.log4j.Logger log;
@@ -33,48 +28,17 @@ public final class Logger {
 		log = org.apache.log4j.Logger.getLogger("Light Engine");
 	}
 
-	/**
-	 * Prints to the Log
-	 * 
-	 * @param thread
-	 *            Thread
-	 * @param messages
-	 *            Message
-	 */
 	public static void log(Object... messages) {
-		if (log == null)
-			return;
 		for (Object object : messages)
 			log.info(object);
-
 	}
 
-	/**
-	 * Prints a Warning Message
-	 * 
-	 * @param thread
-	 *            Thread
-	 * @param messages
-	 *            Message
-	 */
 	public static void warn(Object... messages) {
-		if (log == null)
-			return;
 		for (Object object : messages)
 			log.warn(object);
 	}
 
-	/**
-	 * Prints a Fatal Error
-	 * 
-	 * @param thread
-	 *            Thread
-	 * @param messages
-	 *            Message
-	 */
 	public static void error(Object... messages) {
-		if (log == null)
-			return;
 		for (Object object : messages)
 			log.error(object);
 	}

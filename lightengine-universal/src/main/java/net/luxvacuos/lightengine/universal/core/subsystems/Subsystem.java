@@ -18,14 +18,42 @@
  * 
  */
 
-package net.luxvacuos.lightengine.universal.core;
+package net.luxvacuos.lightengine.universal.core.subsystems;
 
-public final class TempVariables {
-	
-	private TempVariables() {
+import net.luxvacuos.lightengine.universal.loader.EngineData;
+
+public abstract class Subsystem implements ISubsystem {
+
+	@Override
+	public void restart() {
 	}
-	
-	public static String systemDir;
-	public static String userDir;
+
+	@Override
+	public void init(EngineData ed) {
+	}
+
+	@Override
+	public void run() {
+	}
+
+	@Override
+	public void update(float delta) {
+	}
+
+	@Override
+	public void dispose() {
+	}
+
+	@Override
+	public void initRender() {
+	}
+
+	@Override
+	public void render(float delta) {
+	}
+
+	@Override
+	public void disposeRender() {
+	}
 
 }

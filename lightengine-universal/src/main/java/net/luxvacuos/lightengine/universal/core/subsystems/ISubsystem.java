@@ -20,9 +20,13 @@
 
 package net.luxvacuos.lightengine.universal.core.subsystems;
 
+import net.luxvacuos.lightengine.universal.loader.EngineData;
+
 public interface ISubsystem {
 
-	public void init();
+	public void init(EngineData ed);
+
+	public void run();
 
 	public void restart();
 
