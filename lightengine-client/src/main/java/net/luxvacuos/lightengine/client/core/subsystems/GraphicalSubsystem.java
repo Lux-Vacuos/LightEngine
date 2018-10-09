@@ -25,27 +25,38 @@ import static org.lwjgl.assimp.Assimp.aiGetVersionMajor;
 import static org.lwjgl.assimp.Assimp.aiGetVersionMinor;
 import static org.lwjgl.assimp.Assimp.aiGetVersionRevision;
 import static org.lwjgl.glfw.GLFW.glfwInit;
+import static org.lwjgl.opengl.GL11C.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11C.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11C.GL_RENDERER;
+import static org.lwjgl.opengl.GL11C.GL_VENDOR;
+import static org.lwjgl.opengl.GL11C.GL_VERSION;
+import static org.lwjgl.opengl.GL11C.glClear;
+import static org.lwjgl.opengl.GL11C.glClearColor;
+import static org.lwjgl.opengl.GL11C.glGetString;
+import static org.lwjgl.opengl.GL20C.GL_SHADING_LANGUAGE_VERSION;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.Reader;
+import java.io.Writer;
 
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengles.GLES20;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.client.core.ClientTaskManager;
-import net.luxvacuos.lightengine.client.core.ClientVariables;
-import net.luxvacuos.lightengine.client.rendering.GL;
 import net.luxvacuos.lightengine.client.rendering.IRenderer;
 import net.luxvacuos.lightengine.client.rendering.glfw.Icon;
 import net.luxvacuos.lightengine.client.rendering.glfw.PixelBufferHandle;
-import net.luxvacuos.lightengine.client.rendering.glfw.RenderingAPI;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.glfw.WindowHandle;
 import net.luxvacuos.lightengine.client.rendering.glfw.WindowManager;
 import net.luxvacuos.lightengine.client.rendering.nanovg.IWindowManager;
-import net.luxvacuos.lightengine.client.rendering.nanovg.NVGFramebuffers;
 import net.luxvacuos.lightengine.client.rendering.nanovg.NanoWindowManager;
 import net.luxvacuos.lightengine.client.rendering.nanovg.Timers;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.NanoTheme;
@@ -53,8 +64,8 @@ import net.luxvacuos.lightengine.client.rendering.nanovg.themes.ThemeManager;
 import net.luxvacuos.lightengine.client.rendering.nanovg.v2.SurfaceManager;
 import net.luxvacuos.lightengine.client.rendering.opengl.GLRenderer;
 import net.luxvacuos.lightengine.client.rendering.opengl.GLResourcesManagerBackend;
+import net.luxvacuos.lightengine.client.rendering.opengl.RenderingSettings;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CachedAssets;
-import net.luxvacuos.lightengine.client.rendering.opengles.GLESRenderer;
 import net.luxvacuos.lightengine.client.resources.DefaultData;
 import net.luxvacuos.lightengine.client.resources.ResourcesManager;
 import net.luxvacuos.lightengine.client.ui.Font;
@@ -72,23 +83,20 @@ public class GraphicalSubsystem extends Subsystem {
 	private static WindowHandle handle;
 	private static long renderThreadID;
 	private static IRenderer renderer;
-	private static RenderingAPI api;
+
+	private static RenderingSettings renderingSettings;
+	private static File renderingSettingsFile;
 
 	private static SurfaceManager surfaceManager;
 
 	private static Font robotoRegular, robotoBold, poppinsRegular, poppinsLight, poppinsMedium, poppinsBold,
 			poppinsSemiBold, entypo;
 
-	private static boolean resized;
-
 	@Override
 	public void init(EngineData ed) {
-		REGISTRY.register(new Key("/Light Engine/Display/width"), ClientVariables.WIDTH);
-		REGISTRY.register(new Key("/Light Engine/Display/height"), ClientVariables.HEIGHT);
-		if (ClientVariables.GLES)
-			api = RenderingAPI.GLES;
-		else
-			api = RenderingAPI.GL;
+		REGISTRY.register(new Key("/Light Engine/Display/width"), 1280);
+		REGISTRY.register(new Key("/Light Engine/Display/height"), 720);
+		renderingSettingsFile = new File(ed.userDir + "/config/rendering.json");
 
 		GLFW.glfwSetErrorCallback(GLFWErrorCallback.createPrint(System.err));
 		if (!glfwInit())
@@ -102,14 +110,13 @@ public class GraphicalSubsystem extends Subsystem {
 		handle.setPixelBuffer(pb);
 		window = WindowManager.generateWindow(handle);
 		((ClientTaskManager) TaskManager.tm).switchToSharedContext();
+		loadSettings();
+		EventSubsystem.addEvent("lightengine.renderer.savesettings", () -> saveSettings());
 	}
 
 	@Override
 	public void initRender() {
-		WindowManager.createWindow(handle, window,
-				(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/vsync")));
-		NVGFramebuffers.init(api);
-		GL.init(api);
+		WindowManager.createWindow(handle, window, renderingSettings.vsyncEnabled);
 
 		REGISTRY.register(new Key("/Light Engine/System/lwjgl"), Version.getVersion());
 		REGISTRY.register(new Key("/Light Engine/System/glfw"), GLFW.glfwGetVersionString());
@@ -117,26 +124,13 @@ public class GraphicalSubsystem extends Subsystem {
 				aiGetVersionMajor() + "." + aiGetVersionMinor() + "." + aiGetVersionRevision());
 		REGISTRY.register(new Key("/Light Engine/System/vk"), "Not Available");
 
-		switch (api) {
-		case GL:
-			REGISTRY.register(new Key("/Light Engine/System/opengl"), GL11.glGetString(GL11.GL_VERSION));
-			REGISTRY.register(new Key("/Light Engine/System/glsl"), GL11.glGetString(GL20.GL_SHADING_LANGUAGE_VERSION));
-			REGISTRY.register(new Key("/Light Engine/System/vendor"), GL11.glGetString(GL11.GL_VENDOR));
-			REGISTRY.register(new Key("/Light Engine/System/renderer"), GL11.glGetString(GL11.GL_RENDERER));
-			renderer = new GLRenderer();
-			ResourcesManager.setBackend(new GLResourcesManagerBackend(window));
-			break;
-		case GLES:
-			REGISTRY.register(new Key("/Light Engine/System/opengl"), GLES20.glGetString(GLES20.GL_VERSION));
-			REGISTRY.register(new Key("/Light Engine/System/glsl"),
-					GLES20.glGetString(GLES20.GL_SHADING_LANGUAGE_VERSION));
-			REGISTRY.register(new Key("/Light Engine/System/vendor"), GLES20.glGetString(GLES20.GL_VENDOR));
-			REGISTRY.register(new Key("/Light Engine/System/renderer"), GLES20.glGetString(GLES20.GL_RENDERER));
-			renderer = new GLESRenderer();
-			break;
-		default:
-			break;
-		}
+		REGISTRY.register(new Key("/Light Engine/System/opengl"), glGetString(GL_VERSION));
+		REGISTRY.register(new Key("/Light Engine/System/glsl"), glGetString(GL_SHADING_LANGUAGE_VERSION));
+		REGISTRY.register(new Key("/Light Engine/System/vendor"), glGetString(GL_VENDOR));
+		REGISTRY.register(new Key("/Light Engine/System/renderer"), glGetString(GL_RENDERER));
+		renderer = new GLRenderer(renderingSettings);
+
+		ResourcesManager.setBackend(new GLResourcesManagerBackend(window));
 		ResourcesManager.processShaderIncludes("common.isl");
 		ResourcesManager.processShaderIncludes("lighting.isl");
 		ResourcesManager.processShaderIncludes("materials.isl");
@@ -159,6 +153,12 @@ public class GraphicalSubsystem extends Subsystem {
 		entypo = loader.loadNVGFont("Entypo", "Entypo", 40);
 
 		surfaceManager = new SurfaceManager(window);
+
+		window.getWindowSizeCallback().addCallback((windowID, width, height) -> {
+			REGISTRY.register(new Key("/Light Engine/Display/width"), width);
+			REGISTRY.register(new Key("/Light Engine/Display/height"), height);
+			TaskManager.tm.addTaskRenderThread(() -> window.resetViewport());
+		});
 	}
 
 	@Override
@@ -172,10 +172,11 @@ public class GraphicalSubsystem extends Subsystem {
 		WindowManager.update();
 		if (!window.isIconified()) {
 			if (window.wasResized()) {
-				REGISTRY.register(new Key("/Light Engine/Display/width"), window.getWidth());
-				REGISTRY.register(new Key("/Light Engine/Display/height"), window.getHeight());
-				EventSubsystem.triggerEvent("lightengine.renderer.resize");
-				resized = true;
+				TaskManager.tm.addTaskRenderThread(() -> {
+					renderer.resize(window.getWidth(), window.getHeight());
+					windowManager.resize(window.getWidth(), window.getHeight());
+					EventSubsystem.triggerEvent("lightengine.renderer.resize");
+				});
 			}
 			windowManager.update(delta);
 			// surfaceManager.update(delta);
@@ -185,14 +186,8 @@ public class GraphicalSubsystem extends Subsystem {
 	@Override
 	public void render(float delta) {
 		if (!window.isIconified()) {
-			if (resized) {
-				resized = false;
-				window.resetViewport();
-				renderer.resize(window.getWidth(), window.getHeight());
-				windowManager.resize(window.getWidth(), window.getHeight());
-			}
-			GL.glClearColor(0, 0, 0, 1);
-			GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+			glClearColor(0, 0, 0, 1);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			windowManager.render(delta);
 			// surfaceManager.render(delta);
 		}
@@ -220,8 +215,28 @@ public class GraphicalSubsystem extends Subsystem {
 
 	@Override
 	public void dispose() {
+		saveSettings();
 		WindowManager.closeAllDisplays();
 		GLFW.glfwTerminate();
+	}
+
+	private void loadSettings() {
+		renderingSettings = new RenderingSettings();
+		if (!renderingSettingsFile.exists())
+			return;
+		try (Reader reader = new FileReader(renderingSettingsFile);) {
+			renderingSettings = new Gson().fromJson(reader, RenderingSettings.class);
+		} catch (Exception e) {
+		}
+	}
+
+	private void saveSettings() {
+		GsonBuilder gsonBuilder = new GsonBuilder();
+		gsonBuilder.setPrettyPrinting();
+		try (Writer writer = new FileWriter(renderingSettingsFile)) {
+			gsonBuilder.create().toJson(renderingSettings, writer);
+		} catch (Exception e) {
+		}
 	}
 
 	public static void setWindowManager(IWindowManager iwm) {
@@ -243,8 +258,8 @@ public class GraphicalSubsystem extends Subsystem {
 		return renderer;
 	}
 
-	public static RenderingAPI getAPI() {
-		return api;
+	public static RenderingSettings getRenderingSettings() {
+		return renderingSettings;
 	}
 
 	public static long getRenderThreadID() {

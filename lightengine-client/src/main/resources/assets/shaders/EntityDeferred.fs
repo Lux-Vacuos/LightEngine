@@ -38,14 +38,6 @@ void main() {
 	roughnessF *= material.roughness;
 	metallicF *= material.metallic;
 
-	// if(diffuseF.a > 0.5 && diffuseF.a < 1.0) {
-	//	if(int(gl_FragCoord.x + gl_FragCoord.y) % 2 == 1)
-	//		discard;
-	//} else if(diffuseF.a <= 0.5)
-	//	discard;
-	if (diffuseF.a < 1)
-		discard;
-
 	vec3 normal = texture(material.normalTex, pass_textureCoords).rgb;
 	normal = normalize(normal * 2.0 - 1.0);
 	normal = normalize(TBN * normal);

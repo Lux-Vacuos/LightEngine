@@ -18,33 +18,33 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.shaders.data;
+package net.luxvacuos.lightengine.client.rendering.opengl.shaders.data;
 
-import org.joml.Vector2f;
+import static org.lwjgl.opengl.GL20C.glGetUniformLocation;
 
-import net.luxvacuos.lightengine.client.rendering.GL;
+public class UniformArray implements IUniform {
 
-public class UniformVec2 extends Uniform {
+	protected String[] names;
+	private int[] location;
 
-	private float currentX;
-	private float currentY;
-	private boolean used = false;
-
-	public UniformVec2(String name) {
-		super(name);
+	protected UniformArray(String... names) {
+		this.names = names;
+		location = new int[names.length];
 	}
 
-	public void loadVec2(Vector2f vector) {
-		loadVec2(vector.x, vector.y);
-	}
-
-	public void loadVec2(float x, float y) {
-		if (!used || x != currentX || y != currentY) {
-			this.currentX = x;
-			this.currentY = y;
-			used = true;
-			GL.glUniform2f(super.getLocation(), x, y);
+	@Override
+	public void storeUniformLocation(int programID) {
+		for (int x = 0; x < names.length; x++) {
+			location[x] = glGetUniformLocation(programID, names[x]);
 		}
+	}
+
+	protected int[] getLocation() {
+		return location;
+	}
+
+	@Override
+	public void dispose() {
 	}
 
 }

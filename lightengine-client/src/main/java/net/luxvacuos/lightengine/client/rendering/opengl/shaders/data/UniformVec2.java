@@ -18,24 +18,32 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.shaders.data;
+package net.luxvacuos.lightengine.client.rendering.opengl.shaders.data;
 
-import net.luxvacuos.lightengine.client.rendering.GL;
+import static org.lwjgl.opengl.GL20C.glUniform2f;
 
-public class UniformBoolean extends Uniform {
+import org.joml.Vector2f;
 
-	private boolean currentBool;
+public class UniformVec2 extends Uniform {
+
+	private float currentX;
+	private float currentY;
 	private boolean used = false;
 
-	public UniformBoolean(String name) {
+	public UniformVec2(String name) {
 		super(name);
 	}
 
-	public void loadBoolean(boolean bool) {
-		if (!used || currentBool != bool) {
-			GL.glUniform1i(super.getLocation(), bool ? 1 : 0);
+	public void loadVec2(Vector2f vector) {
+		loadVec2(vector.x, vector.y);
+	}
+
+	public void loadVec2(float x, float y) {
+		if (!used || x != currentX || y != currentY) {
+			this.currentX = x;
+			this.currentY = y;
 			used = true;
-			currentBool = bool;
+			glUniform2f(super.getLocation(), x, y);
 		}
 	}
 

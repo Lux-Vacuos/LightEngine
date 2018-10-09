@@ -18,12 +18,24 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.shaders.data;
+package net.luxvacuos.lightengine.client.rendering.opengl.shaders.data;
 
-import net.luxvacuos.lightengine.universal.resources.IDisposable;
+public class Attribute {
 
-public interface IUniform extends IDisposable {
+	private int id;
+	private String name;
 
-	public void storeUniformLocation(int programID);
-	
+	public Attribute(int id, String name) {
+		this.id = id;
+		this.name = name;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
 }

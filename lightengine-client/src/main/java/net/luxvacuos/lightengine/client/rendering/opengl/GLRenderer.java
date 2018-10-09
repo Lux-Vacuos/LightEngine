@@ -20,7 +20,6 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl;
 
-import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 import static org.lwjgl.opengl.GL11.GL_BACK;
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
@@ -69,7 +68,6 @@ import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
 import net.luxvacuos.lightengine.universal.util.IEvent;
-import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
 public class GLRenderer implements IRenderer {
 
@@ -97,13 +95,14 @@ public class GLRenderer implements IRenderer {
 
 	private float exposure = 1;
 
-	private int shadowResolution;
-
 	private IEvent shadowMap;
 
 	private GLGameWindow gameWindow;
 
-	public GLRenderer() {
+	private RenderingSettings rs;
+
+	public GLRenderer(RenderingSettings rs) {
+		this.rs = rs;
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
@@ -115,9 +114,6 @@ public class GLRenderer implements IRenderer {
 	public void init() {
 		if (enabled)
 			return;
-
-		shadowResolution = (int) REGISTRY
-				.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/shadowsResolution"));
 
 		window = GraphicalSubsystem.getMainWindow();
 		var loader = window.getResourceLoader();
@@ -142,16 +138,13 @@ public class GLRenderer implements IRenderer {
 
 		TaskManager.tm.addTaskRenderThread(() -> deferredPipeline = new MultiPass(window));
 		TaskManager.tm.addTaskRenderThread(() -> postProcessPipeline = new PostProcess(window));
-		TaskManager.tm.addTaskRenderThread(() -> shadowFBO = new ShadowFBO(shadowResolution, shadowResolution));
+		TaskManager.tm.addTaskRenderThread(() -> shadowFBO = new ShadowFBO(rs.shadowsResolution, rs.shadowsResolution));
 
-		shadowMap = EventSubsystem.addEvent("lightengine.renderer.resetshadowmap", () -> {
-			shadowResolution = (int) REGISTRY
-					.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/shadowsResolution"));
-			TaskManager.tm.addTaskRenderThread(() -> {
-				shadowFBO.dispose();
-				shadowFBO = new ShadowFBO(shadowResolution, shadowResolution);
-			});
-		});
+		shadowMap = EventSubsystem.addEvent("lightengine.renderer.resetshadowmap",
+				() -> TaskManager.tm.addTaskRenderThread(() -> {
+					shadowFBO.dispose();
+					shadowFBO = new ShadowFBO(rs.shadowsResolution, rs.shadowsResolution);
+				}));
 
 		TaskManager.tm.addTaskRenderThread(() -> {
 			enabled = true;
@@ -179,7 +172,7 @@ public class GLRenderer implements IRenderer {
 		renderingManager.preProcess(entities, camera);
 		GPUProfiler.start("Shadows");
 		SunCamera sunCamera = sun.getCamera();
-		if ((boolean) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/shadows"))) {
+		if (rs.shadowsEnabled) {
 			GPUProfiler.start("Directional");
 			sunCamera.switchProjectionMatrix(0);
 			frustum.calculateFrustum(sunCamera);

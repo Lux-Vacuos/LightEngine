@@ -20,9 +20,6 @@
 
 package net.luxvacuos.lightengine.client.rendering.nanovg;
 
-import static net.luxvacuos.lightengine.client.rendering.nanovg.NVGFramebuffers.nvgluBindFramebuffer;
-import static net.luxvacuos.lightengine.client.rendering.nanovg.NVGFramebuffers.nvgluCreateFramebuffer;
-import static net.luxvacuos.lightengine.client.rendering.nanovg.NVGFramebuffers.nvgluDeleteFramebuffer;
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_CENTER;
 import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_MIDDLE;
@@ -32,6 +29,12 @@ import static org.lwjgl.nanovg.NanoVG.nvgGlobalAlpha;
 import static org.lwjgl.nanovg.NanoVG.nvgRestore;
 import static org.lwjgl.nanovg.NanoVG.nvgSave;
 import static org.lwjgl.nanovg.NanoVG.nvgScissor;
+import static org.lwjgl.nanovg.NanoVGGL3.nvgluBindFramebuffer;
+import static org.lwjgl.nanovg.NanoVGGL3.nvgluCreateFramebuffer;
+import static org.lwjgl.nanovg.NanoVGGL3.nvgluDeleteFramebuffer;
+import static org.lwjgl.opengl.GL11C.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11C.glClear;
+import static org.lwjgl.opengl.GL11C.glClearColor;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -41,7 +44,6 @@ import org.lwjgl.nanovg.NVGLUFramebuffer;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.input.MouseHandler;
-import net.luxvacuos.lightengine.client.rendering.GL;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.nanovg.objects.Frame;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.Theme;
@@ -203,8 +205,8 @@ public abstract class NanoWindow implements IWindow {
 			if (compositor) {
 				nvgluBindFramebuffer(window.getNVGID(), fbo);
 				window.setViewport(0, 0, fw, fh);
-				GL.glClearColor(0, 0, 0, 0);
-				GL.glClear(GL.GL_COLOR_BUFFER_BIT);
+				glClearColor(0, 0, 0, 0);
+				glClear(GL_COLOR_BUFFER_BIT);
 				nvgBeginFrame(window.getNVGID(), fw, fh, 1);
 				nvgSave(window.getNVGID());
 				nvgGlobalAlpha(window.getNVGID(), globalAlpha);

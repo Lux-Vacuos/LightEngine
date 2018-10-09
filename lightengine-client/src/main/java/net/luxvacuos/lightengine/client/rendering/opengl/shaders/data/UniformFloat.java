@@ -18,24 +18,24 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.shaders.data;
+package net.luxvacuos.lightengine.client.rendering.opengl.shaders.data;
 
-import net.luxvacuos.lightengine.client.rendering.GL;
+import static org.lwjgl.opengl.GL20C.glUniform1f;
 
-public class UniformSampler extends Uniform {
+public class UniformFloat extends Uniform {
 
-	private int currentValue;
+	private float currentValue;
 	private boolean used = false;
 
-	public UniformSampler(String name) {
+	public UniformFloat(String name) {
 		super(name);
 	}
 
-	public void loadTexUnit(int texUnit) {
-		if (!used || currentValue != texUnit) {
-			GL.glUniform1i(super.getLocation(), texUnit);
+	public void loadFloat(float value) {
+		if (!used || currentValue != value) {
+			glUniform1f(super.getLocation(), value);
 			used = true;
-			currentValue = texUnit;
+			currentValue = value;
 		}
 	}
 

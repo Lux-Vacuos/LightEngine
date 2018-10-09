@@ -18,26 +18,33 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.shaders.data;
+package net.luxvacuos.lightengine.client.rendering.opengl.shaders.data;
 
-import org.joml.Matrix4f;
+import static org.lwjgl.opengl.GL20C.glUniform3f;
 
-import net.luxvacuos.lightengine.client.rendering.GL;
+import org.joml.Vector3f;
 
-public class UniformMatrix extends Uniform {
-
-	private Matrix4f current;
+public class UniformVec3 extends Uniform {
+	private float currentX;
+	private float currentY;
+	private float currentZ;
 	private boolean used = false;
-	private float[] fm = new float[16];
 
-	public UniformMatrix(String name) {
+	public UniformVec3(String name) {
 		super(name);
 	}
 
-	public void loadMatrix(Matrix4f matrix) {
-		if (!used || !matrix.equals(current)) {
-			matrix.get(fm);
-			GL.glUniformMatrix4fv(super.getLocation(), false, fm);
+	public void loadVec3(Vector3f vector) {
+		loadVec3(vector.x, vector.y, vector.z);
+	}
+
+	public void loadVec3(float x, float y, float z) {
+		if (!used || x != currentX || y != currentY || z != currentZ) {
+			this.currentX = x;
+			this.currentY = y;
+			this.currentZ = z;
+			used = true;
+			glUniform3f(super.getLocation(), x, y, z);
 		}
 	}
 

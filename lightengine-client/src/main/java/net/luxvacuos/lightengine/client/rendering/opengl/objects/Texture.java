@@ -20,7 +20,8 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl.objects;
 
-import net.luxvacuos.lightengine.client.rendering.GL;
+import static org.lwjgl.opengl.GL11C.glDeleteTextures;
+
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
 /**
@@ -38,8 +39,7 @@ public class Texture implements IDisposable {
 	/**
 	 * Constructor, Create a Model Texture
 	 * 
-	 * @param id
-	 *            Texture ID
+	 * @param id Texture ID
 	 */
 	public Texture(int id) {
 		this.textureID = id;
@@ -56,7 +56,7 @@ public class Texture implements IDisposable {
 
 	@Override
 	public void dispose() {
-		GL.glDeleteTextures(textureID);
+		glDeleteTextures(textureID);
 	}
 
 	@Override

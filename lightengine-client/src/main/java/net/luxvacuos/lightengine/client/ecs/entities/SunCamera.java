@@ -20,18 +20,16 @@
 
 package net.luxvacuos.lightengine.client.ecs.entities;
 
-import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
-
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
+import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.resources.CastRay;
 import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
 import net.luxvacuos.lightengine.universal.util.IEvent;
-import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class SunCamera extends CameraEntity {
 
@@ -50,8 +48,7 @@ public class SunCamera extends CameraEntity {
 		shadowReset = EventSubsystem.addEvent("lightengine.renderer.resetshadowmatrix", () -> {
 			Matrix4f[] shadowProjectionMatrix = new Matrix4f[4];
 
-			int shadowDrawDistance = (int) REGISTRY
-					.getRegistryItem(new Key("/Light Engine/Settings/Graphics/shadowsDrawDistance"));
+			int shadowDrawDistance = GraphicalSubsystem.getRenderingSettings().shadowsDrawDistance;
 			shadowDrawDistance *= 2;
 			shadowProjectionMatrix[0] = Maths.orthoSymmetric(-shadowDrawDistance / 25, shadowDrawDistance / 25,
 					-shadowDrawDistance, shadowDrawDistance, false);
@@ -64,8 +61,7 @@ public class SunCamera extends CameraEntity {
 			TaskManager.tm.addTaskRenderThread(() -> setProjectionArray(shadowProjectionMatrix));
 		});
 
-		int shadowDrawDistance = (int) REGISTRY
-				.getRegistryItem(new Key("/Light Engine/Settings/Graphics/shadowsDrawDistance"));
+		int shadowDrawDistance = GraphicalSubsystem.getRenderingSettings().shadowsDrawDistance;
 		shadowDrawDistance *= 2;
 		projectionArray = new Matrix4f[4];
 		projectionArray[0] = Maths.orthoSymmetric(-shadowDrawDistance / 25, shadowDrawDistance / 25,

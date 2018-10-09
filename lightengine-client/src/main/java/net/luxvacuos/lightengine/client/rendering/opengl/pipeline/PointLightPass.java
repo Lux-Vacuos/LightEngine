@@ -20,7 +20,6 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl.pipeline;
 
-import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
@@ -48,12 +47,14 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
+import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.Sun;
 import net.luxvacuos.lightengine.client.ecs.entities.SunCamera;
 import net.luxvacuos.lightengine.client.rendering.opengl.DeferredPass;
 import net.luxvacuos.lightengine.client.rendering.opengl.FBO;
 import net.luxvacuos.lightengine.client.rendering.opengl.IDeferredPipeline;
+import net.luxvacuos.lightengine.client.rendering.opengl.RenderingSettings;
 import net.luxvacuos.lightengine.client.rendering.opengl.ShadowFBO;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CubeMapTexture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Light;
@@ -61,7 +62,6 @@ import net.luxvacuos.lightengine.client.rendering.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.DeferredShadingShader;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
-import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class PointLightPass extends DeferredPass {
 
@@ -119,6 +119,7 @@ public class PointLightPass extends DeferredPass {
 			IWorldSimulation clientWorldSimulation, List<Light> tLights, FBO[] auxs, IDeferredPipeline pipe,
 			RawModel quad, CubeMapTexture irradianceCapture, CubeMapTexture environmentMap, Texture brdfLUT,
 			ShadowFBO shadowFBO, float exposure) {
+		RenderingSettings rs = GraphicalSubsystem.getRenderingSettings();
 		List<List<Light>> totalLights = chopped(tLights, 18);
 		for (List<Light> lights : totalLights) {
 			FBO tmp = fbos[0];
@@ -130,13 +131,9 @@ public class PointLightPass extends DeferredPass {
 			shader.loadMotionBlurData(camera, previousViewMatrix, previousCameraPosition);
 			shader.loadLightPosition(sun.getSunPosition(), sun.getInvertedSunPosition());
 			shader.loadviewMatrix(camera);
-			shader.loadSettings(false, false, false,
-					(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/volumetricLight")),
-					(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/reflections")),
-					(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/ambientOcclusion")),
-					(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/shadowsDrawDistance")),
-					false, (boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/lensFlares")),
-					(boolean) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Graphics/shadows")));
+			shader.loadSettings(rs.depthOfFieldEnabled, rs.fxaaEnabled, rs.motionBlurEnabled, rs.volumetricLightEnabled,
+					rs.ssrEnabled, rs.ambientOcclusionEnabled, rs.shadowsDrawDistance, rs.chromaticAberrationEnabled,
+					rs.lensFlaresEnabled, rs.shadowsEnabled);
 			shader.loadExposure(exposure);
 			shader.loadPointLightsPos(lights);
 			shader.loadTime(clientWorldSimulation.getGlobalTime());

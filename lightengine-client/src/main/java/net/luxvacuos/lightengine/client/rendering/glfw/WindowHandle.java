@@ -25,7 +25,6 @@ import org.lwjgl.glfw.GLFW;
 import com.badlogic.gdx.utils.Array;
 
 import net.luxvacuos.igl.Logger;
-import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 
 public final class WindowHandle {
 
@@ -43,25 +42,12 @@ public final class WindowHandle {
 		// Reset the window hints
 		GLFW.glfwDefaultWindowHints();
 
-		switch (GraphicalSubsystem.getAPI()) {
-		case GL:
-			// Set the window to use OpenGL 3.3 Core with forward compatibility
-			this.setWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3);
-			this.setWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 3);
-			this.setWindowHint(GLFW.GLFW_CLIENT_API, GLFW.GLFW_OPENGL_API);
-			this.setWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_CORE_PROFILE);
-			this.setWindowHint(GLFW.GLFW_OPENGL_FORWARD_COMPAT, true);
-			break;
-		case GLES:
-			// Set the window to use OpenGL ES 3.2
-			this.setWindowHint(GLFW.GLFW_CONTEXT_CREATION_API, GLFW.GLFW_EGL_CONTEXT_API);
-			this.setWindowHint(GLFW.GLFW_CLIENT_API, GLFW.GLFW_OPENGL_ES_API);
-			this.setWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3);
-			this.setWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 2);
-			break;
-		default:
-			break;
-		}
+		// Set the window to use OpenGL 3.3 Core with forward compatibility
+		this.setWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 3);
+		this.setWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 3);
+		this.setWindowHint(GLFW.GLFW_CLIENT_API, GLFW.GLFW_OPENGL_API);
+		this.setWindowHint(GLFW.GLFW_OPENGL_PROFILE, GLFW.GLFW_OPENGL_CORE_PROFILE);
+		this.setWindowHint(GLFW.GLFW_OPENGL_FORWARD_COMPAT, true);
 	}
 
 	public WindowHandle canResize(boolean flag) {

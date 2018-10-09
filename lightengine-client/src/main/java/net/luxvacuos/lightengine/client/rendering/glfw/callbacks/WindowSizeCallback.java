@@ -18,15 +18,29 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.opengl.shaders;
+package net.luxvacuos.lightengine.client.rendering.glfw.callbacks;
 
-import net.luxvacuos.lightengine.client.core.ClientVariables;
-import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.Attribute;
+import java.util.ArrayList;
+import java.util.List;
 
-public class BRDFIntegrationMapShader extends ShaderProgram {
+import org.lwjgl.glfw.GLFWWindowSizeCallback;
 
-	public BRDFIntegrationMapShader() {
-		super(ClientVariables.VERTEX_BRDF_INTEGRATION_MAP, ClientVariables.FRAGMENT_BRDF_INTEGRATION_MAP, new Attribute(0, "position"));
+public class WindowSizeCallback extends GLFWWindowSizeCallback {
+
+	private List<IWindowSizeCallback> callbacks = new ArrayList<>();
+
+	@Override
+	public void invoke(long window, int width, int height) {
+		for (IWindowSizeCallback callback : callbacks)
+			callback.windowSize(window, width, height);
+	}
+
+	public void addCallback(IWindowSizeCallback callback) {
+		callbacks.add(callback);
+	}
+
+	public void removeCallback(IWindowSizeCallback callback) {
+		callbacks.remove(callback);
 	}
 
 }

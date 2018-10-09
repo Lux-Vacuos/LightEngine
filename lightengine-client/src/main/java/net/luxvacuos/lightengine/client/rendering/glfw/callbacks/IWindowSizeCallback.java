@@ -18,33 +18,11 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.shaders.data;
 
-import net.luxvacuos.lightengine.client.rendering.GL;
+package net.luxvacuos.lightengine.client.rendering.glfw.callbacks;
 
-public class UniformArray implements IUniform {
-
-	protected String[] names;
-	private int[] location;
-
-	protected UniformArray(String... names) {
-		this.names = names;
-		location = new int[names.length];
-	}
-
-	@Override
-	public void storeUniformLocation(int programID) {
-		for (int x = 0; x < names.length; x++) {
-			location[x] = GL.glGetUniformLocation(programID, names[x]);
-		}
-	}
-
-	protected int[] getLocation() {
-		return location;
-	}
-
-	@Override
-	public void dispose() {
-	}
+public interface IWindowSizeCallback {
+	
+	public void windowSize(long window, int width, int height);
 
 }

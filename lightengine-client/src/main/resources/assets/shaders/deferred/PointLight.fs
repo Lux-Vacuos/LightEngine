@@ -32,6 +32,8 @@ uniform mat4 biasMatrix;
 uniform Light lights[18];
 uniform int totalLights;
 
+uniform int useShadows;
+
 uniform sampler2D gDiffuse;
 uniform sampler2D gPosition;
 uniform sampler2D gNormal;
@@ -103,7 +105,7 @@ void main() {
 				float intensity = clamp((theta - lights[i].radius) / epsilon, 0.0, 1.0);
 				if (intensity > 0.0) {
 					float shadow = 1.0;
-					if (lights[i].shadowEnabled == 1) {
+					if (lights[i].shadowEnabled == 1 && useShadows == 1) {
 						vec4 posLight = lights[i].shadowViewMatrix * vec4(position, 1.0);
 						vec4 shadowCoord =
 							biasMatrix * (lights[i].shadowProjectionMatrix * posLight);

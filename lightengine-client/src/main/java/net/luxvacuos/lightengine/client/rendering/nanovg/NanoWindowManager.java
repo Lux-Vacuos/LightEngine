@@ -31,11 +31,9 @@ import java.util.List;
 import org.lwjgl.glfw.GLFW;
 
 import net.luxvacuos.lightengine.client.core.ClientVariables;
-import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.nanovg.IWindow.WindowClose;
 import net.luxvacuos.lightengine.client.rendering.nanovg.compositor.GLCompositor;
-import net.luxvacuos.lightengine.client.rendering.nanovg.compositor.GLESCompositor;
 import net.luxvacuos.lightengine.client.rendering.nanovg.compositor.ICompositor;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.Theme;
 import net.luxvacuos.lightengine.client.rendering.opengl.GPUProfiler;
@@ -60,18 +58,9 @@ public class NanoWindowManager implements IWindowManager {
 		windows = new ArrayList<>();
 		width = win.getWidth();
 		height = win.getHeight();
-		if (compositorEnabled) {
-			switch (GraphicalSubsystem.getAPI()) {
-			case GL:
-				compositor = new GLCompositor(win, width, height);
-				break;
-			case GLES:
-				compositor = new GLESCompositor(win, width, height);
-				break;
-			default:
-				break;
-			}
-		}
+		if (compositorEnabled)
+			compositor = new GLCompositor(win, width, height);
+
 		REGISTRY.register(KeyCache.getKey("/Light Engine/Settings/WindowManager/shellHeight"), 0);
 		shell = new DummyShell();
 	}
@@ -268,16 +257,7 @@ public class NanoWindowManager implements IWindowManager {
 		if (compositorEnabled)
 			return;
 		TaskManager.tm.addTaskRenderThread(() -> {
-			switch (GraphicalSubsystem.getAPI()) {
-			case GL:
-				compositor = new GLCompositor(window, width, height);
-				break;
-			case GLES:
-				compositor = new GLESCompositor(window, width, height);
-				break;
-			default:
-				break;
-			}
+			compositor = new GLCompositor(window, width, height);
 			compositorEnabled = true;
 			REGISTRY.register(KeyCache.getKey("/Light Engine/Settings/WindowManager/compositor"), compositorEnabled);
 		});

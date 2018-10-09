@@ -20,7 +20,6 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl;
 
-import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_RGB;
@@ -33,10 +32,10 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
+import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.DeferredShadingShader;
-import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
 public abstract class PostProcessPass implements IPostProcessPass {
 
@@ -60,10 +59,8 @@ public abstract class PostProcessPass implements IPostProcessPass {
 
 	/**
 	 * 
-	 * @param width
-	 *            Width
-	 * @param height
-	 *            Height
+	 * @param width  Width
+	 * @param height Height
 	 */
 	public PostProcessPass(String name, int width, int height) {
 		this.name = name;
@@ -86,20 +83,16 @@ public abstract class PostProcessPass implements IPostProcessPass {
 	@Override
 	public void process(CameraEntity camera, Matrix4f previousViewMatrix, Vector3f previousCameraPosition, FBO[] auxs,
 			RawModel quad) {
+		RenderingSettings rs = GraphicalSubsystem.getRenderingSettings();
 		GPUProfiler.start(name);
 		fbo.begin();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		shader.start();
 		shader.loadMotionBlurData(camera, previousViewMatrix, previousCameraPosition);
 		shader.loadviewMatrix(camera);
-		shader.loadSettings((boolean) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/dof")),
-				(boolean) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/fxaa")),
-				(boolean) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/motionBlur")),
-				false, false, false, 0,
-				(boolean) REGISTRY
-						.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/chromaticAberration")),
-				false, false);
-
+		shader.loadSettings(rs.depthOfFieldEnabled, rs.fxaaEnabled, rs.motionBlurEnabled, rs.volumetricLightEnabled,
+				rs.ssrEnabled, rs.ambientOcclusionEnabled, rs.shadowsDrawDistance, rs.chromaticAberrationEnabled,
+				rs.lensFlaresEnabled, rs.shadowsEnabled);
 		render(auxs);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, quad.getVertexCount());
 		shader.stop();

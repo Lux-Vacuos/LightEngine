@@ -18,15 +18,30 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.opengl.shaders;
+package net.luxvacuos.lightengine.client.rendering.opengl.shaders.data;
 
-import net.luxvacuos.lightengine.client.core.ClientVariables;
-import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.Attribute;
+import static org.lwjgl.opengl.GL20C.glGetUniformLocation;
 
-public class BRDFIntegrationMapShader extends ShaderProgram {
+public abstract class Uniform implements IUniform {
 
-	public BRDFIntegrationMapShader() {
-		super(ClientVariables.VERTEX_BRDF_INTEGRATION_MAP, ClientVariables.FRAGMENT_BRDF_INTEGRATION_MAP, new Attribute(0, "position"));
+	protected String name;
+	private int location;
+
+	protected Uniform(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public void storeUniformLocation(int programID) {
+		location = glGetUniformLocation(programID, name);
+	}
+
+	@Override
+	public void dispose() {
+	}
+
+	protected int getLocation() {
+		return location;
 	}
 
 }

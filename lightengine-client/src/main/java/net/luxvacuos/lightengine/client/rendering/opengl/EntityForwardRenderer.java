@@ -20,7 +20,6 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl;
 
-import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
@@ -45,6 +44,7 @@ import java.util.Map;
 
 import org.joml.Matrix4f;
 
+import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.Sun;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CubeMapTexture;
@@ -56,7 +56,6 @@ import net.luxvacuos.lightengine.client.rendering.opengl.shaders.EntityFowardSha
 import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
-import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
 public class EntityForwardRenderer implements IDisposable {
 
@@ -73,8 +72,7 @@ public class EntityForwardRenderer implements IDisposable {
 		shader.loadCamera(camera);
 		shader.loadLightPosition(sun.getSunPosition());
 		shader.colorCorrect(colorCorrect);
-		shader.loadSettings(
-				(boolean) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/shadows")));
+		shader.loadSettings(GraphicalSubsystem.getRenderingSettings().shadowsEnabled);
 		shader.loadBiasMatrix(sun.getCamera().getProjectionArray());
 		shader.loadLightMatrix(sun.getCamera().getViewMatrix());
 		glActiveTexture(GL_TEXTURE4);

@@ -70,21 +70,6 @@ public class ClientCoreSubsystem extends CoreSubsystem {
 		REGISTRY.register(new Key("/Light Engine/Settings/Core/ups", true), 60);
 		REGISTRY.register(new Key("/Light Engine/Settings/Core/fov", true), 90);
 
-		REGISTRY.register(new Key("/Light Engine/Settings/Graphics/shadows", true), false);
-		REGISTRY.register(new Key("/Light Engine/Settings/Graphics/shadowsResolution", true), 1024);
-		REGISTRY.register(new Key("/Light Engine/Settings/Graphics/shadowsDrawDistance", true), 200);
-		REGISTRY.register(new Key("/Light Engine/Settings/Graphics/volumetricLight", true), false);
-		REGISTRY.register(new Key("/Light Engine/Settings/Graphics/fxaa", true), false);
-		REGISTRY.register(new Key("/Light Engine/Settings/Graphics/vsync", true), false);
-		REGISTRY.register(new Key("/Light Engine/Settings/Graphics/motionBlur", true), false);
-		REGISTRY.register(new Key("/Light Engine/Settings/Graphics/dof", true), false);
-		REGISTRY.register(new Key("/Light Engine/Settings/Graphics/reflections", true), false);
-		REGISTRY.register(new Key("/Light Engine/Settings/Graphics/parallax", true), false);
-		REGISTRY.register(new Key("/Light Engine/Settings/Graphics/ambientOcclusion", true), false);
-		REGISTRY.register(new Key("/Light Engine/Settings/Graphics/chromaticAberration", true), false);
-		REGISTRY.register(new Key("/Light Engine/Settings/Graphics/lensFlares", true), false);
-		REGISTRY.register(new Key("/Light Engine/Settings/Graphics/pipeline", true), "MultiPass");
-
 		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/invertButtons", true), false);
 		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/borderSize", true), 4);
 		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/titleBarHeight", true), 29);

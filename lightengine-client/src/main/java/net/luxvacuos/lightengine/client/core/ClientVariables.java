@@ -26,14 +26,7 @@ public class ClientVariables extends GlobalVariables {
 
 	public static final float NEAR_PLANE = 0.1f;
 	public static final float FAR_PLANE = Float.POSITIVE_INFINITY;
-	public static final boolean WSL = false;
 
-	/**
-	 * All Settings
-	 */
-	public static int WIDTH = 1280;
-	public static int HEIGHT = 720;
-	public static boolean GLES = false;
 	/**
 	 * Shader Files
 	 */

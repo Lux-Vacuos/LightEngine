@@ -18,24 +18,25 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.shaders.data;
+package net.luxvacuos.lightengine.client.rendering.opengl.shaders.data;
 
-public class Attribute {
+import static org.lwjgl.opengl.GL20C.glUniform1i;
 
-	private int id;
-	private String name;
+public class UniformSampler extends Uniform {
 
-	public Attribute(int id, String name) {
-		this.id = id;
-		this.name = name;
+	private int currentValue;
+	private boolean used = false;
+
+	public UniformSampler(String name) {
+		super(name);
 	}
 
-	public int getId() {
-		return id;
-	}
-
-	public String getName() {
-		return name;
+	public void loadTexUnit(int texUnit) {
+		if (!used || currentValue != texUnit) {
+			glUniform1i(super.getLocation(), texUnit);
+			used = true;
+			currentValue = texUnit;
+		}
 	}
 
 }

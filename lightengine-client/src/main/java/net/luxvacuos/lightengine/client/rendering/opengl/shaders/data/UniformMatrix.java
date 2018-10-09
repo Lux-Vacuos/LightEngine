@@ -18,24 +18,26 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.shaders.data;
+package net.luxvacuos.lightengine.client.rendering.opengl.shaders.data;
 
-import net.luxvacuos.lightengine.client.rendering.GL;
+import static org.lwjgl.opengl.GL20C.glUniformMatrix4fv;
 
-public class UniformInteger extends Uniform {
+import org.joml.Matrix4f;
 
-	private int currentValue;
+public class UniformMatrix extends Uniform {
+
+	private Matrix4f current;
 	private boolean used = false;
+	private float[] fm = new float[16];
 
-	public UniformInteger(String name) {
+	public UniformMatrix(String name) {
 		super(name);
 	}
 
-	public void loadInteger(int value) {
-		if (!used || currentValue != value) {
-			GL.glUniform1i(super.getLocation(), value);
-			used = true;
-			currentValue = value;
+	public void loadMatrix(Matrix4f matrix) {
+		if (!used || !matrix.equals(current)) {
+			matrix.get(fm);
+			glUniformMatrix4fv(super.getLocation(), false, fm);
 		}
 	}
 

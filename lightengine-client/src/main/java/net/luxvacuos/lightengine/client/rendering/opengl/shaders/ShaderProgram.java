@@ -18,27 +18,27 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.shaders;
+package net.luxvacuos.lightengine.client.rendering.opengl.shaders;
 
-import static net.luxvacuos.lightengine.client.rendering.GL.GL_COMPILE_STATUS;
-import static net.luxvacuos.lightengine.client.rendering.GL.GL_FALSE;
-import static net.luxvacuos.lightengine.client.rendering.GL.GL_FRAGMENT_SHADER;
-import static net.luxvacuos.lightengine.client.rendering.GL.GL_GEOMETRY_SHADER;
-import static net.luxvacuos.lightengine.client.rendering.GL.GL_VERTEX_SHADER;
-import static net.luxvacuos.lightengine.client.rendering.GL.glAttachShader;
-import static net.luxvacuos.lightengine.client.rendering.GL.glBindAttribLocation;
-import static net.luxvacuos.lightengine.client.rendering.GL.glCompileShader;
-import static net.luxvacuos.lightengine.client.rendering.GL.glCreateProgram;
-import static net.luxvacuos.lightengine.client.rendering.GL.glCreateShader;
-import static net.luxvacuos.lightengine.client.rendering.GL.glDeleteProgram;
-import static net.luxvacuos.lightengine.client.rendering.GL.glDeleteShader;
-import static net.luxvacuos.lightengine.client.rendering.GL.glDetachShader;
-import static net.luxvacuos.lightengine.client.rendering.GL.glGetShaderInfoLog;
-import static net.luxvacuos.lightengine.client.rendering.GL.glGetShaderi;
-import static net.luxvacuos.lightengine.client.rendering.GL.glLinkProgram;
-import static net.luxvacuos.lightengine.client.rendering.GL.glShaderSource;
-import static net.luxvacuos.lightengine.client.rendering.GL.glUseProgram;
-import static net.luxvacuos.lightengine.client.rendering.GL.glValidateProgram;
+import static org.lwjgl.opengl.GL11C.GL_FALSE;
+import static org.lwjgl.opengl.GL20C.GL_COMPILE_STATUS;
+import static org.lwjgl.opengl.GL20C.GL_FRAGMENT_SHADER;
+import static org.lwjgl.opengl.GL20C.GL_VERTEX_SHADER;
+import static org.lwjgl.opengl.GL20C.glAttachShader;
+import static org.lwjgl.opengl.GL20C.glBindAttribLocation;
+import static org.lwjgl.opengl.GL20C.glCompileShader;
+import static org.lwjgl.opengl.GL20C.glCreateProgram;
+import static org.lwjgl.opengl.GL20C.glCreateShader;
+import static org.lwjgl.opengl.GL20C.glDeleteProgram;
+import static org.lwjgl.opengl.GL20C.glDeleteShader;
+import static org.lwjgl.opengl.GL20C.glDetachShader;
+import static org.lwjgl.opengl.GL20C.glGetShaderInfoLog;
+import static org.lwjgl.opengl.GL20C.glGetShaderi;
+import static org.lwjgl.opengl.GL20C.glLinkProgram;
+import static org.lwjgl.opengl.GL20C.glShaderSource;
+import static org.lwjgl.opengl.GL20C.glUseProgram;
+import static org.lwjgl.opengl.GL20C.glValidateProgram;
+import static org.lwjgl.opengl.GL32C.GL_GEOMETRY_SHADER;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -51,10 +51,8 @@ import java.util.List;
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.client.core.exception.CompileShaderException;
 import net.luxvacuos.lightengine.client.core.exception.LoadShaderException;
-import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
-import net.luxvacuos.lightengine.client.rendering.glfw.RenderingAPI;
-import net.luxvacuos.lightengine.client.rendering.shaders.data.Attribute;
-import net.luxvacuos.lightengine.client.rendering.shaders.data.IUniform;
+import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.Attribute;
+import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.IUniform;
 import net.luxvacuos.lightengine.client.resources.ShaderIncludes;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
@@ -102,8 +100,7 @@ public abstract class ShaderProgram implements IDisposable {
 	/**
 	 * Loads All Uniforms and validate the program.
 	 * 
-	 * @param uniforms
-	 *            Array of Uniforms
+	 * @param uniforms Array of Uniforms
 	 */
 	protected void storeAllUniformLocations(IUniform... uniforms) {
 		for (IUniform uniform : uniforms) {
@@ -165,8 +162,7 @@ public abstract class ShaderProgram implements IDisposable {
 	/**
 	 * Bind array of attributes
 	 * 
-	 * @param inVariables
-	 *            Array
+	 * @param inVariables Array
 	 */
 	private void bindAttributes(Attribute[] att) {
 		for (int i = 0; i < att.length; i++) {
@@ -181,11 +177,7 @@ public abstract class ShaderProgram implements IDisposable {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(filet));
 			Logger.log("Loading Shader: " + file);
 
-			if (GraphicalSubsystem.getAPI() == RenderingAPI.GLES) {
-				shaderSource.append("#version 300 es").append("//\n");
-				shaderSource.append(ShaderIncludes.getVariable("GLES")).append("//\n");
-			} else
-				shaderSource.append("#version 330 core").append("//\n");
+			shaderSource.append("#version 330 core").append("//\n");
 			String line;
 			while ((line = reader.readLine()) != null) {
 				if (line.startsWith("#include")) {

@@ -26,13 +26,12 @@ import org.joml.Vector3f;
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Material;
-import net.luxvacuos.lightengine.client.rendering.shaders.ShaderProgram;
-import net.luxvacuos.lightengine.client.rendering.shaders.data.Attribute;
-import net.luxvacuos.lightengine.client.rendering.shaders.data.UniformBoolean;
-import net.luxvacuos.lightengine.client.rendering.shaders.data.UniformMaterial;
-import net.luxvacuos.lightengine.client.rendering.shaders.data.UniformMatrix;
-import net.luxvacuos.lightengine.client.rendering.shaders.data.UniformSampler;
-import net.luxvacuos.lightengine.client.rendering.shaders.data.UniformVec3;
+import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.Attribute;
+import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformBoolean;
+import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformMaterial;
+import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformMatrix;
+import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformSampler;
+import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformVec3;
 
 /**
  * Entity Shader

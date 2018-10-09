@@ -18,33 +18,35 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.shaders.data;
+package net.luxvacuos.lightengine.client.rendering.opengl.shaders.data;
 
-import org.joml.Vector3f;
+import static org.lwjgl.opengl.GL20C.glUniform4f;
 
-import net.luxvacuos.lightengine.client.rendering.GL;
+import org.joml.Vector4f;
 
-public class UniformVec3 extends Uniform {
+public class UniformVec4 extends Uniform {
 	private float currentX;
 	private float currentY;
 	private float currentZ;
+	private float currentW;
 	private boolean used = false;
 
-	public UniformVec3(String name) {
+	public UniformVec4(String name) {
 		super(name);
 	}
 
-	public void loadVec3(Vector3f vector) {
-		loadVec3(vector.x, vector.y, vector.z);
+	public void loadVec4(Vector4f vector) {
+		loadVec4(vector.x, vector.y, vector.z, vector.w);
 	}
 
-	public void loadVec3(float x, float y, float z) {
-		if (!used || x != currentX || y != currentY || z != currentZ) {
+	public void loadVec4(float x, float y, float z, float w) {
+		if (!used || x != currentX || y != currentY || z != currentZ || w != currentW) {
 			this.currentX = x;
 			this.currentY = y;
 			this.currentZ = z;
+			this.currentW = w;
 			used = true;
-			GL.glUniform3f(super.getLocation(), x, y, z);
+			glUniform4f(super.getLocation(), x, y, z, w);
 		}
 	}
 

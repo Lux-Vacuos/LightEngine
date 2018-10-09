@@ -36,9 +36,6 @@ dependencies {
 	compile "org.lwjgl:lwjgl-stb:$lwjglVersion"
 	compile "org.lwjgl:lwjgl-assimp:$lwjglVersion"
 	compile "org.lwjgl:lwjgl-vulkan:$lwjglVersion"
-	compile "org.lwjgl:lwjgl-egl:$lwjglVersion"
-	compile "org.lwjgl:lwjgl-opengles:$lwjglVersion"
-	compile "org.lwjgl:lwjgl-yoga:$lwjglVersion"
 	
 	// LWJGL natives Windows
 	runtime "org.lwjgl:lwjgl:$lwjglVersion:natives-windows"
@@ -49,8 +46,6 @@ dependencies {
 	runtime "org.lwjgl:lwjgl-nanovg:$lwjglVersion:natives-windows"
 	runtime "org.lwjgl:lwjgl-stb:$lwjglVersion:natives-windows"
 	runtime "org.lwjgl:lwjgl-assimp:$lwjglVersion:natives-windows"
-	runtime "org.lwjgl:lwjgl-opengles:$lwjglVersion:natives-windows"
-	runtime "org.lwjgl:lwjgl-yoga:$lwjglVersion:natives-windows"
 	// LWJGL Natives Linux
 	runtime "org.lwjgl:lwjgl:$lwjglVersion:natives-linux"
 	runtime "org.lwjgl:lwjgl-glfw:$lwjglVersion:natives-linux"
@@ -60,8 +55,6 @@ dependencies {
 	runtime "org.lwjgl:lwjgl-nanovg:$lwjglVersion:natives-linux"
 	runtime "org.lwjgl:lwjgl-stb:$lwjglVersion:natives-linux"
 	runtime "org.lwjgl:lwjgl-assimp:$lwjglVersion:natives-linux"
-	runtime "org.lwjgl:lwjgl-opengles:$lwjglVersion:natives-linux"
-	runtime "org.lwjgl:lwjgl-yoga:$lwjglVersion:natives-linux"
 	// LWJGL Natives OSX
 	runtime "org.lwjgl:lwjgl:$lwjglVersion:natives-macos"
 	runtime "org.lwjgl:lwjgl-glfw:$lwjglVersion:natives-macos"
@@ -71,8 +64,6 @@ dependencies {
 	runtime "org.lwjgl:lwjgl-nanovg:$lwjglVersion:natives-macos"
 	runtime "org.lwjgl:lwjgl-stb:$lwjglVersion:natives-macos"
 	runtime "org.lwjgl:lwjgl-assimp:$lwjglVersion:natives-macos"
-	runtime "org.lwjgl:lwjgl-opengles:$lwjglVersion:natives-macos"
-	runtime "org.lwjgl:lwjgl-yoga:$lwjglVersion:natives-macos"
 
 }
 

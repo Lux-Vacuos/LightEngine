@@ -20,8 +20,8 @@
 
 package net.luxvacuos.lightengine.client.rendering.glfw;
 
-import static org.lwjgl.egl.EGL10.eglGetError;
-import static org.lwjgl.egl.EGL10.eglInitialize;
+import static org.lwjgl.opengl.GL11C.GL_VENDOR;
+import static org.lwjgl.opengl.GL11C.glGetString;
 import static org.lwjgl.stb.STBImage.stbi_failure_reason;
 import static org.lwjgl.stb.STBImage.stbi_image_free;
 import static org.lwjgl.stb.STBImage.stbi_info_from_memory;
@@ -32,16 +32,10 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.lwjgl.egl.EGL;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWImage;
-import org.lwjgl.glfw.GLFWNativeEGL;
 import org.lwjgl.nanovg.NanoVGGL3;
-import org.lwjgl.nanovg.NanoVGGLES3;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengles.GLES;
-import org.lwjgl.opengles.GLES20;
 import org.lwjgl.system.MemoryStack;
 
 import com.badlogic.gdx.utils.Array;
@@ -50,7 +44,6 @@ import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.core.exception.DecodeTextureException;
 import net.luxvacuos.lightengine.client.core.exception.GLFWException;
-import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.rendering.opengl.GLResourceLoader;
 
 public final class WindowManager {
@@ -160,39 +153,11 @@ public final class WindowManager {
 		GLFW.glfwMakeContextCurrent(windowID);
 		GLFW.glfwSwapInterval(vsync ? 1 : 0);
 
-		int nvgFlags;
-		switch (GraphicalSubsystem.getAPI()) {
-		case GL:
-			window.capabilities = GL.createCapabilities(true);
-			nvgFlags = NanoVGGL3.NVG_ANTIALIAS | NanoVGGL3.NVG_STENCIL_STROKES;
-			if (ClientVariables.debug)
-				nvgFlags = (nvgFlags | NanoVGGL3.NVG_DEBUG);
-			window.nvgID = NanoVGGL3.nvgCreate(nvgFlags);
-			break;
-		case GLES:
-			long dpy = GLFWNativeEGL.glfwGetEGLDisplay();
-
-			try (MemoryStack stack = stackPush()) {
-				var major = stack.mallocInt(1);
-				var minor = stack.mallocInt(1);
-
-				if (!eglInitialize(dpy, major, minor)) {
-					throw new IllegalStateException(String.format("Failed to initialize EGL [0x%X]", eglGetError()));
-				}
-				EGL.createDisplayCapabilities(dpy, major.get(0), minor.get(0));
-			}
-
-			window.glesCapabilities = GLES.createCapabilities();
-
-			nvgFlags = NanoVGGLES3.NVG_ANTIALIAS | NanoVGGLES3.NVG_STENCIL_STROKES;
-			if (ClientVariables.debug)
-				nvgFlags = (nvgFlags | NanoVGGLES3.NVG_DEBUG);
-			window.nvgID = NanoVGGLES3.nvgCreate(nvgFlags);
-			break;
-		default:
-			break;
-		}
-		window.api = GraphicalSubsystem.getAPI();
+		window.capabilities = GL.createCapabilities(true);
+		int nvgFlags = NanoVGGL3.NVG_ANTIALIAS | NanoVGGL3.NVG_STENCIL_STROKES;
+		if (ClientVariables.debug)
+			nvgFlags = (nvgFlags | NanoVGGL3.NVG_DEBUG);
+		window.nvgID = NanoVGGL3.nvgCreate(nvgFlags);
 
 		if (window.nvgID == NULL)
 			throw new GLFWException("Fail to create NanoVG context for Window '" + handle.title + "'");
@@ -259,17 +224,7 @@ public final class WindowManager {
 	}
 
 	private static void detectGraphicsCard() {
-		var vendor = "";
-		switch (GraphicalSubsystem.getAPI()) {
-		case GL:
-			vendor = GL11.glGetString(GL11.GL_VENDOR);
-			break;
-		case GLES:
-			vendor = GLES20.glGetString(GLES20.GL_VENDOR);
-			break;
-		default:
-			break;
-		}
+		var vendor = glGetString(GL_VENDOR);
 		if (vendor.contains("NVIDIA"))
 			nvidia = true;
 		else if (vendor.contains("AMD"))

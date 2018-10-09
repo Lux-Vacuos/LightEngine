@@ -34,7 +34,7 @@ public class AL {
 
 	private static boolean created = false;
 
-	public static void create() throws IllegalStateException {
+	public static void create() throws IllegalStateException, UnsatisfiedLinkError {
 		device = alcOpenDevice((ByteBuffer) null);
 		if (device == NULL)
 			throw new IllegalStateException("Failed to open the default device.");
