@@ -86,22 +86,7 @@ public abstract class Loader {
 		 */
 	}
 
-	private void findUserDir(EngineData ed) {
-		String prefix = "";
-		if (ed.platform == Platform.WINDOWS_32 || ed.platform == Platform.WINDOWS_64)
-			prefix = System.getenv("AppData");
-		else if (ed.platform == Platform.LINUX_32 || ed.platform == Platform.LINUX_64)
-			prefix = System.getProperty("user.home");
-		else if (ed.platform == Platform.MACOS) {
-			prefix = System.getProperty("user.home");
-			prefix += "/Library/Application Support";
-		} else if (ed.platform == Platform.UNKNOWN) {
-			System.err.println("Loader - Unknown OS, assuming Unix-like system...");
-			prefix = System.getProperty("user.home");
-		}
-		prefix += "/." + ed.project;
-		ed.userDir = prefix;
-	}
+	protected abstract void findUserDir(EngineData ed);
 
 	private void parseArgs(EngineData ed, String... args) {
 		for (int i = 0; i < args.length; i++) {
@@ -125,6 +110,6 @@ public abstract class Loader {
 		}
 	}
 
-	public abstract void startEngine(IEngineLoader el, EngineData ed);
+	protected abstract void startEngine(IEngineLoader el, EngineData ed);
 
 }

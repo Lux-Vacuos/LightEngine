@@ -18,44 +18,36 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.loader;
+package net.luxvacuos.lightengine.server.loader;
 
-import net.luxvacuos.lightengine.client.core.ClientEngine;
-import net.luxvacuos.lightengine.client.core.ClientTaskManager;
+import java.io.File;
+import java.io.IOException;
+
+import net.luxvacuos.lightengine.server.core.ServerEngine;
+import net.luxvacuos.lightengine.server.core.ServerTaskManager;
 import net.luxvacuos.lightengine.universal.core.IEngineLoader;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.loader.EngineData;
 import net.luxvacuos.lightengine.universal.loader.Loader;
-import net.luxvacuos.lightengine.universal.loader.Platform;
 
-public class ClientLoader extends Loader {
+public class ServerLoader extends Loader {
 
-	public ClientLoader(IEngineLoader el, String... args) {
+	public ServerLoader(IEngineLoader el, String... args) {
 		super(el, args);
 	}
-	
+
 	@Override
 	protected void findUserDir(EngineData ed) {
-		String prefix = "";
-		if (ed.platform == Platform.WINDOWS_32 || ed.platform == Platform.WINDOWS_64)
-			prefix = System.getenv("AppData");
-		else if (ed.platform == Platform.LINUX_32 || ed.platform == Platform.LINUX_64)
-			prefix = System.getProperty("user.home");
-		else if (ed.platform == Platform.MACOS) {
-			prefix = System.getProperty("user.home");
-			prefix += "/Library/Application Support";
-		} else if (ed.platform == Platform.UNKNOWN) {
-			System.err.println("Loader - Unknown OS, assuming Unix-like system...");
-			prefix = System.getProperty("user.home");
+		try {
+			ed.userDir = new File(".").getCanonicalPath().toString();
+		} catch (IOException e) {
 		}
-		prefix += "/." + ed.project;
-		ed.userDir = prefix;
 	}
 
 	@Override
 	protected void startEngine(IEngineLoader el, EngineData ed) {
-		TaskManager.tm = new ClientTaskManager();
-		new ClientEngine(el, ed);
+		TaskManager.tm = new ServerTaskManager();
+		new ServerEngine(el, ed);
 	}
 
 }

@@ -23,7 +23,9 @@ package net.luxvacuos.lightengine.client.rendering;
 import net.luxvacuos.lightengine.client.network.IRenderData;
 import net.luxvacuos.lightengine.client.rendering.nanovg.IWindow;
 import net.luxvacuos.lightengine.client.rendering.opengl.Frustum;
-import net.luxvacuos.lightengine.client.rendering.opengl.IRenderPass;
+import net.luxvacuos.lightengine.client.rendering.opengl.IRenderPass.IForwardPass;
+import net.luxvacuos.lightengine.client.rendering.opengl.IRenderPass.IGBufferPass;
+import net.luxvacuos.lightengine.client.rendering.opengl.IRenderPass.IShadowPass;
 import net.luxvacuos.lightengine.client.rendering.opengl.LightRenderer;
 
 public interface IRenderer {
@@ -38,13 +40,11 @@ public interface IRenderer {
 
 	public void resetState();
 
-	public void setShadowPass(IRenderPass shadowPass);
+	public void setShadowPass(IShadowPass shadowPass);
 
-	public void setDeferredPass(IRenderPass deferredPass);
+	public void setGBufferPass(IGBufferPass deferredPass);
 
-	public void setForwardPass(IRenderPass forwardPass);
-
-	public void setOcclusionPass(IRenderPass occlusionPass);
+	public void setForwardPass(IForwardPass forwardPass);
 
 	public Frustum getFrustum();
 

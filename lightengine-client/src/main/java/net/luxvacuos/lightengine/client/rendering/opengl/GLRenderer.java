@@ -20,28 +20,27 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl;
 
-import static org.lwjgl.opengl.GL11.GL_BACK;
-import static org.lwjgl.opengl.GL11.GL_BLEND;
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
-import static org.lwjgl.opengl.GL11.GL_FRONT;
-import static org.lwjgl.opengl.GL11.GL_GREATER;
-import static org.lwjgl.opengl.GL11.GL_LESS;
-import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
-import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
-import static org.lwjgl.opengl.GL11.glBlendFunc;
-import static org.lwjgl.opengl.GL11.glClear;
-import static org.lwjgl.opengl.GL11.glClearDepth;
-import static org.lwjgl.opengl.GL11.glCullFace;
-import static org.lwjgl.opengl.GL11.glDepthFunc;
-import static org.lwjgl.opengl.GL11.glDisable;
-import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL32.GL_TEXTURE_CUBE_MAP_SEAMLESS;
+import static org.lwjgl.opengl.GL11C.GL_BACK;
+import static org.lwjgl.opengl.GL11C.GL_BLEND;
+import static org.lwjgl.opengl.GL11C.GL_COLOR_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11C.GL_CULL_FACE;
+import static org.lwjgl.opengl.GL11C.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11C.GL_DEPTH_TEST;
+import static org.lwjgl.opengl.GL11C.GL_FRONT;
+import static org.lwjgl.opengl.GL11C.GL_GREATER;
+import static org.lwjgl.opengl.GL11C.GL_LESS;
+import static org.lwjgl.opengl.GL11C.GL_ONE_MINUS_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11C.GL_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11C.glBlendFunc;
+import static org.lwjgl.opengl.GL11C.glClear;
+import static org.lwjgl.opengl.GL11C.glClearDepth;
+import static org.lwjgl.opengl.GL11C.glCullFace;
+import static org.lwjgl.opengl.GL11C.glDepthFunc;
+import static org.lwjgl.opengl.GL11C.glDisable;
+import static org.lwjgl.opengl.GL11C.glEnable;
+import static org.lwjgl.opengl.GL32C.GL_TEXTURE_CUBE_MAP_SEAMLESS;
 
 import java.util.List;
-import java.util.Map;
 
 import org.lwjgl.opengl.ARBClipControl;
 
@@ -57,13 +56,14 @@ import net.luxvacuos.lightengine.client.network.IRenderData;
 import net.luxvacuos.lightengine.client.rendering.IRenderer;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.nanovg.IWindow;
+import net.luxvacuos.lightengine.client.rendering.opengl.IRenderPass.IForwardPass;
+import net.luxvacuos.lightengine.client.rendering.opengl.IRenderPass.IGBufferPass;
+import net.luxvacuos.lightengine.client.rendering.opengl.IRenderPass.IShadowPass;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Light;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.ParticleTexture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.WaterTile;
 import net.luxvacuos.lightengine.client.rendering.opengl.pipeline.MultiPass;
 import net.luxvacuos.lightengine.client.rendering.opengl.pipeline.PostProcess;
 import net.luxvacuos.lightengine.client.ui.windows.GLGameWindow;
-import net.luxvacuos.lightengine.client.world.particles.Particle;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
@@ -91,7 +91,12 @@ public class GLRenderer implements IRenderer {
 	private Frustum frustum;
 	private Window window;
 
-	private IRenderPass shadowPass, deferredPass, forwardPass, occlusionPass;
+	private IShadowPass shadowPass = (a) -> {
+	};
+	private IGBufferPass gbufferPass = (a) -> {
+	};
+	private IForwardPass forwardPass = (a, b, c, d, e, f) -> {
+	};
 
 	private float exposure = 1;
 
@@ -155,74 +160,54 @@ public class GLRenderer implements IRenderer {
 		});
 	}
 
-	@Override
-	public void render(IRenderData renderData, float delta) {
-		if (!enabled)
-			return;
-		ImmutableArray<Entity> entitiesT = renderData.getEngine().getEntities();
-		Map<ParticleTexture, List<Particle>> particles = ParticleDomain.getParticles();
-		List<WaterTile> waterTiles = null;
-		CameraEntity camera = renderData.getCamera();
-		IWorldSimulation worldSimulation = renderData.getWorldSimulation();
-		Sun sun = renderData.getSun();
-
-		Array<Entity> entitiesR = new Array<>(entitiesT.toArray(Entity.class));
-		ImmutableArray<Entity> entities = new ImmutableArray<>(entitiesR);
-		resetState();
-		renderingManager.preProcess(entities, camera);
-		GPUProfiler.start("Shadows");
-		SunCamera sunCamera = sun.getCamera();
+	private void shadowPass(IRenderData rd) {
+		GPUProfiler.start("Shadow Pass");
+		SunCamera sunCamera = rd.getSun().getCamera();
 		if (rs.shadowsEnabled) {
 			GPUProfiler.start("Directional");
 			sunCamera.switchProjectionMatrix(0);
-			frustum.calculateFrustum(sunCamera);
+			// frustum.calculateFrustum(sunCamera);
 
 			shadowFBO.begin();
 			shadowFBO.changeTexture(0);
 			glClear(GL_DEPTH_BUFFER_BIT);
-			if (shadowPass != null)
-				shadowPass.render(camera, sunCamera, frustum, shadowFBO);
 			renderingManager.renderShadow(sunCamera);
+			shadowPass.shadowPass(sunCamera);
 
 			sunCamera.switchProjectionMatrix(1);
-			frustum.calculateFrustum(sunCamera);
+			// frustum.calculateFrustum(sunCamera);
 
 			shadowFBO.changeTexture(1);
 			glClear(GL_DEPTH_BUFFER_BIT);
-			if (shadowPass != null)
-				shadowPass.render(camera, sunCamera, frustum, shadowFBO);
 			renderingManager.renderShadow(sunCamera);
+			shadowPass.shadowPass(sunCamera);
 
 			sunCamera.switchProjectionMatrix(2);
-			frustum.calculateFrustum(sunCamera);
+			// frustum.calculateFrustum(sunCamera);
 
 			shadowFBO.changeTexture(2);
 			glClear(GL_DEPTH_BUFFER_BIT);
-			if (shadowPass != null)
-				shadowPass.render(camera, sunCamera, frustum, shadowFBO);
 			renderingManager.renderShadow(sunCamera);
+			shadowPass.shadowPass(sunCamera);
 
 			sunCamera.switchProjectionMatrix(3);
-			frustum.calculateFrustum(sunCamera);
+			// frustum.calculateFrustum(sunCamera);
 
 			shadowFBO.changeTexture(3);
 			glClear(GL_DEPTH_BUFFER_BIT);
-			if (shadowPass != null)
-				shadowPass.render(camera, sunCamera, frustum, shadowFBO);
 			renderingManager.renderShadow(sunCamera);
+			shadowPass.shadowPass(sunCamera);
 			shadowFBO.end();
 			GPUProfiler.end();
-			GPUProfiler.start("Shadow lights");
+			GPUProfiler.start("Point lights");
 			glCullFace(GL_FRONT);
 			for (Light light : lightRenderer.getLights()) {
 				if (light.isShadow()) {
 					if (!light.isShadowMapCreated())
 						continue;
-					frustum.calculateFrustum(light.getCamera());
+					// frustum.calculateFrustum(light.getCamera());
 					light.getShadowMap().begin();
 					glClear(GL_DEPTH_BUFFER_BIT);
-					if (shadowPass != null)
-						shadowPass.render(camera, light.getCamera(), frustum, null);
 					renderingManager.renderShadow(light.getCamera());
 					light.getShadowMap().end();
 				}
@@ -231,7 +216,14 @@ public class GLRenderer implements IRenderer {
 			GPUProfiler.end();
 		}
 		GPUProfiler.end();
-		GPUProfiler.start("Main Renderer");
+	}
+
+	private void environmentPass(IRenderData rd) {
+		CameraEntity camera = rd.getCamera();
+		IWorldSimulation worldSimulation = rd.getWorldSimulation();
+		Sun sun = rd.getSun();
+
+		GPUProfiler.start("Environment Pass");
 		GPUProfiler.start("IrradianceMap");
 		envRenderer.renderEnvironmentMap(camera.getPosition(), skyboxRenderer, worldSimulation, sun.getSunPosition(),
 				window);
@@ -245,12 +237,22 @@ public class GLRenderer implements IRenderer {
 		preFilteredEnvironment.render(window, envRendererEntities.getCubeMapTexture().getID());
 		GPUProfiler.end();
 		GPUProfiler.end();
-		GPUProfiler.start("Occlusion");
-		frustum.calculateFrustum(camera);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		if (occlusionPass != null)
-			occlusionPass.render(camera, sunCamera, frustum, shadowFBO);
 		GPUProfiler.end();
+	}
+
+	private void occlusionPass() {
+		GPUProfiler.start("Occlusion");
+		// frustum.calculateFrustum(camera);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		GPUProfiler.end();
+	}
+
+	private void gBufferPass(IRenderData rd) {
+		List<WaterTile> waterTiles = null;
+		CameraEntity camera = rd.getCamera();
+		IWorldSimulation worldSimulation = rd.getWorldSimulation();
+		Sun sun = rd.getSun();
+
 		GPUProfiler.start("G-Buffer pass");
 		ARBClipControl.glClipControl(ARBClipControl.GL_LOWER_LEFT, ARBClipControl.GL_ZERO_TO_ONE);
 		deferredPipeline.begin();
@@ -261,8 +263,7 @@ public class GLRenderer implements IRenderer {
 		skyboxRenderer.render(camera, worldSimulation, sun.getSunPosition(), true);
 		GPUProfiler.end();
 		GPUProfiler.start("External");
-		if (deferredPass != null)
-			deferredPass.render(camera, sunCamera, frustum, shadowFBO);
+		gbufferPass.gBufferPass(camera);
 		GPUProfiler.end();
 		GPUProfiler.start("RenderingManager");
 		renderingManager.render(camera);
@@ -275,22 +276,39 @@ public class GLRenderer implements IRenderer {
 		deferredPipeline.end();
 		ARBClipControl.glClipControl(ARBClipControl.GL_LOWER_LEFT, ARBClipControl.GL_NEGATIVE_ONE_TO_ONE);
 		GPUProfiler.end();
-		GPUProfiler.start("Deferred Rendering");
+	}
+
+	private void deferredPass(IRenderData rd) {
+		CameraEntity camera = rd.getCamera();
+		IWorldSimulation worldSimulation = rd.getWorldSimulation();
+		Sun sun = rd.getSun();
+
+		GPUProfiler.start("Deferred Pass");
 		deferredPipeline.preRender(camera, sun, worldSimulation, lightRenderer.getLights(),
 				irradianceCapture.getCubeMapTexture(), preFilteredEnvironment.getCubeMapTexture(),
 				preFilteredEnvironment.getBRDFLUT(), shadowFBO, exposure);
 		GPUProfiler.end();
-		GPUProfiler.start("PostFX Pre-Pass");
+	}
+
+	private void forwardPass(IRenderData rd) {
+		CameraEntity camera = rd.getCamera();
+		Sun sun = rd.getSun();
+
+		GPUProfiler.start("Forward Pass");
 		ARBClipControl.glClipControl(ARBClipControl.GL_LOWER_LEFT, ARBClipControl.GL_ZERO_TO_ONE);
 		postProcessPipeline.begin();
 		glDepthFunc(GL_GREATER);
 		glClearDepth(0.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		deferredPipeline.render(postProcessPipeline.getFBO());
-		GPUProfiler.start("Forward");
-		if (forwardPass != null)
-			forwardPass.render(camera, sunCamera, frustum, shadowFBO);
-		particleRenderer.render(particles, camera);
+		GPUProfiler.start("External");
+		forwardPass.forwardPass(camera, sun, shadowFBO, irradianceCapture.getCubeMapTexture(),
+				preFilteredEnvironment.getCubeMapTexture(), preFilteredEnvironment.getBRDFLUT());
+		GPUProfiler.end();
+		GPUProfiler.start("Particles");
+		particleRenderer.render(ParticleDomain.getParticles(), camera);
+		GPUProfiler.end();
+		GPUProfiler.start("RenderingManager");
 		renderingManager.renderForward(camera, sun, shadowFBO, irradianceCapture.getCubeMapTexture(),
 				preFilteredEnvironment.getCubeMapTexture(), preFilteredEnvironment.getBRDFLUT());
 		GPUProfiler.end();
@@ -299,9 +317,42 @@ public class GLRenderer implements IRenderer {
 		postProcessPipeline.end();
 		ARBClipControl.glClipControl(ARBClipControl.GL_LOWER_LEFT, ARBClipControl.GL_NEGATIVE_ONE_TO_ONE);
 		GPUProfiler.end();
+	}
+
+	private void postFXPass(IRenderData rd) {
 		GPUProfiler.start("PostFX");
-		postProcessPipeline.preRender(camera);
+		postProcessPipeline.preRender(rd.getCamera());
 		GPUProfiler.end();
+	}
+
+	@Override
+	public void render(IRenderData renderData, float delta) {
+		if (!enabled)
+			return;
+		ImmutableArray<Entity> entitiesT = renderData.getEngine().getEntities();
+		CameraEntity camera = renderData.getCamera();
+
+		Array<Entity> entitiesR = new Array<>(entitiesT.toArray(Entity.class));
+		ImmutableArray<Entity> entities = new ImmutableArray<>(entitiesR);
+		resetState();
+		renderingManager.preProcess(entities, camera);
+
+		GPUProfiler.start("3D Renderer");
+
+		shadowPass(renderData);
+
+		environmentPass(renderData);
+
+		occlusionPass();
+
+		gBufferPass(renderData);
+
+		deferredPass(renderData);
+
+		forwardPass(renderData);
+
+		postFXPass(renderData);
+
 		GPUProfiler.end();
 		renderingManager.end();
 	}
@@ -346,23 +397,18 @@ public class GLRenderer implements IRenderer {
 	}
 
 	@Override
-	public void setShadowPass(IRenderPass shadowPass) {
+	public void setShadowPass(IShadowPass shadowPass) {
 		this.shadowPass = shadowPass;
 	}
 
 	@Override
-	public void setDeferredPass(IRenderPass deferredPass) {
-		this.deferredPass = deferredPass;
+	public void setGBufferPass(IGBufferPass gbufferPass) {
+		this.gbufferPass = gbufferPass;
 	}
 
 	@Override
-	public void setForwardPass(IRenderPass forwardPass) {
+	public void setForwardPass(IForwardPass forwardPass) {
 		this.forwardPass = forwardPass;
-	}
-
-	@Override
-	public void setOcclusionPass(IRenderPass occlusionPass) {
-		this.occlusionPass = occlusionPass;
 	}
 
 	@Override

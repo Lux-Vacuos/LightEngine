@@ -24,18 +24,18 @@ import java.io.File;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-import net.luxvacuos.lightengine.server.core.ServerGameSettings;
 import net.luxvacuos.lightengine.server.core.states.Splash;
 import net.luxvacuos.lightengine.universal.core.GlobalVariables;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem;
+import net.luxvacuos.lightengine.universal.loader.EngineData;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
 public class ServerCoreSubsystem extends CoreSubsystem {
 
 	@Override
-	public void init() {
-		super.init();
+	public void init(EngineData ed) {
+		super.init(ed);
 		try {
 			Manifest manifest = new Manifest(
 					getClass().getClassLoader().getResourceAsStream("lightengine-server-version.mf"));
@@ -53,13 +53,20 @@ public class ServerCoreSubsystem extends CoreSubsystem {
 		}
 		REGISTRY.register(new Key("/Light Engine/version"),
 				GlobalVariables.version + "-" + GlobalVariables.branch + "-" + GlobalVariables.build);
-		gameSettings = new ServerGameSettings();
-		gameSettings.read();
+		initDefaultRegistry();
 		REGISTRY.load(new File((String) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/file"))));
 		REGISTRY.save();
 		LANG.load(
 				"assets/langs/" + REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Regional/lang")) + ".json");
 		StateMachine.registerState(new Splash());
+	}
+
+	private void initDefaultRegistry() {
+		REGISTRY.register(new Key("/Light Engine/Server/port", true), 44454);
+		
+		REGISTRY.register(new Key("/Light Engine/Settings/Core/ups", true), 20);
+		
+		REGISTRY.register(new Key("/Light Engine/Settings/Regional/lang", true), "en_US");
 	}
 
 }

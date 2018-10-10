@@ -34,8 +34,13 @@ public class AL {
 
 	private static boolean created = false;
 
-	public static void create() throws IllegalStateException, UnsatisfiedLinkError {
-		device = alcOpenDevice((ByteBuffer) null);
+	public static void create() throws IllegalStateException {
+		try {
+			device = alcOpenDevice((ByteBuffer) null);
+		} catch (UnsatisfiedLinkError e) {
+			e.printStackTrace();
+		}
+
 		if (device == NULL)
 			throw new IllegalStateException("Failed to open the default device.");
 
@@ -76,6 +81,8 @@ public class AL {
 	}
 
 	public static void destroy() {
+		if (!created)
+			return;
 		alcDestroyContext(context);
 		alcCloseDevice(device);
 		created = false;

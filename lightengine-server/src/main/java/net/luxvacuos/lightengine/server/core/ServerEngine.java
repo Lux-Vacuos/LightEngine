@@ -23,11 +23,11 @@ package net.luxvacuos.lightengine.server.core;
 import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
 
 import net.luxvacuos.igl.Logger;
-import net.luxvacuos.lightengine.server.bootstrap.Bootstrap;
 import net.luxvacuos.lightengine.server.core.subsystems.NetworkSubsystem;
 import net.luxvacuos.lightengine.server.core.subsystems.ServerCoreSubsystem;
 import net.luxvacuos.lightengine.universal.core.Engine;
 import net.luxvacuos.lightengine.universal.core.EngineType;
+import net.luxvacuos.lightengine.universal.core.IEngineLoader;
 import net.luxvacuos.lightengine.universal.core.Sync;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
@@ -35,22 +35,25 @@ import net.luxvacuos.lightengine.universal.core.states.StateNames;
 import net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem;
 import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
 import net.luxvacuos.lightengine.universal.core.subsystems.ScriptSubsystem;
+import net.luxvacuos.lightengine.universal.loader.EngineData;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
-public class LightEngineServer extends Engine {
+public class ServerEngine extends Engine {
 
 	private float timeCount;
-	private Sync sync;
 
-	public LightEngineServer() {
-		StateMachine.setEngineType(EngineType.SERVER);
-		init();
+	public ServerEngine(IEngineLoader el, EngineData ed) {
+		super(el, ed);
 	}
 
 	@Override
 	public void init() {
+		main.setName("Main");
+
 		Logger.init();
 		Logger.log("Starting Server");
+
+		StateMachine.setEngineType(EngineType.SERVER);
 
 		super.addSubsystem(new ServerCoreSubsystem());
 		super.addSubsystem(new NetworkSubsystem());
@@ -59,29 +62,32 @@ public class LightEngineServer extends Engine {
 
 		super.initSubsystems();
 
-		Logger.log("Light Engine Server Version: " + REGISTRY.getRegistryItem(new Key("/Light Engine/version")));
-		Logger.log("Light Engine Universal Version: "
-				+ REGISTRY.getRegistryItem(new Key("/Light Engine/universalVersion")));
-		Logger.log("Running on: " + Bootstrap.getPlatform());
-
-		sync = new Sync();
-		StateMachine.setCurrentState(StateNames.SPLASH_SCREEN);
+		StateMachine.run();
 		try {
-			StateMachine.run();
-			update();
-			dispose();
+			run();
 		} catch (Throwable t) {
-			t.printStackTrace(System.err);
 			handleError(t);
 		}
+		dispose();
 	}
 
 	@Override
-	public void update() {
+	public void run() {
 		int ups = (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Core/ups"));
 		float delta = 0;
 		float accumulator = 0f;
 		float interval = 1f / ups;
+
+		Logger.log("Light Engine Server Version: " + REGISTRY.getRegistryItem(new Key("/Light Engine/version")));
+		Logger.log("Light Engine Universal Version: "
+				+ REGISTRY.getRegistryItem(new Key("/Light Engine/universalVersion")));
+		Logger.log("Running on: " + ed.platform);
+
+		super.runSubsystems();
+
+		StateMachine.setCurrentState(StateNames.SPLASH_SCREEN);
+
+		Sync sync = new Sync();
 		while (StateMachine.isRunning()) {
 			TaskManager.tm.updateMainThread();
 			if (timeCount > 1f) {
@@ -103,7 +109,6 @@ public class LightEngineServer extends Engine {
 	@Override
 	public void handleError(Throwable e) {
 		e.printStackTrace();
-		dispose();
 	}
 
 	@Override
