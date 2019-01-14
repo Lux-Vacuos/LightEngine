@@ -120,47 +120,41 @@ public class Mesh implements IDisposable {
 
 	private void loadData(List<Vector3f> positions, List<Vector2f> texcoords, List<Vector3f> normals,
 			List<Vector3f> tangets) {
-		FloatBuffer posB = memAllocFloat(positions.size() * 3);
-		FloatBuffer texB = memAllocFloat(texcoords.size() * 2);
-		FloatBuffer norB = memAllocFloat(normals.size() * 3);
-		FloatBuffer tanB = memAllocFloat(tangets.size() * 3);
+		FloatBuffer pos = memAllocFloat(positions.size() * 3);
+		FloatBuffer tex = memAllocFloat(texcoords.size() * 2);
+		FloatBuffer nor = memAllocFloat(normals.size() * 3);
+		FloatBuffer tan = memAllocFloat(tangets.size() * 3);
 		for (int i = 0; i < positions.size(); i++) {
-			posB.put(positions.get(i).x);
-			posB.put(positions.get(i).y);
-			posB.put(positions.get(i).z);
+			pos.put(positions.get(i).x);
+			pos.put(positions.get(i).y);
+			pos.put(positions.get(i).z);
 		}
 		for (int i = 0; i < texcoords.size(); i++) {
-			texB.put(texcoords.get(i).x);
-			texB.put(texcoords.get(i).y);
+			tex.put(texcoords.get(i).x);
+			tex.put(texcoords.get(i).y);
 		}
 		for (int i = 0; i < normals.size(); i++) {
-			norB.put(normals.get(i).x);
-			norB.put(normals.get(i).y);
-			norB.put(normals.get(i).z);
+			nor.put(normals.get(i).x);
+			nor.put(normals.get(i).y);
+			nor.put(normals.get(i).z);
 		}
 		for (int i = 0; i < tangets.size(); i++) {
-			tanB.put(tangets.get(i).x);
-			tanB.put(tangets.get(i).y);
-			tanB.put(tangets.get(i).z);
+			tan.put(tangets.get(i).x);
+			tan.put(tangets.get(i).y);
+			tan.put(tangets.get(i).z);
 		}
-		posB.flip();
-		texB.flip();
-		norB.flip();
-		tanB.flip();
-		float[] posA = new float[posB.capacity()], texA = new float[texB.capacity()], norA = new float[norB.capacity()],
-				tanA = new float[tanB.capacity()];
-		posB.get(posA);
-		texB.get(texA);
-		norB.get(norA);
-		tanB.get(tanA);
-		memFree(posB);
-		memFree(texB);
-		memFree(norB);
-		memFree(tanB);
-		mesh.createAttribute(0, posA, 3, GL_STATIC_DRAW);
-		mesh.createAttribute(1, texA, 2, GL_STATIC_DRAW);
-		mesh.createAttribute(2, norA, 3, GL_STATIC_DRAW);
-		mesh.createAttribute(3, tanA, 3, GL_STATIC_DRAW);
+		pos.flip();
+		tex.flip();
+		nor.flip();
+		tan.flip();
+		mesh.createAttribute(0, pos, 3, GL_STATIC_DRAW);
+		mesh.createAttribute(1, tex, 2, GL_STATIC_DRAW);
+		mesh.createAttribute(2, nor, 3, GL_STATIC_DRAW);
+		mesh.createAttribute(3, tan, 3, GL_STATIC_DRAW);
+		memFree(pos);
+		memFree(tex);
+		memFree(nor);
+		memFree(tan);
 	}
 
 }

@@ -32,6 +32,8 @@ import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 import static org.lwjgl.opengl.GL30.glVertexAttribIPointer;
 
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,15 +63,13 @@ public class VAO implements IDisposable {
 
 	public void bind(int... attributes) {
 		bind();
-		for (int i : attributes) {
+		for (int i : attributes)
 			glEnableVertexAttribArray(i);
-		}
 	}
 
 	public void unbind(int... attributes) {
-		for (int i : attributes) {
+		for (int i : attributes)
 			glDisableVertexAttribArray(i);
-		}
 		unbind();
 	}
 
@@ -78,6 +78,24 @@ public class VAO implements IDisposable {
 		indexVbo.bind();
 		indexVbo.storeData(indices, param);
 		this.indexCount = indices.length;
+	}
+
+	public void createAttribute(int attribute, int[] data, int attrSize, int param) {
+		VBO dataVbo = VBO.create(GL_ARRAY_BUFFER);
+		dataVbo.bind();
+		dataVbo.storeData(data, param);
+		glVertexAttribIPointer(attribute, attrSize, GL_INT, attrSize * BYTES_PER_INT, 0);
+		dataVbo.unbind();
+		dataVbos.add(dataVbo);
+	}
+
+	public void createAttribute(int attribute, IntBuffer data, int attrSize, int param) {
+		VBO dataVbo = VBO.create(GL_ARRAY_BUFFER);
+		dataVbo.bind();
+		dataVbo.storeData(data, param);
+		glVertexAttribIPointer(attribute, attrSize, GL_INT, attrSize * BYTES_PER_INT, 0);
+		dataVbo.unbind();
+		dataVbos.add(dataVbo);
 	}
 
 	public void createAttribute(int attribute, float[] data, int attrSize, int param) {
@@ -89,11 +107,11 @@ public class VAO implements IDisposable {
 		dataVbos.add(dataVbo);
 	}
 
-	public void createIntAttribute(int attribute, int[] data, int attrSize, int param) {
+	public void createAttribute(int attribute, FloatBuffer data, int attrSize, int param) {
 		VBO dataVbo = VBO.create(GL_ARRAY_BUFFER);
 		dataVbo.bind();
 		dataVbo.storeData(data, param);
-		glVertexAttribIPointer(attribute, attrSize, GL_INT, attrSize * BYTES_PER_INT, 0);
+		glVertexAttribPointer(attribute, attrSize, GL_FLOAT, false, attrSize * BYTES_PER_FLOAT, 0);
 		dataVbo.unbind();
 		dataVbos.add(dataVbo);
 	}
@@ -101,9 +119,8 @@ public class VAO implements IDisposable {
 	@Override
 	public void dispose() {
 		glDeleteVertexArrays(id);
-		for (VBO vbo : dataVbos) {
+		for (VBO vbo : dataVbos)
 			vbo.dispose();
-		}
 		indexVbo.dispose();
 	}
 

@@ -7,7 +7,7 @@ plugins {
 }
 
 mainClassName = "net.luxvacuos.lightengine.server.bootstrap.Bootstrap"
-sourceCompatibility = "10"
+sourceCompatibility = "11"
 
 sourceSets {
 	main {

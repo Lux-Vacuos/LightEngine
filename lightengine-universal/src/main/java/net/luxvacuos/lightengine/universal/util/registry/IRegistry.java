@@ -22,9 +22,6 @@ package net.luxvacuos.lightengine.universal.util.registry;
 
 import java.util.Set;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 /**
  * A basic Registry interface.
  * 
@@ -35,31 +32,36 @@ import javax.annotation.Nullable;
  * @param <V> the Registry Value. Can be null.
  */
 public interface IRegistry<K extends Comparable<K>, V> extends Iterable<V> {
-	
+
 	/**
-	 * Gets the Value from the Registry with the given Key, or null if the key does not exist.
+	 * Gets the Value from the Registry with the given Key, or null if the key does
+	 * not exist.
+	 * 
 	 * @param key the key to check
 	 * @return the value associated with the supplied key, or null
 	 */
-	@Nullable
-	public V getRegistryItem(@Nonnull K key);
-	
+	/* @Nullable */
+	public V getRegistryItem(/* @Nonnull */ K key);
+
 	/**
 	 * Checks to see if the Registry has an item associated with the supplied key
+	 * 
 	 * @param key
 	 * @return
 	 */
-	public boolean hasRegistryItem(@Nonnull K key);
-	
+	public boolean hasRegistryItem(/* @Nonnull */ K key);
+
 	/**
-	 * Registers an object with the associated key. The key cannot be null, but the object can be.
+	 * Registers an object with the associated key. The key cannot be null, but the
+	 * object can be.
+	 * 
 	 * @param key
 	 * @param value
 	 */
-	public void register(@Nonnull K key, @Nullable V value);
-	
-	public boolean unregister(@Nonnull K key);
-	
+	public void register(/* @Nonnull */ K key, /* @Nullable */ V value);
+
+	public boolean unregister(/* @Nonnull */ K key);
+
 	public Set<K> getKeySet();
 
 }

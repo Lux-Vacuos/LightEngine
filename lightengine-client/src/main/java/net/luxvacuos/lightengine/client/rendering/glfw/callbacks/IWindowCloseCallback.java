@@ -18,50 +18,10 @@
  * 
  */
 
-package net.luxvacuos.lightengine.universal.core;
+package net.luxvacuos.lightengine.client.rendering.glfw.callbacks;
 
-import java.util.ArrayList;
-import java.util.List;
+public interface IWindowCloseCallback {
 
-public abstract class Task<V> {
-
-	private boolean done;
-	private V value;
-	private List<Thread> ts = new ArrayList<>();
-
-	public boolean isDone() {
-		return done;
-	}
-
-	public V get() {
-		if (!done) {
-			synchronized (ts) {
-				ts.add(Thread.currentThread());
-			}
-			try {
-				Thread.sleep(Long.MAX_VALUE);
-			} catch (InterruptedException e) {
-			}
-		}
-		return value;
-	}
-
-	public void onCompleted(V value) {
-	}
-
-	/**
-	 * <b>INTERNAL FUNCTION</b>
-	 */
-	public void callI() {
-		if (done)
-			return;
-		value = call();
-		done = true;
-		for (Thread t : ts)
-			t.interrupt();
-		onCompleted(value);
-	}
-
-	protected abstract V call();
-
+	public void windowClose(long window);
+	
 }

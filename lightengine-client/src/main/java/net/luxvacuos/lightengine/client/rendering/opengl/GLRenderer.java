@@ -224,15 +224,21 @@ public class GLRenderer implements IRenderer {
 		Sun sun = rd.getSun();
 
 		GPUProfiler.start("Environment Pass");
-		GPUProfiler.start("IrradianceMap");
+		GPUProfiler.start("Irradiance");
+		GPUProfiler.start("CubeMap Render");
 		envRenderer.renderEnvironmentMap(camera.getPosition(), skyboxRenderer, worldSimulation, sun.getSunPosition(),
 				window);
+		GPUProfiler.end();
+		GPUProfiler.start("Irradiance Capture");
 		irradianceCapture.render(window, envRenderer.getCubeMapTexture().getID());
 		GPUProfiler.end();
-		GPUProfiler.start("EnvironmentMap");
+		GPUProfiler.end();
+		GPUProfiler.start("Reflections");
+		GPUProfiler.start("CubeMap Render");
 		envRendererEntities.renderEnvironmentMap(camera.getPosition(), skyboxRenderer, renderingManager,
 				worldSimulation, sun, shadowFBO, irradianceCapture.getCubeMapTexture(),
 				preFilteredEnvironment.getCubeMapTexture(), preFilteredEnvironment.getBRDFLUT(), window);
+		GPUProfiler.end();
 		GPUProfiler.start("PreFilteredEnvironment");
 		preFilteredEnvironment.render(window, envRendererEntities.getCubeMapTexture().getID());
 		GPUProfiler.end();
@@ -343,7 +349,7 @@ public class GLRenderer implements IRenderer {
 
 		environmentPass(renderData);
 
-		occlusionPass();
+		// occlusionPass();
 
 		gBufferPass(renderData);
 

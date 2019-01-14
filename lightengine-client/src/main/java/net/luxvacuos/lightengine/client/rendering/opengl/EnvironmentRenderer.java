@@ -77,7 +77,7 @@ public class EnvironmentRenderer {
 
 		int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		if (status != GL_FRAMEBUFFER_COMPLETE)
-			throw new FrameBufferException("Incomplete FrameBuffer ");
+			throw new FrameBufferException("Incomplete FrameBuffer");
 
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 

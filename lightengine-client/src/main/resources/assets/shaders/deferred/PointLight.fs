@@ -118,8 +118,7 @@ void main() {
 				break;
 			}
 		}
-		vec3 color = Lo;
-		composite.rgb += color;
+		composite.rgb += Lo;
 	}
 	out_Color = composite;
 }

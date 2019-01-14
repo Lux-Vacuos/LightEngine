@@ -41,6 +41,12 @@ uniform int useReflections;
 
 #include function fresnelSchlickRoughness
 
+#include function getDepth
+
+#define MAX_STEPS 100
+#define MAX_DIST 100.0
+#define SURF_DIST 0.01
+
 void main(void) {
 	vec2 texcoord = textureCoords;
 	vec4 image = texture(composite0, texcoord);
@@ -67,46 +73,75 @@ void main(void) {
 			vec2 envBRDF = texture(composite3, vec2(max(dot(N, V), 0.0), roughness)).rg;
 			vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
 
-			float depth = texture(gDepth, texcoord).r;
-			vec3 cameraToWorld = position - cameraPosition.xyz;
-			float cameraToWorldDist = length(cameraToWorld);
-			vec3 cameraToWorldNorm = normalize(cameraToWorld);
-			vec3 refl = normalize(reflect(cameraToWorldNorm, N));
+			vec3 camToWorld = position - cameraPosition.xyz;
+			vec3 camToWorldNorm = normalize(camToWorld);
 			vec3 newPos;
 			vec4 newScreen;
-			vec3 rayTrace = position;
-			float currentWorldDist, rayDist;
-			float incr = 0.2;
-			do {
-				rayTrace += refl * incr;
-				incr *= 1.1;
-				newScreen = viewMatrix * vec4(rayTrace, 1);
+			vec2 newCoords;
+
+			float depth, newDepth;
+
+			float dO = 0.0;
+			float odS;
+
+			vec3 rd = normalize(reflect(camToWorldNorm, N));
+			vec3 ro = position + rd * SURF_DIST * 1.5;
+
+			for (int i = 0; i < MAX_STEPS; i++) {
+				// Move point
+				vec3 p = ro + rd * dO;
+
+				// Convert world to screen
+				newScreen = viewMatrix * vec4(p, 1);
 				newScreen = projectionMatrix * newScreen;
 				newScreen /= newScreen.w;
-				newPos = texture(gPosition, newScreen.xy / 2.0 + 0.5).xyz;
-				currentWorldDist = length(newPos.xyz - cameraPosition);
-				rayDist = length(rayTrace - cameraPosition);
-				if (newScreen.x > 1 || newScreen.x < -1 || newScreen.y > 1 || newScreen.y < -1 ||
-					newScreen.z > 1 || newScreen.z < -1 || cameraToWorldDist > currentWorldDist ||
-					dot(refl, cameraToWorldNorm) < 0 || rayDist > MAX_DISTANCE_REFLECTION)
-					break;
-			} while (rayDist < currentWorldDist);
+				newCoords = newScreen.xy / 2.0 + 0.5;
 
-			vec4 newColor = texture(composite0, newScreen.xy / 2.0 + 0.5);
-			float fact = 1.0;
-			if (dot(refl, cameraToWorldNorm) < 0)
-				fact = 0.0;
-			else if (newScreen.x > 1 || newScreen.x < -1 || newScreen.y > 1 || newScreen.y < -1)
-				fact = 0.0;
-			else if (cameraToWorldDist > currentWorldDist)
-				fact = 0.0;
-			else if (newScreen.z < -1)
-				fact = 0.0;
-			else if (rayDist > MAX_DISTANCE_REFLECTION)
-				fact = 0.0;
-			image.rgb -= max(specular, 0.0);
-			image.rgb +=
-				mix(max(specular, 0.0), max(newColor.rgb * (F * envBRDF.x + envBRDF.y), 0.0), fact);
+				// Get new pos
+				newPos = texture(gPosition, newCoords).xyz;
+
+				// Calculate point and new pos depths
+				// depth = length(newPos - cameraPosition);
+				// newDepth = length(p - cameraPosition);
+
+				// Calculate distance from newPos to point
+				float dS = length(newPos - p);
+
+				// It is background?
+				if (texture(gMask, newCoords).a == 1)
+					dS = odS; // Let's use old distance
+
+				// Is the new pos depth smaller than point depth?
+				/*if (depth < newDepth) {
+					// Reduce distance by 50 % of the depth diference
+					float tdS = max((depth - newDepth) * 0.5, SURF_DIST);
+					dO -= tdS;
+					odS = tdS;
+				} else {*/
+				dO += dS; // Add distance to distance from origin
+				odS = dS; // Save old distance
+				//}
+				/*
+				if (depth < newDepth) {
+					image.rgb = vec3(0, 0, 1);
+				} else if (dO > MAX_DIST) {
+					image.rgb = vec3(1, 0, 0);
+				} else if (dS < SURF_DIST) {
+					image.rgb = vec3(0, 1, 0);
+				} else {
+					image.rgb = vec3(0);
+				}*/
+				if (dO > MAX_DIST || dS < SURF_DIST || newCoords.x < 0 || newCoords.x > 1 ||
+					newCoords.y < 0 || newCoords.y > 1)
+					break;
+			}
+
+			if (dO < MAX_DIST && newCoords.x > 0 && newCoords.x < 1 && newCoords.y > 0 &&
+				newCoords.y < 1) {
+				vec3 newColor = texture(composite0, newCoords).xyz;
+				image.rgb -= specular;
+				image.rgb += newColor * (F * envBRDF.x + envBRDF.y);
+			}
 		}
 	}
 	out_Color = image;

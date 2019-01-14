@@ -40,7 +40,7 @@ public abstract class AbstractState implements IState, IDisposable {
 	}
 
 	@Override
-	public void render(float alpha) {
+	public void render(float delta) {
 	}
 
 	@Override

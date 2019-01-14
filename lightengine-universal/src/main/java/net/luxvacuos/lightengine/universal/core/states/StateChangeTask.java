@@ -18,50 +18,21 @@
  * 
  */
 
-package net.luxvacuos.lightengine.universal.core;
+package net.luxvacuos.lightengine.universal.core.states;
 
-import java.util.ArrayList;
-import java.util.List;
+import net.luxvacuos.lightengine.universal.core.Task;
 
-public abstract class Task<V> {
+public class StateChangeTask extends Task<Boolean> {
 
-	private boolean done;
-	private V value;
-	private List<Thread> ts = new ArrayList<>();
+	private final String state;
 
-	public boolean isDone() {
-		return done;
+	public StateChangeTask(String state) {
+		this.state = state;
 	}
 
-	public V get() {
-		if (!done) {
-			synchronized (ts) {
-				ts.add(Thread.currentThread());
-			}
-			try {
-				Thread.sleep(Long.MAX_VALUE);
-			} catch (InterruptedException e) {
-			}
-		}
-		return value;
+	@Override
+	protected Boolean call() {
+		return StateMachine.setCurrentState(state);
 	}
-
-	public void onCompleted(V value) {
-	}
-
-	/**
-	 * <b>INTERNAL FUNCTION</b>
-	 */
-	public void callI() {
-		if (done)
-			return;
-		value = call();
-		done = true;
-		for (Thread t : ts)
-			t.interrupt();
-		onCompleted(value);
-	}
-
-	protected abstract V call();
 
 }

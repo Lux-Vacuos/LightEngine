@@ -41,7 +41,7 @@ public class LocalNetworkHandler extends AbstractChannelHandler implements IRend
 	protected Sun sun;
 
 	public LocalNetworkHandler(BasicEntity player) {
-		worldSimulation = new ClientWorldSimulation(10000);
+		worldSimulation = new ClientWorldSimulation(8500);
 		engine = new Engine();
 		engine.addSystem(new ClientPhysicsSystem());
 		this.player = player;

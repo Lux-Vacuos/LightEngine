@@ -78,6 +78,7 @@ public class IrradianceCapture implements IDisposable {
 	private CubeMapTexture cubeMapTexture;
 	private CubeMapCamera camera;
 	private RawModel cube;
+	private int i;
 
 	public IrradianceCapture(IResourceLoader loader) {
 		shader = new IrradianceCaptureShader();
@@ -99,7 +100,7 @@ public class IrradianceCapture implements IDisposable {
 
 		int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		if (status != GL_FRAMEBUFFER_COMPLETE)
-			throw new FrameBufferException("Incomplete FrameBuffer ");
+			throw new FrameBufferException("Incomplete FrameBuffer");
 
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
@@ -115,19 +116,19 @@ public class IrradianceCapture implements IDisposable {
 		shader.loadProjectionMatrix(camera.getProjectionMatrix());
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, envMap);
-		for (int i = 0; i < 6; i++) {
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-					cubeMapTexture.getID(), 0);
-			camera.switchToFace(i);
-			shader.loadviewMatrix(camera);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			glDrawArrays(GL_TRIANGLES, 0, cube.getVertexCount());
-		}
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+				cubeMapTexture.getID(), 0);
+		camera.switchToFace(i);
+		shader.loadviewMatrix(camera);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glDrawArrays(GL_TRIANGLES, 0, cube.getVertexCount());
 		glDisableVertexAttribArray(0);
 		glBindVertexArray(0);
 		shader.stop();
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		window.resetViewport();
+		i += 1;
+		i %= 6;
 	}
 
 	@Override

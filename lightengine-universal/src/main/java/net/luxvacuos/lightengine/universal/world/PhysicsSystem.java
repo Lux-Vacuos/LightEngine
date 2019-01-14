@@ -131,7 +131,7 @@ public class PhysicsSystem extends EntitySystem {
 			}
 			update(delta, entity);
 		}
-		dynamicsWorld.stepSimulation(delta, 1, delta);
+		dynamicsWorld.stepSimulation(delta, 0);
 		for (Entity entity : entities)
 			if (entity instanceof LEEntity)
 				((LEEntity) entity).afterUpdate(delta);

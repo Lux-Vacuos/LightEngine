@@ -23,8 +23,6 @@ package net.luxvacuos.lightengine.universal.core.states;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
-
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.universal.core.EngineType;
 
@@ -86,7 +84,7 @@ public final class StateMachine {
 		return true;
 	}
 
-	public static boolean setCurrentState(@Nonnull String name) {
+	public static boolean setCurrentState(/* @Nonnull */ String name) {
 		if (registeredStates.containsKey(name)) {
 			internalState = InternalState.LOADING;
 			IState state = registeredStates.get(name);

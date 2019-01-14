@@ -18,11 +18,10 @@
  * 
  */
 
-
 package net.luxvacuos.lightengine.client.rendering.glfw.callbacks;
 
 public interface IWindowSizeCallback {
-	
+
 	public void windowSize(long window, int width, int height);
 
 }

@@ -25,6 +25,9 @@ import static org.lwjgl.opengl.GL15.glBufferData;
 import static org.lwjgl.opengl.GL15.glDeleteBuffers;
 import static org.lwjgl.opengl.GL15.glGenBuffers;
 
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
 public class VBO implements IDisposable {
@@ -54,7 +57,15 @@ public class VBO implements IDisposable {
 		glBufferData(type, data, param);
 	}
 
+	public void storeData(IntBuffer data, int param) {
+		glBufferData(type, data, param);
+	}
+
 	public void storeData(float[] data, int param) {
+		glBufferData(type, data, param);
+	}
+
+	public void storeData(FloatBuffer data, int param) {
 		glBufferData(type, data, param);
 	}
 

@@ -25,20 +25,22 @@ import java.util.List;
 
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 
-public class WindowSizeCallback extends GLFWWindowSizeCallback {
+public class WindowSizeCallback extends GLFWWindowSizeCallback implements ICallback<IWindowSizeCallback> {
 
 	private List<IWindowSizeCallback> callbacks = new ArrayList<>();
 
 	@Override
 	public void invoke(long window, int width, int height) {
-		for (IWindowSizeCallback callback : callbacks)
+		for (var callback : callbacks)
 			callback.windowSize(window, width, height);
 	}
 
+	@Override
 	public void addCallback(IWindowSizeCallback callback) {
 		callbacks.add(callback);
 	}
 
+	@Override
 	public void removeCallback(IWindowSizeCallback callback) {
 		callbacks.remove(callback);
 	}

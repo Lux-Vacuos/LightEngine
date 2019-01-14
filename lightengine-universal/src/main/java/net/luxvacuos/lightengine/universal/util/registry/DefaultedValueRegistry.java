@@ -20,21 +20,18 @@
 
 package net.luxvacuos.lightengine.universal.util.registry;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 public class DefaultedValueRegistry<K extends Comparable<K>, V> extends SimpleRegistry<K, V> {
-	
-	@Nullable
+
+	/* @Nullable */
 	private final V defaultValue;
-	
-	public DefaultedValueRegistry(@Nullable V defaultValue) {
+
+	public DefaultedValueRegistry(/* @Nullable */ V defaultValue) {
 		this.defaultValue = defaultValue;
 	}
-	
+
 	@Override
-	@Nullable
-	public V getRegistryItem(@Nonnull K key) {
+	/* @Nullable */
+	public V getRegistryItem(/* @Nonnull */ K key) {
 		V value = super.getRegistryItem(key);
 		return (value == null ? this.defaultValue : value);
 	}

@@ -7,7 +7,7 @@ plugins {
 }
 
 mainClassName = "net.luxvacuos.lightengine.tools.Main"
-sourceCompatibility = "10"
+sourceCompatibility = "11"
 
 sourceSets {
 	main {

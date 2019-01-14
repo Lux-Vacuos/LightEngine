@@ -87,7 +87,7 @@ public class ClientTaskManager extends TaskManager {
 	}
 
 	public void switchToSharedContext() {
-		var handle = WindowManager.generateHandle(800, 600, "Async Window");
+		var handle = WindowManager.generateHandle(1, 1, "Async Window");
 		handle.isVisible(false);
 		asyncWindow = WindowManager.generateWindow(handle, GraphicalSubsystem.getMainWindow().getID());
 		renderBackgroundThread = new Thread(() -> {

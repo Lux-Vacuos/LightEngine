@@ -26,12 +26,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 public class SimpleRegistry<K extends Comparable<K>, V> implements IRegistry<K, V> {
-	
-	@Nonnull
+
+	/* @Nonnull */
 	protected final Map<K, V> registry = new HashMap<K, V>();
 
 	@Override
@@ -40,28 +37,29 @@ public class SimpleRegistry<K extends Comparable<K>, V> implements IRegistry<K, 
 	}
 
 	@Override
-	@Nullable
-	public V getRegistryItem(@Nonnull K key) {
+	/* @Nullable */
+	public V getRegistryItem(/* @Nonnull */ K key) {
 		return this.registry.get(key);
 	}
 
 	@Override
-	public boolean hasRegistryItem(@Nonnull K key) {
+	public boolean hasRegistryItem(/* @Nonnull */ K key) {
 		return this.registry.containsKey(key);
 	}
 
 	@Override
-	public void register(@Nonnull K key, @Nullable V value) {
+	public void register(/* @Nonnull */ K key, /* @Nullable */ V value) {
 		this.registry.put(key, value);
-		
+
 	}
 
 	@Override
-	public boolean unregister(@Nonnull K key) {
-		if(this.registry.containsKey(key)) {
+	public boolean unregister(/* @Nonnull */ K key) {
+		if (this.registry.containsKey(key)) {
 			this.registry.remove(key);
 			return true;
-		} else return false;
+		} else
+			return false;
 	}
 
 	@Override

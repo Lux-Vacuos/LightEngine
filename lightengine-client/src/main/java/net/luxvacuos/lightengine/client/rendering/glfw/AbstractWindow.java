@@ -35,7 +35,7 @@ import static org.lwjgl.glfw.GLFW.glfwSetWindowRefreshCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowSize;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowSizeCallback;
 import static org.lwjgl.glfw.GLFW.glfwShowWindow;
-import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
+import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 import static org.lwjgl.nanovg.NanoVG.nvgBeginFrame;
 import static org.lwjgl.nanovg.NanoVG.nvgEndFrame;
@@ -57,6 +57,7 @@ import net.luxvacuos.lightengine.client.input.KeyboardHandler;
 import net.luxvacuos.lightengine.client.input.LegacyMouseHandler;
 import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.rendering.IResourceLoader;
+import net.luxvacuos.lightengine.client.rendering.glfw.callbacks.WindowCloseCallback;
 import net.luxvacuos.lightengine.client.rendering.glfw.callbacks.WindowSizeCallback;
 import net.luxvacuos.lightengine.client.rendering.opengl.GLResourceLoader;
 import net.luxvacuos.lightengine.client.resources.AssimpResourceLoader;
@@ -107,6 +108,7 @@ public abstract class AbstractWindow implements IWindow {
 	protected GLFWWindowIconifyCallback iconifyCallback;
 
 	protected WindowSizeCallback windowSizeCallback;
+	protected WindowCloseCallback windowCloseCallback;
 
 	protected AbstractWindow(long windowID, int width, int height) {
 		this.windowID = windowID;
@@ -122,6 +124,7 @@ public abstract class AbstractWindow implements IWindow {
 		this.mHandle = new LegacyMouseHandler(this.windowID, this); // TODO: Mouse Handler
 		
 		windowSizeCallback = new WindowSizeCallback(); // TODO: Do this for the other callbacks
+		windowCloseCallback = new WindowCloseCallback();
 
 		windowSizeCallback.addCallback((window, width, height) -> {
 			this.width = width;
@@ -182,6 +185,7 @@ public abstract class AbstractWindow implements IWindow {
 		glfwSetWindowMaximizeCallback(windowID, maximizeCallback);
 		glfwSetWindowFocusCallback(windowID, focusCallback);
 		glfwSetWindowIconifyCallback(windowID, iconifyCallback);
+		glfwSetWindowCloseCallback(windowID, windowCloseCallback);
 	}
 
 	@Override
@@ -225,8 +229,12 @@ public abstract class AbstractWindow implements IWindow {
 		glfwRestoreWindow(windowID);
 	}
 	
-	public WindowSizeCallback getWindowSizeCallback() {
+	public WindowSizeCallback getSizeCallback() {
 		return windowSizeCallback;
+	}
+	
+	public WindowCloseCallback getCloseCallback() {
+		return windowCloseCallback;
 	}
 
 	@Override

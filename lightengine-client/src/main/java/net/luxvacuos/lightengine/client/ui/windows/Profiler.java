@@ -20,17 +20,12 @@
 
 package net.luxvacuos.lightengine.client.ui.windows;
 
-import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
-
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
-import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
 import net.luxvacuos.lightengine.client.rendering.opengl.GPUProfiler;
 import net.luxvacuos.lightengine.client.rendering.opengl.GPUTaskProfile;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.TextArea;
-import net.luxvacuos.lightengine.universal.util.registry.Key;
-import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
 public class Profiler extends ComponentWindow {
 
@@ -38,9 +33,7 @@ public class Profiler extends ComponentWindow {
 	private float timer, timerOnTop;
 
 	public Profiler() {
-		super(0, (int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")),
-				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
-				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")), "Profiler");
+		super("Profiler");
 	}
 
 	@Override
@@ -57,14 +50,12 @@ public class Profiler extends ComponentWindow {
 		super.addComponent(text);
 		super.initApp();
 	}
-
+	
 	@Override
-	public void alwaysUpdateApp(float delta) {
+	public void renderApp() {
 		GPUTaskProfile tp;
-		timer += delta;
-		timerOnTop += delta;
 		while ((tp = GPUProfiler.getFrameResults()) != null) {
-			if (timer > 0.5f) {
+			if (timer > 0.25f) {
 				text.setText(tp.dumpS());
 				timer = 0;
 			}
@@ -74,17 +65,14 @@ public class Profiler extends ComponentWindow {
 			GraphicalSubsystem.getWindowManager().bringToFront(this);
 			timerOnTop = 0;
 		}
-		super.alwaysUpdateApp(delta);
+		super.renderApp();
 	}
 
 	@Override
-	public void processWindowMessage(int message, Object param) {
-		if (message == WindowMessage.WM_RESIZE) {
-			y = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
-			w = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width"));
-			h = (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/height"));
-		}
-		super.processWindowMessage(message, param);
+	public void alwaysUpdateApp(float delta) {
+		timer += delta;
+		timerOnTop += delta;
+		super.alwaysUpdateApp(delta);
 	}
 
 }

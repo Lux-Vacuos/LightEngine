@@ -27,7 +27,7 @@ import static org.lwjgl.stb.STBImage.stbi_image_free;
 import static org.lwjgl.stb.STBImage.stbi_info_from_memory;
 import static org.lwjgl.stb.STBImage.stbi_load_from_memory;
 import static org.lwjgl.system.MemoryStack.stackPush;
-import static org.lwjgl.system.MemoryUtil.NULL;
+import static org.lwjgl.system.MemoryUtil.*;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -96,7 +96,7 @@ public final class WindowManager {
 
 				GLFWImage img = GLFWImage.malloc().set(w.get(0), h.get(0), image);
 				GLFW.glfwSetCursor(windowID, GLFW.glfwCreateCursor(img, 0, 0));
-
+				memFree(imageBuffer);
 				stbi_image_free(image);
 			}
 
@@ -122,6 +122,7 @@ public final class WindowManager {
 					icon.image.flip();
 					iconsbuff.position(i).width(w.get(0)).height(h.get(0)).pixels(icon.image);
 					i++;
+					memFree(imageBuffer);
 				}
 				iconsbuff.position(0);
 				GLFW.glfwSetWindowIcon(windowID, iconsbuff);
@@ -160,7 +161,7 @@ public final class WindowManager {
 		window.nvgID = NanoVGGL3.nvgCreate(nvgFlags);
 
 		if (window.nvgID == NULL)
-			throw new GLFWException("Fail to create NanoVG context for Window '" + handle.title + "'");
+			throw new GLFWException("Failed to create NanoVG context for Window '" + handle.title + "'");
 
 		window.lastLoopTime = getTime();
 		window.resetViewport();

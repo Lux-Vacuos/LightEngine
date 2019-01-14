@@ -27,9 +27,6 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.google.gson.reflect.TypeToken;
 
 public class LanguageRegistry extends PersistentRegistry<String, String> {
@@ -55,8 +52,8 @@ public class LanguageRegistry extends PersistentRegistry<String, String> {
 	}
 
 	@Override
-	@Nullable
-	public String getRegistryItem(@Nonnull String key) {
+	/* @Nullable */
+	public String getRegistryItem(/* @Nonnull */ String key) {
 		String value = super.getRegistryItem(key);
 		return (value == null ? key : value);
 	}

@@ -50,9 +50,9 @@ import com.google.gson.GsonBuilder;
 
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.client.core.ClientTaskManager;
+import net.luxvacuos.lightengine.client.core.exception.GLFWException;
 import net.luxvacuos.lightengine.client.rendering.IRenderer;
 import net.luxvacuos.lightengine.client.rendering.glfw.Icon;
-import net.luxvacuos.lightengine.client.rendering.glfw.PixelBufferHandle;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.glfw.WindowHandle;
 import net.luxvacuos.lightengine.client.rendering.glfw.WindowManager;
@@ -70,7 +70,9 @@ import net.luxvacuos.lightengine.client.resources.DefaultData;
 import net.luxvacuos.lightengine.client.resources.ResourcesManager;
 import net.luxvacuos.lightengine.client.ui.Font;
 import net.luxvacuos.lightengine.universal.core.GlobalVariables;
+import net.luxvacuos.lightengine.universal.core.Task;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
+import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
 import net.luxvacuos.lightengine.universal.core.subsystems.Subsystem;
 import net.luxvacuos.lightengine.universal.loader.EngineData;
@@ -100,16 +102,17 @@ public class GraphicalSubsystem extends Subsystem {
 
 		GLFW.glfwSetErrorCallback(GLFWErrorCallback.createPrint(System.err));
 		if (!glfwInit())
-			throw new IllegalStateException("Unable to initialize GLFW");
+			throw new GLFWException("Unable to initialize GLFW");
+
 		var icons = new Icon[] { new Icon("icon32"), new Icon("icon64") };
 		handle = WindowManager.generateHandle((int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
 				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")), ed.project);
 		handle.isVisible(false).setIcon(icons).setCursor("arrow").useDebugContext(GlobalVariables.debug);
-		var pb = new PixelBufferHandle();
-		pb.setSrgbCapable(1);
-		handle.setPixelBuffer(pb);
+
 		window = WindowManager.generateWindow(handle);
+
 		((ClientTaskManager) TaskManager.tm).switchToSharedContext();
+
 		loadSettings();
 		EventSubsystem.addEvent("lightengine.renderer.savesettings", () -> saveSettings());
 	}
@@ -117,17 +120,23 @@ public class GraphicalSubsystem extends Subsystem {
 	@Override
 	public void initRender() {
 		WindowManager.createWindow(handle, window, renderingSettings.vsyncEnabled);
+		TaskManager.tm.submitRenderBackgroundThread(new Task<Void>() {
+			@Override
+			protected Void call() {
+				REGISTRY.register(new Key("/Light Engine/System/lwjgl"), Version.getVersion());
+				REGISTRY.register(new Key("/Light Engine/System/glfw"), GLFW.glfwGetVersionString());
+				REGISTRY.register(new Key("/Light Engine/System/assimp"),
+						aiGetVersionMajor() + "." + aiGetVersionMinor() + "." + aiGetVersionRevision());
+				REGISTRY.register(new Key("/Light Engine/System/vk"), "Not Available");
 
-		REGISTRY.register(new Key("/Light Engine/System/lwjgl"), Version.getVersion());
-		REGISTRY.register(new Key("/Light Engine/System/glfw"), GLFW.glfwGetVersionString());
-		REGISTRY.register(new Key("/Light Engine/System/assimp"),
-				aiGetVersionMajor() + "." + aiGetVersionMinor() + "." + aiGetVersionRevision());
-		REGISTRY.register(new Key("/Light Engine/System/vk"), "Not Available");
+				REGISTRY.register(new Key("/Light Engine/System/opengl"), glGetString(GL_VERSION));
+				REGISTRY.register(new Key("/Light Engine/System/glsl"), glGetString(GL_SHADING_LANGUAGE_VERSION));
+				REGISTRY.register(new Key("/Light Engine/System/vendor"), glGetString(GL_VENDOR));
+				REGISTRY.register(new Key("/Light Engine/System/renderer"), glGetString(GL_RENDERER));
+				return null;
+			}
+		});
 
-		REGISTRY.register(new Key("/Light Engine/System/opengl"), glGetString(GL_VERSION));
-		REGISTRY.register(new Key("/Light Engine/System/glsl"), glGetString(GL_SHADING_LANGUAGE_VERSION));
-		REGISTRY.register(new Key("/Light Engine/System/vendor"), glGetString(GL_VENDOR));
-		REGISTRY.register(new Key("/Light Engine/System/renderer"), glGetString(GL_RENDERER));
 		renderer = new GLRenderer(renderingSettings);
 
 		ResourcesManager.setBackend(new GLResourcesManagerBackend(window));
@@ -154,10 +163,13 @@ public class GraphicalSubsystem extends Subsystem {
 
 		surfaceManager = new SurfaceManager(window);
 
-		window.getWindowSizeCallback().addCallback((windowID, width, height) -> {
+		window.getSizeCallback().addCallback((windowID, width, height) -> {
 			REGISTRY.register(new Key("/Light Engine/Display/width"), width);
 			REGISTRY.register(new Key("/Light Engine/Display/height"), height);
 			TaskManager.tm.addTaskRenderThread(() -> window.resetViewport());
+		});
+		window.getCloseCallback().addCallback((windowID) -> {
+			StateMachine.stop();
 		});
 	}
 

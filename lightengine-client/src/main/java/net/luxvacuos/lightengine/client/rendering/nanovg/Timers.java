@@ -116,8 +116,6 @@ public class Timers {
 		if(!ENABLED)
 			return;
 		t = glfwGetTime();
-		dt = t - prevt;
-		prevt = t;
 	}
 
 	public static void stopCPUTimer() {
@@ -139,6 +137,9 @@ public class Timers {
 		int n = stopGPUTimer(gpuTimer, gpuTimes, 3);
 		for (int i = 0; i < n; i++)
 			updateGraph(gpuGraph, gpuTimes.get(i));
+		double t = glfwGetTime();
+		dt = t - prevt;
+		prevt = t;
 	}
 
 	public static void update() {
