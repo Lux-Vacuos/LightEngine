@@ -2,7 +2,7 @@
 //
 // This file is part of Light Engine
 //
-// Copyright (C) 2016-2018 Lux Vacuos
+// Copyright (C) 2016-2019 Lux Vacuos
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by

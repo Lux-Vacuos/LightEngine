@@ -1,7 +1,7 @@
 /*
  * This file is part of Light Engine
  * 
- * Copyright (C) 2016-2018 Lux Vacuos
+ * Copyright (C) 2016-2019 Lux Vacuos
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,51 +20,70 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl.objects;
 
+import static org.lwjgl.opengl.GL11C.glBindTexture;
 import static org.lwjgl.opengl.GL11C.glDeleteTextures;
 
-import net.luxvacuos.lightengine.universal.resources.IDisposable;
+public class Texture implements IVisualObject {
 
-/**
- * Texture
- * 
- * @author Guerra24 <pablo230699@hotmail.com>
- * @category Assets
- */
-public class Texture implements IDisposable {
-	/**
-	 * Texture ID
-	 */
-	private int textureID;
+	private final int texture, target;
+	private final int width, height;
 
-	/**
-	 * Constructor, Create a Model Texture
-	 * 
-	 * @param id Texture ID
-	 */
-	public Texture(int id) {
-		this.textureID = id;
+	@Deprecated
+	public Texture(int texture) {
+		this.texture = texture;
+		this.target = -1;
+		this.width = -1;
+		this.height = -1;
 	}
 
-	/**
-	 * Get Texture ID
-	 * 
-	 * @return Texture ID
-	 */
-	public int getID() {
-		return textureID;
+	public Texture(int texture, int target, int width, int height) {
+		this.texture = texture;
+		this.target = target;
+		this.width = width;
+		this.height = height;
+	}
+
+	@Override
+	public void bind() {
+		glBindTexture(target, texture);
+	}
+
+	@Override
+	public void unbind() {
+		glBindTexture(target, 0);
 	}
 
 	@Override
 	public void dispose() {
-		glDeleteTextures(textureID);
+		glDeleteTextures(texture);
+	}
+
+	public int getTexture() {
+		return texture;
+	}
+
+	@Override
+	public int getWidth() {
+		return width;
+	}
+
+	@Override
+	public int getHeight() {
+		return height;
+	}
+
+	@Deprecated
+	public int getID() {
+		return texture;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof Texture))
-			return false;
-		Texture t = (Texture) obj;
-		return t.getID() == textureID;
+		if (obj instanceof Texture) {
+			Texture t = (Texture) obj;
+			return t.getTexture() == texture;
+		}
+		return false;
 	}
 
 }
