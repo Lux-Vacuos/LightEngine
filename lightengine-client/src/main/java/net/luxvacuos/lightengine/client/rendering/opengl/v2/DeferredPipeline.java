@@ -21,6 +21,7 @@
 package net.luxvacuos.lightengine.client.rendering.opengl.v2;
 
 import static org.lwjgl.opengl.GL11C.GL_DEPTH_COMPONENT;
+import static org.lwjgl.opengl.GL11C.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11C.GL_FLOAT;
 import static org.lwjgl.opengl.GL11C.GL_LINEAR;
 import static org.lwjgl.opengl.GL11C.GL_RGB;
@@ -31,7 +32,10 @@ import static org.lwjgl.opengl.GL11C.GL_TEXTURE_MIN_FILTER;
 import static org.lwjgl.opengl.GL11C.GL_TEXTURE_WRAP_S;
 import static org.lwjgl.opengl.GL11C.GL_TEXTURE_WRAP_T;
 import static org.lwjgl.opengl.GL11C.GL_UNSIGNED_BYTE;
+import static org.lwjgl.opengl.GL11C.glDisable;
+import static org.lwjgl.opengl.GL11C.glEnable;
 import static org.lwjgl.opengl.GL12C.GL_CLAMP_TO_EDGE;
+import static org.lwjgl.opengl.GL15C.GL_STATIC_DRAW;
 import static org.lwjgl.opengl.GL30.GL_COLOR_ATTACHMENT0;
 import static org.lwjgl.opengl.GL30.GL_COLOR_ATTACHMENT1;
 import static org.lwjgl.opengl.GL30.GL_COLOR_ATTACHMENT2;
@@ -48,6 +52,7 @@ import net.luxvacuos.lightengine.client.rendering.opengl.objects.Framebuffer;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.FramebufferBuilder;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.TextureBuilder;
+import net.luxvacuos.lightengine.client.rendering.opengl.objects.VAO;
 
 public class DeferredPipeline {
 
@@ -57,21 +62,48 @@ public class DeferredPipeline {
 	private Framebuffer main;
 	private Texture diffuseTex, positionTex, normalTex, pbrTex, maskTex, depthTex;
 
+	private VAO quad;
+
 	public DeferredPipeline(int width, int height) {
 		this.width = width;
 		this.height = height;
 	}
-	
-	public void begin() {
+
+	public void init() {
+		int[] positions = { -1, 1, -1, -1, 1, 1, 1, -1 };
+		quad = VAO.create();
+		quad.bind();
+		quad.createAttribute(0, positions, 2, GL_STATIC_DRAW);
+		quad.unbind();
+	}
+
+	public void bind() {
 		main.bind();
 	}
-	
-	public void end() {
+
+	public void unbind() {
 		main.unbind();
+	}
+
+	public void process() {
+		glDisable(GL_DEPTH_TEST);
+		quad.bind(0);
+		// TODO: Process passes
+		quad.unbind(0);
+		glEnable(GL_DEPTH_TEST);
+	}
+
+	public void resize(int width, int height) {
+		this.width = width;
+		this.height = height;
+		disposePipeline();
+		generatePipeline();
+		// TODO: Resize shaders...
 	}
 
 	public void dispose() {
 		disposePipeline();
+		quad.dispose();
 	}
 
 	private void generatePipeline() {
@@ -139,7 +171,7 @@ public class DeferredPipeline {
 		fb.drawBuffers(bufs);
 		main = fb.endFramebuffer();
 	}
-	
+
 	private void disposePipeline() {
 		main.dispose();
 		diffuseTex.dispose();
