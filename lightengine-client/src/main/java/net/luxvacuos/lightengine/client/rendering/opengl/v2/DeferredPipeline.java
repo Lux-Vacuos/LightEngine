@@ -20,6 +20,11 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl.v2;
 
+import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_NEAREST;
+import static org.lwjgl.opengl.GL11.GL_TRIANGLE_STRIP;
+import static org.lwjgl.opengl.GL11.glBindTexture;
+import static org.lwjgl.opengl.GL11.glDrawArrays;
 import static org.lwjgl.opengl.GL11C.GL_DEPTH_COMPONENT;
 import static org.lwjgl.opengl.GL11C.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11C.GL_FLOAT;
@@ -35,12 +40,18 @@ import static org.lwjgl.opengl.GL11C.GL_UNSIGNED_BYTE;
 import static org.lwjgl.opengl.GL11C.glDisable;
 import static org.lwjgl.opengl.GL11C.glEnable;
 import static org.lwjgl.opengl.GL12C.GL_CLAMP_TO_EDGE;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE6;
+import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL15C.GL_STATIC_DRAW;
 import static org.lwjgl.opengl.GL30.GL_COLOR_ATTACHMENT0;
 import static org.lwjgl.opengl.GL30.GL_COLOR_ATTACHMENT1;
 import static org.lwjgl.opengl.GL30.GL_COLOR_ATTACHMENT2;
 import static org.lwjgl.opengl.GL30.GL_COLOR_ATTACHMENT3;
 import static org.lwjgl.opengl.GL30.GL_COLOR_ATTACHMENT4;
+import static org.lwjgl.opengl.GL30.GL_DRAW_FRAMEBUFFER;
+import static org.lwjgl.opengl.GL30.GL_READ_FRAMEBUFFER;
+import static org.lwjgl.opengl.GL30.glBindFramebuffer;
+import static org.lwjgl.opengl.GL30.glBlitFramebuffer;
 import static org.lwjgl.opengl.GL30C.GL_DEPTH_ATTACHMENT;
 import static org.lwjgl.opengl.GL30C.GL_DEPTH_COMPONENT32F;
 import static org.lwjgl.opengl.GL30C.GL_RG;
@@ -48,34 +59,61 @@ import static org.lwjgl.opengl.GL30C.GL_RGB16F;
 import static org.lwjgl.opengl.GL30C.GL_RGB32F;
 import static org.lwjgl.opengl.GL30C.GL_RGBA16F;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.joml.Vector2f;
+
+import net.luxvacuos.lightengine.client.network.IRenderingData;
+import net.luxvacuos.lightengine.client.rendering.opengl.FBO;
+import net.luxvacuos.lightengine.client.rendering.opengl.RendererData;
+import net.luxvacuos.lightengine.client.rendering.opengl.RenderingSettings;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Framebuffer;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.FramebufferBuilder;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.TextureBuilder;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.VAO;
+import net.luxvacuos.lightengine.client.rendering.opengl.shaders.DeferredPipelineShader;
 
-public class DeferredPipeline {
+public abstract class DeferredPipeline {
 
-	private int width, height;
-	private Framebuffer[] auxbuffers;
+	protected int width, height;
+	private Texture[] auxTex;
+
+	protected List<DeferredPass<?>> passes;
 
 	private Framebuffer main;
 	private Texture diffuseTex, positionTex, normalTex, pbrTex, maskTex, depthTex;
 
 	private VAO quad;
 
+	private DeferredPipelineShader finalShader;
+
 	public DeferredPipeline(int width, int height) {
 		this.width = width;
 		this.height = height;
+		passes = new ArrayList<>();
+		auxTex = new Texture[3];
+		init();
 	}
 
 	public void init() {
-		int[] positions = { -1, 1, -1, -1, 1, 1, 1, -1 };
+		float[] positions = { -1, 1, -1, -1, 1, 1, 1, -1 };
 		quad = VAO.create();
 		quad.bind();
 		quad.createAttribute(0, positions, 2, GL_STATIC_DRAW);
 		quad.unbind();
+		generatePipeline();
+		setupPasses();
+		for (DeferredPass<?> pass : passes)
+			pass.init(width, height);
+		finalShader = new DeferredPipelineShader("Final");
+		finalShader.start();
+		finalShader.loadResolution(new Vector2f(width, height));
+		finalShader.stop();
 	}
+
+	public abstract void setupPasses();
 
 	public void bind() {
 		main.bind();
@@ -85,12 +123,26 @@ public class DeferredPipeline {
 		main.unbind();
 	}
 
-	public void process() {
+	public void process(RenderingSettings rs, RendererData rnd, IRenderingData rd) {
 		glDisable(GL_DEPTH_TEST);
 		quad.bind(0);
-		// TODO: Process passes
+		for (DeferredPass<?> pass : passes)
+			pass.process(rs, rnd, rd, this, auxTex, quad);
 		quad.unbind(0);
 		glEnable(GL_DEPTH_TEST);
+	}
+
+	public void render(FBO postProcess) {
+		finalShader.start();
+		quad.bind(0);
+		glActiveTexture(GL_TEXTURE6);
+		glBindTexture(GL_TEXTURE_2D, auxTex[0].getTexture());
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		quad.unbind(0);
+		finalShader.stop();
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, main.getFramebuffer());
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, postProcess.getFbo());
+		glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 	}
 
 	public void resize(int width, int height) {
@@ -98,12 +150,19 @@ public class DeferredPipeline {
 		this.height = height;
 		disposePipeline();
 		generatePipeline();
-		// TODO: Resize shaders...
+		for (DeferredPass<?> pass : passes)
+			pass.resize(width, height);
+		finalShader.start();
+		finalShader.loadResolution(new Vector2f(width, height));
+		finalShader.stop();
 	}
 
 	public void dispose() {
 		disposePipeline();
+		for (DeferredPass<?> pass : passes)
+			pass.dispose();
 		quad.dispose();
+		finalShader.dispose();
 	}
 
 	private void generatePipeline() {
@@ -180,6 +239,30 @@ public class DeferredPipeline {
 		pbrTex.dispose();
 		maskTex.dispose();
 		depthTex.dispose();
+	}
+
+	public Texture getDiffuseTex() {
+		return diffuseTex;
+	}
+
+	public Texture getPositionTex() {
+		return positionTex;
+	}
+
+	public Texture getNormalTex() {
+		return normalTex;
+	}
+
+	public Texture getPbrTex() {
+		return pbrTex;
+	}
+
+	public Texture getMaskTex() {
+		return maskTex;
+	}
+
+	public Texture getDepthTex() {
+		return depthTex;
 	}
 
 }

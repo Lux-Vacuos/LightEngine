@@ -20,13 +20,12 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl.pipeline;
 
-import net.luxvacuos.lightengine.client.rendering.glfw.Window;
-import net.luxvacuos.lightengine.client.rendering.opengl.DeferredPipeline;
+import net.luxvacuos.lightengine.client.rendering.opengl.v2.DeferredPipeline;
 
 public class MultiPass extends DeferredPipeline {
 
-	public MultiPass(Window window) {
-		super("MultiPass", window);
+	public MultiPass(int width, int height) {
+		super(width, height);
 	}
 
 	private Lighting lighting;
@@ -41,58 +40,57 @@ public class MultiPass extends DeferredPipeline {
 	private Bloom bloom;
 	private PointLightPass pointLightPass;
 
-	@Override
-	public void init() {
-		volumetricLight = new VolumetricLight("VolumetricLight", width / 2, height / 2) {
+	public void setupPasses() {
+		volumetricLight = new VolumetricLight() {
 			@Override
 			public void resize(int width, int height) {
 				super.resize(width / 2, height / 2);
 			}
 		};
-		super.imagePasses.add(volumetricLight);
+		super.passes.add(volumetricLight);
 
-		gH1 = new GaussianHorizonal("GaussianHorizontal", width / 2, height / 2) {
+		gH1 = new GaussianHorizonal() {
 			@Override
 			public void resize(int width, int height) {
 				super.resize(width / 2, height / 2);
 			}
 		};
-		super.imagePasses.add(gH1);
+		super.passes.add(gH1);
 
-		gV1 = new GaussianVertical("GaussianVertical", width / 2, height / 2) {
+		gV1 = new GaussianVertical() {
 			@Override
 			public void resize(int width, int height) {
 				super.resize(width / 2, height / 2);
 			}
 		};
-		super.imagePasses.add(gV1);
+		super.passes.add(gV1);
 
-		lighting = new Lighting("Lighting", width, height);
-		super.imagePasses.add(lighting);
+		lighting = new Lighting();
+		super.passes.add(lighting);
 
-		pointLightPass = new PointLightPass("PointLight", width, height);
-		super.imagePasses.add(pointLightPass);
+		// pointLightPass = new PointLightPass("PointLight", width, height);
+		// super.passes.add(pointLightPass);
 
-		reflections = new Reflections("Reflections", width, height);
-		super.imagePasses.add(reflections);
+		reflections = new Reflections();
+		super.passes.add(reflections);
 
-		bloomMask = new BloomMask("BloomMask", width, height);
-		super.imagePasses.add(bloomMask);
+		bloomMask = new BloomMask();
+		super.passes.add(bloomMask);
 
-		super.imagePasses.add(gH1);
-		super.imagePasses.add(gV1);
+		super.passes.add(gH1);
+		super.passes.add(gV1);
 
-		bloom = new Bloom("Bloom", width, height);
-		super.imagePasses.add(bloom);
+		bloom = new Bloom();
+		super.passes.add(bloom);
 
-		lensFlares = new LensFlares("LensFlares", width, height);
-		super.imagePasses.add(lensFlares);
+		lensFlares = new LensFlares();
+		super.passes.add(lensFlares);
 
-		lensFlareMod = new LensFlareMod("LensFlaresMod", width, height);
-		super.imagePasses.add(lensFlareMod);
+		lensFlareMod = new LensFlareMod();
+		super.passes.add(lensFlareMod);
 
-		colorCorrection = new ColorCorrection("ColorCorrection", width, height);
-		super.imagePasses.add(colorCorrection);
+		colorCorrection = new ColorCorrection();
+		super.passes.add(colorCorrection);
 
 	}
 

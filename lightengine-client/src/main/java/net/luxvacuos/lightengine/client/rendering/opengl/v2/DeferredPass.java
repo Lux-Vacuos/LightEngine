@@ -38,23 +38,25 @@ import static org.lwjgl.opengl.GL30C.GL_RGBA16F;
 
 import org.joml.Vector2f;
 
+import net.luxvacuos.lightengine.client.network.IRenderingData;
 import net.luxvacuos.lightengine.client.rendering.opengl.GPUProfiler;
+import net.luxvacuos.lightengine.client.rendering.opengl.RendererData;
 import net.luxvacuos.lightengine.client.rendering.opengl.RenderingSettings;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Framebuffer;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.FramebufferBuilder;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.TextureBuilder;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.VAO;
-import net.luxvacuos.lightengine.client.rendering.opengl.shaders.DeferredPipelineShader;
+import net.luxvacuos.lightengine.client.rendering.opengl.shaders.BasePipelineShader;
 
-public class DeferredPass {
+public abstract class DeferredPass<T extends BasePipelineShader> {
 
 	private Framebuffer mainBuf;
 	private Texture mainTex;
 
-	private DeferredPipelineShader shader;
+	private T shader;
 
-	private String name;
+	protected String name;
 
 	public DeferredPass(String name) {
 		this.name = name;
@@ -62,26 +64,33 @@ public class DeferredPass {
 
 	public void init(int width, int height) {
 		generateFramebuffer(width, height);
-		shader = new DeferredPipelineShader(name);
+		shader = setupShader();
 		shader.start();
 		shader.loadResolution(new Vector2f(width, height));
 		shader.stop();
 	}
 
-	public void process(RenderingSettings rs, VAO quad) {
+	public void process(RenderingSettings rs, RendererData rnd, IRenderingData rd, DeferredPipeline dp,
+			Texture[] auxTex, VAO quad) {
 		GPUProfiler.start(name);
 		mainBuf.bind();
 		glClear(GL_COLOR_BUFFER_BIT);
 		shader.start();
-
-		// TODO: Load the other stuff
 		shader.loadSettings(rs);
-		// TODO: Setup image buffers
+		setupShaderData(rnd, rd, shader);
+		setupTextures(rnd, dp, auxTex);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		shader.stop();
 		mainBuf.unbind();
 		GPUProfiler.end();
+		auxTex[0] = mainTex;
 	}
+
+	protected abstract T setupShader();
+
+	protected abstract void setupShaderData(RendererData rnd, IRenderingData rd, T shader);
+
+	protected abstract void setupTextures(RendererData rnd, DeferredPipeline dp, Texture[] auxTex);
 
 	public void resize(int width, int height) {
 		disposeFramebuffer();
@@ -93,6 +102,7 @@ public class DeferredPass {
 
 	public void dispose() {
 		disposeFramebuffer();
+		shader.dispose();
 	}
 
 	private void generateFramebuffer(int width, int height) {
@@ -104,6 +114,7 @@ public class DeferredPass {
 		tb.texParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		tb.texParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		tb.texParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		mainTex = tb.endTexture();
 
 		var fb = new FramebufferBuilder();
 

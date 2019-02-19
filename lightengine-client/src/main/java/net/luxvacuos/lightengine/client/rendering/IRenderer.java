@@ -20,7 +20,7 @@
 
 package net.luxvacuos.lightengine.client.rendering;
 
-import net.luxvacuos.lightengine.client.network.IRenderData;
+import net.luxvacuos.lightengine.client.network.IRenderingData;
 import net.luxvacuos.lightengine.client.rendering.nanovg.IWindow;
 import net.luxvacuos.lightengine.client.rendering.opengl.Frustum;
 import net.luxvacuos.lightengine.client.rendering.opengl.IRenderPass.IForwardPass;
@@ -32,7 +32,7 @@ public interface IRenderer {
 
 	public void init();
 
-	public void render(IRenderData renderData, float delta);
+	public void render(IRenderingData rd, float delta);
 
 	public void resize(int width, int height);
 

@@ -23,23 +23,19 @@ package net.luxvacuos.lightengine.client.rendering.opengl.shaders;
 import java.util.List;
 
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
-import net.luxvacuos.lightengine.client.rendering.opengl.RenderingSettings;
+import net.luxvacuos.lightengine.client.ecs.entities.SunCamera;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Light;
-import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.Attribute;
-import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformBoolean;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformFloat;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformInteger;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformLight;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformMatrix;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformSampler;
-import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformVec2;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformVec3;
 
-public class DeferredPipelineShader extends ShaderProgram {
+public class DeferredPipelineShader extends BasePipelineShader {
 
 	private UniformMatrix projectionMatrix = new UniformMatrix("projectionMatrix");
 	private UniformMatrix viewMatrix = new UniformMatrix("viewMatrix");
@@ -56,22 +52,8 @@ public class DeferredPipelineShader extends ShaderProgram {
 	private UniformLight lights[];
 	private UniformInteger totalLights = new UniformInteger("totalLights");
 
-	private UniformVec2 resolution = new UniformVec2("resolution");
-
 	private UniformFloat exposure = new UniformFloat("exposure");
 	private UniformFloat time = new UniformFloat("time");
-
-	private UniformInteger shadowDrawDistance = new UniformInteger("shadowDrawDistance");
-
-	private UniformBoolean useFXAA = new UniformBoolean("useFXAA");
-	private UniformBoolean useDOF = new UniformBoolean("useDOF");
-	private UniformBoolean useMotionBlur = new UniformBoolean("useMotionBlur");
-	private UniformBoolean useReflections = new UniformBoolean("useReflections");
-	private UniformBoolean useVolumetricLight = new UniformBoolean("useVolumetricLight");
-	private UniformBoolean useAmbientOcclusion = new UniformBoolean("useAmbientOcclusion");
-	private UniformBoolean useChromaticAberration = new UniformBoolean("useChromaticAberration");
-	private UniformBoolean useLensFlares = new UniformBoolean("useLensFlares");
-	private UniformBoolean useShadows = new UniformBoolean("useShadows");
 
 	private UniformSampler gDiffuse = new UniformSampler("gDiffuse");
 	private UniformSampler gPosition = new UniformSampler("gPosition");
@@ -92,25 +74,27 @@ public class DeferredPipelineShader extends ShaderProgram {
 	private Matrix4f biasM;
 
 	public DeferredPipelineShader(String name) {
-		super("deferred/" + name + ".vs", "deferred/" + name + ".fs", new Attribute(0, "position"));
-		super.storeUniformArray(lights);
+		super("deferred/" + name);
+		lights = new UniformLight[18];
+		for (int x = 0; x < 18; x++) {
+			lights[x] = new UniformLight("lights[" + x + "]");
+		}
+		super.storeUniforms(lights);
 		projectionLightMatrix = new UniformMatrix[4];
 		for (int x = 0; x < 4; x++) {
 			projectionLightMatrix[x] = new UniformMatrix("projectionLightMatrix[" + x + "]");
 		}
-		super.storeUniformArray(projectionLightMatrix);
+		super.storeUniforms(projectionLightMatrix);
 		shadowMap = new UniformSampler[4];
 		for (int x = 0; x < 4; x++) {
 			shadowMap[x] = new UniformSampler("shadowMap[" + x + "]");
 		}
-		super.storeUniformArray(shadowMap);
-		super.storeAllUniformLocations(projectionMatrix, viewMatrix, inverseProjectionMatrix, inverseViewMatrix,
+		super.storeUniforms(shadowMap);
+		super.storeUniforms(projectionMatrix, viewMatrix, inverseProjectionMatrix, inverseViewMatrix,
 				previousViewMatrix, cameraPosition, previousCameraPosition, lightPosition, invertedLightPosition,
-				skyColor, resolution, exposure, time, shadowDrawDistance, useFXAA, useDOF, useMotionBlur,
-				useReflections, useVolumetricLight, useAmbientOcclusion, gDiffuse, gPosition, gNormal, gDepth, gPBR,
-				gMask, composite0, composite1, composite2, totalLights, useChromaticAberration, composite3,
-				useLensFlares, biasMatrix, viewLightMatrix, useShadows);
-		connectTextureUnits();
+				skyColor, exposure, time, gDiffuse, gPosition, gNormal, gDepth, gPBR, gMask, composite0, composite1,
+				composite2, totalLights, composite3, biasMatrix, viewLightMatrix);
+		super.validate();
 		biasM = new Matrix4f();
 		biasM.m00(0.5f);
 		biasM.m11(0.5f);
@@ -118,6 +102,7 @@ public class DeferredPipelineShader extends ShaderProgram {
 		biasM.m30(0.5f);
 		biasM.m31(0.5f);
 		biasM.m32(0.5f);
+		connectTextureUnits();
 	}
 
 	private void connectTextureUnits() {
@@ -136,6 +121,7 @@ public class DeferredPipelineShader extends ShaderProgram {
 		shadowMap[1].loadTexUnit(11);
 		shadowMap[2].loadTexUnit(12);
 		shadowMap[3].loadTexUnit(13);
+		biasMatrix.loadMatrix(biasM);
 		super.stop();
 	}
 
@@ -153,51 +139,25 @@ public class DeferredPipelineShader extends ShaderProgram {
 	}
 
 	public void loadPointLightsPos(List<Light> lights) {
-		for (int x = 0; x < lights.size(); x++) {
+		for (int x = 0; x < lights.size(); x++)
 			this.lights[x].loadLight(lights.get(x), 14, x);
-		}
 		totalLights.loadInteger(lights.size());
 	}
 
-	public void loadBiasMatrix(Matrix4f[] shadowProjectionMatrix) {
-		this.biasMatrix.loadMatrix(biasM);
-		for (int x = 0; x < 4; x++) {
-			this.projectionLightMatrix[x].loadMatrix(shadowProjectionMatrix[x]);
-		}
+	public void loadSunCameraData(SunCamera camera) {
+		for (int x = 0; x < 4; x++)
+			this.projectionLightMatrix[x].loadMatrix(camera.getProjectionArray()[x]);
+		viewLightMatrix.loadMatrix(camera.getViewMatrix());
 	}
 
-	public void loadLightMatrix(Matrix4f sunCameraViewMatrix) {
-		viewLightMatrix.loadMatrix(sunCameraViewMatrix);
-	}
-
-	public void loadResolution(Vector2f res) {
-		resolution.loadVec2(res);
-	}
-
-	public void loadSettings(RenderingSettings rs) {
-		this.useDOF.loadBoolean(rs.depthOfFieldEnabled);
-		this.useFXAA.loadBoolean(rs.fxaaEnabled);
-		this.useMotionBlur.loadBoolean(rs.motionBlurEnabled);
-		this.useVolumetricLight.loadBoolean(rs.volumetricLightEnabled);
-		this.useReflections.loadBoolean(rs.ssrEnabled);
-		this.useAmbientOcclusion.loadBoolean(rs.ambientOcclusionEnabled);
-		this.shadowDrawDistance.loadInteger(rs.shadowsDrawDistance);
-		this.useChromaticAberration.loadBoolean(rs.chromaticAberrationEnabled);
-		this.useLensFlares.loadBoolean(rs.lensFlaresEnabled);
-		this.useShadows.loadBoolean(rs.shadowsEnabled);
-	}
-
-	public void loadMotionBlurData(CameraEntity camera, Matrix4f previousViewMatrix, Vector3f previousCameraPosition) {
+	public void loadCameraData(CameraEntity camera, Matrix4f previousViewMatrix, Vector3f previousCameraPosition) {
 		this.projectionMatrix.loadMatrix(camera.getProjectionMatrix());
+		this.viewMatrix.loadMatrix(camera.getViewMatrix());
+		this.cameraPosition.loadVec3(camera.getPosition());
 		this.inverseProjectionMatrix.loadMatrix(camera.getProjectionMatrix().invert(new Matrix4f()));
 		this.inverseViewMatrix.loadMatrix(camera.getViewMatrix().invert(new Matrix4f()));
-		this.previousViewMatrix.loadMatrix(previousViewMatrix);
-		this.cameraPosition.loadVec3(camera.getPosition());
-		this.previousCameraPosition.loadVec3(previousCameraPosition);
-	}
-
-	public void loadviewMatrix(CameraEntity camera) {
-		this.viewMatrix.loadMatrix(camera.getViewMatrix());
+		// this.previousViewMatrix.loadMatrix(previousViewMatrix);
+		// this.previousCameraPosition.loadVec3(previousCameraPosition);
 	}
 
 }

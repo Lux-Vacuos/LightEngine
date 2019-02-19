@@ -22,29 +22,16 @@ package net.luxvacuos.lightengine.client.rendering.opengl;
 
 import java.util.List;
 
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
-
-import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
-import net.luxvacuos.lightengine.client.ecs.entities.Sun;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CubeMapTexture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Light;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
-import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
-import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
-public interface IDeferredPass extends IDisposable {
+public class RendererData {
 
-	public void init();
+	public List<Light> lights;
+	public CubeMapTexture irradianceCapture, environmentMap;
+	public Texture brdfLUT;
+	public ShadowFBO shadow;
+	public float exposure;
 
-	public void process(CameraEntity camera, Sun sun, Matrix4f previousViewMatrix, Vector3f previousCameraPosition,
-			IWorldSimulation clientWorldSimulation, List<Light> lights, FBO[] auxs, IDeferredPipeline pipe,
-			RawModel quad, CubeMapTexture irradianceCapture, CubeMapTexture environmentMap, Texture brdfLUT,
-			ShadowFBO shadowFBO, float exposure);
-
-	public void render(FBO[] auxs, IDeferredPipeline pipe, CubeMapTexture irradianceCapture,
-			CubeMapTexture environmentMap, Texture brdfLUT, ShadowFBO shadow);
-	
-	public void resize(int width, int height);
 }

@@ -52,7 +52,7 @@ import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.Sun;
 import net.luxvacuos.lightengine.client.ecs.entities.SunCamera;
-import net.luxvacuos.lightengine.client.network.IRenderData;
+import net.luxvacuos.lightengine.client.network.IRenderingData;
 import net.luxvacuos.lightengine.client.rendering.IRenderer;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.nanovg.IWindow;
@@ -63,6 +63,7 @@ import net.luxvacuos.lightengine.client.rendering.opengl.objects.Light;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.WaterTile;
 import net.luxvacuos.lightengine.client.rendering.opengl.pipeline.MultiPass;
 import net.luxvacuos.lightengine.client.rendering.opengl.pipeline.PostProcess;
+import net.luxvacuos.lightengine.client.rendering.opengl.v2.DeferredPipeline;
 import net.luxvacuos.lightengine.client.ui.windows.GLGameWindow;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
@@ -84,9 +85,10 @@ public class GLRenderer implements IRenderer {
 	private LightRenderer lightRenderer;
 	private RenderingManager renderingManager;
 
-	private IDeferredPipeline deferredPipeline;
 	private IPostProcessPipeline postProcessPipeline;
 	private static ShadowFBO shadowFBO;
+
+	private DeferredPipeline dp;
 
 	private Frustum frustum;
 	private Window window;
@@ -106,8 +108,11 @@ public class GLRenderer implements IRenderer {
 
 	private RenderingSettings rs;
 
+	private RendererData rnd;
+
 	public GLRenderer(RenderingSettings rs) {
 		this.rs = rs;
+		rnd = new RendererData();
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
@@ -131,25 +136,38 @@ public class GLRenderer implements IRenderer {
 				() -> envRenderer = new EnvironmentRenderer(loader.createEmptyCubeMap(32, true, false)));
 		TaskManager.tm.addTaskRenderThread(
 				() -> envRendererEntities = new EnvironmentRenderer(loader.createEmptyCubeMap(128, true, false)));
-		TaskManager.tm.addTaskRenderThread(() -> irradianceCapture = new IrradianceCapture(loader));
-		TaskManager.tm.addTaskRenderThread(
-				() -> preFilteredEnvironment = new PreFilteredEnvironment(loader.createEmptyCubeMap(128, true, true),
-						window));
+		TaskManager.tm.addTaskRenderThread(() -> {
+			irradianceCapture = new IrradianceCapture(loader);
+			rnd.irradianceCapture = irradianceCapture.getCubeMapTexture();
+		});
+		TaskManager.tm.addTaskRenderThread(() -> {
+			preFilteredEnvironment = new PreFilteredEnvironment(loader.createEmptyCubeMap(128, true, true), window);
+			rnd.brdfLUT = preFilteredEnvironment.getBRDFLUT();
+			rnd.environmentMap = preFilteredEnvironment.getCubeMapTexture();
+		});
 
 		TaskManager.tm.addTaskRenderThread(() -> particleRenderer = new ParticleRenderer(loader));
 		TaskManager.tm.addTaskRenderThread(() -> skyboxRenderer = new SkyboxRenderer(loader));
 		TaskManager.tm.addTaskRenderThread(() -> waterRenderer = new WaterRenderer(loader));
 		TaskManager.tm.addTaskRenderThread(() -> renderingManager.addRenderer(new EntityRenderer()));
 
-		TaskManager.tm.addTaskRenderThread(() -> deferredPipeline = new MultiPass(window));
 		TaskManager.tm.addTaskRenderThread(() -> postProcessPipeline = new PostProcess(window));
-		TaskManager.tm.addTaskRenderThread(() -> shadowFBO = new ShadowFBO(rs.shadowsResolution, rs.shadowsResolution));
+		TaskManager.tm.addTaskRenderThread(() -> {
+			shadowFBO = new ShadowFBO(rs.shadowsResolution, rs.shadowsResolution);
+			rnd.shadow = shadowFBO;
+		});
+
+		TaskManager.tm.addTaskRenderThread(() -> dp = new MultiPass(window.getWidth(), window.getHeight()));
 
 		shadowMap = EventSubsystem.addEvent("lightengine.renderer.resetshadowmap",
 				() -> TaskManager.tm.addTaskRenderThread(() -> {
 					shadowFBO.dispose();
 					shadowFBO = new ShadowFBO(rs.shadowsResolution, rs.shadowsResolution);
+					rnd.shadow = shadowFBO;
 				}));
+
+		rnd.lights = lightRenderer.getLights();
+		rnd.exposure = exposure;
 
 		TaskManager.tm.addTaskRenderThread(() -> {
 			enabled = true;
@@ -160,7 +178,7 @@ public class GLRenderer implements IRenderer {
 		});
 	}
 
-	private void shadowPass(IRenderData rd) {
+	private void shadowPass(IRenderingData rd) {
 		GPUProfiler.start("Shadow Pass");
 		SunCamera sunCamera = rd.getSun().getCamera();
 		if (rs.shadowsEnabled) {
@@ -218,7 +236,7 @@ public class GLRenderer implements IRenderer {
 		GPUProfiler.end();
 	}
 
-	private void environmentPass(IRenderData rd) {
+	private void environmentPass(IRenderingData rd) {
 		CameraEntity camera = rd.getCamera();
 		IWorldSimulation worldSimulation = rd.getWorldSimulation();
 		Sun sun = rd.getSun();
@@ -230,7 +248,7 @@ public class GLRenderer implements IRenderer {
 				window);
 		GPUProfiler.end();
 		GPUProfiler.start("Irradiance Capture");
-		irradianceCapture.render(window, envRenderer.getCubeMapTexture().getID());
+		irradianceCapture.render(window, envRenderer.getCubeMapTexture().getTexture());
 		GPUProfiler.end();
 		GPUProfiler.end();
 		GPUProfiler.start("Reflections");
@@ -240,7 +258,7 @@ public class GLRenderer implements IRenderer {
 				preFilteredEnvironment.getCubeMapTexture(), preFilteredEnvironment.getBRDFLUT(), window);
 		GPUProfiler.end();
 		GPUProfiler.start("PreFilteredEnvironment");
-		preFilteredEnvironment.render(window, envRendererEntities.getCubeMapTexture().getID());
+		preFilteredEnvironment.render(window, envRendererEntities.getCubeMapTexture().getTexture());
 		GPUProfiler.end();
 		GPUProfiler.end();
 		GPUProfiler.end();
@@ -253,7 +271,7 @@ public class GLRenderer implements IRenderer {
 		GPUProfiler.end();
 	}
 
-	private void gBufferPass(IRenderData rd) {
+	private void gBufferPass(IRenderingData rd) {
 		List<WaterTile> waterTiles = null;
 		CameraEntity camera = rd.getCamera();
 		IWorldSimulation worldSimulation = rd.getWorldSimulation();
@@ -261,7 +279,7 @@ public class GLRenderer implements IRenderer {
 
 		GPUProfiler.start("G-Buffer pass");
 		ARBClipControl.glClipControl(ARBClipControl.GL_LOWER_LEFT, ARBClipControl.GL_ZERO_TO_ONE);
-		deferredPipeline.begin();
+		dp.bind();
 		glDepthFunc(GL_GREATER);
 		glClearDepth(0.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -279,24 +297,18 @@ public class GLRenderer implements IRenderer {
 		GPUProfiler.end();
 		glClearDepth(1.0);
 		glDepthFunc(GL_LESS);
-		deferredPipeline.end();
+		dp.unbind();
 		ARBClipControl.glClipControl(ARBClipControl.GL_LOWER_LEFT, ARBClipControl.GL_NEGATIVE_ONE_TO_ONE);
 		GPUProfiler.end();
 	}
 
-	private void deferredPass(IRenderData rd) {
-		CameraEntity camera = rd.getCamera();
-		IWorldSimulation worldSimulation = rd.getWorldSimulation();
-		Sun sun = rd.getSun();
-
+	private void deferredPass(IRenderingData rd) {
 		GPUProfiler.start("Deferred Pass");
-		deferredPipeline.preRender(camera, sun, worldSimulation, lightRenderer.getLights(),
-				irradianceCapture.getCubeMapTexture(), preFilteredEnvironment.getCubeMapTexture(),
-				preFilteredEnvironment.getBRDFLUT(), shadowFBO, exposure);
+		dp.process(rs, rnd, rd);
 		GPUProfiler.end();
 	}
 
-	private void forwardPass(IRenderData rd) {
+	private void forwardPass(IRenderingData rd) {
 		CameraEntity camera = rd.getCamera();
 		Sun sun = rd.getSun();
 
@@ -306,7 +318,7 @@ public class GLRenderer implements IRenderer {
 		glDepthFunc(GL_GREATER);
 		glClearDepth(0.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		deferredPipeline.render(postProcessPipeline.getFBO());
+		dp.render(postProcessPipeline.getFBO());
 		GPUProfiler.start("External");
 		forwardPass.forwardPass(camera, sun, shadowFBO, irradianceCapture.getCubeMapTexture(),
 				preFilteredEnvironment.getCubeMapTexture(), preFilteredEnvironment.getBRDFLUT());
@@ -325,18 +337,18 @@ public class GLRenderer implements IRenderer {
 		GPUProfiler.end();
 	}
 
-	private void postFXPass(IRenderData rd) {
+	private void postFXPass(IRenderingData rd) {
 		GPUProfiler.start("PostFX");
 		postProcessPipeline.preRender(rd.getCamera());
 		GPUProfiler.end();
 	}
 
 	@Override
-	public void render(IRenderData renderData, float delta) {
+	public void render(IRenderingData rd, float delta) {
 		if (!enabled)
 			return;
-		ImmutableArray<Entity> entitiesT = renderData.getEngine().getEntities();
-		CameraEntity camera = renderData.getCamera();
+		ImmutableArray<Entity> entitiesT = rd.getEngine().getEntities();
+		CameraEntity camera = rd.getCamera();
 
 		Array<Entity> entitiesR = new Array<>(entitiesT.toArray(Entity.class));
 		ImmutableArray<Entity> entities = new ImmutableArray<>(entitiesR);
@@ -345,19 +357,19 @@ public class GLRenderer implements IRenderer {
 
 		GPUProfiler.start("3D Renderer");
 
-		shadowPass(renderData);
+		shadowPass(rd);
 
-		environmentPass(renderData);
+		environmentPass(rd);
 
 		// occlusionPass();
 
-		gBufferPass(renderData);
+		gBufferPass(rd);
 
-		deferredPass(renderData);
+		deferredPass(rd);
 
-		forwardPass(renderData);
+		forwardPass(rd);
 
-		postFXPass(renderData);
+		postFXPass(rd);
 
 		GPUProfiler.end();
 		renderingManager.end();
@@ -367,7 +379,7 @@ public class GLRenderer implements IRenderer {
 	public void resize(int width, int height) {
 		if (!enabled)
 			return;
-		deferredPipeline.resize(width, height);
+		dp.resize(width, height);
 		postProcessPipeline.resize(width, height);
 		EventSubsystem.triggerEvent("lightengine.renderer.postresize");
 		gameWindow.setImageID(postProcessPipeline.getNVGImage());
@@ -379,16 +391,18 @@ public class GLRenderer implements IRenderer {
 			return;
 		enabled = false;
 		gameWindow.closeWindow();
-		TaskManager.tm.addTaskRenderThread(() -> envRenderer.cleanUp());
-		TaskManager.tm.addTaskRenderThread(() -> envRendererEntities.cleanUp());
-		TaskManager.tm.addTaskRenderThread(() -> shadowFBO.dispose());
-		TaskManager.tm.addTaskRenderThread(() -> deferredPipeline.dispose());
-		TaskManager.tm.addTaskRenderThread(() -> postProcessPipeline.dispose());
-		TaskManager.tm.addTaskRenderThread(() -> particleRenderer.cleanUp());
-		TaskManager.tm.addTaskRenderThread(() -> irradianceCapture.dispose());
-		TaskManager.tm.addTaskRenderThread(() -> preFilteredEnvironment.dispose());
-		TaskManager.tm.addTaskRenderThread(() -> waterRenderer.dispose());
-		TaskManager.tm.addTaskRenderThread(() -> renderingManager.dispose());
+		TaskManager.tm.addTaskRenderThread(() -> {
+			envRenderer.cleanUp();
+			envRendererEntities.cleanUp();
+			shadowFBO.dispose();
+			dp.dispose();
+			postProcessPipeline.dispose();
+			particleRenderer.cleanUp();
+			irradianceCapture.dispose();
+			preFilteredEnvironment.dispose();
+			waterRenderer.dispose();
+			renderingManager.dispose();
+		});
 		lightRenderer.dispose();
 		EventSubsystem.removeEvent("lightengine.renderer.resetshadowmap", shadowMap);
 	}

@@ -39,7 +39,8 @@ public class PreFilteredEnvironmentShader extends ShaderProgram {
 	public PreFilteredEnvironmentShader() {
 		super(ClientVariables.VERTEX_PRE_FILTERED_ENV, ClientVariables.FRAGMENT_PRE_FILTERED_ENV,
 				new Attribute(0, "position"));
-		super.storeAllUniformLocations(projectionMatrix, viewMatrix, envMap, roughness);
+		super.storeUniforms(projectionMatrix, viewMatrix, envMap, roughness);
+		super.validate();
 		super.start();
 		envMap.loadTexUnit(0);
 		super.stop();

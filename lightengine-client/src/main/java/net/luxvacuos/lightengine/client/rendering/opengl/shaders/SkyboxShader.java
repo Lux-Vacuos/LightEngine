@@ -44,8 +44,8 @@ public class SkyboxShader extends ShaderProgram {
 	public SkyboxShader() {
 		super(ClientVariables.VERTEX_FILE_SKYBOX, ClientVariables.FRAGMENT_FILE_SKYBOX, new Attribute(0, "position"),
 				new Attribute(1, "textureCoords"), new Attribute(2, "normal"));
-		super.storeAllUniformLocations(projectionMatrix, transformationMatrix, viewMatrix, time, lightPosition,
-				renderSun);
+		super.storeUniforms(projectionMatrix, transformationMatrix, viewMatrix, time, lightPosition, renderSun);
+		super.validate();
 	}
 
 	public void loadProjectionMatrix(Matrix4f matrix) {

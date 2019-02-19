@@ -26,7 +26,7 @@ import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.Sun;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
 
-public interface IRenderData {
+public interface IRenderingData {
 
 	public Engine getEngine();
 

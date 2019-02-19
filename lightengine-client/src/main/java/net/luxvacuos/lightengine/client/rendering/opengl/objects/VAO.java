@@ -121,7 +121,8 @@ public class VAO implements IDisposable {
 		glDeleteVertexArrays(id);
 		for (VBO vbo : dataVbos)
 			vbo.dispose();
-		indexVbo.dispose();
+		if (indexVbo != null)
+			indexVbo.dispose();
 	}
 
 	public void bind() {

@@ -37,7 +37,8 @@ public class IrradianceCaptureShader extends ShaderProgram {
 	public IrradianceCaptureShader() {
 		super(ClientVariables.VERTEX_IRRADIANCE_CAPTURE, ClientVariables.FRAGMENT_IRRADIANCE_CAPTURE,
 				new Attribute(0, "position"));
-		super.storeAllUniformLocations(projectionMatrix, viewMatrix, envMap);
+		super.storeUniforms(projectionMatrix, viewMatrix, envMap);
+		super.validate();
 		super.start();
 		envMap.loadTexUnit(0);
 		super.stop();

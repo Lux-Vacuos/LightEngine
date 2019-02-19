@@ -27,6 +27,7 @@ public class BRDFIntegrationMapShader extends ShaderProgram {
 
 	public BRDFIntegrationMapShader() {
 		super(ClientVariables.VERTEX_BRDF_INTEGRATION_MAP, ClientVariables.FRAGMENT_BRDF_INTEGRATION_MAP, new Attribute(0, "position"));
+		super.validate();
 	}
 
 }

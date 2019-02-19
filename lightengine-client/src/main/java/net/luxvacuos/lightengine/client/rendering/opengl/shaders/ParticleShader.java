@@ -36,7 +36,8 @@ public class ParticleShader extends ShaderProgram {
 		super(ClientVariables.VERTEX_FILE_PARTICLE, ClientVariables.FRAGMENT_FILE_PARTICLE,
 				new Attribute(0, "position"), new Attribute(1, "modelViewMatrix"), new Attribute(5, "texOffsets"),
 				new Attribute(6, "blendFactor"));
-		super.storeAllUniformLocations(projectionMatrix);
+		super.storeUniforms(projectionMatrix);
+		super.validate();
 	}
 
 	public void loadNumberOfRows(float rows) {

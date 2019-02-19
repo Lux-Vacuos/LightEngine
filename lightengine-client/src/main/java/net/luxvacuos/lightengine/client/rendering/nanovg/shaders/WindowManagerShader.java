@@ -41,8 +41,9 @@ public class WindowManagerShader extends ShaderProgram {
 
 	public WindowManagerShader(String type) {
 		super("wm/" + type + ".vs", "wm/" + type + ".fs", new Attribute(0, "position"));
-		super.storeAllUniformLocations(window, accumulator, resolution, blurBehind, windowPosition, composite1, composite2,
+		super.storeUniforms(window, accumulator, resolution, blurBehind, windowPosition, composite1, composite2,
 				composite3);
+		super.validate();
 		connectTextureUnits();
 	}
 

@@ -39,7 +39,8 @@ public class EntityBasicShader extends ShaderProgram {
 	public EntityBasicShader() {
 		super(ClientVariables.VERTEX_FILE_ENTITY_BASIC, ClientVariables.FRAGMENT_FILE_ENTITY_BASIC,
 				new Attribute(0, "position"), new Attribute(1, "textureCoords"));
-		super.storeAllUniformLocations(transformationMatrix, projectionMatrix, viewMatrix, texture0);
+		super.storeUniforms(transformationMatrix, projectionMatrix, viewMatrix, texture0);
+		super.validate();
 		connectTextureUnits();
 	}
 
@@ -49,32 +50,14 @@ public class EntityBasicShader extends ShaderProgram {
 		super.stop();
 	}
 
-	/**
-	 * Loads Transformation Matrixd to the shader
-	 * 
-	 * @param matrix
-	 *            Transformation Matrixd
-	 */
 	public void loadTransformationMatrix(Matrix4f matrix) {
 		transformationMatrix.loadMatrix(matrix);
 	}
 
-	/**
-	 * Loads View Matrixd to the shader
-	 * 
-	 * @param camera
-	 *            Camera
-	 */
 	public void loadviewMatrix(CameraEntity camera) {
 		viewMatrix.loadMatrix(Maths.createViewMatrix(camera));
 	}
 
-	/**
-	 * Loads Projection Matrixd to the shader
-	 * 
-	 * @param projection
-	 *            Projection Matrixd
-	 */
 	public void loadProjectionMatrix(Matrix4f projection) {
 		projectionMatrix.loadMatrix(projection);
 	}

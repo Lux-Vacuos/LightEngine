@@ -63,6 +63,7 @@ import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.DeferredShadingShader;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
 
+//TODO: Update this 
 public class PointLightPass extends DeferredPass {
 
 	private FBO fbos[];

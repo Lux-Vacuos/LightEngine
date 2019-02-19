@@ -39,7 +39,8 @@ public class Window3DShader extends ShaderProgram {
 	public Window3DShader() {
 		super("wm/" + ClientVariables.VERTEX_WINDOW3D, "wm/" + ClientVariables.FRAGMENT_WINDOW3D,
 				new Attribute(0, "position"));
-		super.storeAllUniformLocations(transformationMatrix, projectionMatrix, viewMatrix, image);
+		super.storeUniforms(transformationMatrix, projectionMatrix, viewMatrix, image);
+		super.validate();
 		connectTextureUnits();
 	}
 

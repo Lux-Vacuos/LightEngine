@@ -61,7 +61,8 @@ public abstract class ShaderProgram implements IDisposable {
 	private boolean loaded;
 	private List<IUniform> uniforms = new ArrayList<>();
 
-	private static boolean bound = false;
+	@Deprecated
+	private static boolean bound = false; // TODO: Not MT-safe
 
 	public ShaderProgram(String vertexFile, String fragmentFile, Attribute... inVariables) {
 		int vertexShaderID = loadShader(vertexFile, GL_VERTEX_SHADER);
@@ -98,28 +99,19 @@ public abstract class ShaderProgram implements IDisposable {
 	}
 
 	/**
-	 * Loads All Uniforms and validate the program.
-	 * 
-	 * @param uniforms Array of Uniforms
-	 */
-	protected void storeAllUniformLocations(IUniform... uniforms) {
-		for (IUniform uniform : uniforms) {
-			uniform.storeUniformLocation(programID);
-		}
-		this.uniforms.addAll(Arrays.asList(uniforms));
-		glValidateProgram(programID);
-	}
-
-	/**
 	 * Loads All Uniforms.
 	 * 
 	 * @param uniforms
 	 */
-	protected void storeUniformArray(IUniform... uniforms) {
+	protected void storeUniforms(IUniform... uniforms) {
 		for (IUniform uniform : uniforms) {
 			uniform.storeUniformLocation(programID);
 		}
 		this.uniforms.addAll(Arrays.asList(uniforms));
+	}
+
+	protected void validate() {
+		glValidateProgram(programID);
 	}
 
 	/**

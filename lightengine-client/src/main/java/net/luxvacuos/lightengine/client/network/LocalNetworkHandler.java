@@ -34,7 +34,7 @@ import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
 import net.luxvacuos.lightengine.universal.ecs.entities.PlayerEntity;
 import net.luxvacuos.lightengine.universal.network.AbstractChannelHandler;
 
-public class LocalNetworkHandler extends AbstractChannelHandler implements IRenderData {
+public class LocalNetworkHandler extends AbstractChannelHandler implements IRenderingData {
 
 	protected BasicEntity player;
 	protected CameraEntity camera;

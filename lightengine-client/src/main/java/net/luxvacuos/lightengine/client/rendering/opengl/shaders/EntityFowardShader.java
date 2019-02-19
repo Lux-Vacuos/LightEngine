@@ -33,12 +33,6 @@ import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformMat
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformSampler;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformVec3;
 
-/**
- * Entity Shader
- * 
- * @author Guerra24 <pablo230699@hotmail.com>
- * @category Rendering
- */
 public class EntityFowardShader extends ShaderProgram {
 
 	private UniformMatrix transformationMatrix = new UniformMatrix("transformationMatrix");
@@ -69,15 +63,15 @@ public class EntityFowardShader extends ShaderProgram {
 		for (int x = 0; x < 4; x++) {
 			projectionLightMatrix[x] = new UniformMatrix("projectionLightMatrix[" + x + "]");
 		}
-		super.storeUniformArray(projectionLightMatrix);
+		super.storeUniforms(projectionLightMatrix);
 		shadowMap = new UniformSampler[4];
 		for (int x = 0; x < 4; x++) {
 			shadowMap[x] = new UniformSampler("shadowMap[" + x + "]");
 		}
-		super.storeUniformArray(shadowMap);
-		super.storeAllUniformLocations(transformationMatrix, projectionMatrix, viewMatrix, material, cameraPosition,
-				lightPosition, irradianceMap, preFilterEnv, brdfLUT, colorCorrect, biasMatrix, viewLightMatrix,
-				useShadows);
+		super.storeUniforms(shadowMap);
+		super.storeUniforms(transformationMatrix, projectionMatrix, viewMatrix, material, cameraPosition, lightPosition,
+				irradianceMap, preFilterEnv, brdfLUT, colorCorrect, biasMatrix, viewLightMatrix, useShadows);
+		super.validate();
 		super.start();
 		irradianceMap.loadTexUnit(4);
 		preFilterEnv.loadTexUnit(5);

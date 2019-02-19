@@ -102,23 +102,24 @@ public class DeferredShadingShader extends ShaderProgram {
 		for (int x = 0; x < 18; x++) {
 			lights[x] = new UniformLight("lights[" + x + "]");
 		}
-		super.storeUniformArray(lights);
+		super.storeUniforms(lights);
 		projectionLightMatrix = new UniformMatrix[4];
 		for (int x = 0; x < 4; x++) {
 			projectionLightMatrix[x] = new UniformMatrix("projectionLightMatrix[" + x + "]");
 		}
-		super.storeUniformArray(projectionLightMatrix);
+		super.storeUniforms(projectionLightMatrix);
 		shadowMap = new UniformSampler[4];
 		for (int x = 0; x < 4; x++) {
 			shadowMap[x] = new UniformSampler("shadowMap[" + x + "]");
 		}
-		super.storeUniformArray(shadowMap);
-		super.storeAllUniformLocations(projectionMatrix, viewMatrix, inverseProjectionMatrix, inverseViewMatrix,
+		super.storeUniforms(shadowMap);
+		super.storeUniforms(projectionMatrix, viewMatrix, inverseProjectionMatrix, inverseViewMatrix,
 				previousViewMatrix, cameraPosition, previousCameraPosition, lightPosition, invertedLightPosition,
 				skyColor, resolution, exposure, time, shadowDrawDistance, useFXAA, useDOF, useMotionBlur,
 				useReflections, useVolumetricLight, useAmbientOcclusion, gDiffuse, gPosition, gNormal, gDepth, gPBR,
 				gMask, composite0, composite1, composite2, totalLights, useChromaticAberration, composite3,
 				useLensFlares, biasMatrix, viewLightMatrix, useShadows);
+		super.validate();
 		connectTextureUnits();
 		biasM = new Matrix4f();
 		biasM.m00(0.5f);

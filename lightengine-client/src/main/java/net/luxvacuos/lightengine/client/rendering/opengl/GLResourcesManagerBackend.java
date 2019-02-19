@@ -48,7 +48,6 @@ import static org.lwjgl.opengl.GL32.glFenceSync;
 
 import org.lwjgl.opengl.EXTTextureFilterAnisotropic;
 
-import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.RawTexture;
 import net.luxvacuos.lightengine.client.resources.IResourcesManagerBackend;
@@ -61,22 +60,18 @@ public class GLResourcesManagerBackend implements IResourcesManagerBackend {
 		this.window = window;
 	}
 
-	public int loadTexture(int filter, int textureWarp, int format, boolean textureMipMapAF, RawTexture data) {
+	public int loadTexture(int filter, int textureWarp, int format, boolean af, RawTexture data) {
 		int textureID = glGenTextures();
 		glBindTexture(GL_TEXTURE_2D, textureID);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, textureWarp);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, textureWarp);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
-		if (textureMipMapAF) {
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0);
-
-			if (window.getCapabilities().GL_EXT_texture_filter_anisotropic) {
-				float amount = Math.min(16f, EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT);
-				glTexParameterf(GL_TEXTURE_2D, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT, amount);
-			} else
-				Logger.warn("Anisotropic Filtering not supported");
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 0);
+		if (af && window.getCapabilities().GL_EXT_texture_filter_anisotropic) {
+			float amount = Math.min(16f, EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT);
+			glTexParameterf(GL_TEXTURE_2D, EXTTextureFilterAnisotropic.GL_TEXTURE_MAX_ANISOTROPY_EXT, amount);
+		} else {
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
 		}
 		if (data.getComp() == 3) {
 			if ((data.getWidth() & 3) != 0)
@@ -92,8 +87,7 @@ public class GLResourcesManagerBackend implements IResourcesManagerBackend {
 		else
 			glTexImage2D(GL_TEXTURE_2D, 0, format, data.getWidth(), data.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE,
 					data.getBuffer());
-		if (textureMipMapAF)
-			glGenerateMipmap(GL_TEXTURE_2D);
+		glGenerateMipmap(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		long fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);

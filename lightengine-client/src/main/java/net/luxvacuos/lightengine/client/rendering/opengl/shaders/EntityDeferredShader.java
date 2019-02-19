@@ -29,12 +29,6 @@ import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.Attribute;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformMaterial;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformMatrix;
 
-/**
- * Entity Shader
- * 
- * @author Guerra24 <pablo230699@hotmail.com>
- * @category Rendering
- */
 public class EntityDeferredShader extends ShaderProgram {
 
 	private UniformMatrix transformationMatrix = new UniformMatrix("transformationMatrix");
@@ -43,9 +37,11 @@ public class EntityDeferredShader extends ShaderProgram {
 	private UniformMaterial material = new UniformMaterial("material");
 
 	public EntityDeferredShader() {
-		super(ClientVariables.VERTEX_FILE_ENTITY_DEFERRED, ClientVariables.FRAGMENT_FILE_ENTITY_DEFERRED, new Attribute(0, "position"),
-				new Attribute(1, "textureCoords"), new Attribute(2, "normals"), new Attribute(3, "tangent"));
-		super.storeAllUniformLocations(transformationMatrix, projectionMatrix, viewMatrix, material);
+		super(ClientVariables.VERTEX_FILE_ENTITY_DEFERRED, ClientVariables.FRAGMENT_FILE_ENTITY_DEFERRED,
+				new Attribute(0, "position"), new Attribute(1, "textureCoords"), new Attribute(2, "normals"),
+				new Attribute(3, "tangent"));
+		super.storeUniforms(transformationMatrix, projectionMatrix, viewMatrix, material);
+		super.validate();
 	}
 
 	public void loadTransformationMatrix(Matrix4f matrix) {

@@ -44,8 +44,8 @@ public class WaterShader extends ShaderProgram {
 	public WaterShader() {
 		super(ClientVariables.VERTEX_WATER, ClientVariables.FRAGMENT_WATER, ClientVariables.GEOMETRY_WATER,
 				new Attribute(0, "position"), new Attribute(1, "textureCoords"));
-		super.storeAllUniformLocations(transformationMatrix, projectionMatrix, viewMatrix,
-				cameraPosition, time, dudv, foamMask);
+		super.storeUniforms(transformationMatrix, projectionMatrix, viewMatrix, cameraPosition, time, dudv, foamMask);
+		super.validate();
 		connectTextureUnits();
 	}
 
