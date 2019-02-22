@@ -28,6 +28,7 @@ import org.joml.Vector3f;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.SunCamera;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Light;
+import net.luxvacuos.lightengine.client.rendering.opengl.pipeline.shaders.BasePipelineShader;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformFloat;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformInteger;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformLight;

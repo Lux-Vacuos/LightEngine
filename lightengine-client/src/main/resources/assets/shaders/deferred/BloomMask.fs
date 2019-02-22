@@ -22,8 +22,8 @@ in vec2 textureCoords;
 
 out vec4 out_Color;
 
-uniform sampler2D composite0;
+uniform sampler2D image;
 
 void main() {
-	out_Color = max(0.1 * texture(composite0, textureCoords), 0.0);
+	out_Color = max(0.1 * texture(image, textureCoords), 0.0);
 }

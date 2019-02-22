@@ -30,9 +30,11 @@ import static org.lwjgl.opengl.GL11C.GL_TEXTURE_MIN_FILTER;
 import static org.lwjgl.opengl.GL11C.GL_TEXTURE_WRAP_S;
 import static org.lwjgl.opengl.GL11C.GL_TEXTURE_WRAP_T;
 import static org.lwjgl.opengl.GL11C.GL_TRIANGLE_STRIP;
+import static org.lwjgl.opengl.GL11C.glBindTexture;
 import static org.lwjgl.opengl.GL11C.glClear;
 import static org.lwjgl.opengl.GL11C.glDrawArrays;
 import static org.lwjgl.opengl.GL12C.GL_CLAMP_TO_EDGE;
+import static org.lwjgl.opengl.GL13C.glActiveTexture;
 import static org.lwjgl.opengl.GL30C.GL_COLOR_ATTACHMENT0;
 import static org.lwjgl.opengl.GL30C.GL_RGBA16F;
 
@@ -47,7 +49,7 @@ import net.luxvacuos.lightengine.client.rendering.opengl.objects.FramebufferBuil
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.TextureBuilder;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.VAO;
-import net.luxvacuos.lightengine.client.rendering.opengl.shaders.BasePipelineShader;
+import net.luxvacuos.lightengine.client.rendering.opengl.pipeline.shaders.BasePipelineShader;
 
 public abstract class DeferredPass<T extends BasePipelineShader> {
 
@@ -58,15 +60,24 @@ public abstract class DeferredPass<T extends BasePipelineShader> {
 
 	protected String name;
 
+	private float scaling = 1.0f;
+
 	public DeferredPass(String name) {
 		this.name = name;
 	}
 
+	public DeferredPass(String name, float scaling) {
+		this(name);
+		this.scaling = scaling;
+	}
+
 	public void init(int width, int height) {
-		generateFramebuffer(width, height);
+		var lWidth = (int) (width * scaling);
+		var lHeight = (int) (height * scaling);
+		generateFramebuffer(lWidth, lHeight);
 		shader = setupShader();
 		shader.start();
-		shader.loadResolution(new Vector2f(width, height));
+		shader.loadResolution(new Vector2f(lWidth, lHeight));
 		shader.stop();
 	}
 
@@ -88,15 +99,23 @@ public abstract class DeferredPass<T extends BasePipelineShader> {
 
 	protected abstract T setupShader();
 
-	protected abstract void setupShaderData(RendererData rnd, IRenderingData rd, T shader);
+	protected void setupShaderData(RendererData rnd, IRenderingData rd, T shader) {
+	}
+
+	protected void activateTexture(int textureNum, int target, int texture) {
+		glActiveTexture(textureNum);
+		glBindTexture(target, texture);
+	}
 
 	protected abstract void setupTextures(RendererData rnd, DeferredPipeline dp, Texture[] auxTex);
 
 	public void resize(int width, int height) {
+		var lWidth = (int) (width * scaling);
+		var lHeight = (int) (height * scaling);
 		disposeFramebuffer();
-		generateFramebuffer(width, height);
+		generateFramebuffer(lWidth, lHeight);
 		shader.start();
-		shader.loadResolution(new Vector2f(width, height));
+		shader.loadResolution(new Vector2f(lWidth, lHeight));
 		shader.stop();
 	}
 

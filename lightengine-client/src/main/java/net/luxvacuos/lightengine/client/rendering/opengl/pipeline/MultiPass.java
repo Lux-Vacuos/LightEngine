@@ -31,8 +31,7 @@ public class MultiPass extends DeferredPipeline {
 	private Lighting lighting;
 	private VolumetricLight volumetricLight;
 	private BloomMask bloomMask;
-	private GaussianHorizonal gH1, gH2;
-	private GaussianVertical gV1, gV2;
+	private GaussianBlur gH1, gH2, gV1, gV2;
 	private Reflections reflections;
 	private ColorCorrection colorCorrection;
 	private LensFlares lensFlares;
@@ -49,20 +48,10 @@ public class MultiPass extends DeferredPipeline {
 		};
 		super.passes.add(volumetricLight);
 
-		gH1 = new GaussianHorizonal() {
-			@Override
-			public void resize(int width, int height) {
-				super.resize(width / 2, height / 2);
-			}
-		};
+		gH1 = new GaussianBlur(false, 0.5f);
 		super.passes.add(gH1);
 
-		gV1 = new GaussianVertical() {
-			@Override
-			public void resize(int width, int height) {
-				super.resize(width / 2, height / 2);
-			}
-		};
+		gV1 = new GaussianBlur(true, 0.5f);
 		super.passes.add(gV1);
 
 		lighting = new Lighting();

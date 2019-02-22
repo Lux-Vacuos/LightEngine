@@ -79,8 +79,8 @@ jar {
 			"LV-Version": project.ext.globalVersion
 		)
 	}
-	manifest.writeTo("$buildDir/" + project.name + "-version.mf")
-	from "$buildDir/" + project.name + "-version.mf"
+	manifest.writeTo("${buildDir}/" + project.name + "-version.mf")
+	from "${buildDir}/" + project.name + "-version.mf"
 }
 
 if (System.getProperty("os.name").toLowerCase().contains("mac")) {

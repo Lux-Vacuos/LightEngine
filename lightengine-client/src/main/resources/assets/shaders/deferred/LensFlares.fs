@@ -22,8 +22,8 @@ in vec2 textureCoords;
 
 out vec4 out_Color;
 
-uniform sampler2D composite1;
-uniform sampler2D composite2;
+uniform sampler2D bloom;
+uniform sampler2D lensColor;
 
 uniform int useLensFlares;
 
@@ -43,20 +43,20 @@ void main() {
 	if (useLensFlares == 1) {
 		vec2 texcoord = -textureCoords + vec2(1.0);
 		vec2 ghostVec = (vec2(0.5) - texcoord) * ghostDispersal;
-		vec2 texelSize = 1.0 / vec2(textureSize(composite1, 0));
+		vec2 texelSize = 1.0 / vec2(textureSize(bloom, 0));
 		vec3 distortion = vec3(-texelSize.x * distortion, 0.0, texelSize.x * distortion);
 		vec2 direction = normalize(ghostVec);
 		for (int i = 0; i < ghosts; ++i) {
 			vec2 offset = texcoord + ghostVec * float(i);
 			float weight = length(vec2(0.5) - offset) / length(vec2(0.5));
 			weight = pow(1.0 - weight, 10.0);
-			result += textureDistorted(composite1, offset, direction, distortion) * weight;
+			result += textureDistorted(bloom, offset, direction, distortion) * weight;
 		}
 		vec2 haloVec = normalize(ghostVec) * haloWidth;
 		float weight = length(vec2(0.5) - fract(texcoord + haloVec)) / length(vec2(0.5));
 		weight = pow(1.0 - weight, 5.0);
-		result += textureDistorted(composite1, texcoord + haloVec, direction, distortion) * weight;
-		result *= texture(composite2, vec2(length(vec2(0.5) - texcoord) / length(vec2(0.5)), 0.0));
+		result += textureDistorted(bloom, texcoord + haloVec, direction, distortion) * weight;
+		result *= texture(lensColor, vec2(length(vec2(0.5) - texcoord) / length(vec2(0.5)), 0.0));
 	}
 	out_Color = result;
 }

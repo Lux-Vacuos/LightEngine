@@ -22,21 +22,21 @@ in vec2 textureCoords;
 
 out vec4 out_Color;
 
-uniform sampler2D composite0;
-uniform sampler2D composite1;
-uniform sampler2D composite2;
-uniform sampler2D composite3;
+uniform sampler2D lensFlare;
+uniform sampler2D lensDirt;
+uniform sampler2D lensStar;
+uniform sampler2D image;
 
 uniform int useLensFlares;
 
 const float mult = 2.0;
 
 void main() {
-	vec4 textureColor = texture(composite3, textureCoords);
+	vec4 textureColor = texture(image, textureCoords);
 	if (useLensFlares == 1) {
-		vec4 lensMod = texture(composite1, textureCoords);
-		lensMod += texture(composite2, textureCoords);
-		vec4 lensFlare = texture(composite0, textureCoords) * (lensMod * mult);
+		vec4 lensMod = texture(lensDirt, textureCoords);
+		lensMod += texture(lensStar, textureCoords);
+		vec4 lensFlare = texture(lensFlare, textureCoords) * (lensMod * mult);
 		textureColor += lensFlare;
 	}
 	out_Color = textureColor;

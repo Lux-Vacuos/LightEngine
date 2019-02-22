@@ -21,41 +21,37 @@
 package net.luxvacuos.lightengine.client.rendering.opengl.pipeline;
 
 import static org.lwjgl.opengl.GL11C.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11C.glBindTexture;
-import static org.lwjgl.opengl.GL13C.GL_TEXTURE6;
-import static org.lwjgl.opengl.GL13C.glActiveTexture;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE0;
 
 import net.luxvacuos.lightengine.client.network.IRenderingData;
 import net.luxvacuos.lightengine.client.rendering.opengl.RendererData;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
-import net.luxvacuos.lightengine.client.rendering.opengl.shaders.DeferredPipelineShader;
+import net.luxvacuos.lightengine.client.rendering.opengl.pipeline.shaders.GaussianShader;
 import net.luxvacuos.lightengine.client.rendering.opengl.v2.DeferredPass;
 import net.luxvacuos.lightengine.client.rendering.opengl.v2.DeferredPipeline;
 
-public class GaussianHorizonal extends DeferredPass<DeferredPipelineShader> {
+public class GaussianBlur extends DeferredPass<GaussianShader> {
 
-	public GaussianHorizonal() {
-		super("GaussianHorizontal");
+	private final boolean useVerticalBlur;
+
+	public GaussianBlur(boolean useVerticalBlur, float scaling) {
+		super("GaussianBlur", scaling);
+		this.useVerticalBlur = useVerticalBlur;
 	}
 
 	@Override
-	protected DeferredPipelineShader setupShader() {
-		return new DeferredPipelineShader(name);
+	protected GaussianShader setupShader() {
+		return new GaussianShader(name);
 	}
 
 	@Override
-	protected void setupShaderData(RendererData rnd, IRenderingData rd, DeferredPipelineShader shader) {
-		shader.loadLightPosition(rd.getSun().getSunPosition(), rd.getSun().getInvertedSunPosition());
-		shader.loadCameraData(rd.getCamera(), null, null);// TODO: Use previous data
-		shader.loadExposure(rnd.exposure);
-		shader.loadTime(rd.getWorldSimulation().getGlobalTime());
-		shader.loadSunCameraData(rd.getSun().getCamera());
+	protected void setupShaderData(RendererData rnd, IRenderingData rd, GaussianShader shader) {
+		shader.useVerticalBlur(useVerticalBlur);
 	}
 
 	@Override
 	protected void setupTextures(RendererData rnd, DeferredPipeline dp, Texture[] auxTex) {
-		glActiveTexture(GL_TEXTURE6);
-		glBindTexture(GL_TEXTURE_2D, auxTex[0].getTexture());
+		super.activateTexture(GL_TEXTURE0, GL_TEXTURE_2D, auxTex[0].getTexture());
 	}
 
 }

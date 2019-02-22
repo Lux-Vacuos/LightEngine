@@ -18,11 +18,12 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.opengl.shaders;
+package net.luxvacuos.lightengine.client.rendering.opengl.pipeline.shaders;
 
 import org.joml.Vector2f;
 
 import net.luxvacuos.lightengine.client.rendering.opengl.RenderingSettings;
+import net.luxvacuos.lightengine.client.rendering.opengl.shaders.ShaderProgram;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.Attribute;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformBoolean;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformInteger;

@@ -22,11 +22,11 @@ in vec2 textureCoords;
 
 out vec4 out_Color;
 
-uniform sampler2D composite0;
-uniform sampler2D composite1;
+uniform sampler2D base;
+uniform sampler2D bloom;
 
 void main() {
-	vec4 hdrColor = texture(composite1, textureCoords);
-	hdrColor += texture(composite0, textureCoords);
-	out_Color = hdrColor;
+	vec4 baseColor = texture(base, textureCoords);
+	baseColor += texture(bloom, textureCoords);
+	out_Color = baseColor;
 }
