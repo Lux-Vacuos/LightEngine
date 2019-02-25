@@ -75,7 +75,7 @@ public class ClientCoreSubsystem extends CoreSubsystem {
 		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/titleBarHeight", true), 29);
 		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/scrollBarSize", true), 16);
 		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/theme", true), "Nano");
-		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/compositor", true), true);
+		REGISTRY.register(new Key("/Light Engine/Settings/WindowManager/compositor", true), false);
 
 		REGISTRY.register(new Key("/Light Engine/Settings/Regional/lang", true), "en_US");
 	}
