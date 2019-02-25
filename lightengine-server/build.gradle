@@ -3,10 +3,8 @@ plugins {
 	id "eclipse"
 	id "idea"
 	id "java"
-	id "application"
 }
 
-mainClassName = "net.luxvacuos.lightengine.server.bootstrap.Bootstrap"
 sourceCompatibility = "11"
 
 sourceSets {
