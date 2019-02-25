@@ -51,21 +51,40 @@ import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.Sun;
 import net.luxvacuos.lightengine.client.ecs.entities.SunCamera;
-import net.luxvacuos.lightengine.client.rendering.opengl.DeferredPass;
 import net.luxvacuos.lightengine.client.rendering.opengl.FBO;
-import net.luxvacuos.lightengine.client.rendering.opengl.IDeferredPipeline;
+import net.luxvacuos.lightengine.client.rendering.opengl.RendererData;
 import net.luxvacuos.lightengine.client.rendering.opengl.RenderingSettings;
 import net.luxvacuos.lightengine.client.rendering.opengl.ShadowFBO;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CubeMapTexture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Light;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
+import net.luxvacuos.lightengine.client.rendering.opengl.pipeline.shaders.BasePipelineShader;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.DeferredShadingShader;
+import net.luxvacuos.lightengine.client.rendering.opengl.v2.DeferredPass;
+import net.luxvacuos.lightengine.client.rendering.opengl.v2.DeferredPipeline;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
 
 //TODO: Update this 
 public class PointLightPass extends DeferredPass {
 
+	public PointLightPass(String name) {
+		super(name);
+		// TODO Auto-generated constructor stub
+	}
+	
+	@Override
+	protected BasePipelineShader setupShader() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected void setupTextures(RendererData rnd, DeferredPipeline dp, Texture[] auxTex) {
+		// TODO Auto-generated method stub
+		
+	}
+/*
 	private FBO fbos[];
 
 	public PointLightPass(String name, int width, int height) {
@@ -178,5 +197,6 @@ public class PointLightPass extends DeferredPass {
 		}
 		return parts;
 	}
+*/
 
 }

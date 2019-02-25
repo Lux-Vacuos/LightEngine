@@ -6,7 +6,7 @@ plugins {
 	id "application"
 }
 
-mainClassName = "net.luxvacuos.lightengine.tools.Main"
+mainClassName = "EngineLoader"
 sourceCompatibility = "11"
 
 sourceSets {
