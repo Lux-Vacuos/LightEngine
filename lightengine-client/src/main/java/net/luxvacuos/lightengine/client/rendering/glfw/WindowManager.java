@@ -73,9 +73,9 @@ public final class WindowManager {
 		GLFW.glfwSetWindowPos(windowID, (vidmode.width() - window.width) / 2, (vidmode.height() - window.height) / 2);
 
 		try (MemoryStack stack = stackPush()) {
-			var w = stack.callocInt(1);
-			var h = stack.callocInt(1);
-			var comp = stack.callocInt(1);
+			var w = stack.mallocInt(1);
+			var h = stack.mallocInt(1);
+			var comp = stack.mallocInt(1);
 
 			if (handle.cursor != null) {
 
@@ -94,14 +94,14 @@ public final class WindowManager {
 				if (image == null)
 					throw new DecodeTextureException("Failed to load image: " + stbi_failure_reason());
 
-				GLFWImage img = GLFWImage.malloc().set(w.get(0), h.get(0), image);
+				GLFWImage img = GLFWImage.mallocStack().set(w.get(0), h.get(0), image);
 				GLFW.glfwSetCursor(windowID, GLFW.glfwCreateCursor(img, 0, 0));
 				memFree(imageBuffer);
 				stbi_image_free(image);
 			}
 
 			if (handle.icons.size != 0) {
-				var iconsbuff = GLFWImage.malloc(handle.icons.size);
+				var iconsbuff = GLFWImage.mallocStack(handle.icons.size);
 				int i = 0;
 				for (Icon icon : handle.icons) {
 					ByteBuffer imageBuffer;
@@ -119,18 +119,14 @@ public final class WindowManager {
 					if (icon.image == null)
 						throw new DecodeTextureException("Failed to load image: " + stbi_failure_reason());
 
-					icon.image.flip();
 					iconsbuff.position(i).width(w.get(0)).height(h.get(0)).pixels(icon.image);
 					i++;
 					memFree(imageBuffer);
 				}
 				iconsbuff.position(0);
 				GLFW.glfwSetWindowIcon(windowID, iconsbuff);
-				iconsbuff.free();
-				for (Icon icon : handle.icons) {
+				for (Icon icon : handle.icons)
 					stbi_image_free(icon.image);
-				}
-
 			}
 		}
 

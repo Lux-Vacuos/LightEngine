@@ -72,6 +72,7 @@ import static org.lwjgl.stb.STBImage.stbi_load_from_memory;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.memAlloc;
 import static org.lwjgl.system.MemoryUtil.memFree;
+import static org.lwjgl.system.MemoryUtil.memRealloc;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -649,6 +650,7 @@ public class GLResourceLoader implements IResourceLoader {
 			fis.close();
 			fc.close();
 		} else {
+			int size = 0;
 			buffer = memAlloc(bufferSize);
 			try (InputStream source = Thread.currentThread().getContextClassLoader().getResourceAsStream(resource)) {
 				if (source == null)
@@ -658,23 +660,17 @@ public class GLResourceLoader implements IResourceLoader {
 						int bytes = rbc.read(buffer);
 						if (bytes == -1)
 							break;
-						if (buffer.remaining() == 0)
-							buffer = resizeBuffer(buffer, buffer.capacity() * 2);
+						size += bytes;
+						if (!buffer.hasRemaining())
+							buffer = memRealloc(buffer, size * 2);
 					}
 				}
 			}
+			buffer = memRealloc(buffer, size + 1);
 		}
 		buffer.put((byte) 0);
 		buffer.flip();
 		return buffer;
-	}
-
-	private static ByteBuffer resizeBuffer(ByteBuffer buffer, int newCapacity) {
-		ByteBuffer newBuffer = memAlloc(newCapacity);
-		buffer.flip();
-		newBuffer.put(buffer);
-		memFree(buffer);
-		return newBuffer;
 	}
 
 	public static boolean isThread(long id) {

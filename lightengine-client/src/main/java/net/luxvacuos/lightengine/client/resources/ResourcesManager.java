@@ -139,8 +139,8 @@ public final class ResourcesManager {
 						if (bytes == -1)
 							break;
 						size += bytes;
-						if (buffer.remaining() == 0)
-							buffer = memRealloc(buffer, buffer.capacity() * 2);
+						if (!buffer.hasRemaining())
+							buffer = memRealloc(buffer, size * 2);
 					}
 				}
 			}

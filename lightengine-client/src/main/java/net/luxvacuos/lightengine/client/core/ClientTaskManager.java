@@ -23,6 +23,7 @@ package net.luxvacuos.lightengine.client.core;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import net.luxvacuos.lightengine.client.core.exception.OpenGLException;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.glfw.WindowManager;
@@ -105,6 +106,11 @@ public class ClientTaskManager extends TaskManager {
 						Thread.sleep(1000000l);
 					} catch (InterruptedException e) {
 					}
+				}
+				try {
+					asyncWindow.updateDisplay(0);
+				} catch (OpenGLException e) {
+					e.printStackTrace();
 				}
 			}
 			asyncWindow.dispose();

@@ -22,6 +22,8 @@ package net.luxvacuos.lightengine.client.rendering.glfw;
 
 import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
 
+import net.luxvacuos.lightengine.client.core.exception.OpenGLException;
+
 public class Window extends AbstractWindow {
 
 	protected Window(long windowID, int width, int height) {
@@ -31,7 +33,11 @@ public class Window extends AbstractWindow {
 	@Override
 	public void updateDisplay(int fps) {
 		glfwSwapBuffers(this.windowID);
-		DisplayUtils.checkErrors();
+		try {
+			DisplayUtils.checkErrors();
+		} catch (OpenGLException e) {
+			e.printStackTrace();
+		}
 		this.displayUtils.sync(fps);
 	}
 
