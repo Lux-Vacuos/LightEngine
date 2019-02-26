@@ -63,7 +63,11 @@ public class ParticleDomain {
 		}
 		list.add(particle);
 	}
-	
+
+	public static void clearParticles() {
+		particles.clear();
+	}
+
 	public static Map<ParticleTexture, List<Particle>> getParticles() {
 		return particles;
 	}

@@ -20,6 +20,8 @@
 
 package net.luxvacuos.lightengine.client.ui;
 
+import static org.lwjgl.system.MemoryUtil.memFree;
+
 import java.nio.ByteBuffer;
 
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
@@ -38,7 +40,7 @@ public class Font implements IDisposable {
 
 	@Override
 	public void dispose() {
-		buffer.clear();
+		memFree(buffer);
 	}
 
 	public String getFont() {

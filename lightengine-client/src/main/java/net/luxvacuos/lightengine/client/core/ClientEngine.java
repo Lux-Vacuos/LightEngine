@@ -120,6 +120,7 @@ public class ClientEngine extends Engine implements IClientEngine {
 			wSync.renderReady = true; // Thread ready
 			while (!wSync.waitThreads) // Wait for main thread
 				ThreadUtils.sleep(1);
+			wSync.renderReady = false;
 			
 			window.getDelta(); // Reset delta time
 			while (StateMachine.isRunning()) {
@@ -137,6 +138,7 @@ public class ClientEngine extends Engine implements IClientEngine {
 				window.updateDisplay(fps);
 			}
 			this.disposeRenderSubsystems();
+			wSync.renderReady = true;
 		});
 		render.setName("Render");
 		render.start();
@@ -187,6 +189,8 @@ public class ClientEngine extends Engine implements IClientEngine {
 			Timers.stopCPUTimer();
 			sync.sync(ups);
 		}
+		while (!wSync.renderReady) // Wait for render thread
+			ThreadUtils.sleep(1);
 	}
 
 	@Override
