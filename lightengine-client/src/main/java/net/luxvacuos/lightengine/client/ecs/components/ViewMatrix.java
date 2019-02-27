@@ -40,7 +40,7 @@ public class ViewMatrix implements LEComponent {
 	}
 
 	public void setViewMatrix(Matrix4f viewMatrix) {
-		this.viewMatrix = viewMatrix;
+		this.viewMatrix.set(viewMatrix);
 	}
 
 	@Override

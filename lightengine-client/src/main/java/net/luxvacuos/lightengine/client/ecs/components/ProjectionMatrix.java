@@ -40,7 +40,7 @@ public class ProjectionMatrix implements LEComponent {
 	}
 
 	public void setProjectionMatrix(Matrix4f projectionMatrix) {
-		this.projectionMatrix = projectionMatrix;
+		this.projectionMatrix.set(projectionMatrix);
 	}
 
 	@Override

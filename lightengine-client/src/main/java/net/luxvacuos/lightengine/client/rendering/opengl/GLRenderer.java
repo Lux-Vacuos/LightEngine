@@ -348,12 +348,11 @@ public class GLRenderer implements IRenderer {
 		if (!enabled)
 			return;
 		ImmutableArray<Entity> entitiesT = rd.getEngine().getEntities();
-		CameraEntity camera = rd.getCamera();
 
 		Array<Entity> entitiesR = new Array<>(entitiesT.toArray(Entity.class));
 		ImmutableArray<Entity> entities = new ImmutableArray<>(entitiesR);
 		resetState();
-		renderingManager.preProcess(entities, camera);
+		renderingManager.preProcess(entities);
 
 		GPUProfiler.start("3D Renderer");
 

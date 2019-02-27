@@ -196,6 +196,7 @@ public class ClientEngine extends Engine implements IClientEngine {
 	@Override
 	public void handleError(Throwable e) {
 		e.printStackTrace();
+		StateMachine.stop();
 	}
 
 	@Override

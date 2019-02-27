@@ -53,13 +53,10 @@ public class RenderingManager implements IDisposable {
 		objectRenderers.put(objectRenderer.getID(), objectRenderer);
 	}
 
-	public void preProcess(ImmutableArray<Entity> entities, CameraEntity camera) {
+	public void preProcess(ImmutableArray<Entity> entities) {
 		for (Entity entity : entities) {
 			if (entity instanceof BasicEntity)
 				if (ClientComponents.RENDERABLE.has(entity)) {
-					// BasicEntity ent = (BasicEntity) entity;
-					// if (ent.getPosition().sub(camera.getPosition(), new Vector3f()).length() <
-					// 100)
 					if (ClientComponents.RENDERABLE.get(entity).isLoaded())
 						process((BasicEntity) entity);
 				}
