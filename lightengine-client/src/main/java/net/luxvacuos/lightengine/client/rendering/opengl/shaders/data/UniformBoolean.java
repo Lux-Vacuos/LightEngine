@@ -25,7 +25,6 @@ import static org.lwjgl.opengl.GL20C.glUniform1i;
 public class UniformBoolean extends Uniform {
 
 	private boolean currentBool;
-	private boolean used = false;
 
 	public UniformBoolean(String name) {
 		super(name);

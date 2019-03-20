@@ -72,6 +72,18 @@ public class EntityFowardShader extends ShaderProgram {
 		super.storeUniforms(transformationMatrix, projectionMatrix, viewMatrix, material, cameraPosition, lightPosition,
 				irradianceMap, preFilterEnv, brdfLUT, colorCorrect, biasMatrix, viewLightMatrix, useShadows);
 		super.validate();
+		biasM = new Matrix4f();
+		biasM.m00(0.5f);
+		biasM.m11(0.5f);
+		biasM.m22(0.5f);
+		biasM.m30(0.5f);
+		biasM.m31(0.5f);
+		biasM.m32(0.5f);
+		this.loadInitialData();
+	}
+
+	@Override
+	protected void loadInitialData() {
 		super.start();
 		irradianceMap.loadTexUnit(4);
 		preFilterEnv.loadTexUnit(5);
@@ -81,13 +93,6 @@ public class EntityFowardShader extends ShaderProgram {
 		shadowMap[2].loadTexUnit(9);
 		shadowMap[3].loadTexUnit(10);
 		super.stop();
-		biasM = new Matrix4f();
-		biasM.m00(0.5f);
-		biasM.m11(0.5f);
-		biasM.m22(0.5f);
-		biasM.m30(0.5f);
-		biasM.m31(0.5f);
-		biasM.m32(0.5f);
 	}
 
 	public void loadTransformationMatrix(Matrix4f matrix) {

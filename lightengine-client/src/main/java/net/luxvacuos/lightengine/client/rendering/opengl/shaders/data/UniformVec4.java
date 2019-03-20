@@ -25,11 +25,11 @@ import static org.lwjgl.opengl.GL20C.glUniform4f;
 import org.joml.Vector4f;
 
 public class UniformVec4 extends Uniform {
+
 	private float currentX;
 	private float currentY;
 	private float currentZ;
 	private float currentW;
-	private boolean used = false;
 
 	public UniformVec4(String name) {
 		super(name);

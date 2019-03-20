@@ -42,12 +42,14 @@ import static org.lwjgl.opengl.GL32C.GL_TEXTURE_CUBE_MAP_SEAMLESS;
 
 import java.util.List;
 
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.ARBClipControl;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.utils.Array;
 
+import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.Sun;
@@ -372,6 +374,11 @@ public class GLRenderer implements IRenderer {
 
 		GPUProfiler.end();
 		renderingManager.end();
+		if (window.getKeyboardHandler().isKeyPressed(GLFW.GLFW_KEY_F2)) {
+			window.getKeyboardHandler().ignoreKeyUntilRelease(GLFW.GLFW_KEY_F2);
+			Logger.log("Reloading Shaders...");
+			dp.reloadShaders();
+		}
 	}
 
 	@Override

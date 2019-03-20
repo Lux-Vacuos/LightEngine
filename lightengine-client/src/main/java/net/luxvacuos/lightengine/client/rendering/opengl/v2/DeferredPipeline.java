@@ -65,6 +65,7 @@ import java.util.List;
 import org.joml.Vector2f;
 
 import net.luxvacuos.lightengine.client.network.IRenderingData;
+import net.luxvacuos.lightengine.client.rendering.glfw.DisplayUtils;
 import net.luxvacuos.lightengine.client.rendering.opengl.FBO;
 import net.luxvacuos.lightengine.client.rendering.opengl.RendererData;
 import net.luxvacuos.lightengine.client.rendering.opengl.RenderingSettings;
@@ -163,6 +164,16 @@ public abstract class DeferredPipeline {
 			pass.dispose();
 		quad.dispose();
 		finalShader.dispose();
+	}
+
+	public void reloadShaders() {
+		DisplayUtils.checkErrors();
+		for (DeferredPass<?> deferredPass : passes)
+			deferredPass.reloadShader();
+		finalShader.reload();
+		finalShader.start();
+		finalShader.loadResolution(new Vector2f(width, height));
+		finalShader.stop();
 	}
 
 	private void generatePipeline() {

@@ -85,7 +85,6 @@ public class ClientEngine extends Engine implements IClientEngine {
 		watchdog = new Thread(() -> {
 			while (true) {
 				ThreadUtils.sleep(5000);
-				// TODO: Finish this watchdog lol
 			}
 		});
 		watchdog.setDaemon(true);

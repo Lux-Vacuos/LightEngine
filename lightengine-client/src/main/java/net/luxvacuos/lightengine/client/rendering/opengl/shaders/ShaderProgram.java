@@ -38,7 +38,7 @@ import static org.lwjgl.opengl.GL20C.glLinkProgram;
 import static org.lwjgl.opengl.GL20C.glShaderSource;
 import static org.lwjgl.opengl.GL20C.glUseProgram;
 import static org.lwjgl.opengl.GL20C.glValidateProgram;
-import static org.lwjgl.opengl.GL32C.GL_GEOMETRY_SHADER;
+import static org.lwjgl.opengl.GL32C.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -57,117 +57,96 @@ import net.luxvacuos.lightengine.client.resources.ShaderIncludes;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
 public abstract class ShaderProgram implements IDisposable {
-	private int programID;
+	private int program;
 	private boolean loaded;
 	private List<IUniform> uniforms = new ArrayList<>();
+	private List<Shader> shaders = new ArrayList<>();
+	private Attribute[] attributes;
 
-	@Deprecated
-	private static boolean bound = false; // TODO: Not MT-safe
-
-	public ShaderProgram(String vertexFile, String fragmentFile, Attribute... inVariables) {
-		int vertexShaderID = loadShader(vertexFile, GL_VERTEX_SHADER);
-		int fragmentShaderID = loadShader(fragmentFile, GL_FRAGMENT_SHADER);
-		programID = glCreateProgram();
-		glAttachShader(programID, vertexShaderID);
-		glAttachShader(programID, fragmentShaderID);
-		bindAttributes(inVariables);
-		glLinkProgram(programID);
-		glDetachShader(programID, vertexShaderID);
-		glDetachShader(programID, fragmentShaderID);
-		glDeleteShader(vertexShaderID);
-		glDeleteShader(fragmentShaderID);
+	public ShaderProgram(String vertexFile, String fragmentFile, Attribute... attributes) {
+		this.attributes = attributes;
+		shaders.add(new Shader(vertexFile, GL_VERTEX_SHADER));
+		shaders.add(new Shader(fragmentFile, GL_FRAGMENT_SHADER));
+		this.loadShaderProgram();
 		loaded = true;
 	}
 
-	public ShaderProgram(String vertexFile, String fragmentFile, String geometryFile, Attribute... inVariables) {
-		int vertexShaderID = loadShader(vertexFile, GL_VERTEX_SHADER);
-		int geometryShaderID = loadShader(geometryFile, GL_GEOMETRY_SHADER);
-		int fragmentShaderID = loadShader(fragmentFile, GL_FRAGMENT_SHADER);
-		programID = glCreateProgram();
-		glAttachShader(programID, vertexShaderID);
-		glAttachShader(programID, geometryShaderID);
-		glAttachShader(programID, fragmentShaderID);
-		bindAttributes(inVariables);
-		glLinkProgram(programID);
-		glDetachShader(programID, vertexShaderID);
-		glDetachShader(programID, geometryShaderID);
-		glDetachShader(programID, fragmentShaderID);
-		glDeleteShader(vertexShaderID);
-		glDeleteShader(geometryShaderID);
-		glDeleteShader(fragmentShaderID);
+	public ShaderProgram(String vertexFile, String fragmentFile, String geometryFile, Attribute... attributes) {
+		this.attributes = attributes;
+		shaders.add(new Shader(vertexFile, GL_VERTEX_SHADER));
+		shaders.add(new Shader(geometryFile, GL_GEOMETRY_SHADER));
+		shaders.add(new Shader(fragmentFile, GL_FRAGMENT_SHADER));
+		this.loadShaderProgram();
 		loaded = true;
 	}
 
-	/**
-	 * Loads All Uniforms.
-	 * 
-	 * @param uniforms
-	 */
 	protected void storeUniforms(IUniform... uniforms) {
-		for (IUniform uniform : uniforms) {
-			uniform.storeUniformLocation(programID);
-		}
+		for (IUniform uniform : uniforms)
+			uniform.storeUniformLocation(program);
 		this.uniforms.addAll(Arrays.asList(uniforms));
 	}
 
+	protected void loadInitialData() {
+	}
+
 	protected void validate() {
-		glValidateProgram(programID);
+		glValidateProgram(program);
 	}
 
-	/**
-	 * Starts the Shader
-	 * 
-	 */
 	public void start() {
-		if (bound)
-			throw new RuntimeException("A Shader Program is already bound");
-		glUseProgram(programID);
-		bound = true;
+		glUseProgram(program);
 	}
 
-	/**
-	 * Stops the Shader
-	 * 
-	 */
 	public void stop() {
 		glUseProgram(0);
-		bound = false;
 	}
 
-	/**
-	 * Clear all loaded data
-	 * 
-	 */
+	public void reload() {
+		glDeleteProgram(program);
+		this.loadShaderProgram();
+		for (IUniform uniform : uniforms)
+			uniform.storeUniformLocation(program);
+		this.validate();
+		this.loadInitialData();
+	}
+
 	@Override
 	public void dispose() {
 		if (!loaded)
 			return;
-		stop();
-		glDeleteProgram(programID);
 		loaded = false;
-		for (IUniform uniform : uniforms) {
+		glDeleteProgram(program);
+		shaders.clear();
+		for (IUniform uniform : uniforms)
 			uniform.dispose();
-		}
 		uniforms.clear();
 	}
 
-	/**
-	 * Bind array of attributes
-	 * 
-	 * @param inVariables Array
-	 */
-	private void bindAttributes(Attribute[] att) {
-		for (int i = 0; i < att.length; i++) {
-			glBindAttribLocation(programID, att[i].getId(), att[i].getName());
+	private void bindAttributes(Attribute[] attributes) {
+		for (Attribute attribute : attributes)
+			glBindAttribLocation(program, attribute.getId(), attribute.getName());
+	}
+
+	private void loadShaderProgram() {
+		program = glCreateProgram();
+		for (Shader shader : shaders)
+			glAttachShader(program, loadShader(shader));
+
+		bindAttributes(attributes);
+		glLinkProgram(program);
+
+		for (Shader shader : shaders) {
+			glDetachShader(program, shader.id);
+			glDeleteShader(shader.id);
 		}
 	}
 
-	private int loadShader(String file, int type) {
+	private int loadShader(Shader shader) {
 		StringBuilder shaderSource = new StringBuilder();
-		InputStream filet = getClass().getClassLoader().getResourceAsStream("assets/shaders/" + file);
-		try {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(filet));
-			Logger.log("Loading Shader: " + file);
+		InputStream filet = getClass().getClassLoader().getResourceAsStream("assets/shaders/" + shader.file);
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(filet))) {
+
+			Logger.log("Loading Shader: " + shader.file);
 
 			shaderSource.append("#version 330 core").append("//\n");
 			String line;
@@ -175,22 +154,20 @@ public abstract class ShaderProgram implements IDisposable {
 				if (line.startsWith("#include")) {
 					String[] split = line.split(" ");
 					String name = split[2];
-					if (split[1].equalsIgnoreCase("variable")) {
+					if (split[1].equalsIgnoreCase("variable"))
 						shaderSource.append(ShaderIncludes.getVariable(name)).append("//\n");
-					} else if (split[1].equalsIgnoreCase("struct")) {
+					else if (split[1].equalsIgnoreCase("struct"))
 						shaderSource.append(ShaderIncludes.getStruct(name)).append("//\n");
-					} else if (split[1].equalsIgnoreCase("function")) {
+					else if (split[1].equalsIgnoreCase("function"))
 						shaderSource.append(ShaderIncludes.getFunction(name)).append("//\n");
-					}
 					continue;
 				}
 				shaderSource.append(line).append("//\n");
 			}
-			reader.close();
 		} catch (IOException e) {
 			throw new LoadShaderException(e);
 		}
-		int shaderID = glCreateShader(type);
+		int shaderID = shader.id = glCreateShader(shader.type);
 		glShaderSource(shaderID, shaderSource);
 		glCompileShader(shaderID);
 		if (glGetShaderi(shaderID, GL_COMPILE_STATUS) == GL_FALSE) {
@@ -198,6 +175,17 @@ public abstract class ShaderProgram implements IDisposable {
 			throw new CompileShaderException(glGetShaderInfoLog(shaderID, 500));
 		}
 		return shaderID;
+	}
+
+	protected class Shader {
+		protected final String file;
+		protected final int type;
+		protected int id;
+
+		public Shader(String file, int type) {
+			this.file = file;
+			this.type = type;
+		}
 	}
 
 }

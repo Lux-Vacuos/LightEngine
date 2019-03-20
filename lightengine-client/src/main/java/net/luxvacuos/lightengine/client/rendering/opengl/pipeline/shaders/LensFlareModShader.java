@@ -33,6 +33,11 @@ public class LensFlareModShader extends BasePipelineShader {
 		super("deferred/" + name);
 		super.storeUniforms(lensFlare, lensDirt, lensStar, image);
 		super.validate();
+		this.loadInitialData();
+	}
+
+	@Override
+	protected void loadInitialData() {
 		super.start();
 		lensFlare.loadTexUnit(0);
 		lensDirt.loadTexUnit(1);

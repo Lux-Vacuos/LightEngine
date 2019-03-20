@@ -25,14 +25,15 @@ import static org.lwjgl.nanovg.NanoVG.NVG_ALIGN_MIDDLE;
 
 import java.io.File;
 
-import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
+import net.luxvacuos.lightengine.client.resources.tasks.LoadNVGImageTask;
 import net.luxvacuos.lightengine.client.ui.Alignment;
 import net.luxvacuos.lightengine.client.ui.ComponentWindow;
 import net.luxvacuos.lightengine.client.ui.Image;
 import net.luxvacuos.lightengine.client.ui.Spinner;
 import net.luxvacuos.lightengine.client.ui.Text;
 import net.luxvacuos.lightengine.universal.core.PackageLoader;
+import net.luxvacuos.lightengine.universal.core.TaskManager;
 
 public class LoadWindow extends ComponentWindow {
 	private Text message;
@@ -46,11 +47,13 @@ public class LoadWindow extends ComponentWindow {
 		super.setBlurBehind(false);
 		super.setBackgroundColor("#FFFFFFFF");
 
-		Image lv = new Image(0, 0, 512, 512,
-				GraphicalSubsystem.getMainWindow().getResourceLoader().loadNVGTexture("LuxVacuos-Logo"));
+		Image lv = new Image(0, 0, 512, 512);
 		lv.setAlignment(Alignment.CENTER);
 		lv.setWindowAlignment(Alignment.CENTER);
 		super.addComponent(lv);
+		TaskManager.tm
+				.submitRenderThread(new LoadNVGImageTask("assets/textures/menu/LuxVacuos-Logo.png", window.getNVGID())
+						.setOnFinished((val) -> lv.setImage(val)));
 
 		super.initApp();
 		this.notifyWindow(WindowMessage.WM_FADE_IN, null);

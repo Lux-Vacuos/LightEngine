@@ -28,36 +28,37 @@ import net.luxvacuos.lightengine.universal.core.TaskManager;
 
 public class Image extends Component {
 
-	private int image;
+	private int image = -1;
 	private boolean deleteOnClose = true;
 
-	public Image(float x, float y, float w, float h, int image) {
+	public Image(float x, float y, float w, float h) {
 		this.x = x;
 		this.y = y;
 		this.w = w;
 		this.h = h;
+	}
+
+	public Image(float x, float y, float w, float h, int image) {
+		this(x, y, w, h);
 		this.image = image;
 	}
 
 	public Image(float x, float y, float w, float h, int image, boolean deleteOnClose) {
-		this.x = x;
-		this.y = y;
-		this.w = w;
-		this.h = h;
-		this.image = image;
+		this(x, y, w, h, image);
 		this.deleteOnClose = deleteOnClose;
 	}
 
 	@Override
 	public void render(Window window) {
-		Theme.renderImage(window.getNVGID(), rootComponent.rootX + alignedX,
-				window.getHeight() - rootComponent.rootY - alignedY - h, w, h, image, 1);
+		if (image != -1)
+			Theme.renderImage(window.getNVGID(), rootComponent.rootX + alignedX,
+					window.getHeight() - rootComponent.rootY - alignedY - h, w, h, image, 1);
 	}
 
 	@Override
 	public void dispose(Window window) {
 		super.dispose(window);
-		if (deleteOnClose)
+		if (deleteOnClose && image != -1)
 			TaskManager.tm.addTaskRenderThread(() -> nvgDeleteImage(window.getNVGID(), image));
 	}
 

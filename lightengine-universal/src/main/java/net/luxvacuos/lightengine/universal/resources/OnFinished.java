@@ -18,9 +18,9 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.resources;
+package net.luxvacuos.lightengine.universal.resources;
 
-public interface OnFinished<V> {
+public interface OnFinished<T> {
 
-	public void onFinished(V value);
+	public void onFinished(T value);
 }

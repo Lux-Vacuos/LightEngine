@@ -20,12 +20,17 @@
 
 package net.luxvacuos.lightengine.client.rendering.glfw;
 
+import static org.lwjgl.glfw.GLFW.GLFW_RESIZABLE;
+import static org.lwjgl.glfw.GLFW.GLFW_TRUE;
 import static org.lwjgl.glfw.GLFW.GLFW_VISIBLE;
 import static org.lwjgl.glfw.GLFW.glfwDestroyWindow;
+import static org.lwjgl.glfw.GLFW.glfwGetWindowAttrib;
 import static org.lwjgl.glfw.GLFW.glfwHideWindow;
+import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
 import static org.lwjgl.glfw.GLFW.glfwMaximizeWindow;
 import static org.lwjgl.glfw.GLFW.glfwRestoreWindow;
 import static org.lwjgl.glfw.GLFW.glfwSetFramebufferSizeCallback;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowCloseCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowFocusCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowIconifyCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowMaximizeCallback;
@@ -34,15 +39,16 @@ import static org.lwjgl.glfw.GLFW.glfwSetWindowPosCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowRefreshCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowSize;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowSizeCallback;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowTitle;
 import static org.lwjgl.glfw.GLFW.glfwShowWindow;
-import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 import static org.lwjgl.nanovg.NanoVG.nvgBeginFrame;
 import static org.lwjgl.nanovg.NanoVG.nvgEndFrame;
 import static org.lwjgl.opengl.GL11C.glViewport;
+import static org.lwjgl.system.MemoryUtil.NULL;
 
 import org.lwjgl.glfw.Callbacks;
-import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
 import org.lwjgl.glfw.GLFWScrollCallback;
 import org.lwjgl.glfw.GLFWWindowFocusCallback;
@@ -51,6 +57,7 @@ import org.lwjgl.glfw.GLFWWindowMaximizeCallback;
 import org.lwjgl.glfw.GLFWWindowPosCallback;
 import org.lwjgl.glfw.GLFWWindowRefreshCallback;
 import org.lwjgl.nanovg.NanoVGGL3;
+import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
 
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
@@ -122,7 +129,7 @@ public abstract class AbstractWindow implements IWindow {
 	protected void setCallbacks() {
 		this.kbHandle = new KeyboardHandler(this.windowID);
 		this.mHandle = new LegacyMouseHandler(this.windowID, this); // TODO: Mouse Handler
-		
+
 		windowSizeCallback = new WindowSizeCallback(); // TODO: Do this for the other callbacks
 		windowCloseCallback = new WindowCloseCallback();
 
@@ -228,11 +235,11 @@ public abstract class AbstractWindow implements IWindow {
 	public void restore() {
 		glfwRestoreWindow(windowID);
 	}
-	
+
 	public WindowSizeCallback getSizeCallback() {
 		return windowSizeCallback;
 	}
-	
+
 	public WindowCloseCallback getCloseCallback() {
 		return windowCloseCallback;
 	}
@@ -263,7 +270,7 @@ public abstract class AbstractWindow implements IWindow {
 	}
 
 	public boolean isResizable() {
-		return this.getWindowAttribute(GLFW.GLFW_RESIZABLE);
+		return this.getWindowAttribute(GLFW_RESIZABLE);
 	}
 
 	public boolean isIconified() {
@@ -347,7 +354,7 @@ public abstract class AbstractWindow implements IWindow {
 	}
 
 	private boolean getWindowAttribute(int attribute) {
-		return (GLFW.glfwGetWindowAttrib(this.windowID, attribute) == GLFW.GLFW_TRUE ? true : false);
+		return (glfwGetWindowAttrib(this.windowID, attribute) == GLFW_TRUE ? true : false);
 	}
 
 	public GLCapabilities getCapabilities() {
@@ -375,13 +382,15 @@ public abstract class AbstractWindow implements IWindow {
 
 	@Override
 	public void dispose() {
-		NanoVGGL3.nvgDelete(this.nvgID);
 		if (resourceLoader != null)
 			resourceLoader.dispose();
+		NanoVGGL3.nvgDelete(this.nvgID);
+		glfwMakeContextCurrent(NULL);
+		GL.setCapabilities(null);
 	}
 
 	public void setWindowTitle(String text) {
-		GLFW.glfwSetWindowTitle(this.windowID, text);
+		glfwSetWindowTitle(this.windowID, text);
 	}
 
 }

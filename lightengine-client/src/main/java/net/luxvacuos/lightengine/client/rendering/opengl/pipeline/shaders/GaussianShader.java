@@ -33,6 +33,11 @@ public class GaussianShader extends BasePipelineShader {
 		super("deferred/" + name);
 		super.storeUniforms(image, vertical);
 		super.validate();
+		this.loadInitialData();
+	}
+
+	@Override
+	protected void loadInitialData() {
 		super.start();
 		image.loadTexUnit(0);
 		super.stop();

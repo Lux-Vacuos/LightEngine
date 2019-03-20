@@ -31,7 +31,6 @@ uniform mat4 projectionLightMatrix[4];
 uniform mat4 viewLightMatrix;
 uniform mat4 biasMatrix;
 uniform vec3 lightPosition;
-uniform float time;
 uniform sampler2DShadow shadowMap[4];
 
 uniform int useShadows;
@@ -43,8 +42,11 @@ uniform int useVolumetricLight;
 
 #include variable GLOBAL
 
-#define VOLUMETRIC_MULT 0.08
-#define VOLUMETRIC_SUN 1.0
+#define VOLUMETRIC_MULT 1.0
+
+#define VOLUME_ON_SHADOW 0.2
+#define VOLUME_DENSITY 0.01
+#define VOLUME_COLOR vec3(0.50980392156862745098039215686275, 0.61568627450980392156862745098039,0.65098039215686274509803921568627)
 
 void main() {
 	if (useVolumetricLight == 1 && useShadows == 1) {
@@ -61,11 +63,10 @@ void main() {
 		float rayDist, incr = 0.2;
 		float rays;
 		float bias = max(0.1 * (1.0 - dot(N, L)), 0.005);
-		int itr;
 		vec3 randSample, finalTrace;
 		do {
 			rayTrace += cameraToWorldNorm * incr;
-			incr *= 1.05;
+			incr *= 1.1;
 
 			randSample =
 				vec3(random(rayTrace.x), random(rayTrace.y), random(rayTrace.z)) * 0.25 - 0.125;
@@ -73,16 +74,16 @@ void main() {
 			rayDist = length(finalTrace - cameraPosition);
 			if (rayDist > cameraToWorldDist - bias)
 				break;
-			itr++;
-
-			rays += computeShadow(finalTrace);
+			float curr = max(computeShadow(finalTrace), VOLUME_ON_SHADOW) * VOLUME_DENSITY;
+			curr *= smoothstep(150, 0, finalTrace.y);
+			rays += curr;
 			if (rayDist > MAX_DISTANCE_VOLUME)
 				break;
 		} while (rayDist < cameraToWorldDist);
-		rays /= itr;
-		rays = max(rays * VOLUMETRIC_MULT, 0.0) *
-			   (1.0 + smoothstep(0, 0.5, dot(cameraToWorldNorm, L) - 0.5) * VOLUMETRIC_SUN);
-		out_Color = vec4(rays, 0, 0, 0);
+		rays = max(rays * VOLUMETRIC_MULT, 0.0);
+
+		vec3 volumeColor = rays * VOLUME_COLOR;
+		out_Color = vec4(volumeColor, 0);
 	} else {
 		out_Color = vec4(0.0);
 	}

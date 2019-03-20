@@ -25,10 +25,10 @@ import static org.lwjgl.opengl.GL20C.glUniform3f;
 import org.joml.Vector3f;
 
 public class UniformVec3 extends Uniform {
+
 	private float currentX;
 	private float currentY;
 	private float currentZ;
-	private boolean used = false;
 
 	public UniformVec3(String name) {
 		super(name);

@@ -119,6 +119,8 @@ public class GraphicalSubsystem extends Subsystem {
 
 	@Override
 	public void initRender() {
+		((ClientTaskManager) TaskManager.tm).setRenderThread(Thread.currentThread());
+
 		WindowManager.createWindow(handle, window, renderingSettings.vsyncEnabled);
 		TaskManager.tm.submitRenderBackgroundThread(new Task<Void>() {
 			@Override

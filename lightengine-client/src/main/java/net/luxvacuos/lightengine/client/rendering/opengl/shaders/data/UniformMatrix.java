@@ -27,7 +27,6 @@ import org.joml.Matrix4f;
 public class UniformMatrix extends Uniform {
 
 	private Matrix4f current;
-	private boolean used = false;
 	private float[] fm = new float[16];
 
 	public UniformMatrix(String name) {

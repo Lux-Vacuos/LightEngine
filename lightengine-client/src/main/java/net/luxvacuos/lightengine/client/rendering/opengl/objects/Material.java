@@ -42,9 +42,9 @@ import org.lwjgl.assimp.AIMaterial;
 import org.lwjgl.assimp.AIString;
 
 import net.luxvacuos.lightengine.client.resources.DefaultData;
-import net.luxvacuos.lightengine.client.resources.OnFinished;
 import net.luxvacuos.lightengine.client.resources.ResourcesManager;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
+import net.luxvacuos.lightengine.universal.resources.OnFinished;
 
 /**
  * Material

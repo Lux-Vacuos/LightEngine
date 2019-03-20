@@ -21,56 +21,46 @@
 package net.luxvacuos.lightengine.client.rendering.opengl.pipeline;
 
 import static org.lwjgl.opengl.GL11C.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11C.glBindTexture;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13C.GL_TEXTURE1;
-import static org.lwjgl.opengl.GL13C.GL_TEXTURE10;
-import static org.lwjgl.opengl.GL13C.GL_TEXTURE11;
-import static org.lwjgl.opengl.GL13C.GL_TEXTURE12;
-import static org.lwjgl.opengl.GL13C.GL_TEXTURE13;
 import static org.lwjgl.opengl.GL13C.GL_TEXTURE2;
-import static org.lwjgl.opengl.GL13C.glActiveTexture;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE3;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE4;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE5;
 
 import net.luxvacuos.lightengine.client.network.IRenderingData;
 import net.luxvacuos.lightengine.client.rendering.opengl.RendererData;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
-import net.luxvacuos.lightengine.client.rendering.opengl.shaders.DeferredPipelineShader;
+import net.luxvacuos.lightengine.client.rendering.opengl.pipeline.shaders.VolumetricLightShader;
 import net.luxvacuos.lightengine.client.rendering.opengl.v2.DeferredPass;
 import net.luxvacuos.lightengine.client.rendering.opengl.v2.DeferredPipeline;
 
-public class VolumetricLight extends DeferredPass<DeferredPipelineShader> {
+public class VolumetricLight extends DeferredPass<VolumetricLightShader> {
 
-	public VolumetricLight() {
-		super("VolumetricLight");
+	public VolumetricLight(float scaling) {
+		super("VolumetricLight", scaling);
 	}
 
 	@Override
-	protected DeferredPipelineShader setupShader() {
-		return new DeferredPipelineShader(name);
+	protected VolumetricLightShader setupShader() {
+		return new VolumetricLightShader(name);
 	}
 
 	@Override
-	protected void setupShaderData(RendererData rnd, IRenderingData rd, DeferredPipelineShader shader) {
-		shader.loadLightPosition(rd.getSun().getSunPosition(), rd.getSun().getInvertedSunPosition());
-		shader.loadCameraData(rd.getCamera(), null, null);// TODO: Use previous data
-		shader.loadExposure(rnd.exposure);
-		shader.loadTime(rd.getWorldSimulation().getGlobalTime());
+	protected void setupShaderData(RendererData rnd, IRenderingData rd, VolumetricLightShader shader) {
+		shader.loadLightPosition(rd.getSun().getSunPosition());
+		shader.loadCameraData(rd.getCamera());
 		shader.loadSunCameraData(rd.getSun().getCamera());
 	}
 
 	@Override
 	protected void setupTextures(RendererData rnd, DeferredPipeline dp, Texture[] auxTex) {
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, dp.getPositionTex().getTexture());
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, dp.getNormalTex().getTexture());
-		glActiveTexture(GL_TEXTURE10);
-		glBindTexture(GL_TEXTURE_2D, rnd.shadow.getShadowMaps()[0]);
-		glActiveTexture(GL_TEXTURE11);
-		glBindTexture(GL_TEXTURE_2D, rnd.shadow.getShadowMaps()[1]);
-		glActiveTexture(GL_TEXTURE12);
-		glBindTexture(GL_TEXTURE_2D, rnd.shadow.getShadowMaps()[2]);
-		glActiveTexture(GL_TEXTURE13);
-		glBindTexture(GL_TEXTURE_2D, rnd.shadow.getShadowMaps()[3]);
+		super.activateTexture(GL_TEXTURE0, GL_TEXTURE_2D, dp.getPositionTex().getTexture());
+		super.activateTexture(GL_TEXTURE1, GL_TEXTURE_2D, dp.getNormalTex().getTexture());
+		super.activateTexture(GL_TEXTURE2, GL_TEXTURE_2D, rnd.shadow.getShadowMaps()[0]);
+		super.activateTexture(GL_TEXTURE3, GL_TEXTURE_2D, rnd.shadow.getShadowMaps()[1]);
+		super.activateTexture(GL_TEXTURE4, GL_TEXTURE_2D, rnd.shadow.getShadowMaps()[2]);
+		super.activateTexture(GL_TEXTURE5, GL_TEXTURE_2D, rnd.shadow.getShadowMaps()[3]);
 	}
 
 }

@@ -20,8 +20,8 @@
 
 package net.luxvacuos.lightengine.universal.core;
 
-import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.badlogic.gdx.utils.async.AsyncExecutor;
 
@@ -29,13 +29,15 @@ public class TaskManager {
 
 	public static TaskManager tm;
 
-	private Queue<Task<?>> tasksMainThread = new LinkedList<>(), tasksBackgroundThread = new LinkedList<>();
+	private Queue<Task<?>> tasksMainThread = new ConcurrentLinkedQueue<>(),
+			tasksBackgroundThread = new ConcurrentLinkedQueue<>();
 	private AsyncExecutor asyncExecutor;
-	private Thread backgroundThread;
+	private Thread mainThread, backgroundThread;
 	private boolean syncInterrupt;
 
 	public TaskManager() {
 		init();
+		mainThread = Thread.currentThread(); // Let's assume init thread it's main
 	}
 
 	protected void init() {
@@ -43,11 +45,8 @@ public class TaskManager {
 		backgroundThread = new Thread(() -> {
 			while (true) {
 				if (!tasksBackgroundThread.isEmpty()) {
-					while (!tasksBackgroundThread.isEmpty()) {
-						Task<?> t = tasksBackgroundThread.poll();
-						if (t != null)
-							t.callI();
-					}
+					while (!tasksBackgroundThread.isEmpty())
+						tasksBackgroundThread.poll().callI();
 				} else {
 					try {
 						syncInterrupt = false;
@@ -63,26 +62,28 @@ public class TaskManager {
 	}
 
 	public void addTaskMainThread(Runnable task) {
-		if (task != null)
-			this.submitMainThread(new Task<Void>() {
-				@Override
-				protected Void call() {
-					task.run();
-					return null;
-				}
+		if (task == null)
+			return;
+		this.submitMainThread(new Task<Void>() {
+			@Override
+			protected Void call() {
+				task.run();
+				return null;
+			}
 
-			});
+		});
 	}
 
 	public void addTaskBackgroundThread(Runnable task) {
-		if (task != null)
-			this.submitBackgroundThread(new Task<Void>() {
-				@Override
-				protected Void call() {
-					task.run();
-					return null;
-				}
-			});
+		if (task == null)
+			return;
+		this.submitBackgroundThread(new Task<Void>() {
+			@Override
+			protected Void call() {
+				task.run();
+				return null;
+			}
+		});
 	}
 
 	public void addTaskRenderThread(Runnable task) {
@@ -94,15 +95,28 @@ public class TaskManager {
 	}
 
 	public <T> Task<T> submitMainThread(Task<T> t) {
-		tasksMainThread.add(t);
+		if (t == null)
+			return null;
+
+		if (Thread.currentThread().equals(mainThread))
+			t.callI();
+		else
+			tasksMainThread.add(t);
 		return t;
 	}
 
 	public <T> Task<T> submitBackgroundThread(Task<T> t) {
-		tasksBackgroundThread.add(t);
-		if (!syncInterrupt) {
-			syncInterrupt = true;
-			backgroundThread.interrupt();
+		if (t == null)
+			return null;
+
+		if (Thread.currentThread().equals(backgroundThread))
+			t.callI();
+		else {
+			tasksBackgroundThread.add(t);
+			if (!syncInterrupt) {
+				syncInterrupt = true;
+				backgroundThread.interrupt();
+			}
 		}
 		return t;
 	}
@@ -116,11 +130,8 @@ public class TaskManager {
 	}
 
 	public void updateMainThread() {
-		if (!tasksMainThread.isEmpty()) {
-			Task<?> t = tasksMainThread.poll();
-			if (t != null)
-				t.callI();
-		}
+		if (!tasksMainThread.isEmpty())
+			tasksMainThread.poll().callI();
 	}
 
 	public AsyncExecutor getAsyncExecutor() {

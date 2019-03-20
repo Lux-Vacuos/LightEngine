@@ -72,7 +72,6 @@ public class DeferredPipelineShader extends BasePipelineShader {
 	private UniformMatrix biasMatrix = new UniformMatrix("biasMatrix");
 	private UniformSampler shadowMap[];
 
-	private Matrix4f biasM;
 
 	public DeferredPipelineShader(String name) {
 		super("deferred/" + name);
@@ -96,17 +95,11 @@ public class DeferredPipelineShader extends BasePipelineShader {
 				skyColor, exposure, time, gDiffuse, gPosition, gNormal, gDepth, gPBR, gMask, composite0, composite1,
 				composite2, totalLights, composite3, biasMatrix, viewLightMatrix);
 		super.validate();
-		biasM = new Matrix4f();
-		biasM.m00(0.5f);
-		biasM.m11(0.5f);
-		biasM.m22(0.5f);
-		biasM.m30(0.5f);
-		biasM.m31(0.5f);
-		biasM.m32(0.5f);
-		connectTextureUnits();
+		this.loadInitialData();
 	}
 
-	private void connectTextureUnits() {
+	@Override
+	protected void loadInitialData() {
 		super.start();
 		gDiffuse.loadTexUnit(0);
 		gPosition.loadTexUnit(1);
@@ -122,6 +115,13 @@ public class DeferredPipelineShader extends BasePipelineShader {
 		shadowMap[1].loadTexUnit(11);
 		shadowMap[2].loadTexUnit(12);
 		shadowMap[3].loadTexUnit(13);
+		Matrix4f biasM = new Matrix4f();
+		biasM.m00(0.5f);
+		biasM.m11(0.5f);
+		biasM.m22(0.5f);
+		biasM.m30(0.5f);
+		biasM.m31(0.5f);
+		biasM.m32(0.5f);
 		biasMatrix.loadMatrix(biasM);
 		super.stop();
 	}

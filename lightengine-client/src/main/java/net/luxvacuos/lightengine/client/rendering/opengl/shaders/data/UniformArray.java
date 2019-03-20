@@ -25,6 +25,7 @@ import static org.lwjgl.opengl.GL20C.glGetUniformLocation;
 public class UniformArray implements IUniform {
 
 	protected String[] names;
+	protected boolean used = false;
 	private int[] location;
 
 	protected UniformArray(String... names) {
@@ -37,6 +38,7 @@ public class UniformArray implements IUniform {
 		for (int x = 0; x < names.length; x++) {
 			location[x] = glGetUniformLocation(programID, names[x]);
 		}
+		used = false;
 	}
 
 	protected int[] getLocation() {

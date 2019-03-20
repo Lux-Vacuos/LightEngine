@@ -135,14 +135,10 @@ public class GLResourceLoader implements IResourceLoader {
 	/**
 	 * Load a multiple arrays of positions, texture coords, normals and indices
 	 * 
-	 * @param positions
-	 *            Array of Positions
-	 * @param textureCoords
-	 *            Array of Tex Coords
-	 * @param normals
-	 *            Array of Normals
-	 * @param indices
-	 *            Array of Indices
+	 * @param positions     Array of Positions
+	 * @param textureCoords Array of Tex Coords
+	 * @param normals       Array of Normals
+	 * @param indices       Array of Indices
 	 * @return A RawModel
 	 */
 	@Override
@@ -170,10 +166,8 @@ public class GLResourceLoader implements IResourceLoader {
 	/**
 	 * Load an array of positions and a dimension
 	 * 
-	 * @param positions
-	 *            Array of Positions
-	 * @param dimensions
-	 *            Dimension
+	 * @param positions  Array of Positions
+	 * @param dimensions Dimension
 	 * @return RawModel
 	 */
 	@Override
@@ -364,7 +358,7 @@ public class GLResourceLoader implements IResourceLoader {
 				} catch (InterruptedException e) {
 				}
 			}
-
+			memFree(buffer[0]);
 		} catch (Exception e) {
 			throw new LoadTextureException(file, e);
 		}
@@ -453,8 +447,7 @@ public class GLResourceLoader implements IResourceLoader {
 	/**
 	 * Load an ObjModel
 	 * 
-	 * @param fileName
-	 *            OBJ File name
+	 * @param fileName OBJ File name
 	 * @return RawModel that contains all the data loaded to the GPU
 	 */
 	@Override
@@ -624,15 +617,12 @@ public class GLResourceLoader implements IResourceLoader {
 	/**
 	 * Reads the specified resource and returns the raw data as a ByteBuffer.
 	 *
-	 * @param resource
-	 *            the resource to read
-	 * @param bufferSize
-	 *            the initial buffer size
+	 * @param resource   the resource to read
+	 * @param bufferSize the initial buffer size
 	 *
 	 * @return the resource data
 	 *
-	 * @throws IOException
-	 *             if an IO error occurs
+	 * @throws IOException if an IO error occurs
 	 */
 	public static ByteBuffer ioResourceToByteBuffer(String resource, int bufferSize) throws IOException {
 		ByteBuffer buffer;
@@ -692,12 +682,9 @@ public class GLResourceLoader implements IResourceLoader {
 	/**
 	 * Store The Data in Attribute List
 	 * 
-	 * @param attributeNumber
-	 *            Number
-	 * @param coordinateSize
-	 *            Coord Size
-	 * @param data
-	 *            Data
+	 * @param attributeNumber Number
+	 * @param coordinateSize  Coord Size
+	 * @param data            Data
 	 */
 	private void storeDataInAttributeList(int attributeNumber, int coordinateSize, float[] data) {
 		int vboID = glGenBuffers();
@@ -719,8 +706,7 @@ public class GLResourceLoader implements IResourceLoader {
 	/**
 	 * Bind Indices Buffer
 	 * 
-	 * @param indices
-	 *            Array of Indices
+	 * @param indices Array of Indices
 	 */
 	private void bindIndicesBuffer(int[] indices) {
 		int vboID = glGenBuffers();

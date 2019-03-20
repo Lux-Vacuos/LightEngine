@@ -20,10 +20,9 @@
 
 package net.luxvacuos.lightengine.client.core;
 
-import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
-import net.luxvacuos.lightengine.client.core.exception.OpenGLException;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.glfw.WindowManager;
@@ -34,57 +33,70 @@ public class ClientTaskManager extends TaskManager {
 
 	private Window asyncWindow;
 
-	private Queue<Task<?>> tasksRenderThread = new LinkedList<>(), tasksRenderBackgroundThread = new LinkedList<>();
-	private Thread renderBackgroundThread;
+	private Queue<Task<?>> tasksRenderThread = new ConcurrentLinkedQueue<>(),
+			tasksRenderBackgroundThread = new ConcurrentLinkedQueue<>();
+	private Thread renderThread, renderBackgroundThread;
 	private boolean runBackgroundThread = true, syncInterrupt = true;
 	private long renderBackgroundThreadID;
 
 	@Override
 	public void addTaskRenderThread(Runnable task) {
-		if (task != null)
-			this.submitRenderThread(new Task<Void>() {
-				@Override
-				protected Void call() {
-					task.run();
-					return null;
-				}
-			});
+		if (task == null)
+			return;
+		this.submitRenderThread(new Task<Void>() {
+			@Override
+			protected Void call() {
+				task.run();
+				return null;
+			}
+		});
 	}
 
 	@Override
 	public void addTaskRenderBackgroundThread(Runnable task) {
-		if (task != null)
-			this.submitRenderBackgroundThread(new Task<Void>() {
-				@Override
-				protected Void call() {
-					task.run();
-					return null;
-				}
-			});
+		if (task == null)
+			return;
+		this.submitRenderBackgroundThread(new Task<Void>() {
+			@Override
+			protected Void call() {
+				task.run();
+				return null;
+			}
+		});
 	}
 
 	@Override
 	public <T> Task<T> submitRenderThread(Task<T> t) {
-		tasksRenderThread.add(t);
+		if (t == null)
+			return null;
+
+		if (Thread.currentThread().equals(renderThread))
+			t.callI();
+		else
+			tasksRenderThread.add(t);
 		return t;
 	}
 
 	@Override
 	public <T> Task<T> submitRenderBackgroundThread(Task<T> t) {
-		tasksRenderBackgroundThread.add(t);
-		if (!syncInterrupt) {
-			syncInterrupt = true;
-			renderBackgroundThread.interrupt();
+		if (t == null)
+			return null;
+
+		if (Thread.currentThread().equals(renderBackgroundThread))
+			t.callI();
+		else {
+			tasksRenderBackgroundThread.add(t);
+			if (!syncInterrupt) {
+				syncInterrupt = true;
+				renderBackgroundThread.interrupt();
+			}
 		}
 		return t;
 	}
 
 	public void updateRenderThread() {
-		if (!tasksRenderThread.isEmpty()) {
-			Task<?> t = tasksRenderThread.poll();
-			if (t != null)
-				t.callI();
-		}
+		if (!tasksRenderThread.isEmpty())
+			tasksRenderThread.poll().callI();
 	}
 
 	public void switchToSharedContext() {
@@ -95,23 +107,16 @@ public class ClientTaskManager extends TaskManager {
 			WindowManager.createWindow(handle, asyncWindow, true);
 			while (runBackgroundThread) {
 				if (!tasksRenderBackgroundThread.isEmpty()) {
-					while (!tasksRenderBackgroundThread.isEmpty()) {
-						Task<?> t = tasksRenderBackgroundThread.poll();
-						if (t != null)
-							t.callI();
-					}
+					while (!tasksRenderBackgroundThread.isEmpty())
+						tasksRenderBackgroundThread.poll().callI();
 				} else {
 					try {
 						syncInterrupt = false;
-						Thread.sleep(1000000l);
+						Thread.sleep(Long.MAX_VALUE);
 					} catch (InterruptedException e) {
 					}
 				}
-				try {
-					asyncWindow.updateDisplay(0);
-				} catch (OpenGLException e) {
-					e.printStackTrace();
-				}
+				asyncWindow.updateDisplay(0);
 			}
 			asyncWindow.dispose();
 		});
@@ -127,6 +132,10 @@ public class ClientTaskManager extends TaskManager {
 
 	public long getRenderBackgroundThreadID() {
 		return renderBackgroundThreadID;
+	}
+
+	public void setRenderThread(Thread renderThread) {
+		this.renderThread = renderThread;
 	}
 
 	@Override

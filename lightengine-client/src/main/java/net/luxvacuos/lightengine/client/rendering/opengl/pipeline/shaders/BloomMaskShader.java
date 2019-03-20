@@ -30,6 +30,11 @@ public class BloomMaskShader extends BasePipelineShader {
 		super("deferred/" + name);
 		super.storeUniforms(image);
 		super.validate();
+		this.loadInitialData();
+	}
+
+	@Override
+	protected void loadInitialData() {
 		super.start();
 		image.loadTexUnit(0);
 		super.stop();

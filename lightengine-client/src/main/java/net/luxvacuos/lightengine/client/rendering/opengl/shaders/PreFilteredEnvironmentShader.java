@@ -41,6 +41,11 @@ public class PreFilteredEnvironmentShader extends ShaderProgram {
 				new Attribute(0, "position"));
 		super.storeUniforms(projectionMatrix, viewMatrix, envMap, roughness);
 		super.validate();
+		this.loadInitialData();
+	}
+
+	@Override
+	protected void loadInitialData() {
 		super.start();
 		envMap.loadTexUnit(0);
 		super.stop();

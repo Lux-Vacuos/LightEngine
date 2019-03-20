@@ -23,7 +23,7 @@ package net.luxvacuos.lightengine.client.rendering.opengl.pipeline.shaders;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformSampler;
 
 public class BloomShader extends BasePipelineShader {
-	
+
 	private UniformSampler base = new UniformSampler("base");
 	private UniformSampler bloom = new UniformSampler("bloom");
 
@@ -31,10 +31,15 @@ public class BloomShader extends BasePipelineShader {
 		super("deferred/" + name);
 		super.storeUniforms(base, bloom);
 		super.validate();
+		this.loadInitialData();
+	}
+
+	@Override
+	protected void loadInitialData() {
 		super.start();
 		bloom.loadTexUnit(0);
 		base.loadTexUnit(1);
 		super.stop();
 	}
-	
+
 }

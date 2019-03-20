@@ -41,10 +41,11 @@ public class Window3DShader extends ShaderProgram {
 				new Attribute(0, "position"));
 		super.storeUniforms(transformationMatrix, projectionMatrix, viewMatrix, image);
 		super.validate();
-		connectTextureUnits();
+		this.loadInitialData();
 	}
 
-	private void connectTextureUnits() {
+	@Override
+	protected void loadInitialData() {
 		super.start();
 		image.loadTexUnit(0);
 		super.stop();

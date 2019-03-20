@@ -44,10 +44,11 @@ public class WindowManagerShader extends ShaderProgram {
 		super.storeUniforms(window, accumulator, resolution, blurBehind, windowPosition, composite1, composite2,
 				composite3);
 		super.validate();
-		connectTextureUnits();
+		this.loadInitialData();
 	}
 
-	private void connectTextureUnits() {
+	@Override
+	protected void loadInitialData() {
 		super.start();
 		window.loadTexUnit(0);
 		accumulator.loadTexUnit(1);

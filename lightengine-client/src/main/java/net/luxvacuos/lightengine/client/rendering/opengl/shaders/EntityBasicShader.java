@@ -41,10 +41,11 @@ public class EntityBasicShader extends ShaderProgram {
 				new Attribute(0, "position"), new Attribute(1, "textureCoords"));
 		super.storeUniforms(transformationMatrix, projectionMatrix, viewMatrix, texture0);
 		super.validate();
-		connectTextureUnits();
+		this.loadInitialData();
 	}
 
-	private void connectTextureUnits() {
+	@Override
+	protected void loadInitialData() {
 		super.start();
 		texture0.loadTexUnit(0);
 		super.stop();

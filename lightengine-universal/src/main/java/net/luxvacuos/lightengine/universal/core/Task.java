@@ -23,18 +23,27 @@ package net.luxvacuos.lightengine.universal.core;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Task<V> {
+import net.luxvacuos.igl.Logger;
+import net.luxvacuos.lightengine.universal.resources.OnFinished;
+
+public abstract class Task<T> {
 
 	private boolean done;
-	private V value;
+	private T value;
 	private List<Thread> ts = new ArrayList<>();
+	private OnFinished<T> onFinished;
+	private Thread thread;
 
 	public boolean isDone() {
 		return done;
 	}
 
-	public V get() {
+	public T get() {
 		if (!done) {
+			if (Thread.currentThread().equals(thread)) {
+				Logger.warn("Unable to lock current thread.");
+				return null;
+			}
 			synchronized (ts) {
 				ts.add(Thread.currentThread());
 			}
@@ -46,7 +55,7 @@ public abstract class Task<V> {
 		return value;
 	}
 
-	public void onCompleted(V value) {
+	public void onCompleted(T value) {
 	}
 
 	/**
@@ -60,8 +69,15 @@ public abstract class Task<V> {
 		for (Thread t : ts)
 			t.interrupt();
 		onCompleted(value);
+		if (onFinished != null)
+			onFinished.onFinished(value);
 	}
 
-	protected abstract V call();
+	public Task<T> setOnFinished(OnFinished<T> onFinished) {
+		this.onFinished = onFinished;
+		return this;
+	}
+
+	protected abstract T call();
 
 }

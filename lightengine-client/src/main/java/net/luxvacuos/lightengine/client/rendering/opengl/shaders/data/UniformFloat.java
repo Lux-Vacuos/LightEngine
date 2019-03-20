@@ -25,7 +25,6 @@ import static org.lwjgl.opengl.GL20C.glUniform1f;
 public class UniformFloat extends Uniform {
 
 	private float currentValue;
-	private boolean used = false;
 
 	public UniformFloat(String name) {
 		super(name);

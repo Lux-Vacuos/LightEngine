@@ -28,7 +28,6 @@ public class UniformVec2 extends Uniform {
 
 	private float currentX;
 	private float currentY;
-	private boolean used = false;
 
 	public UniformVec2(String name) {
 		super(name);

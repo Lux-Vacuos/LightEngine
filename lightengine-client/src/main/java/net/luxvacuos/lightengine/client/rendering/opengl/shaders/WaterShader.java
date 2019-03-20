@@ -46,10 +46,11 @@ public class WaterShader extends ShaderProgram {
 				new Attribute(0, "position"), new Attribute(1, "textureCoords"));
 		super.storeUniforms(transformationMatrix, projectionMatrix, viewMatrix, cameraPosition, time, dudv, foamMask);
 		super.validate();
-		connectTextureUnits();
+		this.loadInitialData();
 	}
 
-	private void connectTextureUnits() {
+	@Override
+	protected void loadInitialData() {
 		super.start();
 		dudv.loadTexUnit(2);
 		foamMask.loadTexUnit(4);

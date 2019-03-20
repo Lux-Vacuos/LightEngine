@@ -41,6 +41,7 @@ import static org.lwjgl.opengl.GL30C.GL_RGBA16F;
 import org.joml.Vector2f;
 
 import net.luxvacuos.lightengine.client.network.IRenderingData;
+import net.luxvacuos.lightengine.client.rendering.glfw.DisplayUtils;
 import net.luxvacuos.lightengine.client.rendering.opengl.GPUProfiler;
 import net.luxvacuos.lightengine.client.rendering.opengl.RendererData;
 import net.luxvacuos.lightengine.client.rendering.opengl.RenderingSettings;
@@ -53,6 +54,7 @@ import net.luxvacuos.lightengine.client.rendering.opengl.pipeline.shaders.BasePi
 
 public abstract class DeferredPass<T extends BasePipelineShader> {
 
+	private int width, height;
 	private Framebuffer mainBuf;
 	private Texture mainTex;
 
@@ -71,13 +73,13 @@ public abstract class DeferredPass<T extends BasePipelineShader> {
 		this.scaling = scaling;
 	}
 
-	public void init(int width, int height) {
-		var lWidth = (int) (width * scaling);
-		var lHeight = (int) (height * scaling);
-		generateFramebuffer(lWidth, lHeight);
+	public void init(int iWidth, int iHeight) {
+		width = (int) (iWidth * scaling);
+		height = (int) (iHeight * scaling);
+		generateFramebuffer(width, height);
 		shader = setupShader();
 		shader.start();
-		shader.loadResolution(new Vector2f(lWidth, lHeight));
+		shader.loadResolution(new Vector2f(width, height));
 		shader.stop();
 	}
 
@@ -91,6 +93,7 @@ public abstract class DeferredPass<T extends BasePipelineShader> {
 		setupShaderData(rnd, rd, shader);
 		setupTextures(rnd, dp, auxTex);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		DisplayUtils.checkErrors();
 		shader.stop();
 		mainBuf.unbind();
 		GPUProfiler.end();
@@ -109,19 +112,26 @@ public abstract class DeferredPass<T extends BasePipelineShader> {
 
 	protected abstract void setupTextures(RendererData rnd, DeferredPipeline dp, Texture[] auxTex);
 
-	public void resize(int width, int height) {
-		var lWidth = (int) (width * scaling);
-		var lHeight = (int) (height * scaling);
+	public void resize(int iWidth, int iHeight) {
+		width = (int) (iWidth * scaling);
+		height = (int) (iHeight * scaling);
 		disposeFramebuffer();
-		generateFramebuffer(lWidth, lHeight);
+		generateFramebuffer(width, height);
 		shader.start();
-		shader.loadResolution(new Vector2f(lWidth, lHeight));
+		shader.loadResolution(new Vector2f(width, height));
 		shader.stop();
 	}
 
 	public void dispose() {
 		disposeFramebuffer();
 		shader.dispose();
+	}
+
+	public void reloadShader() {
+		shader.reload();
+		shader.start();
+		shader.loadResolution(new Vector2f(width, height));
+		shader.stop();
 	}
 
 	private void generateFramebuffer(int width, int height) {

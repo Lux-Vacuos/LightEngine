@@ -40,12 +40,7 @@ public class MultiPass extends DeferredPipeline {
 	private PointLightPass pointLightPass;
 
 	public void setupPasses() {
-		volumetricLight = new VolumetricLight() {
-			@Override
-			public void resize(int width, int height) {
-				super.resize(width / 2, height / 2);
-			}
-		};
+		volumetricLight = new VolumetricLight(0.5f);
 		super.passes.add(volumetricLight);
 
 		gH1 = new GaussianBlur(false, 0.5f);

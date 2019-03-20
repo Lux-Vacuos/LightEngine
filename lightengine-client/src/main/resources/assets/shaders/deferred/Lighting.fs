@@ -171,6 +171,6 @@ void main() {
 		image.rgb = color;
 	}
 	vec4 vol = texture(composite0, textureCoords);
-	image.rgb += vol.rrr;
+	image.rgb += vol.rgb;
 	out_Color = image;
 }

@@ -25,7 +25,6 @@ import static org.lwjgl.opengl.GL20C.glUniform1i;
 public class UniformSampler extends Uniform {
 
 	private int currentValue;
-	private boolean used = false;
 
 	public UniformSampler(String name) {
 		super(name);

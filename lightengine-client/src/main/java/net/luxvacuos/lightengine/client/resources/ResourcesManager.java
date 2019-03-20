@@ -47,6 +47,7 @@ import net.luxvacuos.lightengine.client.resources.tasks.LoadTextureTask;
 import net.luxvacuos.lightengine.client.resources.tasks.ShaderIncludeTask;
 import net.luxvacuos.lightengine.universal.core.Task;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
+import net.luxvacuos.lightengine.universal.resources.OnFinished;
 
 public final class ResourcesManager {
 
@@ -65,13 +66,8 @@ public final class ResourcesManager {
 			OnFinished<Texture> dst) {
 		Logger.log("Texture scheduled to load: " + fileName);
 		return TaskManager.tm.submitRenderBackgroundThread(
-				new LoadTextureTask("assets/" + fileName, filter, GL_REPEAT, GL_RGBA, textureMipMapAF) {
-					@Override
-					public void onCompleted(Texture value) {
-						if (dst != null)
-							dst.onFinished(value);
-					}
-				});
+				new LoadTextureTask("assets/" + fileName, filter, GL_REPEAT, GL_RGBA, textureMipMapAF)
+						.setOnFinished(dst));
 	}
 
 	public static Task<Texture> loadTexture(String fileName, OnFinished<Texture> dst) {
@@ -82,13 +78,8 @@ public final class ResourcesManager {
 			OnFinished<Texture> dst) {
 		Logger.log("Texture scheduled to load: " + fileName);
 		return TaskManager.tm.submitRenderBackgroundThread(
-				new LoadTextureTask("assets/" + fileName, filter, GL_REPEAT, GL_SRGB_ALPHA, textureMipMapAF) {
-					@Override
-					public void onCompleted(Texture value) {
-						if (dst != null)
-							dst.onFinished(value);
-					}
-				});
+				new LoadTextureTask("assets/" + fileName, filter, GL_REPEAT, GL_SRGB_ALPHA, textureMipMapAF)
+						.setOnFinished(dst));
 	}
 
 	public static void disposeTexture(Texture texture) {
@@ -117,16 +108,13 @@ public final class ResourcesManager {
 
 		File file = new File(resource);
 		if (file.isFile()) {
-			FileInputStream fis = new FileInputStream(file);
-			FileChannel fc = fis.getChannel();
-
-			buffer = memAlloc((int) fc.size() + 1);
-
-			while (fc.read(buffer) != -1)
-				;
-
-			fis.close();
-			fc.close();
+			try (FileInputStream fis = new FileInputStream(file)) {
+				try (FileChannel fc = fis.getChannel()) {
+					buffer = memAlloc((int) fc.size() + 1);
+					while (fc.read(buffer) != -1)
+						;
+				}
+			}
 		} else {
 			int size = 0;
 			buffer = memAlloc(bufferSize);

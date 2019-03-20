@@ -25,6 +25,7 @@ import static org.lwjgl.opengl.GL20C.glGetUniformLocation;
 public abstract class Uniform implements IUniform {
 
 	protected String name;
+	protected boolean used = false;
 	private int location;
 
 	protected Uniform(String name) {
@@ -34,6 +35,7 @@ public abstract class Uniform implements IUniform {
 	@Override
 	public void storeUniformLocation(int programID) {
 		location = glGetUniformLocation(programID, name);
+		used = false;
 	}
 
 	@Override

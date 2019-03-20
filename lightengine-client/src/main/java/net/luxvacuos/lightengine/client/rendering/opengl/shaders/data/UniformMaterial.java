@@ -29,7 +29,6 @@ import net.luxvacuos.lightengine.client.rendering.opengl.objects.Material;
 public class UniformMaterial extends UniformArray {
 
 	private Material currentValue;
-	private boolean used = false;
 
 	public UniformMaterial(String matName) {
 		super(matName + ".diffuse", matName + ".emissive", matName + ".roughness", matName + ".metallic",

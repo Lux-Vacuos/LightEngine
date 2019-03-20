@@ -120,7 +120,6 @@ public class DeferredShadingShader extends ShaderProgram {
 				gMask, composite0, composite1, composite2, totalLights, useChromaticAberration, composite3,
 				useLensFlares, biasMatrix, viewLightMatrix, useShadows);
 		super.validate();
-		connectTextureUnits();
 		biasM = new Matrix4f();
 		biasM.m00(0.5f);
 		biasM.m11(0.5f);
@@ -128,13 +127,11 @@ public class DeferredShadingShader extends ShaderProgram {
 		biasM.m30(0.5f);
 		biasM.m31(0.5f);
 		biasM.m32(0.5f);
+		this.loadInitialData();
 	}
 
-	/**
-	 * Loads Textures ID
-	 * 
-	 */
-	private void connectTextureUnits() {
+	@Override
+	protected void loadInitialData() {
 		super.start();
 		gDiffuse.loadTexUnit(0);
 		gPosition.loadTexUnit(1);
