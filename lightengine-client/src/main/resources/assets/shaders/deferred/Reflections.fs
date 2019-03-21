@@ -73,6 +73,8 @@ void main(void) {
 			vec2 envBRDF = texture(composite3, vec2(max(dot(N, V), 0.0), roughness)).rg;
 			vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
 
+			image.rgb += specular;
+
 			vec3 camToWorld = position - cameraPosition.xyz;
 			vec3 camToWorldNorm = normalize(camToWorld);
 			vec3 newPos;

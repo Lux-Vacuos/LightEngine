@@ -20,43 +20,47 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl.pipeline.shaders;
 
+import java.util.List;
+
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
 
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
-import net.luxvacuos.lightengine.client.ecs.entities.SunCamera;
+import net.luxvacuos.lightengine.client.rendering.opengl.objects.Light;
+import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformInteger;
+import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformLight;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformMatrix;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformSampler;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformVec3;
 
-public class VolumetricLightShader extends BasePipelineShader {
+public class LocalLightsShader extends BasePipelineShader {
 
 	private UniformMatrix projectionMatrix = new UniformMatrix("projectionMatrix");
 	private UniformMatrix viewMatrix = new UniformMatrix("viewMatrix");
 
 	private UniformVec3 cameraPosition = new UniformVec3("cameraPosition");
-	private UniformVec3 lightPosition = new UniformVec3("lightPosition");
 
+	private UniformLight lights[];
+	private UniformInteger totalLights = new UniformInteger("totalLights");
+
+	private UniformSampler gDiffuse = new UniformSampler("gDiffuse");
 	private UniformSampler gPosition = new UniformSampler("gPosition");
 	private UniformSampler gNormal = new UniformSampler("gNormal");
+	private UniformSampler gDepth = new UniformSampler("gDepth");
+	private UniformSampler gPBR = new UniformSampler("gPBR");
+	private UniformSampler gMask = new UniformSampler("gMask");
+	private UniformSampler image = new UniformSampler("image");
 
-	private UniformMatrix projectionLightMatrix[];
-	private UniformMatrix viewLightMatrix = new UniformMatrix("viewLightMatrix");
 	private UniformMatrix biasMatrix = new UniformMatrix("biasMatrix");
-	private UniformSampler shadowMap[];
 
-	public VolumetricLightShader(String name) {
+	public LocalLightsShader(String name) {
 		super("deferred/" + name);
-		projectionLightMatrix = new UniformMatrix[4];
-		for (int x = 0; x < 4; x++)
-			projectionLightMatrix[x] = new UniformMatrix("projectionLightMatrix[" + x + "]");
-		super.storeUniforms(projectionLightMatrix);
-		shadowMap = new UniformSampler[4];
-		for (int x = 0; x < 4; x++)
-			shadowMap[x] = new UniformSampler("shadowMap[" + x + "]");
-		super.storeUniforms(shadowMap);
-		super.storeUniforms(projectionMatrix, viewMatrix, cameraPosition, lightPosition, gPosition, gNormal, biasMatrix,
-				viewLightMatrix);
+		lights = new UniformLight[26];
+		for (int x = 0; x < 26; x++) {
+			lights[x] = new UniformLight("lights[" + x + "]");
+		}
+		super.storeUniforms(lights);
+		super.storeUniforms(projectionMatrix, viewMatrix, cameraPosition, gDiffuse, gPosition, gNormal, gDepth, gPBR,
+				gMask, image, totalLights, biasMatrix);
 		super.validate();
 		this.loadInitialData();
 	}
@@ -64,31 +68,28 @@ public class VolumetricLightShader extends BasePipelineShader {
 	@Override
 	protected void loadInitialData() {
 		super.start();
-		gPosition.loadTexUnit(0);
-		gNormal.loadTexUnit(1);
-		shadowMap[0].loadTexUnit(2);
-		shadowMap[1].loadTexUnit(3);
-		shadowMap[2].loadTexUnit(4);
-		shadowMap[3].loadTexUnit(5);
-		Matrix4f biasM = new Matrix4f();
-		biasM.m00(0.5f);
-		biasM.m11(0.5f);
-		biasM.m22(0.5f);
-		biasM.m30(0.5f);
-		biasM.m31(0.5f);
-		biasM.m32(0.5f);
-		biasMatrix.loadMatrix(biasM);
+		gDiffuse.loadTexUnit(0);
+		gPosition.loadTexUnit(1);
+		gNormal.loadTexUnit(2);
+		gDepth.loadTexUnit(3);
+		gPBR.loadTexUnit(4);
+		gMask.loadTexUnit(5);
+		image.loadTexUnit(6);
+		Matrix4f bias = new Matrix4f();
+		bias.m00(0.5f);
+		bias.m11(0.5f);
+		bias.m22(0.5f);
+		bias.m30(0.5f);
+		bias.m31(0.5f);
+		bias.m32(0.5f);
+		biasMatrix.loadMatrix(bias);
 		super.stop();
 	}
 
-	public void loadLightPosition(Vector3f pos) {
-		lightPosition.loadVec3(pos);
-	}
-
-	public void loadSunCameraData(SunCamera camera) {
-		for (int x = 0; x < 4; x++)
-			this.projectionLightMatrix[x].loadMatrix(camera.getProjectionArray()[x]);
-		viewLightMatrix.loadMatrix(camera.getViewMatrix());
+	public void loadPointLightsPos(List<Light> lights) {
+		for (int x = 0; x < lights.size(); x++)
+			this.lights[x].loadLight(lights.get(x), 7, x);
+		totalLights.loadInteger(lights.size());
 	}
 
 	public void loadCameraData(CameraEntity camera) {
@@ -96,5 +97,4 @@ public class VolumetricLightShader extends BasePipelineShader {
 		this.viewMatrix.loadMatrix(camera.getViewMatrix());
 		this.cameraPosition.loadVec3(camera.getPosition());
 	}
-
 }

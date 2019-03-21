@@ -39,7 +39,7 @@ uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gMask;
 uniform sampler2D gPBR; // R = roughness, B = metallic
-uniform sampler2D composite0;
+uniform sampler2D image;
 
 #include variable pi
 
@@ -75,7 +75,7 @@ vec3 calcLight(Light light, vec3 position, vec3 diffuse, vec3 L, vec3 N, vec3 V,
 }
 
 void main() {
-	vec4 composite = texture(composite0, textureCoords);
+	vec4 composite = texture(image, textureCoords);
 	vec4 mask = texture(gMask, textureCoords);
 	if (mask.a != 1) {
 		vec4 diffuse = texture(gDiffuse, textureCoords);

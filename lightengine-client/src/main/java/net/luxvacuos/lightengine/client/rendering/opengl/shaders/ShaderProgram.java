@@ -38,7 +38,7 @@ import static org.lwjgl.opengl.GL20C.glLinkProgram;
 import static org.lwjgl.opengl.GL20C.glShaderSource;
 import static org.lwjgl.opengl.GL20C.glUseProgram;
 import static org.lwjgl.opengl.GL20C.glValidateProgram;
-import static org.lwjgl.opengl.GL32C.*;
+import static org.lwjgl.opengl.GL32C.GL_GEOMETRY_SHADER;
 
 import java.io.BufferedReader;
 import java.io.IOException;

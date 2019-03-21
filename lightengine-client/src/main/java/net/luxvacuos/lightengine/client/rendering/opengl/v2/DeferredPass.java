@@ -41,7 +41,6 @@ import static org.lwjgl.opengl.GL30C.GL_RGBA16F;
 import org.joml.Vector2f;
 
 import net.luxvacuos.lightengine.client.network.IRenderingData;
-import net.luxvacuos.lightengine.client.rendering.glfw.DisplayUtils;
 import net.luxvacuos.lightengine.client.rendering.opengl.GPUProfiler;
 import net.luxvacuos.lightengine.client.rendering.opengl.RendererData;
 import net.luxvacuos.lightengine.client.rendering.opengl.RenderingSettings;
@@ -93,7 +92,6 @@ public abstract class DeferredPass<T extends BasePipelineShader> {
 		setupShaderData(rnd, rd, shader);
 		setupTextures(rnd, dp, auxTex);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-		DisplayUtils.checkErrors();
 		shader.stop();
 		mainBuf.unbind();
 		GPUProfiler.end();

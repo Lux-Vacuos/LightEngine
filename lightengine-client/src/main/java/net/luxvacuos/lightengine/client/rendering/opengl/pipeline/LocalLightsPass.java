@@ -20,74 +20,63 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl.pipeline;
 
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_FLOAT;
-import static org.lwjgl.opengl.GL11.GL_RGBA;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLE_STRIP;
-import static org.lwjgl.opengl.GL11.glBindTexture;
-import static org.lwjgl.opengl.GL11.glClear;
-import static org.lwjgl.opengl.GL11.glDrawArrays;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE1;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE14;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE2;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE3;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE4;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE5;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE6;
-import static org.lwjgl.opengl.GL13.glActiveTexture;
-import static org.lwjgl.opengl.GL30.GL_RGBA16F;
+import static org.lwjgl.opengl.GL11C.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE0;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE1;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE2;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE3;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE4;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE5;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE6;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE7;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.joml.Matrix4f;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
-
-import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
-import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
-import net.luxvacuos.lightengine.client.ecs.entities.Sun;
-import net.luxvacuos.lightengine.client.ecs.entities.SunCamera;
-import net.luxvacuos.lightengine.client.rendering.opengl.FBO;
+import net.luxvacuos.lightengine.client.network.IRenderingData;
 import net.luxvacuos.lightengine.client.rendering.opengl.RendererData;
-import net.luxvacuos.lightengine.client.rendering.opengl.RenderingSettings;
-import net.luxvacuos.lightengine.client.rendering.opengl.ShadowFBO;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.CubeMapTexture;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Light;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
-import net.luxvacuos.lightengine.client.rendering.opengl.pipeline.shaders.BasePipelineShader;
-import net.luxvacuos.lightengine.client.rendering.opengl.shaders.DeferredShadingShader;
+import net.luxvacuos.lightengine.client.rendering.opengl.pipeline.shaders.LocalLightsShader;
 import net.luxvacuos.lightengine.client.rendering.opengl.v2.DeferredPass;
 import net.luxvacuos.lightengine.client.rendering.opengl.v2.DeferredPipeline;
-import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
 
-//TODO: Update this 
-public class PointLightPass extends DeferredPass {
+public class LocalLightsPass extends DeferredPass<LocalLightsShader> {
 
-	public PointLightPass(String name) {
-		super(name);
-		// TODO Auto-generated constructor stub
+	public LocalLightsPass() {
+		super("LocalLightsPass");
 	}
 	
 	@Override
-	protected BasePipelineShader setupShader() {
-		// TODO Auto-generated method stub
-		return null;
+	protected LocalLightsShader setupShader() {
+		return new LocalLightsShader(name);
+	}
+
+	@Override
+	protected void setupShaderData(RendererData rnd, IRenderingData rd, LocalLightsShader shader) {
+		shader.loadCameraData(rd.getCamera());
+		shader.loadPointLightsPos(rnd.lights);
 	}
 
 	@Override
 	protected void setupTextures(RendererData rnd, DeferredPipeline dp, Texture[] auxTex) {
-		// TODO Auto-generated method stub
-		
+		super.activateTexture(GL_TEXTURE0, GL_TEXTURE_2D, dp.getDiffuseTex().getTexture());
+		super.activateTexture(GL_TEXTURE1, GL_TEXTURE_2D, dp.getPositionTex().getTexture());
+		super.activateTexture(GL_TEXTURE2, GL_TEXTURE_2D, dp.getNormalTex().getTexture());
+		super.activateTexture(GL_TEXTURE3, GL_TEXTURE_2D, dp.getDepthTex().getTexture());
+		super.activateTexture(GL_TEXTURE4, GL_TEXTURE_2D, dp.getPbrTex().getTexture());
+		super.activateTexture(GL_TEXTURE5, GL_TEXTURE_2D, dp.getMaskTex().getTexture());
+		super.activateTexture(GL_TEXTURE6, GL_TEXTURE_2D, auxTex[0].getTexture());
+		for (int x = 0; x < rnd.lights.size(); x++) {
+			Light l = rnd.lights.get(x);
+			if (l.isShadow()) {
+				if (!l.isShadowMapCreated())
+					continue;
+				super.activateTexture(GL_TEXTURE7 + x, GL_TEXTURE_2D, l.getShadowMap().getShadowMap());
+			}
+		}
 	}
 /*
 	private FBO fbos[];
 
-	public PointLightPass(String name, int width, int height) {
+	public LocalLightsPass(String name, int width, int height) {
 		super(name, width, height);
 	}
 
@@ -102,10 +91,6 @@ public class PointLightPass extends DeferredPass {
 		shader.stop();
 	}
 
-	@Override
-	public void render(FBO[] auxs, IDeferredPipeline pipe, CubeMapTexture irradianceCapture,
-			CubeMapTexture environmentMap, Texture brdfLUT, ShadowFBO shadow) {
-	}
 
 	public void render(FBO[] auxs, IDeferredPipeline pipe, CubeMapTexture irradianceCapture,
 			CubeMapTexture environmentMap, Texture brdfLUT, ShadowFBO shadow, List<Light> lights) {

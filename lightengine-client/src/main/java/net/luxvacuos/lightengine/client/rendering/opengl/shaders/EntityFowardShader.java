@@ -53,32 +53,21 @@ public class EntityFowardShader extends ShaderProgram {
 	private UniformMatrix biasMatrix = new UniformMatrix("biasMatrix");
 	private UniformSampler shadowMap[];
 
-	private Matrix4f biasM;
-
 	public EntityFowardShader() {
 		super(ClientVariables.VERTEX_FILE_ENTITY_FORWARD, ClientVariables.FRAGMENT_FILE_ENTITY_FORWARD,
 				new Attribute(0, "position"), new Attribute(1, "textureCoords"), new Attribute(2, "normals"),
 				new Attribute(3, "tangent"));
 		projectionLightMatrix = new UniformMatrix[4];
-		for (int x = 0; x < 4; x++) {
+		for (int x = 0; x < 4; x++)
 			projectionLightMatrix[x] = new UniformMatrix("projectionLightMatrix[" + x + "]");
-		}
 		super.storeUniforms(projectionLightMatrix);
 		shadowMap = new UniformSampler[4];
-		for (int x = 0; x < 4; x++) {
+		for (int x = 0; x < 4; x++)
 			shadowMap[x] = new UniformSampler("shadowMap[" + x + "]");
-		}
 		super.storeUniforms(shadowMap);
 		super.storeUniforms(transformationMatrix, projectionMatrix, viewMatrix, material, cameraPosition, lightPosition,
 				irradianceMap, preFilterEnv, brdfLUT, colorCorrect, biasMatrix, viewLightMatrix, useShadows);
 		super.validate();
-		biasM = new Matrix4f();
-		biasM.m00(0.5f);
-		biasM.m11(0.5f);
-		biasM.m22(0.5f);
-		biasM.m30(0.5f);
-		biasM.m31(0.5f);
-		biasM.m32(0.5f);
 		this.loadInitialData();
 	}
 
@@ -92,6 +81,14 @@ public class EntityFowardShader extends ShaderProgram {
 		shadowMap[1].loadTexUnit(8);
 		shadowMap[2].loadTexUnit(9);
 		shadowMap[3].loadTexUnit(10);
+		Matrix4f bias = new Matrix4f();
+		bias.m00(0.5f);
+		bias.m11(0.5f);
+		bias.m22(0.5f);
+		bias.m30(0.5f);
+		bias.m31(0.5f);
+		bias.m32(0.5f);
+		biasMatrix.loadMatrix(bias);
 		super.stop();
 	}
 
@@ -118,10 +115,8 @@ public class EntityFowardShader extends ShaderProgram {
 	}
 
 	public void loadBiasMatrix(Matrix4f[] shadowProjectionMatrix) {
-		this.biasMatrix.loadMatrix(biasM);
-		for (int x = 0; x < 4; x++) {
+		for (int x = 0; x < 4; x++)
 			this.projectionLightMatrix[x].loadMatrix(shadowProjectionMatrix[x]);
-		}
 	}
 
 	public void loadLightMatrix(Matrix4f sunCameraViewMatrix) {

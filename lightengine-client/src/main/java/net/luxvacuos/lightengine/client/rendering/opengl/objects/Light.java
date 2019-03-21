@@ -94,7 +94,8 @@ public class Light extends LEEntity {
 
 	@Override
 	public void dispose() {
-		TaskManager.tm.addTaskRenderThread(() -> shadowMap.dispose());
+		if (shadow)
+			TaskManager.tm.addTaskRenderThread(() -> shadowMap.dispose());
 		GraphicalSubsystem.getRenderer().getLightRenderer().removeLight(this);
 		super.dispose();
 	}

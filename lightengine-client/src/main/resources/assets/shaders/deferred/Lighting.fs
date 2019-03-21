@@ -30,10 +30,10 @@ uniform sampler2D gNormal;
 uniform sampler2D gPBR; // R = roughness, G = metallic
 uniform sampler2D gMask;
 uniform sampler2D gDepth;
-uniform sampler2D composite0;
-uniform samplerCube composite1;
-uniform samplerCube composite2;
-uniform sampler2D composite3;
+uniform sampler2D volumetric;
+uniform samplerCube irradianceCube;
+uniform samplerCube environmentCube;
+uniform sampler2D brdfLUT;
 uniform int useAmbientOcclusion;
 uniform int useShadows;
 uniform int useReflections;
@@ -142,8 +142,8 @@ void main() {
 		vec3 kD = 1.0 - kS;
 		kD *= 1.0 - metallic;
 
-		float NdotL =
-			max(dot(N, L), 0.0) * computeShadow(position) * computeContactShadows(position, N, L);
+		float NdotL = max(dot(N, L), 0.0) *
+					  computeShadow(position); // * computeContactShadows(position, N, L);
 		Lo += (kD * image.rgb / PI + brdf) * radiance * NdotL;
 
 		F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
@@ -152,17 +152,19 @@ void main() {
 		kD = 1.0 - kS;
 		kD *= 1.0 - metallic;
 
-		vec3 irradiance = texture(composite1, N).rgb;
+		vec3 irradiance = texture(irradianceCube, N).rgb;
 		vec3 diffuse = irradiance * image.rgb;
 
-		vec3 prefilteredColor = textureLod(composite2, R, roughness * MAX_REFLECTION_LOD).rgb;
-		vec2 envBRDF = texture(composite3, vec2(max(dot(N, V), 0.0), roughness)).rg;
-		vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
-
-		vec3 ambient = kD * diffuse + specular;
-		float ao = computeAmbientOcclusion(position, N);
+		vec3 ambient = kD * diffuse;
 
 		if (useReflections != 1) { // Using SSR
+			vec3 prefilteredColor =
+				textureLod(environmentCube, R, roughness * MAX_REFLECTION_LOD).rgb;
+			vec2 envBRDF = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
+			vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
+			ambient += specular;
+
+			float ao = computeAmbientOcclusion(position, N);
 			ambient *= ao;
 		}
 
@@ -170,7 +172,7 @@ void main() {
 		vec3 color = ambient + emissive + Lo;
 		image.rgb = color;
 	}
-	vec4 vol = texture(composite0, textureCoords);
+	vec4 vol = texture(volumetric, textureCoords);
 	image.rgb += vol.rgb;
 	out_Color = image;
 }
