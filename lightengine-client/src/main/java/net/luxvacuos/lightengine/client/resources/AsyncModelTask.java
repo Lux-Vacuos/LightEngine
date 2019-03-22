@@ -33,6 +33,7 @@ import static org.lwjgl.assimp.Assimp.aiProcess_OptimizeMeshes;
 import static org.lwjgl.assimp.Assimp.aiProcess_SplitLargeMeshes;
 import static org.lwjgl.assimp.Assimp.aiProcess_Triangulate;
 import static org.lwjgl.assimp.Assimp.aiProcess_ValidateDataStructure;
+import static org.lwjgl.system.MemoryUtil.memFree;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -68,13 +69,10 @@ public class AsyncModelTask implements AsyncTask<Model> {
 						| aiProcess_ValidateDataStructure | aiProcess_FindInvalidData | aiProcess_JoinIdenticalVertices
 						| aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_ImproveCacheLocality,
 				ext, AssimpResourceLoader.propertyStore);
-		if (scene == null || scene.mFlags() == AI_SCENE_FLAGS_INCOMPLETE || scene.mRootNode() == null) {
+		memFree(bFile);
+		if (scene == null || scene.mFlags() == AI_SCENE_FLAGS_INCOMPLETE || scene.mRootNode() == null)
 			Logger.error(aiGetErrorString());
-		}
 		Model m = new Model(scene, filePath.substring(0, filePath.lastIndexOf("/")));
-		while (!m.isDoneLoading()) {
-			Thread.sleep(100);
-		}
 		return m;
 	}
 

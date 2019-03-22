@@ -42,7 +42,7 @@ import static org.lwjgl.glfw.GLFW.glfwSetWindowSizeCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowTitle;
 import static org.lwjgl.glfw.GLFW.glfwShowWindow;
 import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
-import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
+import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.nanovg.NanoVG.nvgBeginFrame;
 import static org.lwjgl.nanovg.NanoVG.nvgEndFrame;
 import static org.lwjgl.opengl.GL11C.glViewport;
@@ -98,6 +98,7 @@ public abstract class AbstractWindow implements IWindow {
 	protected float pixelRatio;
 	protected boolean active = true;
 	protected boolean maximized = false;
+	protected boolean fullscreen;
 
 	protected long nvgID;
 	protected IResourceLoader resourceLoader;
@@ -236,6 +237,17 @@ public abstract class AbstractWindow implements IWindow {
 		glfwRestoreWindow(windowID);
 	}
 
+	public void enterFullScreen() {
+		/*
+		 * var vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
+		 * glfwSetWindowMonitor(windowID, glfwGetPrimaryMonitor(), 0, 0,
+		 * vidmode.width(), vidmode.height(), vidmode.refreshRate()); fullscreen = true;
+		 */
+	}
+
+	public void exitFullScreen() {
+	}
+
 	public WindowSizeCallback getSizeCallback() {
 		return windowSizeCallback;
 	}
@@ -351,6 +363,10 @@ public abstract class AbstractWindow implements IWindow {
 
 	public boolean isMaximized() {
 		return maximized;
+	}
+
+	public boolean isFullscreen() {
+		return fullscreen;
 	}
 
 	private boolean getWindowAttribute(int attribute) {

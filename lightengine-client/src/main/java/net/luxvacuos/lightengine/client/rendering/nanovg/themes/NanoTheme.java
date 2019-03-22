@@ -36,7 +36,6 @@ import static org.lwjgl.nanovg.NanoVG.nnvgText;
 import static org.lwjgl.nanovg.NanoVG.nnvgTextBreakLines;
 import static org.lwjgl.nanovg.NanoVG.nvgArc;
 import static org.lwjgl.nanovg.NanoVG.nvgBeginPath;
-import static org.lwjgl.nanovg.NanoVG.nvgBoxGradient;
 import static org.lwjgl.nanovg.NanoVG.nvgClosePath;
 import static org.lwjgl.nanovg.NanoVG.nvgFill;
 import static org.lwjgl.nanovg.NanoVG.nvgFillColor;
@@ -63,6 +62,7 @@ import static org.lwjgl.nanovg.NanoVG.nvgTextAlign;
 import static org.lwjgl.nanovg.NanoVG.nvgTextBounds;
 import static org.lwjgl.nanovg.NanoVG.nvgTextMetrics;
 import static org.lwjgl.system.MemoryUtil.memAddress;
+import static org.lwjgl.system.MemoryUtil.memFree;
 import static org.lwjgl.system.MemoryUtil.memUTF8;
 
 import java.nio.ByteBuffer;
@@ -644,6 +644,7 @@ public class NanoTheme implements ITheme {
 			nvgStrokeColor(vg, Theme.debugB);
 			nvgStroke(vg);
 		}
+		memFree(paragraph);
 		nvgRestore(vg);
 		return yy - y;
 	}

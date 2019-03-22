@@ -20,16 +20,16 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl;
 
-import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
-import static org.lwjgl.opengl.GL11.glDepthMask;
-import static org.lwjgl.opengl.GL11.glDisable;
-import static org.lwjgl.opengl.GL11.glDrawElements;
-import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
+import static org.lwjgl.opengl.GL11C.GL_BACK;
+import static org.lwjgl.opengl.GL11C.GL_FRONT;
+import static org.lwjgl.opengl.GL11C.GL_TRIANGLES;
+import static org.lwjgl.opengl.GL11C.GL_UNSIGNED_INT;
+import static org.lwjgl.opengl.GL11C.glCullFace;
+import static org.lwjgl.opengl.GL11C.glDepthMask;
+import static org.lwjgl.opengl.GL11C.glDrawElements;
+import static org.lwjgl.opengl.GL20C.glDisableVertexAttribArray;
+import static org.lwjgl.opengl.GL20C.glEnableVertexAttribArray;
+import static org.lwjgl.opengl.GL30C.glBindVertexArray;
 
 import org.joml.Vector3f;
 
@@ -41,14 +41,14 @@ import net.luxvacuos.lightengine.client.rendering.opengl.shaders.SkyboxShader;
 import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
 
-public class SkyboxRenderer {
+public class SkydomeRenderer {
 
 	private RawModel dome;
 	private SkyboxShader shader;
 	private float scale;
 	private Vector3f pos;
 
-	public SkyboxRenderer(IResourceLoader loader) {
+	public SkydomeRenderer(IResourceLoader loader) {
 		if (ClientVariables.FAR_PLANE > 0 && Float.isInfinite(ClientVariables.FAR_PLANE))
 			scale = 100000; // Arbitrary number
 		else
@@ -64,10 +64,9 @@ public class SkyboxRenderer {
 	public void render(CameraEntity camera, IWorldSimulation clientWorldSimulation, Vector3f lightPosition,
 			boolean renderSun) {
 		glDepthMask(false);
-		glDisable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
 		shader.start();
-		shader.loadProjectionMatrix(camera.getProjectionMatrix());
-		shader.loadViewMatrix(camera);
+		shader.loadCamera(camera);
 		shader.loadTime(clientWorldSimulation.getGlobalTime());
 		shader.loadLightPosition(lightPosition);
 		shader.renderSun(renderSun);
@@ -81,7 +80,7 @@ public class SkyboxRenderer {
 		glDisableVertexAttribArray(2);
 		glBindVertexArray(0);
 		shader.stop();
-		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
 		glDepthMask(true);
 	}
 

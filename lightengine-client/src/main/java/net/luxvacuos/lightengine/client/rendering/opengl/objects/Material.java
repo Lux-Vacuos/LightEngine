@@ -32,6 +32,7 @@ import static org.lwjgl.assimp.Assimp.aiTextureType_DIFFUSE;
 import static org.lwjgl.assimp.Assimp.aiTextureType_NONE;
 import static org.lwjgl.assimp.Assimp.aiTextureType_REFLECTION;
 import static org.lwjgl.assimp.Assimp.aiTextureType_SPECULAR;
+import static org.lwjgl.system.MemoryStack.stackPush;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -40,6 +41,7 @@ import org.joml.Vector4f;
 import org.lwjgl.assimp.AIColor4D;
 import org.lwjgl.assimp.AIMaterial;
 import org.lwjgl.assimp.AIString;
+import org.lwjgl.system.MemoryStack;
 
 import net.luxvacuos.lightengine.client.resources.DefaultData;
 import net.luxvacuos.lightengine.client.resources.ResourcesManager;
@@ -93,58 +95,50 @@ public class Material implements IDisposable {
 		this.normalTexture = DefaultData.normal;
 		this.roughnessTexture = DefaultData.roughness;
 		this.metallicTexture = DefaultData.metallic;
+		try (MemoryStack stack = stackPush()) {
+			var diffuse = AIColor4D.mallocStack();
+			var emissive = AIColor4D.mallocStack();
+			var pbr = AIColor4D.mallocStack();
+			if (aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, aiTextureType_NONE, 0,
+					diffuse) == aiReturn_SUCCESS)
+				this.diffuse.set(diffuse.r(), diffuse.g(), diffuse.b(), diffuse.a());
+			if (aiGetMaterialColor(material, AI_MATKEY_COLOR_EMISSIVE, aiTextureType_NONE, 0,
+					emissive) == aiReturn_SUCCESS)
+				this.emissive.set(emissive.r(), emissive.g(), emissive.b(), emissive.a());
+			if (aiGetMaterialColor(material, AI_MATKEY_COLOR_SPECULAR, aiTextureType_NONE, 0,
+					pbr) == aiReturn_SUCCESS) {
+				this.roughness = pbr.r();
+				this.metallic = pbr.g();
+				if (pbr.b() > 0f) {
+					this.type = MaterialType.TRANSPARENT;
+					this.diffuse.setComponent(3, pbr.b());
+				}
+			}
 
-		var diffuse = AIColor4D.malloc();
-		var emissive = AIColor4D.malloc();
-		var pbr = AIColor4D.malloc();
-		if (aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, aiTextureType_NONE, 0, diffuse) == aiReturn_SUCCESS)
-			this.diffuse.set(diffuse.r(), diffuse.g(), diffuse.b(), diffuse.a());
-		if (aiGetMaterialColor(material, AI_MATKEY_COLOR_EMISSIVE, aiTextureType_NONE, 0, emissive) == aiReturn_SUCCESS)
-			this.emissive.set(emissive.r(), emissive.g(), emissive.b(), emissive.a());
-		if (aiGetMaterialColor(material, AI_MATKEY_COLOR_SPECULAR, aiTextureType_NONE, 0, pbr) == aiReturn_SUCCESS) {
-			this.roughness = pbr.r();
-			this.metallic = pbr.g();
-			if (pbr.b() > 0f) {
-				this.type = MaterialType.TRANSPARENT;
-				this.diffuse.setComponent(3, pbr.b());
-			}
-		}
-		diffuse.free();
-		emissive.free();
-		pbr.free();
-		if (aiGetMaterialTextureCount(material, aiTextureType_DIFFUSE) > 0) {
-			AIString path = AIString.malloc();
-			if (aiGetMaterialTexture(material, aiTextureType_DIFFUSE, 0, path, (IntBuffer) null, (IntBuffer) null,
-					(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS) {
-				loadTexture(path, rootPath, (value) -> this.diffuseTexture = value);
-				this.diffuse.set(1, 1, 1, 1);
-			}
-			path.free();
-		}
-		if (aiGetMaterialTextureCount(material, aiTextureType_AMBIENT) > 0) {
-			var path = AIString.malloc();
-			if (aiGetMaterialTexture(material, aiTextureType_AMBIENT, 0, path, (IntBuffer) null, (IntBuffer) null,
-					(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS)
-				loadTextureMisc(path, rootPath, (value) -> this.normalTexture = value);
-			path.free();
-		}
-		if (aiGetMaterialTextureCount(material, aiTextureType_SPECULAR) > 0) {
-			var path = AIString.malloc();
-			if (aiGetMaterialTexture(material, aiTextureType_SPECULAR, 0, path, (IntBuffer) null, (IntBuffer) null,
-					(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS) {
-				loadTextureMisc(path, rootPath, (value) -> this.roughnessTexture = value);
-				this.roughness = 1f;
-			}
-			path.free();
-		}
-		if (aiGetMaterialTextureCount(material, aiTextureType_REFLECTION) > 0) {
-			var path = AIString.malloc();
-			if (aiGetMaterialTexture(material, aiTextureType_REFLECTION, 0, path, (IntBuffer) null, (IntBuffer) null,
-					(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS) {
-				loadTextureMisc(path, rootPath, (value) -> this.metallicTexture = value);
-				this.metallic = 1f;
-			}
-			path.free();
+			AIString path = AIString.mallocStack();
+			if (aiGetMaterialTextureCount(material, aiTextureType_DIFFUSE) > 0)
+				if (aiGetMaterialTexture(material, aiTextureType_DIFFUSE, 0, path, (IntBuffer) null, (IntBuffer) null,
+						(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS) {
+					loadTexture(path, rootPath, (value) -> this.diffuseTexture = value);
+					this.diffuse.set(1, 1, 1, 1);
+				}
+			if (aiGetMaterialTextureCount(material, aiTextureType_AMBIENT) > 0)
+				if (aiGetMaterialTexture(material, aiTextureType_AMBIENT, 0, path, (IntBuffer) null, (IntBuffer) null,
+						(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS)
+					loadTextureMisc(path, rootPath, (value) -> this.normalTexture = value);
+			if (aiGetMaterialTextureCount(material, aiTextureType_SPECULAR) > 0)
+				if (aiGetMaterialTexture(material, aiTextureType_SPECULAR, 0, path, (IntBuffer) null, (IntBuffer) null,
+						(FloatBuffer) null, (IntBuffer) null, (IntBuffer) null, (IntBuffer) null) == aiReturn_SUCCESS) {
+					loadTextureMisc(path, rootPath, (value) -> this.roughnessTexture = value);
+					this.roughness = 1f;
+				}
+			if (aiGetMaterialTextureCount(material, aiTextureType_REFLECTION) > 0)
+				if (aiGetMaterialTexture(material, aiTextureType_REFLECTION, 0, path, (IntBuffer) null,
+						(IntBuffer) null, (FloatBuffer) null, (IntBuffer) null, (IntBuffer) null,
+						(IntBuffer) null) == aiReturn_SUCCESS) {
+					loadTextureMisc(path, rootPath, (value) -> this.metallicTexture = value);
+					this.metallic = 1f;
+				}
 		}
 	}
 

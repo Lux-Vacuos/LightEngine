@@ -87,7 +87,7 @@ public class EnvironmentRenderer {
 		camera.init();
 	}
 
-	public void renderEnvironmentMap(Vector3f center, SkyboxRenderer skyboxRenderer,
+	public void renderEnvironmentMap(Vector3f center, SkydomeRenderer skydomeRenderer,
 			IWorldSimulation clientWorldSimulation, Vector3f lightPosition, Window window) {
 		camera.setPosition(center);
 		camera.update(0);
@@ -98,15 +98,15 @@ public class EnvironmentRenderer {
 					cubeMapTexture.getID(), 0);
 			camera.switchToFace(i);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			skyboxRenderer.render(camera, clientWorldSimulation, lightPosition, false);
+			skydomeRenderer.render(camera, clientWorldSimulation, lightPosition, false);
 		}
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		window.resetViewport();
 	}
 
-	public void renderEnvironmentMap(Vector3f center, SkyboxRenderer skyboxRenderer, RenderingManager renderingManager,
-			IWorldSimulation clientWorldSimulation, Sun sun, ShadowFBO shadow, CubeMapTexture irradiance,
-			CubeMapTexture environmentMap, Texture brdfLUT, Window window) {
+	public void renderEnvironmentMap(Vector3f center, SkydomeRenderer skydomeRenderer,
+			RenderingManager renderingManager, IWorldSimulation clientWorldSimulation, Sun sun, ShadowFBO shadow,
+			CubeMapTexture irradiance, CubeMapTexture environmentMap, Texture brdfLUT, Window window) {
 		camera.setPosition(center);
 		camera.update(0);
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -116,7 +116,7 @@ public class EnvironmentRenderer {
 					cubeMapTexture.getID(), 0);
 			camera.switchToFace(i);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			skyboxRenderer.render(camera, clientWorldSimulation, sun.getSunPosition(), false);
+			skydomeRenderer.render(camera, clientWorldSimulation, sun.getSunPosition(), false);
 			renderingManager.renderReflections(camera, sun, shadow, irradiance, environmentMap, brdfLUT);
 		}
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);

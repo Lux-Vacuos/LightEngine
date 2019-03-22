@@ -82,7 +82,7 @@ public class GLRenderer implements IRenderer {
 	private PreFilteredEnvironment preFilteredEnvironment;
 
 	private ParticleRenderer particleRenderer;
-	private SkyboxRenderer skyboxRenderer;
+	private SkydomeRenderer skydomeRenderer;
 	private WaterRenderer waterRenderer;
 	private LightRenderer lightRenderer;
 	private RenderingManager renderingManager;
@@ -149,7 +149,7 @@ public class GLRenderer implements IRenderer {
 		});
 
 		TaskManager.tm.addTaskRenderThread(() -> particleRenderer = new ParticleRenderer(loader));
-		TaskManager.tm.addTaskRenderThread(() -> skyboxRenderer = new SkyboxRenderer(loader));
+		TaskManager.tm.addTaskRenderThread(() -> skydomeRenderer = new SkydomeRenderer(loader));
 		TaskManager.tm.addTaskRenderThread(() -> waterRenderer = new WaterRenderer(loader));
 		TaskManager.tm.addTaskRenderThread(() -> renderingManager.addRenderer(new EntityRenderer()));
 
@@ -246,7 +246,7 @@ public class GLRenderer implements IRenderer {
 		GPUProfiler.start("Environment Pass");
 		GPUProfiler.start("Irradiance");
 		GPUProfiler.start("CubeMap Render");
-		envRenderer.renderEnvironmentMap(camera.getPosition(), skyboxRenderer, worldSimulation, sun.getSunPosition(),
+		envRenderer.renderEnvironmentMap(camera.getPosition(), skydomeRenderer, worldSimulation, sun.getSunPosition(),
 				window);
 		GPUProfiler.end();
 		GPUProfiler.start("Irradiance Capture");
@@ -255,7 +255,7 @@ public class GLRenderer implements IRenderer {
 		GPUProfiler.end();
 		GPUProfiler.start("Reflections");
 		GPUProfiler.start("CubeMap Render");
-		envRendererEntities.renderEnvironmentMap(camera.getPosition(), skyboxRenderer, renderingManager,
+		envRendererEntities.renderEnvironmentMap(camera.getPosition(), skydomeRenderer, renderingManager,
 				worldSimulation, sun, shadowFBO, irradianceCapture.getCubeMapTexture(),
 				preFilteredEnvironment.getCubeMapTexture(), preFilteredEnvironment.getBRDFLUT(), window);
 		GPUProfiler.end();
@@ -286,7 +286,7 @@ public class GLRenderer implements IRenderer {
 		glClearDepth(0.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		GPUProfiler.start("Skybox");
-		skyboxRenderer.render(camera, worldSimulation, sun.getSunPosition(), true);
+		skydomeRenderer.render(camera, worldSimulation, sun.getSunPosition(), true);
 		GPUProfiler.end();
 		GPUProfiler.start("External");
 		gbufferPass.gBufferPass(camera);

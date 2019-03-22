@@ -20,6 +20,19 @@
 
 package net.luxvacuos.lightengine.client.rendering.glfw;
 
+import static org.lwjgl.glfw.GLFW.glfwCreateCursor;
+import static org.lwjgl.glfw.GLFW.glfwCreateWindow;
+import static org.lwjgl.glfw.GLFW.glfwGetFramebufferSize;
+import static org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor;
+import static org.lwjgl.glfw.GLFW.glfwGetTime;
+import static org.lwjgl.glfw.GLFW.glfwGetVideoMode;
+import static org.lwjgl.glfw.GLFW.glfwGetWindowSize;
+import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
+import static org.lwjgl.glfw.GLFW.glfwPollEvents;
+import static org.lwjgl.glfw.GLFW.glfwSetCursor;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowIcon;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
+import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
 import static org.lwjgl.opengl.GL11C.GL_VENDOR;
 import static org.lwjgl.opengl.GL11C.glGetString;
 import static org.lwjgl.stb.STBImage.stbi_failure_reason;
@@ -27,12 +40,12 @@ import static org.lwjgl.stb.STBImage.stbi_image_free;
 import static org.lwjgl.stb.STBImage.stbi_info_from_memory;
 import static org.lwjgl.stb.STBImage.stbi_load_from_memory;
 import static org.lwjgl.system.MemoryStack.stackPush;
-import static org.lwjgl.system.MemoryUtil.*;
+import static org.lwjgl.system.MemoryUtil.NULL;
+import static org.lwjgl.system.MemoryUtil.memFree;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.nanovg.NanoVGGL3;
 import org.lwjgl.opengl.GL;
@@ -63,14 +76,14 @@ public final class WindowManager {
 
 	public static Window generateWindow(WindowHandle handle, long parentID) {
 		Logger.log("Creating new Window '" + handle.title + "'");
-		long windowID = GLFW.glfwCreateWindow(handle.width, handle.height, (handle.title == null ? "" : handle.title),
-				NULL, parentID);
+		long windowID = glfwCreateWindow(handle.width, handle.height, (handle.title == null ? "" : handle.title), NULL,
+				parentID);
 		if (windowID == NULL)
 			throw new GLFWException("Failed to create GLFW Window '" + handle.title + "'");
 
 		var window = new Window(windowID, handle.width, handle.height);
-		var vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
-		GLFW.glfwSetWindowPos(windowID, (vidmode.width() - window.width) / 2, (vidmode.height() - window.height) / 2);
+		var vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+		glfwSetWindowPos(windowID, (vidmode.width() - window.width) / 2, (vidmode.height() - window.height) / 2);
 
 		try (MemoryStack stack = stackPush()) {
 			var w = stack.mallocInt(1);
@@ -95,7 +108,7 @@ public final class WindowManager {
 					throw new DecodeTextureException("Failed to load image: " + stbi_failure_reason());
 
 				GLFWImage img = GLFWImage.mallocStack().set(w.get(0), h.get(0), image);
-				GLFW.glfwSetCursor(windowID, GLFW.glfwCreateCursor(img, 0, 0));
+				glfwSetCursor(windowID, glfwCreateCursor(img, 0, 0));
 				memFree(imageBuffer);
 				stbi_image_free(image);
 			}
@@ -124,7 +137,7 @@ public final class WindowManager {
 					memFree(imageBuffer);
 				}
 				iconsbuff.position(0);
-				GLFW.glfwSetWindowIcon(windowID, iconsbuff);
+				glfwSetWindowIcon(windowID, iconsbuff);
 				for (Icon icon : handle.icons)
 					stbi_image_free(icon.image);
 			}
@@ -133,10 +146,10 @@ public final class WindowManager {
 		var h = new int[1];
 		var w = new int[1];
 
-		GLFW.glfwGetFramebufferSize(windowID, w, h);
+		glfwGetFramebufferSize(windowID, w, h);
 		window.framebufferHeight = h[0];
 		window.framebufferWidth = w[0];
-		GLFW.glfwGetWindowSize(windowID, w, h);
+		glfwGetWindowSize(windowID, w, h);
 		window.height = h[0];
 		window.width = w[0];
 		window.pixelRatio = (float) window.framebufferWidth / (float) window.width;
@@ -147,8 +160,8 @@ public final class WindowManager {
 	public static void createWindow(WindowHandle handle, Window window, boolean vsync) {
 		long windowID = window.getID();
 
-		GLFW.glfwMakeContextCurrent(windowID);
-		GLFW.glfwSwapInterval(vsync ? 1 : 0);
+		glfwMakeContextCurrent(windowID);
+		glfwSwapInterval(vsync ? 1 : 0);
 
 		window.capabilities = GL.createCapabilities(true);
 		int nvgFlags = NanoVGGL3.NVG_ANTIALIAS | NanoVGGL3.NVG_STENCIL_STROKES;
@@ -193,11 +206,11 @@ public final class WindowManager {
 			window.resized = false;
 			window.getMouseHandler().update();
 		}
-		GLFW.glfwPollEvents();
+		glfwPollEvents();
 	}
 
 	public static double getTime() {
-		return GLFW.glfwGetTime();
+		return glfwGetTime();
 	}
 
 	public static long getNanoTime() {

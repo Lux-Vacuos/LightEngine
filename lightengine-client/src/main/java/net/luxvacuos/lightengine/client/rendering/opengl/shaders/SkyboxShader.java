@@ -40,21 +40,23 @@ public class SkyboxShader extends ShaderProgram {
 	private UniformFloat time = new UniformFloat("time");
 	private UniformVec3 lightPosition = new UniformVec3("lightPosition");
 	private UniformBoolean renderSun = new UniformBoolean("renderSun");
+	private UniformVec3 cameraPosition = new UniformVec3("cameraPosition");
+
+	private Matrix4f temp = new Matrix4f();
 
 	public SkyboxShader() {
-		super(ClientVariables.VERTEX_FILE_SKYBOX, ClientVariables.FRAGMENT_FILE_SKYBOX, new Attribute(0, "position"),
+		super(ClientVariables.VERTEX_FILE_SKYDOME, ClientVariables.FRAGMENT_FILE_SKYDOME, new Attribute(0, "position"),
 				new Attribute(1, "textureCoords"), new Attribute(2, "normal"));
-		super.storeUniforms(projectionMatrix, transformationMatrix, viewMatrix, time, lightPosition, renderSun);
+		super.storeUniforms(projectionMatrix, transformationMatrix, viewMatrix, time, lightPosition, renderSun,
+				cameraPosition);
 		super.validate();
 	}
 
-	public void loadProjectionMatrix(Matrix4f matrix) {
-		projectionMatrix.loadMatrix(matrix);
-	}
-
-	public void loadViewMatrix(CameraEntity camera) {
+	public void loadCamera(CameraEntity camera) {
+		projectionMatrix.loadMatrix(camera.getProjectionMatrix());
 		viewMatrix.loadMatrix(Maths.createViewMatrixRot(camera.getRotation().x(), camera.getRotation().y(),
-				camera.getRotation().z(), null));
+				camera.getRotation().z(), temp.identity()));
+		cameraPosition.loadVec3(camera.getPosition());
 	}
 
 	public void loadTransformationMatrix(Matrix4f mat) {

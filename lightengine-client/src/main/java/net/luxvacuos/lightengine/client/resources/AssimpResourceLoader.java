@@ -36,6 +36,7 @@ import static org.lwjgl.assimp.Assimp.aiProcess_SplitLargeMeshes;
 import static org.lwjgl.assimp.Assimp.aiProcess_Triangulate;
 import static org.lwjgl.assimp.Assimp.aiProcess_ValidateDataStructure;
 import static org.lwjgl.assimp.Assimp.aiSetImportPropertyFloat;
+import static org.lwjgl.system.MemoryUtil.memFree;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -81,9 +82,9 @@ public class AssimpResourceLoader {
 						| aiProcess_ValidateDataStructure | aiProcess_FindInvalidData | aiProcess_JoinIdenticalVertices
 						| aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_ImproveCacheLocality,
 				ext, propertyStore);
-		if (scene == null || scene.mFlags() == AI_SCENE_FLAGS_INCOMPLETE || scene.mRootNode() == null) {
+		memFree(bFile);
+		if (scene == null || scene.mFlags() == AI_SCENE_FLAGS_INCOMPLETE || scene.mRootNode() == null)
 			Logger.error(aiGetErrorString());
-		}
 		return new Model(scene, filePath.substring(0, filePath.lastIndexOf("/")));
 	}
 

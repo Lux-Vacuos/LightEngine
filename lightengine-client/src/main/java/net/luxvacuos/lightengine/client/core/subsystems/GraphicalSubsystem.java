@@ -51,6 +51,7 @@ import com.google.gson.GsonBuilder;
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.client.core.ClientTaskManager;
 import net.luxvacuos.lightengine.client.core.exception.GLFWException;
+import net.luxvacuos.lightengine.client.input.KeyboardHandler;
 import net.luxvacuos.lightengine.client.rendering.IRenderer;
 import net.luxvacuos.lightengine.client.rendering.glfw.Icon;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
@@ -183,6 +184,14 @@ public class GraphicalSubsystem extends Subsystem {
 
 	@Override
 	public void update(float delta) {
+		KeyboardHandler kh = window.getKeyboardHandler();
+		if (kh.isKeyPressed(GLFW.GLFW_KEY_F11)) {
+			kh.ignoreKeyUntilRelease(GLFW.GLFW_KEY_F11);
+			if (window.isFullscreen())
+				window.exitFullScreen();
+			else
+				window.enterFullScreen();
+		}
 		WindowManager.update();
 		if (!window.isIconified()) {
 			if (window.wasResized()) {

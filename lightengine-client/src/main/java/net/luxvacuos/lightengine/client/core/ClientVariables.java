@@ -36,8 +36,8 @@ public class ClientVariables extends GlobalVariables {
 	public static final String FRAGMENT_FILE_ENTITY_BASIC = "EntityBasic.fs";
 	public static final String VERTEX_FILE_ENTITY_FORWARD = "EntityForward.vs";
 	public static final String FRAGMENT_FILE_ENTITY_FORWARD = "EntityForward.fs";
-	public static final String VERTEX_FILE_SKYBOX = "Skybox.vs";
-	public static final String FRAGMENT_FILE_SKYBOX = "Skybox.fs";
+	public static final String VERTEX_FILE_SKYDOME = "Skydome.vs";
+	public static final String FRAGMENT_FILE_SKYDOME= "Skydome.fs";
 	public static final String VERTEX_FILE_PARTICLE = "Particle.vs";
 	public static final String FRAGMENT_FILE_PARTICLE = "Particle.fs";
 	public static final String VERTEX_IRRADIANCE_CAPTURE = "IrradianceCapture.vs";

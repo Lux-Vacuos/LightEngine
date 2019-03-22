@@ -36,6 +36,7 @@ import org.lwjgl.assimp.AIFace;
 import org.lwjgl.assimp.AIMesh;
 import org.lwjgl.assimp.AIVector3D;
 
+import net.luxvacuos.lightengine.universal.core.Task;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
@@ -43,7 +44,6 @@ public class Mesh implements IDisposable {
 
 	private VAO mesh;
 	private AIMesh aiMesh;
-	private boolean doneLoading;
 
 	public Mesh(AIMesh aiMesh) {
 		this.aiMesh = aiMesh;
@@ -91,14 +91,18 @@ public class Mesh implements IDisposable {
 		int[] ind = new int[elementCount];
 		elementArrayBufferData.get(ind);
 		memFree(elementArrayBufferData);
-		TaskManager.tm.addTaskRenderThread(() -> {
-			mesh = VAO.create();
-			mesh.bind();
-			loadData(pos, tex, nor, tan);
-			mesh.createIndexBuffer(ind, GL_STATIC_DRAW);
-			mesh.unbind();
-			doneLoading = true;
+		Task<Void> task = TaskManager.tm.submitRenderThread(new Task<Void> () {
+			@Override
+			protected Void call() {
+				mesh = VAO.create();
+				mesh.bind();
+				loadData(pos, tex, nor, tan);
+				mesh.createIndexBuffer(ind, GL_STATIC_DRAW);
+				mesh.unbind();
+				return null;
+			}
 		});
+		task.get();
 	}
 
 	@Override
@@ -112,10 +116,6 @@ public class Mesh implements IDisposable {
 
 	public VAO getMesh() {
 		return mesh;
-	}
-
-	public boolean isDoneLoading() {
-		return doneLoading;
 	}
 
 	private void loadData(List<Vector3f> positions, List<Vector2f> texcoords, List<Vector3f> normals,

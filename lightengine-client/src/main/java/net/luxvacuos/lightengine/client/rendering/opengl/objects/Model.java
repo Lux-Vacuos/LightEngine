@@ -138,14 +138,6 @@ public class Model implements IDisposable {
 		// Renderer.getLightRenderer().removeAllLights(lights);
 	}
 
-	public boolean isDoneLoading() {
-		for (Mesh m : meshes) {
-			if (!m.isDoneLoading())
-				return false;
-		}
-		return true;
-	}
-
 	public CollisionShape getShape() {
 		return shape;
 	}

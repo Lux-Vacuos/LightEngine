@@ -27,6 +27,7 @@ out vec4[5] out_Color;
 uniform int renderSun;
 uniform float time;
 uniform vec3 lightPosition;
+uniform vec3 cameraPosition;
 
 #define SUN_LOWER_LIMIT 0.51
 #define SUN_UPPER_LIMIT 0.5
@@ -143,7 +144,7 @@ void main() {
 	vec3 L = normalize(lightPosition);
 
 	vec3 color = atmosphere(V,								// normalized ray direction
-							vec3(0, 6372e3, 0),				// ray origin
+							vec3(0, 6372e3 + cameraPosition.y, 0),				// ray origin
 							L,								// position of the sun
 							22.0,							// intensity of the sun
 							6371e3,							// radius of the planet in meters
@@ -154,6 +155,7 @@ void main() {
 							1.2e3,							// Mie scale height
 							0.758							// Mie preferred scattering direction
 	);
+	color = max(color, 0.0);
 
 	color = 1.0 - exp(-1.0 * color);
 
