@@ -18,28 +18,11 @@
 //
 //
 
-in vec2 textureCoords;
+layout(location = 0) in vec2 position;
 
-out vec3 out_Color;
+out vec2 textureCoords;
 
-uniform sampler2D composite0;
-uniform sampler2D gDepth;
-
-uniform int useDOF;
-
-void main(void) {
-	vec3 textureColour = texture(composite0, textureCoords).rgb;
-	if (useDOF == 1) {
-		vec3 sum = textureColour.rgb;
-		float bias =
-			min(abs(texture(gDepth, textureCoords).x - texture(gDepth, vec2(0.5)).x) * .01, .005);
-		for (int i = -4; i < 4; i++) {
-			for (int j = -4; j < 4; j++) {
-				sum += texture(composite0, textureCoords + vec2(j, i) * bias).rgb;
-			}
-		}
-		sum /= 65.0;
-		textureColour = sum;
-	}
-	out_Color = textureColour;
+void main() {
+	gl_Position = vec4(position, 0.5, 1.0);
+	textureCoords = vec2((position.x + 1.0) / 2.0, (position.y + 1.0) / 2.0);
 }

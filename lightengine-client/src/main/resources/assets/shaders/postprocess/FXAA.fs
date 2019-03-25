@@ -23,7 +23,7 @@ in vec4 posPos;
 
 out vec3 out_Color;
 
-uniform sampler2D composite0;
+uniform sampler2D image;
 uniform vec2 resolution;
 
 uniform int useFXAA;
@@ -79,14 +79,14 @@ vec3 FxaaPixelShader(vec4 posPos, sampler2D tex, vec2 rcpFrame) {
 	return rgbB;
 }
 
-vec3 PostFX(sampler2D tex, vec2 uv, float time) {
+vec3 PostFX(sampler2D tex, vec2 uv) {
 	vec2 rcpFrame = vec2(1.0 / rt_w, 1.0 / rt_h);
 	return FxaaPixelShader(posPos, tex, rcpFrame);
 }
 
 void main() {
 	if (useFXAA == 1)
-		out_Color = PostFX(composite0, textureCoords, 0);
+		out_Color = PostFX(image, textureCoords);
 	else
-		out_Color = texture(composite0, textureCoords).rgb;
+		out_Color = texture(image, textureCoords).rgb;
 }

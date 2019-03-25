@@ -20,29 +20,28 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl.v2;
 
-import static org.lwjgl.opengl.GL11C.GL_FLOAT;
 import static org.lwjgl.opengl.GL11C.GL_LINEAR;
-import static org.lwjgl.opengl.GL11C.GL_RGBA;
+import static org.lwjgl.opengl.GL11C.GL_RGB;
 import static org.lwjgl.opengl.GL11C.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11C.GL_TEXTURE_MAG_FILTER;
 import static org.lwjgl.opengl.GL11C.GL_TEXTURE_MIN_FILTER;
 import static org.lwjgl.opengl.GL11C.GL_TEXTURE_WRAP_S;
 import static org.lwjgl.opengl.GL11C.GL_TEXTURE_WRAP_T;
+import static org.lwjgl.opengl.GL11C.GL_UNSIGNED_BYTE;
 import static org.lwjgl.opengl.GL12C.GL_CLAMP_TO_EDGE;
 import static org.lwjgl.opengl.GL30C.GL_COLOR_ATTACHMENT0;
-import static org.lwjgl.opengl.GL30C.GL_RGBA16F;
 
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.FramebufferBuilder;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.TextureBuilder;
 import net.luxvacuos.lightengine.client.rendering.opengl.pipeline.shaders.BasePipelineShader;
 
-public abstract class DeferredPass<T extends BasePipelineShader> extends PipelinePass<T, DeferredPipeline> {
+public abstract class PostProcesPass<T extends BasePipelineShader> extends PipelinePass<T, PostProcessPipeline> {
 
-	public DeferredPass(String name) {
+	public PostProcesPass(String name) {
 		super(name);
 	}
 
-	public DeferredPass(String name, float scaling) {
+	public PostProcesPass(String name, float scaling) {
 		super(name, scaling);
 	}
 
@@ -50,7 +49,7 @@ public abstract class DeferredPass<T extends BasePipelineShader> extends Pipelin
 		var tb = new TextureBuilder();
 
 		tb.genTexture(GL_TEXTURE_2D).bindTexture();
-		tb.sizeTexture(width, height).texImage2D(0, GL_RGBA16F, 0, GL_RGBA, GL_FLOAT, 0);
+		tb.sizeTexture(width, height).texImage2D(0, GL_RGB, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 		tb.texParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		tb.texParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		tb.texParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

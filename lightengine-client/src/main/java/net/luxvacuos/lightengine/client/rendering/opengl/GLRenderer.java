@@ -66,6 +66,7 @@ import net.luxvacuos.lightengine.client.rendering.opengl.objects.WaterTile;
 import net.luxvacuos.lightengine.client.rendering.opengl.pipeline.MultiPass;
 import net.luxvacuos.lightengine.client.rendering.opengl.pipeline.PostProcess;
 import net.luxvacuos.lightengine.client.rendering.opengl.v2.DeferredPipeline;
+import net.luxvacuos.lightengine.client.rendering.opengl.v2.PostProcessPipeline;
 import net.luxvacuos.lightengine.client.ui.windows.GLGameWindow;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
@@ -87,10 +88,10 @@ public class GLRenderer implements IRenderer {
 	private LightRenderer lightRenderer;
 	private RenderingManager renderingManager;
 
-	private IPostProcessPipeline postProcessPipeline;
-	private static ShadowFBO shadowFBO;
+	private ShadowFBO shadowFBO;
 
 	private DeferredPipeline dp;
+	private PostProcessPipeline pp;
 
 	private Frustum frustum;
 	private Window window;
@@ -153,13 +154,14 @@ public class GLRenderer implements IRenderer {
 		TaskManager.tm.addTaskRenderThread(() -> waterRenderer = new WaterRenderer(loader));
 		TaskManager.tm.addTaskRenderThread(() -> renderingManager.addRenderer(new EntityRenderer()));
 
-		TaskManager.tm.addTaskRenderThread(() -> postProcessPipeline = new PostProcess(window));
 		TaskManager.tm.addTaskRenderThread(() -> {
 			shadowFBO = new ShadowFBO(rs.shadowsResolution, rs.shadowsResolution);
 			rnd.shadow = shadowFBO;
 		});
 
 		TaskManager.tm.addTaskRenderThread(() -> dp = new MultiPass(window.getWidth(), window.getHeight()));
+		TaskManager.tm.addTaskRenderThread(
+				() -> pp = new PostProcess(window.getWidth(), window.getHeight(), window.getNVGID()));
 
 		shadowMap = EventSubsystem.addEvent("lightengine.renderer.resetshadowmap",
 				() -> TaskManager.tm.addTaskRenderThread(() -> {
@@ -174,7 +176,7 @@ public class GLRenderer implements IRenderer {
 		TaskManager.tm.addTaskRenderThread(() -> {
 			enabled = true;
 			gameWindow = new GLGameWindow();
-			gameWindow.setImageID(postProcessPipeline.getNVGImage());
+			gameWindow.setImageID(pp.getNVGTexture());
 			GraphicalSubsystem.getWindowManager().addWindow(0, gameWindow);
 			EventSubsystem.triggerEvent("lightengine.renderer.initialized");
 		});
@@ -316,11 +318,11 @@ public class GLRenderer implements IRenderer {
 
 		GPUProfiler.start("Forward Pass");
 		ARBClipControl.glClipControl(ARBClipControl.GL_LOWER_LEFT, ARBClipControl.GL_ZERO_TO_ONE);
-		postProcessPipeline.begin();
+		pp.bind();
 		glDepthFunc(GL_GREATER);
 		glClearDepth(0.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		dp.render(postProcessPipeline.getFBO());
+		dp.render(pp.getMain());
 		GPUProfiler.start("External");
 		forwardPass.forwardPass(camera, sun, shadowFBO, irradianceCapture.getCubeMapTexture(),
 				preFilteredEnvironment.getCubeMapTexture(), preFilteredEnvironment.getBRDFLUT());
@@ -334,14 +336,14 @@ public class GLRenderer implements IRenderer {
 		GPUProfiler.end();
 		glClearDepth(1.0);
 		glDepthFunc(GL_LESS);
-		postProcessPipeline.end();
+		pp.unbind();
 		ARBClipControl.glClipControl(ARBClipControl.GL_LOWER_LEFT, ARBClipControl.GL_NEGATIVE_ONE_TO_ONE);
 		GPUProfiler.end();
 	}
 
 	private void postFXPass(IRenderingData rd) {
 		GPUProfiler.start("PostFX");
-		postProcessPipeline.preRender(rd.getCamera());
+		pp.process(rs, rnd, rd);
 		GPUProfiler.end();
 	}
 
@@ -374,10 +376,17 @@ public class GLRenderer implements IRenderer {
 
 		GPUProfiler.end();
 		renderingManager.end();
+
+		pp.render();
+
+		rnd.previousCameraPosition.set(rd.getCamera().getPosition());
+		rnd.previousViewMatrix.set(rd.getCamera().getViewMatrix());
+
 		if (window.getKeyboardHandler().isKeyPressed(GLFW.GLFW_KEY_F2)) {
 			window.getKeyboardHandler().ignoreKeyUntilRelease(GLFW.GLFW_KEY_F2);
 			Logger.log("Reloading Shaders...");
 			dp.reloadShaders();
+			pp.reloadShaders();
 		}
 	}
 
@@ -386,9 +395,9 @@ public class GLRenderer implements IRenderer {
 		if (!enabled)
 			return;
 		dp.resize(width, height);
-		postProcessPipeline.resize(width, height);
+		pp.resize(width, height);
 		EventSubsystem.triggerEvent("lightengine.renderer.postresize");
-		gameWindow.setImageID(postProcessPipeline.getNVGImage());
+		gameWindow.setImageID(pp.getNVGTexture());
 	}
 
 	@Override
@@ -402,7 +411,7 @@ public class GLRenderer implements IRenderer {
 			envRendererEntities.cleanUp();
 			shadowFBO.dispose();
 			dp.dispose();
-			postProcessPipeline.dispose();
+			pp.dispose();
 			particleRenderer.cleanUp();
 			irradianceCapture.dispose();
 			preFilteredEnvironment.dispose();

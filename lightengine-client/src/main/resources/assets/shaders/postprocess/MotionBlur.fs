@@ -30,17 +30,19 @@ uniform mat4 inverseProjectionMatrix;
 uniform mat4 inverseViewMatrix;
 uniform mat4 previousViewMatrix;
 uniform sampler2D composite0;
-uniform sampler2D gDepth;
+uniform sampler2D depth;
 
 uniform int useMotionBlur;
 
 void main() {
-	vec3 textureColour = texture(composite0, textureCoords).rgb;
+	vec3 textureColor = texture(composite0, textureCoords).rgb;
 	if (useMotionBlur == 1) {
-		vec3 sum = textureColour.rgb;
+		vec3 sum = textureColor;
 		vec4 tex = vec4(textureCoords, 0.0, 0.0);
-		float depth = texture(gDepth, textureCoords).x;
-		vec4 currentPosition = vec4(tex.x * 2.0 - 1.0, tex.y * 2.0 - 1.0, 2.0 * depth - 1.0, 1.0);
+		float depthSample = texture(depth, textureCoords).x;
+		if (depthSample == 0)
+			depthSample = 0.00001;
+		vec4 currentPosition = vec4(tex.x * 2.0 - 1.0, tex.y * 2.0 - 1.0, depthSample, 1.0);
 		vec4 fragposition = inverseProjectionMatrix * currentPosition;
 		fragposition = inverseViewMatrix * fragposition;
 		fragposition /= fragposition.w;
@@ -59,7 +61,7 @@ void main() {
 			samples++;
 		}
 		sum = sum / samples;
-		textureColour = sum;
+		textureColor = sum;
 	}
-	out_Color = textureColour;
+	out_Color = textureColor;
 }

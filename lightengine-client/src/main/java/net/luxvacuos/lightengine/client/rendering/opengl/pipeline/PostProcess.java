@@ -20,33 +20,32 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl.pipeline;
 
-import net.luxvacuos.lightengine.client.rendering.glfw.Window;
-import net.luxvacuos.lightengine.client.rendering.opengl.PostProcessPipeline;
+import net.luxvacuos.lightengine.client.rendering.opengl.v2.PostProcessPipeline;
 
 public class PostProcess extends PostProcessPipeline {
 
-	private FXAA fxaa;
-	private ChromaticAberration chromaticAberration;
-	private MotionBlur motionBlur;
-	private DepthOfField depthOfField;
-
-	public PostProcess(Window window) {
-		super("PostProcess", window);
+	public PostProcess(int width, int height, long nvg) {
+		super(width, height, nvg);
 	}
 
+	private FXAA fxaa; // Done
+	private ChromaticAberration chromaticAberration; // Done
+	private MotionBlur motionBlur; // Done
+	private DepthOfField depthOfField;
+
 	@Override
-	public void init() {
-		chromaticAberration = new ChromaticAberration("ChromaticAberration", width, height);
-		super.imagePasses.add(chromaticAberration);
+	public void setupPasses() {
+		chromaticAberration = new ChromaticAberration();
+		super.passes.add(chromaticAberration);
 
-		depthOfField = new DepthOfField("DoF", width, height);
-		super.imagePasses.add(depthOfField);
+		depthOfField = new DepthOfField();
+		super.passes.add(depthOfField);
 
-		motionBlur = new MotionBlur("MotionBlur", width, height);
-		super.imagePasses.add(motionBlur);
+		motionBlur = new MotionBlur();
+		super.passes.add(motionBlur);
 
-		fxaa = new FXAA("FXAA", width, height);
-		super.imagePasses.add(fxaa);
+		fxaa = new FXAA();
+		super.passes.add(fxaa);
 
 	}
 

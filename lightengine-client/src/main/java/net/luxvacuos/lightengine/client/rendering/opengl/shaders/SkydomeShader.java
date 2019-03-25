@@ -32,7 +32,7 @@ import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformMat
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformVec3;
 import net.luxvacuos.lightengine.client.util.Maths;
 
-public class SkyboxShader extends ShaderProgram {
+public class SkydomeShader extends ShaderProgram {
 
 	private UniformMatrix projectionMatrix = new UniformMatrix("projectionMatrix");
 	private UniformMatrix transformationMatrix = new UniformMatrix("transformationMatrix");
@@ -44,7 +44,7 @@ public class SkyboxShader extends ShaderProgram {
 
 	private Matrix4f temp = new Matrix4f();
 
-	public SkyboxShader() {
+	public SkydomeShader() {
 		super(ClientVariables.VERTEX_FILE_SKYDOME, ClientVariables.FRAGMENT_FILE_SKYDOME, new Attribute(0, "position"),
 				new Attribute(1, "textureCoords"), new Attribute(2, "normal"));
 		super.storeUniforms(projectionMatrix, transformationMatrix, viewMatrix, time, lightPosition, renderSun,

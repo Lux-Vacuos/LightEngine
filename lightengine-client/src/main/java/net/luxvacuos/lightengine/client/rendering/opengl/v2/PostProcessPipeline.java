@@ -20,13 +20,13 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl.v2;
 
-import static org.lwjgl.opengl.GL11C.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.nanovg.NanoVG.NVG_IMAGE_FLIPY;
+import static org.lwjgl.nanovg.NanoVG.nvgDeleteImage;
+import static org.lwjgl.nanovg.NanoVGGL3.nvglCreateImageFromHandle;
 import static org.lwjgl.opengl.GL11C.GL_DEPTH_COMPONENT;
 import static org.lwjgl.opengl.GL11C.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11C.GL_FLOAT;
 import static org.lwjgl.opengl.GL11C.GL_LINEAR;
-import static org.lwjgl.opengl.GL11C.GL_NEAREST;
-import static org.lwjgl.opengl.GL11C.GL_RGB;
 import static org.lwjgl.opengl.GL11C.GL_RGBA;
 import static org.lwjgl.opengl.GL11C.GL_TEXTURE_2D;
 import static org.lwjgl.opengl.GL11C.GL_TEXTURE_MAG_FILTER;
@@ -34,7 +34,6 @@ import static org.lwjgl.opengl.GL11C.GL_TEXTURE_MIN_FILTER;
 import static org.lwjgl.opengl.GL11C.GL_TEXTURE_WRAP_S;
 import static org.lwjgl.opengl.GL11C.GL_TEXTURE_WRAP_T;
 import static org.lwjgl.opengl.GL11C.GL_TRIANGLE_STRIP;
-import static org.lwjgl.opengl.GL11C.GL_UNSIGNED_BYTE;
 import static org.lwjgl.opengl.GL11C.glBindTexture;
 import static org.lwjgl.opengl.GL11C.glDisable;
 import static org.lwjgl.opengl.GL11C.glDrawArrays;
@@ -44,20 +43,9 @@ import static org.lwjgl.opengl.GL13C.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13C.glActiveTexture;
 import static org.lwjgl.opengl.GL15C.GL_STATIC_DRAW;
 import static org.lwjgl.opengl.GL30C.GL_COLOR_ATTACHMENT0;
-import static org.lwjgl.opengl.GL30C.GL_COLOR_ATTACHMENT1;
-import static org.lwjgl.opengl.GL30C.GL_COLOR_ATTACHMENT2;
-import static org.lwjgl.opengl.GL30C.GL_COLOR_ATTACHMENT3;
-import static org.lwjgl.opengl.GL30C.GL_COLOR_ATTACHMENT4;
 import static org.lwjgl.opengl.GL30C.GL_DEPTH_ATTACHMENT;
 import static org.lwjgl.opengl.GL30C.GL_DEPTH_COMPONENT32F;
-import static org.lwjgl.opengl.GL30C.GL_DRAW_FRAMEBUFFER;
-import static org.lwjgl.opengl.GL30C.GL_READ_FRAMEBUFFER;
-import static org.lwjgl.opengl.GL30C.GL_RG;
-import static org.lwjgl.opengl.GL30C.GL_RGB16F;
-import static org.lwjgl.opengl.GL30C.GL_RGB32F;
 import static org.lwjgl.opengl.GL30C.GL_RGBA16F;
-import static org.lwjgl.opengl.GL30C.glBindFramebuffer;
-import static org.lwjgl.opengl.GL30C.glBlitFramebuffer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,23 +60,28 @@ import net.luxvacuos.lightengine.client.rendering.opengl.objects.TextureBuilder;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.VAO;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.FinalShader;
 
-public abstract class DeferredPipeline {
+public abstract class PostProcessPipeline {
 
 	protected int width, height;
 	private Texture[] auxTex;
 
-	protected List<DeferredPass<?>> passes;
+	protected List<PostProcesPass<?>> passes;
 
 	private Framebuffer main;
-	private Texture diffuseTex, positionTex, normalTex, pbrTex, maskTex, depthTex;
+	private Texture mainTex, depthTex;
 
 	private VAO quad;
 
 	private FinalShader finalShader;
 
-	public DeferredPipeline(int width, int height) {
+	private int nvgTexture;
+
+	private long nvg;
+
+	public PostProcessPipeline(int width, int height, long nvg) {
 		this.width = width;
 		this.height = height;
+		this.nvg = nvg;
 		passes = new ArrayList<>();
 		auxTex = new Texture[3];
 		init();
@@ -102,9 +95,9 @@ public abstract class DeferredPipeline {
 		quad.unbind();
 		generatePipeline();
 		setupPasses();
-		for (DeferredPass<?> pass : passes)
+		for (PostProcesPass<?> pass : passes)
 			pass.init(width, height);
-		finalShader = new FinalShader("deferred/Final");
+		finalShader = new FinalShader("postprocess/Final");
 	}
 
 	public abstract void setupPasses();
@@ -120,13 +113,15 @@ public abstract class DeferredPipeline {
 	public void process(RenderingSettings rs, RendererData rnd, IRenderingData rd) {
 		glDisable(GL_DEPTH_TEST);
 		quad.bind(0);
-		for (DeferredPass<?> pass : passes)
+		for (PostProcesPass<?> pass : passes)
 			pass.process(rs, rnd, rd, this, auxTex, quad);
 		quad.unbind(0);
 		glEnable(GL_DEPTH_TEST);
 	}
 
-	public void render(Framebuffer fb) {
+	public void render() {
+		glDisable(GL_DEPTH_TEST);
+		main.bind();
 		finalShader.start();
 		quad.bind(0);
 		glActiveTexture(GL_TEXTURE0);
@@ -134,9 +129,8 @@ public abstract class DeferredPipeline {
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		quad.unbind(0);
 		finalShader.stop();
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, main.getFramebuffer());
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fb.getFramebuffer());
-		glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+		main.unbind();
+		glEnable(GL_DEPTH_TEST);
 	}
 
 	public void resize(int width, int height) {
@@ -144,20 +138,20 @@ public abstract class DeferredPipeline {
 		this.height = height;
 		disposePipeline();
 		generatePipeline();
-		for (DeferredPass<?> pass : passes)
+		for (PostProcesPass<?> pass : passes)
 			pass.resize(width, height);
 	}
 
 	public void dispose() {
 		disposePipeline();
-		for (DeferredPass<?> pass : passes)
+		for (PostProcesPass<?> pass : passes)
 			pass.dispose();
 		quad.dispose();
 		finalShader.dispose();
 	}
 
 	public void reloadShaders() {
-		for (DeferredPass<?> deferredPass : passes)
+		for (PostProcesPass<?> deferredPass : passes)
 			deferredPass.reloadShader();
 		finalShader.reload();
 	}
@@ -171,39 +165,7 @@ public abstract class DeferredPipeline {
 		tb.texParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		tb.texParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		tb.texParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		diffuseTex = tb.endTexture();
-
-		tb.genTexture(GL_TEXTURE_2D).bindTexture();
-		tb.sizeTexture(width, height).texImage2D(0, GL_RGB32F, 0, GL_RGB, GL_FLOAT, 0);
-		tb.texParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		tb.texParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		tb.texParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		tb.texParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		positionTex = tb.endTexture();
-
-		tb.genTexture(GL_TEXTURE_2D).bindTexture();
-		tb.sizeTexture(width, height).texImage2D(0, GL_RGB16F, 0, GL_RGB, GL_FLOAT, 0);
-		tb.texParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		tb.texParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		tb.texParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		tb.texParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		normalTex = tb.endTexture();
-
-		tb.genTexture(GL_TEXTURE_2D).bindTexture();
-		tb.sizeTexture(width, height).texImage2D(0, GL_RG, 0, GL_RG, GL_UNSIGNED_BYTE, 0);
-		tb.texParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		tb.texParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		tb.texParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		tb.texParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		pbrTex = tb.endTexture();
-
-		tb.genTexture(GL_TEXTURE_2D).bindTexture();
-		tb.sizeTexture(width, height).texImage2D(0, GL_RGBA, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-		tb.texParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		tb.texParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		tb.texParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		tb.texParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		maskTex = tb.endTexture();
+		mainTex = tb.endTexture();
 
 		tb.genTexture(GL_TEXTURE_2D).bindTexture();
 		tb.sizeTexture(width, height).texImage2D(0, GL_DEPTH_COMPONENT32F, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
@@ -216,50 +178,42 @@ public abstract class DeferredPipeline {
 		var fb = new FramebufferBuilder();
 
 		fb.genFramebuffer().bindFramebuffer().sizeFramebuffer(width, height);
-		fb.framebufferTexture(GL_COLOR_ATTACHMENT0, diffuseTex, 0);
-		fb.framebufferTexture(GL_COLOR_ATTACHMENT1, positionTex, 0);
-		fb.framebufferTexture(GL_COLOR_ATTACHMENT2, normalTex, 0);
-		fb.framebufferTexture(GL_COLOR_ATTACHMENT3, pbrTex, 0);
-		fb.framebufferTexture(GL_COLOR_ATTACHMENT4, maskTex, 0);
+		fb.framebufferTexture(GL_COLOR_ATTACHMENT0, mainTex, 0);
 		fb.framebufferTexture(GL_DEPTH_ATTACHMENT, depthTex, 0);
-		int bufs[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3,
-				GL_COLOR_ATTACHMENT4 };
-		fb.drawBuffers(bufs);
 		main = fb.endFramebuffer();
+
+		nvgTexture = nvglCreateImageFromHandle(nvg, mainTex.getTexture(), width, width, NVG_IMAGE_FLIPY);
 	}
 
 	private void disposePipeline() {
 		main.dispose();
-		diffuseTex.dispose();
-		positionTex.dispose();
-		normalTex.dispose();
-		pbrTex.dispose();
-		maskTex.dispose();
+		mainTex.dispose();
 		depthTex.dispose();
+		nvgDeleteImage(nvg, nvgTexture);
 	}
 
-	public Texture getDiffuseTex() {
-		return diffuseTex;
-	}
-
-	public Texture getPositionTex() {
-		return positionTex;
-	}
-
-	public Texture getNormalTex() {
-		return normalTex;
-	}
-
-	public Texture getPbrTex() {
-		return pbrTex;
-	}
-
-	public Texture getMaskTex() {
-		return maskTex;
+	public Texture getMainTex() {
+		return mainTex;
 	}
 
 	public Texture getDepthTex() {
 		return depthTex;
+	}
+
+	public int getNVGTexture() {
+		return nvgTexture;
+	}
+
+	/**
+	 * <b>INTERAL USE ONLY</b><br>
+	 * Used for blitting the depth buffer of the
+	 * {@link net.luxvacuos.lightengine.client.rendering.opengl.v2.DeferredPipeline
+	 * DeferredPipeline} to the
+	 * {@link net.luxvacuos.lightengine.client.rendering.opengl.v2.PostProcessPipeline
+	 * PostProcessPipeline}
+	 **/
+	public Framebuffer getMain() {
+		return main;
 	}
 
 }

@@ -18,24 +18,28 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.opengl;
+package net.luxvacuos.lightengine.client.rendering.opengl.pipeline.shaders;
 
-import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
-import net.luxvacuos.lightengine.universal.resources.IDisposable;
+import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformSampler;
 
-public interface IPostProcessPipeline extends IDisposable {
+public class DepthOfFieldShader extends BasePipelineShader {
 
-	public void init();
+	private UniformSampler image = new UniformSampler("image");
+	private UniformSampler depth = new UniformSampler("depth");
 
-	public void begin();
+	public DepthOfFieldShader(String name) {
+		super("postprocess/" + name);
+		super.storeUniforms(image, depth);
+		super.validate();
+		this.loadInitialData();
+	}
 
-	public void end();
+	@Override
+	protected void loadInitialData() {
+		super.start();
+		image.loadTexUnit(0);
+		depth.loadTexUnit(1);
+		super.stop();
+	}
 
-	public void preRender(CameraEntity camera);
-	
-	public void resize(int width, int height);
-
-	public FBO getFBO();
-
-	public int getNVGImage();
 }

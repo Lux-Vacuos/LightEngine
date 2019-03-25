@@ -20,10 +20,26 @@
 
 in vec2 textureCoords;
 
-out vec4 out_Color;
+out vec3 out_Color;
 
 uniform sampler2D image;
+uniform sampler2D depth;
 
-void main() {
-	out_Color = texture(image, textureCoords);
+uniform int useDOF;
+
+void main(void) {
+	vec3 textureColour = texture(image, textureCoords).rgb;
+	if (useDOF == 1) {
+		vec3 sum = textureColour.rgb;
+		float bias =
+			min(abs(texture(depth, textureCoords).x - texture(depth, vec2(0.5)).x) * .01, .005);
+		for (int i = -4; i < 4; i++) {
+			for (int j = -4; j < 4; j++) {
+				sum += texture(image, textureCoords + vec2(j, i) * bias).rgb;
+			}
+		}
+		sum /= 65.0;
+		textureColour = sum;
+	}
+	out_Color = textureColour;
 }

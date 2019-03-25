@@ -23,15 +23,7 @@ in vec2 textureCoords;
 out vec3 out_Color;
 
 uniform vec2 resolution;
-uniform vec3 cameraPosition;
-uniform vec3 previousCameraPosition;
-uniform mat4 projectionMatrix;
-uniform mat4 inverseProjectionMatrix;
-uniform mat4 inverseViewMatrix;
-uniform mat4 previousViewMatrix;
-uniform sampler2D composite0;
-uniform sampler2D composite1;
-uniform sampler2D gDepth;
+uniform sampler2D image;
 
 uniform int useChromaticAberration;
 
@@ -68,21 +60,21 @@ vec3 spectrum_offset(float t) {
 }
 
 void main() {
-	vec3 textureColour = vec3(0.0);
+	vec3 color = vec3(0.0);
 	if (useChromaticAberration == 1) {
-		vec2 uv = gl_FragCoord.xy / resolution.xy;
 		vec3 sumcol = vec3(0.0);
 		vec3 sumw = vec3(0.0);
 		for (int i = 0; i < num_iter; ++i) {
 			float t = float(i) * reci_num_iter_f;
 			vec3 w = spectrum_offset(t);
 			sumw += w;
-			sumcol += w * texture(composite0, barrelDistortion(uv, 0.6 * max_distort * t)).rgb;
+			sumcol +=
+				w * texture(image, barrelDistortion(textureCoords, 0.6 * max_distort * t)).rgb;
 		}
 
-		textureColour = sumcol / sumw;
+		color = sumcol / sumw;
 	} else {
-		textureColour = texture(composite0, textureCoords).rgb;
+		color = texture(image, textureCoords).rgb;
 	}
-	out_Color = textureColour;
+	out_Color = color;
 }

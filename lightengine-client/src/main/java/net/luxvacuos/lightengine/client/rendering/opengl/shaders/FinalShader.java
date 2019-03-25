@@ -18,26 +18,27 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.opengl;
+package net.luxvacuos.lightengine.client.rendering.opengl.shaders;
 
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
+import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.Attribute;
+import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformSampler;
 
-import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.RawModel;
-import net.luxvacuos.lightengine.universal.resources.IDisposable;
+public class FinalShader extends ShaderProgram {
 
-public interface IPostProcessPass extends IDisposable {
+	private UniformSampler image = new UniformSampler("image");
 
-	public void init();
+	public FinalShader(String name) {
+		super(name + ".vs", name + ".fs", new Attribute(0, "position"));
+		super.storeUniforms(image);
+		super.validate();
+		this.loadInitialData();
+	}
 
-	public void process(CameraEntity camera, Matrix4f previousViewMatrix, Vector3f previousCameraPosition, FBO[] auxs,
-			RawModel quad);
-
-	public void render(FBO[] auxs);
-	
-	public void resize(int width, int height);
-
-	public boolean isEnabled();
+	@Override
+	protected void loadInitialData() {
+		super.start();
+		image.loadTexUnit(0);
+		super.stop();
+	}
 
 }

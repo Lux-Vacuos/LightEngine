@@ -37,14 +37,14 @@ import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.IResourceLoader;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.RawModel;
-import net.luxvacuos.lightengine.client.rendering.opengl.shaders.SkyboxShader;
+import net.luxvacuos.lightengine.client.rendering.opengl.shaders.SkydomeShader;
 import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
 
 public class SkydomeRenderer {
 
 	private RawModel dome;
-	private SkyboxShader shader;
+	private SkydomeShader shader;
 	private float scale;
 	private Vector3f pos;
 
@@ -55,7 +55,7 @@ public class SkydomeRenderer {
 			scale = ClientVariables.FAR_PLANE;
 		dome = loader.loadObjModel("SkyDome");
 		pos = new Vector3f();
-		shader = new SkyboxShader();
+		shader = new SkydomeShader();
 		shader.start();
 		shader.loadTransformationMatrix(Maths.createTransformationMatrix(pos, 0, 0, 0, scale));
 		shader.stop();

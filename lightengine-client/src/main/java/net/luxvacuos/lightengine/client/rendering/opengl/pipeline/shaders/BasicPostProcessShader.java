@@ -18,25 +18,26 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.opengl;
+package net.luxvacuos.lightengine.client.rendering.opengl.pipeline.shaders;
 
-import java.util.List;
+import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformSampler;
 
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
+public class BasicPostProcessShader extends BasePipelineShader {
+	
+	private UniformSampler image = new UniformSampler("image");
 
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.CubeMapTexture;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.Light;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
+	public BasicPostProcessShader(String name) {
+		super("postprocess/" + name);
+		super.storeUniforms(image);
+		super.validate();
+		this.loadInitialData();
+	}
 
-public class RendererData {
-
-	public List<Light> lights;
-	public CubeMapTexture irradianceCapture, environmentMap;
-	public Texture brdfLUT;
-	public ShadowFBO shadow;
-	public float exposure;
-	public Matrix4f previousViewMatrix = new Matrix4f();
-	public Vector3f previousCameraPosition = new Vector3f();
+	@Override
+	protected void loadInitialData() {
+		super.start();
+		image.loadTexUnit(0);
+		super.stop();
+	}
 
 }

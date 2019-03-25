@@ -20,31 +20,37 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl.pipeline;
 
-import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.glBindTexture;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE6;
-import static org.lwjgl.opengl.GL13.glActiveTexture;
+import static org.lwjgl.opengl.GL11C.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE0;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE1;
 
-import net.luxvacuos.lightengine.client.rendering.opengl.FBO;
-import net.luxvacuos.lightengine.client.rendering.opengl.PostProcessPass;
-import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
+import net.luxvacuos.lightengine.client.network.IRenderingData;
+import net.luxvacuos.lightengine.client.rendering.opengl.RendererData;
+import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
+import net.luxvacuos.lightengine.client.rendering.opengl.pipeline.shaders.MotionBlurShader;
+import net.luxvacuos.lightengine.client.rendering.opengl.v2.PostProcesPass;
+import net.luxvacuos.lightengine.client.rendering.opengl.v2.PostProcessPipeline;
 
-public class MotionBlur extends PostProcessPass {
+public class MotionBlur extends PostProcesPass<MotionBlurShader> {
 
-	public MotionBlur(String name, int width, int height) {
-		super(name, width, height);
+	public MotionBlur() {
+		super("MotionBlur");
 	}
 
 	@Override
-	public void render(FBO[] auxs) {
-		glActiveTexture(GL_TEXTURE6);
-		glBindTexture(GL_TEXTURE_2D, auxs[0].getTexture());
+	protected MotionBlurShader setupShader() {
+		return new MotionBlurShader(name);
 	}
-	
+
 	@Override
-	public boolean isEnabled() {
-		return (boolean) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Settings/Graphics/motionBlur"));
+	protected void setupShaderData(RendererData rnd, IRenderingData rd, MotionBlurShader shader) {
+		shader.loadMotionBlurData(rd.getCamera(), rnd.previousViewMatrix, rnd.previousCameraPosition);
+	}
+
+	@Override
+	protected void setupTextures(RendererData rnd, PostProcessPipeline pp, Texture[] auxTex) {
+		super.activateTexture(GL_TEXTURE0, GL_TEXTURE_2D, auxTex[0].getTexture());
+		super.activateTexture(GL_TEXTURE1, GL_TEXTURE_2D, pp.getDepthTex().getTexture());
 	}
 
 }
