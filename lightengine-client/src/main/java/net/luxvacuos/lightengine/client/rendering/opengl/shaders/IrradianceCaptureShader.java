@@ -22,11 +22,12 @@ package net.luxvacuos.lightengine.client.rendering.opengl.shaders;
 
 import org.joml.Matrix4f;
 
-import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.Attribute;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformMatrix;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformSampler;
+import net.luxvacuos.lightengine.universal.core.subsystems.ResManager;
+import net.luxvacuos.lightengine.universal.resources.ResourceType;
 
 public class IrradianceCaptureShader extends ShaderProgram {
 
@@ -35,7 +36,8 @@ public class IrradianceCaptureShader extends ShaderProgram {
 	private UniformSampler envMap = new UniformSampler("envMap");
 
 	public IrradianceCaptureShader() {
-		super(ClientVariables.VERTEX_IRRADIANCE_CAPTURE, ClientVariables.FRAGMENT_IRRADIANCE_CAPTURE,
+		super(ResManager.getResourceOfType("ENGINE_RND_IrradianceCapture_VS", ResourceType.SHADER).get(),
+				ResManager.getResourceOfType("ENGINE_RND_IrradianceCapture_FS", ResourceType.SHADER).get(),
 				new Attribute(0, "position"));
 		super.storeUniforms(projectionMatrix, viewMatrix, envMap);
 		super.validate();

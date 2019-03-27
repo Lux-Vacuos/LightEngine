@@ -18,26 +18,8 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.opengl.pipeline.shaders;
+package net.luxvacuos.lightengine.universal.resources;
 
-import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformSampler;
-
-public class BasicPostProcessShader extends BasePipelineShader {
-	
-	private UniformSampler image = new UniformSampler("image");
-
-	public BasicPostProcessShader(String name) {
-		super("POST_" + name);
-		super.storeUniforms(image);
-		super.validate();
-		this.loadInitialData();
-	}
-
-	@Override
-	protected void loadInitialData() {
-		super.start();
-		image.loadTexUnit(0);
-		super.stop();
-	}
-
+public enum ResourceType {
+	SHADER, ISL, TEXTURE
 }

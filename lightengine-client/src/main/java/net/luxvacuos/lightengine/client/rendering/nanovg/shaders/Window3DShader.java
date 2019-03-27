@@ -22,12 +22,13 @@ package net.luxvacuos.lightengine.client.rendering.nanovg.shaders;
 
 import org.joml.Matrix4f;
 
-import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.ShaderProgram;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.Attribute;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformMatrix;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformSampler;
+import net.luxvacuos.lightengine.universal.core.subsystems.ResManager;
+import net.luxvacuos.lightengine.universal.resources.ResourceType;
 
 public class Window3DShader extends ShaderProgram {
 
@@ -37,7 +38,8 @@ public class Window3DShader extends ShaderProgram {
 	private UniformMatrix viewMatrix = new UniformMatrix("viewMatrix");
 
 	public Window3DShader() {
-		super("wm/" + ClientVariables.VERTEX_WINDOW3D, "wm/" + ClientVariables.FRAGMENT_WINDOW3D,
+		super(ResManager.getResourceOfType("ENGINE_WM_3DWindow_VS", ResourceType.SHADER).get(),
+				ResManager.getResourceOfType("ENGINE_WM_3DWindow_FS", ResourceType.SHADER).get(),
 				new Attribute(0, "position"));
 		super.storeUniforms(transformationMatrix, projectionMatrix, viewMatrix, image);
 		super.validate();

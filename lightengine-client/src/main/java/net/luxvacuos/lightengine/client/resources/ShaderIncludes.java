@@ -30,6 +30,7 @@ import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.client.core.ClientEngine;
 import net.luxvacuos.lightengine.client.core.exception.IncludeShaderException;
 import net.luxvacuos.lightengine.client.core.exception.LoadShaderException;
+import net.luxvacuos.lightengine.universal.resources.SimpleResource;
 
 public final class ShaderIncludes {
 
@@ -40,13 +41,13 @@ public final class ShaderIncludes {
 	private ShaderIncludes() {
 	}
 
-	public static void processIncludeFile(String name) {
+	public static void processIncludeFile(SimpleResource name) {
 		StringBuilder source = new StringBuilder();
 		String includeName = "";
 		InputStream filet = null;
 		BufferedReader reader = null;
 		try {
-			filet = ClientEngine.class.getClassLoader().getResourceAsStream("assets/shaders/includes/" + name);
+			filet = ClientEngine.class.getClassLoader().getResourceAsStream(name.getResourcePath());
 			reader = new BufferedReader(new InputStreamReader(filet));
 			Logger.log("Processing Shader Include File: " + name);
 			String line;

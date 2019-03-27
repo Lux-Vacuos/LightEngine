@@ -18,7 +18,7 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.opengl;
+package net.luxvacuos.lightengine.client.world;
 
 import java.util.ArrayList;
 import java.util.HashMap;

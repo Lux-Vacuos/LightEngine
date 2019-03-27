@@ -42,7 +42,7 @@ public class MotionBlurShader extends BasePipelineShader {
 	private Matrix4f projInv = new Matrix4f(), viewInv = new Matrix4f();
 
 	public MotionBlurShader(String name) {
-		super("postprocess/" + name);
+		super("DFR_" + name);
 		super.storeUniforms(image, depth, cameraPosition, previousCameraPosition, projectionMatrix,
 				inverseProjectionMatrix, inverseViewMatrix, previousViewMatrix);
 		super.validate();

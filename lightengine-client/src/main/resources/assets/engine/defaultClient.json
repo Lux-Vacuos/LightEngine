@@ -1,0 +1,7 @@
+{
+	"resources": {},
+	"definitions": [
+		"assets/engine/defaultShaders.json",
+		"assets/engine/defaultISL.json"
+	]
+}

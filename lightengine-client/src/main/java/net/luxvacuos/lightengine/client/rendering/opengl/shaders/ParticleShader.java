@@ -22,10 +22,11 @@ package net.luxvacuos.lightengine.client.rendering.opengl.shaders;
 
 import org.joml.Matrix4f;
 
-import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.Attribute;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformFloat;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformMatrix;
+import net.luxvacuos.lightengine.universal.core.subsystems.ResManager;
+import net.luxvacuos.lightengine.universal.resources.ResourceType;
 
 public class ParticleShader extends ShaderProgram {
 
@@ -33,7 +34,8 @@ public class ParticleShader extends ShaderProgram {
 	private UniformFloat numberOfRows = new UniformFloat("numberOfRows");
 
 	public ParticleShader() {
-		super(ClientVariables.VERTEX_FILE_PARTICLE, ClientVariables.FRAGMENT_FILE_PARTICLE,
+		super(ResManager.getResourceOfType("ENGINE_RND_Particle_VS", ResourceType.SHADER).get(),
+				ResManager.getResourceOfType("ENGINE_RND_Particle_FS", ResourceType.SHADER).get(),
 				new Attribute(0, "position"), new Attribute(1, "modelViewMatrix"), new Attribute(5, "texOffsets"),
 				new Attribute(6, "blendFactor"));
 		super.storeUniforms(projectionMatrix);

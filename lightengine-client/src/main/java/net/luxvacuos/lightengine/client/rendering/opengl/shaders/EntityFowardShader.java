@@ -23,7 +23,6 @@ package net.luxvacuos.lightengine.client.rendering.opengl.shaders;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Material;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.Attribute;
@@ -32,6 +31,8 @@ import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformMat
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformMatrix;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformSampler;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformVec3;
+import net.luxvacuos.lightengine.universal.core.subsystems.ResManager;
+import net.luxvacuos.lightengine.universal.resources.ResourceType;
 
 public class EntityFowardShader extends ShaderProgram {
 
@@ -54,7 +55,8 @@ public class EntityFowardShader extends ShaderProgram {
 	private UniformSampler shadowMap[];
 
 	public EntityFowardShader() {
-		super(ClientVariables.VERTEX_FILE_ENTITY_FORWARD, ClientVariables.FRAGMENT_FILE_ENTITY_FORWARD,
+		super(ResManager.getResourceOfType("ENGINE_RND_EntityForward_VS", ResourceType.SHADER).get(),
+				ResManager.getResourceOfType("ENGINE_RND_EntityForward_FS", ResourceType.SHADER).get(),
 				new Attribute(0, "position"), new Attribute(1, "textureCoords"), new Attribute(2, "normals"),
 				new Attribute(3, "tangent"));
 		projectionLightMatrix = new UniformMatrix[4];

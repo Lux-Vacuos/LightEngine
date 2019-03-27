@@ -29,7 +29,7 @@ public class ColorCorrectionShader extends BasePipelineShader {
 	private UniformFloat exposure = new UniformFloat("exposure");
 
 	public ColorCorrectionShader(String name) {
-		super("deferred/" + name);
+		super("DFR_" + name);
 		this.storeUniforms(image, exposure);
 		this.validate();
 		this.loadInitialData();

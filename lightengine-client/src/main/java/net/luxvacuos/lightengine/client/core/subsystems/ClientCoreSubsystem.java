@@ -28,6 +28,7 @@ import net.luxvacuos.lightengine.client.core.states.SplashScreenState;
 import net.luxvacuos.lightengine.universal.core.GlobalVariables;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem;
+import net.luxvacuos.lightengine.universal.core.subsystems.ResManager;
 import net.luxvacuos.lightengine.universal.loader.EngineData;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
@@ -58,6 +59,7 @@ public class ClientCoreSubsystem extends CoreSubsystem {
 		REGISTRY.save();
 		LANG.load(
 				"assets/langs/" + REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Regional/lang")) + ".json");
+		ResManager.loadResourceDefinition("assets/engine/defaultClient.json");
 	}
 
 	@Override

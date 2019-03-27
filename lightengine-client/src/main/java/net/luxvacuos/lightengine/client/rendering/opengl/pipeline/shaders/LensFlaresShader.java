@@ -28,7 +28,7 @@ public class LensFlaresShader extends BasePipelineShader {
 	private UniformSampler lensColor = new UniformSampler("lensColor");
 
 	public LensFlaresShader(String name) {
-		super("deferred/" + name);
+		super("DFR_" + name);
 		super.storeUniforms(bloom, lensColor);
 		super.validate();
 		this.loadInitialData();

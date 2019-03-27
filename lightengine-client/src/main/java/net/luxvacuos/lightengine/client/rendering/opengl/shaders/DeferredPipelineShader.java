@@ -72,9 +72,8 @@ public class DeferredPipelineShader extends BasePipelineShader {
 	private UniformMatrix biasMatrix = new UniformMatrix("biasMatrix");
 	private UniformSampler shadowMap[];
 
-
 	public DeferredPipelineShader(String name) {
-		super("deferred/" + name);
+		super("DFR_" + name);
 		lights = new UniformLight[18];
 		for (int x = 0; x < 18; x++) {
 			lights[x] = new UniformLight("lights[" + x + "]");

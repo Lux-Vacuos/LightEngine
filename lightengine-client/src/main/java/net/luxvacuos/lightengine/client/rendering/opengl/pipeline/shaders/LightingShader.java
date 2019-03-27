@@ -55,7 +55,7 @@ public class LightingShader extends BasePipelineShader {
 	private UniformSampler shadowMap[];
 
 	public LightingShader(String name) {
-		super("deferred/" + name);
+		super("DFR_" + name);
 		projectionLightMatrix = new UniformMatrix[4];
 		for (int x = 0; x < 4; x++)
 			projectionLightMatrix[x] = new UniformMatrix("projectionLightMatrix[" + x + "]");

@@ -28,7 +28,7 @@ public class DepthOfFieldShader extends BasePipelineShader {
 	private UniformSampler depth = new UniformSampler("depth");
 
 	public DepthOfFieldShader(String name) {
-		super("postprocess/" + name);
+		super("POST_" + name);
 		super.storeUniforms(image, depth);
 		super.validate();
 		this.loadInitialData();

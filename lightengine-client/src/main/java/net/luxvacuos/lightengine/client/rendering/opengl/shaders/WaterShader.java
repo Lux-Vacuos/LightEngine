@@ -23,13 +23,14 @@ package net.luxvacuos.lightengine.client.rendering.opengl.shaders;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.Attribute;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformFloat;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformMatrix;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformSampler;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformVec3;
+import net.luxvacuos.lightengine.universal.core.subsystems.ResManager;
+import net.luxvacuos.lightengine.universal.resources.ResourceType;
 
 public class WaterShader extends ShaderProgram {
 
@@ -42,7 +43,9 @@ public class WaterShader extends ShaderProgram {
 	private UniformFloat time = new UniformFloat("time");
 
 	public WaterShader() {
-		super(ClientVariables.VERTEX_WATER, ClientVariables.FRAGMENT_WATER, ClientVariables.GEOMETRY_WATER,
+		super(ResManager.getResourceOfType("ENGINE_RND_Water_VS", ResourceType.SHADER).get(),
+				ResManager.getResourceOfType("ENGINE_RND_Water_GS", ResourceType.SHADER).get(),
+				ResManager.getResourceOfType("ENGINE_RND_Water_FS", ResourceType.SHADER).get(),
 				new Attribute(0, "position"), new Attribute(1, "textureCoords"));
 		super.storeUniforms(transformationMatrix, projectionMatrix, viewMatrix, cameraPosition, time, dudv, foamMask);
 		super.validate();

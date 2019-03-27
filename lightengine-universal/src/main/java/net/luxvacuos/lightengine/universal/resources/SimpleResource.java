@@ -18,56 +18,36 @@
  * 
  */
 
-package net.luxvacuos.lightengine.universal.util;
+package net.luxvacuos.lightengine.universal.resources;
 
 public class SimpleResource implements IResource {
-	
-	protected String domain = "";
-	protected String path = "";
-	
-	public SimpleResource(String domain, String path) {
-		if(domain == null) {
-			throw new IllegalStateException("Resource cannot have null domain!");
-		} else if(path == null) {
-			throw new IllegalStateException("Resource cannot have null path!");
-		}
-		
-		this.domain = domain;
+
+	protected ResourceType type;
+	protected String path;
+
+	public SimpleResource(ResourceType type, String path) {
+		this.type = type;
 		this.path = path;
-	}
-	
-	public SimpleResource(String fullResource) {
-		String[] split = fullResource.split(":");
-		if(split.length != 2) {
-			throw new IllegalStateException("Generated invalid Resource from fullResource string "+fullResource+"! Should only use one ':' to split the domain and path!");
-		}
-		
-		this.domain = split[0];
-		this.path = split[1];
 	}
 
 	@Override
-	public String getResourceDomain() {
-		return this.domain;
+	public ResourceType getResourceType() {
+		return this.type;
 	}
 
 	@Override
 	public String getResourcePath() {
 		return this.path;
 	}
-	
+
 	@Override
 	public String toString() {
-		return this.domain + ":" + this.path;
+		return this.path;
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 191;
-		int result = 1;
-		result = prime * result + ((domain == null) ? 0 : domain.hashCode());
-		result = prime * result + ((path == null) ? 0 : path.hashCode());
-		return result;
+		return 191 + path.hashCode();
 	}
 
 	@Override
@@ -79,11 +59,6 @@ public class SimpleResource implements IResource {
 		if (!(obj instanceof SimpleResource))
 			return false;
 		SimpleResource other = (SimpleResource) obj;
-		if (domain == null) {
-			if (other.domain != null)
-				return false;
-		} else if (!domain.equals(other.domain))
-			return false;
 		if (path == null) {
 			if (other.path != null)
 				return false;
@@ -91,7 +66,4 @@ public class SimpleResource implements IResource {
 			return false;
 		return true;
 	}
-	
-	
-
 }

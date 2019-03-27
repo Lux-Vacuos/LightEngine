@@ -30,7 +30,7 @@ public class GaussianShader extends BasePipelineShader {
 	private UniformBoolean vertical = new UniformBoolean("vertical");
 
 	public GaussianShader(String name) {
-		super("deferred/" + name);
+		super("DFR_" + name);
 		super.storeUniforms(image, vertical);
 		super.validate();
 		this.loadInitialData();

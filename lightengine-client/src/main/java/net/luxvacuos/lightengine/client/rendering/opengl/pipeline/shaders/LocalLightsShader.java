@@ -53,7 +53,7 @@ public class LocalLightsShader extends BasePipelineShader {
 	private UniformMatrix biasMatrix = new UniformMatrix("biasMatrix");
 
 	public LocalLightsShader(String name) {
-		super("deferred/" + name);
+		super("DFR_" + name);
 		lights = new UniformLight[26];
 		for (int x = 0; x < 26; x++) {
 			lights[x] = new UniformLight("lights[" + x + "]");

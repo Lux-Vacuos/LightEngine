@@ -18,11 +18,33 @@
  * 
  */
 
-package net.luxvacuos.lightengine.universal.util;
+package net.luxvacuos.lightengine.universal.resources;
 
-public interface IResource {
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-	public String getResourceDomain();
-	
-	public String getResourcePath();
+public class ResourceDefinition {
+
+	private Map<String, SimpleResource> resources;
+	private List<String> definitions;
+
+	public ResourceDefinition() {
+		resources = new HashMap<>();
+		definitions = new ArrayList<>();
+	}
+
+	public Map<String, SimpleResource> getResources() {
+		return resources;
+	}
+
+	public List<String> getDefinitions() {
+		return definitions;
+	}
+
+	public boolean hasDefinitions() {
+		return !definitions.isEmpty();
+	}
+
 }

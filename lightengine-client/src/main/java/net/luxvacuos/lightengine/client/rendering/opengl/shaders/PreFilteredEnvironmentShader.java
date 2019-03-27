@@ -22,12 +22,13 @@ package net.luxvacuos.lightengine.client.rendering.opengl.shaders;
 
 import org.joml.Matrix4f;
 
-import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.Attribute;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformFloat;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformMatrix;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformSampler;
+import net.luxvacuos.lightengine.universal.core.subsystems.ResManager;
+import net.luxvacuos.lightengine.universal.resources.ResourceType;
 
 public class PreFilteredEnvironmentShader extends ShaderProgram {
 
@@ -37,7 +38,8 @@ public class PreFilteredEnvironmentShader extends ShaderProgram {
 	private UniformFloat roughness = new UniformFloat("roughness");
 
 	public PreFilteredEnvironmentShader() {
-		super(ClientVariables.VERTEX_PRE_FILTERED_ENV, ClientVariables.FRAGMENT_PRE_FILTERED_ENV,
+		super(ResManager.getResourceOfType("ENGINE_RND_PreFilteredEnvironment_VS", ResourceType.SHADER).get(),
+				ResManager.getResourceOfType("ENGINE_RND_PreFilteredEnvironment_FS", ResourceType.SHADER).get(),
 				new Attribute(0, "position"));
 		super.storeUniforms(projectionMatrix, viewMatrix, envMap, roughness);
 		super.validate();

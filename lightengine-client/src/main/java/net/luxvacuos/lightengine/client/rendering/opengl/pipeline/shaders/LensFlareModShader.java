@@ -30,7 +30,7 @@ public class LensFlareModShader extends BasePipelineShader {
 	private UniformSampler image = new UniformSampler("image");
 
 	public LensFlareModShader(String name) {
-		super("deferred/" + name);
+		super("DFR_" + name);
 		super.storeUniforms(lensFlare, lensDirt, lensStar, image);
 		super.validate();
 		this.loadInitialData();

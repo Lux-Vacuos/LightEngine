@@ -40,6 +40,7 @@ import net.luxvacuos.lightengine.universal.core.states.StateNames;
 import net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem;
 import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
 import net.luxvacuos.lightengine.universal.core.subsystems.ISubsystem;
+import net.luxvacuos.lightengine.universal.core.subsystems.ResManager;
 import net.luxvacuos.lightengine.universal.core.subsystems.ScriptSubsystem;
 import net.luxvacuos.lightengine.universal.loader.EngineData;
 import net.luxvacuos.lightengine.universal.util.ThreadUtils;
@@ -68,6 +69,7 @@ public class ClientEngine extends Engine implements IClientEngine {
 		super.addSubsystem(new NetworkSubsystem());
 		super.addSubsystem(new ScriptSubsystem());
 		super.addSubsystem(new EventSubsystem());
+		super.addSubsystem(new ResManager());
 
 		super.initSubsystems();
 

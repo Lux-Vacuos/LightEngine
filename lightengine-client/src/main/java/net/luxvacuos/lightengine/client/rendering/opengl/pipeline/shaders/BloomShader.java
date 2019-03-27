@@ -28,7 +28,7 @@ public class BloomShader extends BasePipelineShader {
 	private UniformSampler bloom = new UniformSampler("bloom");
 
 	public BloomShader(String name) {
-		super("deferred/" + name);
+		super("DFR_" + name);
 		super.storeUniforms(base, bloom);
 		super.validate();
 		this.loadInitialData();

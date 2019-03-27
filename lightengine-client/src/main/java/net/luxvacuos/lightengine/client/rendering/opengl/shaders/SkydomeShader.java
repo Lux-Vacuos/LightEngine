@@ -23,7 +23,6 @@ package net.luxvacuos.lightengine.client.rendering.opengl.shaders;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.Attribute;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformBoolean;
@@ -31,6 +30,8 @@ import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformFlo
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformMatrix;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformVec3;
 import net.luxvacuos.lightengine.client.util.Maths;
+import net.luxvacuos.lightengine.universal.core.subsystems.ResManager;
+import net.luxvacuos.lightengine.universal.resources.ResourceType;
 
 public class SkydomeShader extends ShaderProgram {
 
@@ -45,8 +46,9 @@ public class SkydomeShader extends ShaderProgram {
 	private Matrix4f temp = new Matrix4f();
 
 	public SkydomeShader() {
-		super(ClientVariables.VERTEX_FILE_SKYDOME, ClientVariables.FRAGMENT_FILE_SKYDOME, new Attribute(0, "position"),
-				new Attribute(1, "textureCoords"), new Attribute(2, "normal"));
+		super(ResManager.getResourceOfType("ENGINE_RND_Skydome_VS", ResourceType.SHADER).get(),
+				ResManager.getResourceOfType("ENGINE_RND_Skydome_FS", ResourceType.SHADER).get(),
+				new Attribute(0, "position"), new Attribute(1, "textureCoords"), new Attribute(2, "normal"));
 		super.storeUniforms(projectionMatrix, transformationMatrix, viewMatrix, time, lightPosition, renderSun,
 				cameraPosition);
 		super.validate();

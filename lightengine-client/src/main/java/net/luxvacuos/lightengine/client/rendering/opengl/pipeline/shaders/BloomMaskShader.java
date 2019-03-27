@@ -27,7 +27,7 @@ public class BloomMaskShader extends BasePipelineShader {
 	private UniformSampler image = new UniformSampler("image");
 
 	public BloomMaskShader(String name) {
-		super("deferred/" + name);
+		super("DFR_" + name);
 		super.storeUniforms(image);
 		super.validate();
 		this.loadInitialData();

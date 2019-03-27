@@ -22,12 +22,13 @@ package net.luxvacuos.lightengine.client.rendering.opengl.shaders;
 
 import org.joml.Matrix4f;
 
-import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.Attribute;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformMatrix;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformSampler;
 import net.luxvacuos.lightengine.client.util.Maths;
+import net.luxvacuos.lightengine.universal.core.subsystems.ResManager;
+import net.luxvacuos.lightengine.universal.resources.ResourceType;
 
 public class EntityBasicShader extends ShaderProgram {
 
@@ -37,7 +38,8 @@ public class EntityBasicShader extends ShaderProgram {
 	private UniformSampler texture0 = new UniformSampler("texture0");
 
 	public EntityBasicShader() {
-		super(ClientVariables.VERTEX_FILE_ENTITY_BASIC, ClientVariables.FRAGMENT_FILE_ENTITY_BASIC,
+		super(ResManager.getResourceOfType("ENGINE_RND_EntityBasic_VS", ResourceType.SHADER).get(),
+				ResManager.getResourceOfType("ENGINE_RND_EntityBasic_FS", ResourceType.SHADER).get(),
 				new Attribute(0, "position"), new Attribute(1, "textureCoords"));
 		super.storeUniforms(transformationMatrix, projectionMatrix, viewMatrix, texture0);
 		super.validate();

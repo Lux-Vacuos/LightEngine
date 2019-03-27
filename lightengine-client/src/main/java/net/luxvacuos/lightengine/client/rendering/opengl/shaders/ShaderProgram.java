@@ -42,7 +42,6 @@ import static org.lwjgl.opengl.GL32C.GL_GEOMETRY_SHADER;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,6 +54,7 @@ import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.Attribute;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.IUniform;
 import net.luxvacuos.lightengine.client.resources.ShaderIncludes;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
+import net.luxvacuos.lightengine.universal.resources.SimpleResource;
 
 public abstract class ShaderProgram implements IDisposable {
 	private int program;
@@ -65,17 +65,35 @@ public abstract class ShaderProgram implements IDisposable {
 
 	public ShaderProgram(String vertexFile, String fragmentFile, Attribute... attributes) {
 		this.attributes = attributes;
-		shaders.add(new Shader(vertexFile, GL_VERTEX_SHADER));
-		shaders.add(new Shader(fragmentFile, GL_FRAGMENT_SHADER));
+		shaders.add(new Shader("assets/shaders/" + vertexFile, GL_VERTEX_SHADER));
+		shaders.add(new Shader("assets/shaders/" + fragmentFile, GL_FRAGMENT_SHADER));
 		this.loadShaderProgram();
 		loaded = true;
 	}
 
-	public ShaderProgram(String vertexFile, String fragmentFile, String geometryFile, Attribute... attributes) {
+	public ShaderProgram(String vertexFile, String geometryFile, String fragmentFile, Attribute... attributes) {
 		this.attributes = attributes;
-		shaders.add(new Shader(vertexFile, GL_VERTEX_SHADER));
-		shaders.add(new Shader(geometryFile, GL_GEOMETRY_SHADER));
-		shaders.add(new Shader(fragmentFile, GL_FRAGMENT_SHADER));
+		shaders.add(new Shader("assets/shaders/" + vertexFile, GL_VERTEX_SHADER));
+		shaders.add(new Shader("assets/shaders/" + geometryFile, GL_GEOMETRY_SHADER));
+		shaders.add(new Shader("assets/shaders/" + fragmentFile, GL_FRAGMENT_SHADER));
+		this.loadShaderProgram();
+		loaded = true;
+	}
+
+	public ShaderProgram(SimpleResource vertexFile, SimpleResource fragmentFile, Attribute... attributes) {
+		this.attributes = attributes;
+		shaders.add(new Shader(vertexFile.getResourcePath(), GL_VERTEX_SHADER));
+		shaders.add(new Shader(fragmentFile.getResourcePath(), GL_FRAGMENT_SHADER));
+		this.loadShaderProgram();
+		loaded = true;
+	}
+
+	public ShaderProgram(SimpleResource vertexFile, SimpleResource geometryFile, SimpleResource fragmentFile,
+			Attribute... attributes) {
+		this.attributes = attributes;
+		shaders.add(new Shader(vertexFile.getResourcePath(), GL_VERTEX_SHADER));
+		shaders.add(new Shader(geometryFile.getResourcePath(), GL_GEOMETRY_SHADER));
+		shaders.add(new Shader(fragmentFile.getResourcePath(), GL_FRAGMENT_SHADER));
 		this.loadShaderProgram();
 		loaded = true;
 	}
@@ -142,9 +160,9 @@ public abstract class ShaderProgram implements IDisposable {
 	}
 
 	private int loadShader(Shader shader) {
-		StringBuilder shaderSource = new StringBuilder();
-		InputStream filet = getClass().getClassLoader().getResourceAsStream("assets/shaders/" + shader.file);
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(filet))) {
+		var shaderSource = new StringBuilder();
+		var filet = getClass().getClassLoader().getResourceAsStream(shader.file);
+		try (var reader = new BufferedReader(new InputStreamReader(filet))) {
 
 			Logger.log("Loading Shader: " + shader.file);
 

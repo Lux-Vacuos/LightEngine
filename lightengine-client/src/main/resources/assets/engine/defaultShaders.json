@@ -1,0 +1,7 @@
+{
+	"resources": {},
+	"definitions": [
+		"assets/engine/wmShaders.json",
+		"assets/engine/rendererShaders.json"
+	]
+}

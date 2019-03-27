@@ -22,18 +22,22 @@ package net.luxvacuos.lightengine.client.resources.tasks;
 
 import net.luxvacuos.lightengine.client.resources.ShaderIncludes;
 import net.luxvacuos.lightengine.universal.core.Task;
+import net.luxvacuos.lightengine.universal.core.subsystems.ResManager;
+import net.luxvacuos.lightengine.universal.resources.ResourceType;
 
 public class ShaderIncludeTask extends Task<Void> {
 
-	private String file;
+	private String key;
 
-	public ShaderIncludeTask(String file) {
-		this.file = file;
+	public ShaderIncludeTask(String key) {
+		this.key = key;
 	}
 
 	@Override
 	protected Void call() {
-		ShaderIncludes.processIncludeFile(file);
+		var osr = ResManager.getResourceOfType(key, ResourceType.ISL);
+		var sr = osr.get();
+		ShaderIncludes.processIncludeFile(sr);
 		return null;
 	}
 

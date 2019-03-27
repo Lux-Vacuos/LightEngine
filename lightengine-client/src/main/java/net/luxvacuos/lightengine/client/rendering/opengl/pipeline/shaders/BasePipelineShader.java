@@ -28,6 +28,8 @@ import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.Attribute;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformBoolean;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformInteger;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformVec2;
+import net.luxvacuos.lightengine.universal.core.subsystems.ResManager;
+import net.luxvacuos.lightengine.universal.resources.ResourceType;
 
 public class BasePipelineShader extends ShaderProgram {
 
@@ -46,7 +48,9 @@ public class BasePipelineShader extends ShaderProgram {
 	private UniformBoolean useShadows = new UniformBoolean("useShadows");
 
 	public BasePipelineShader(String name) {
-		super(name + ".vs", name + ".fs", new Attribute(0, "position"));
+		super(ResManager.getResourceOfType("ENGINE_RND_" + name + "_VS", ResourceType.SHADER).get(),
+				ResManager.getResourceOfType("ENGINE_RND_" + name + "_FS", ResourceType.SHADER).get(),
+				new Attribute(0, "position"));
 		super.storeUniforms(resolution, shadowDrawDistance, useFXAA, useDOF, useMotionBlur, useReflections,
 				useVolumetricLight, useAmbientOcclusion, useChromaticAberration, useLensFlares, useShadows);
 		super.validate();

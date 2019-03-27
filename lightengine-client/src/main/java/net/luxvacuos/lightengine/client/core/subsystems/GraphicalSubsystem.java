@@ -143,10 +143,10 @@ public class GraphicalSubsystem extends Subsystem {
 		renderer = new GLRenderer(renderingSettings);
 
 		ResourcesManager.setBackend(new GLResourcesManagerBackend(window));
-		ResourcesManager.processShaderIncludes("common.isl");
-		ResourcesManager.processShaderIncludes("lighting.isl");
-		ResourcesManager.processShaderIncludes("materials.isl");
-		ResourcesManager.processShaderIncludes("global.isl");
+		ResourcesManager.processShaderIncludes("ENGINE_ISL_common");
+		ResourcesManager.processShaderIncludes("ENGINE_ISL_lighting");
+		ResourcesManager.processShaderIncludes("ENGINE_ISL_materials");
+		ResourcesManager.processShaderIncludes("ENGINE_ISL_global");
 
 		ThemeManager.addTheme(new NanoTheme());
 		ThemeManager.setTheme((String) REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/WindowManager/theme")));

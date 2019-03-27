@@ -20,13 +20,16 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl.shaders;
 
-import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.Attribute;
+import net.luxvacuos.lightengine.universal.core.subsystems.ResManager;
+import net.luxvacuos.lightengine.universal.resources.ResourceType;
 
 public class BRDFIntegrationMapShader extends ShaderProgram {
 
 	public BRDFIntegrationMapShader() {
-		super(ClientVariables.VERTEX_BRDF_INTEGRATION_MAP, ClientVariables.FRAGMENT_BRDF_INTEGRATION_MAP, new Attribute(0, "position"));
+		super(ResManager.getResourceOfType("ENGINE_RND_BRDFIntegrationMap_VS", ResourceType.SHADER).get(),
+				ResManager.getResourceOfType("ENGINE_RND_BRDFIntegrationMap_FS", ResourceType.SHADER).get(),
+				new Attribute(0, "position"));
 		super.validate();
 	}
 

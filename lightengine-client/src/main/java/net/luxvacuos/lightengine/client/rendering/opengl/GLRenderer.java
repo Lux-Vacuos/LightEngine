@@ -68,6 +68,7 @@ import net.luxvacuos.lightengine.client.rendering.opengl.pipeline.PostProcess;
 import net.luxvacuos.lightengine.client.rendering.opengl.v2.DeferredPipeline;
 import net.luxvacuos.lightengine.client.rendering.opengl.v2.PostProcessPipeline;
 import net.luxvacuos.lightengine.client.ui.windows.GLGameWindow;
+import net.luxvacuos.lightengine.client.world.ParticleDomain;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
