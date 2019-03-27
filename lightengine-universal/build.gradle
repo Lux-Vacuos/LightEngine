@@ -3,6 +3,8 @@ plugins {
 	id "eclipse"
 	id "idea"
 	id "java"
+	id "java-library"
+	id "java-library-distribution"
 }
 
 sourceCompatibility = "11"
