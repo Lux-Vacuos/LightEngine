@@ -78,7 +78,7 @@
 		}
 	},
 	"definitions": [
-		"assets/engine/deferredShaders.json",
-		"assets/engine/postProcessShaders.json"
+		"engine/resdefinitions/deferredShaders.json",
+		"engine/resdefinitions/postProcessShaders.json"
 	]
 }

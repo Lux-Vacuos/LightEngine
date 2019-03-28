@@ -18,8 +18,8 @@
  * 
  */
 
-package net.luxvacuos.lightengine.universal.resources;
+package net.luxvacuos.lightengine.client.resources.config;
 
-public enum ResourceType {
-	SHADER, ISL, TEXTURE, CURSOR, ICON
+public class EngineConfig {
+
 }

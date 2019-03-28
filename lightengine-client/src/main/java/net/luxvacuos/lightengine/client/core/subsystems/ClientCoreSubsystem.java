@@ -59,7 +59,7 @@ public class ClientCoreSubsystem extends CoreSubsystem {
 		REGISTRY.save();
 		LANG.load(
 				"assets/langs/" + REGISTRY.getRegistryItem(new Key("/Light Engine/Settings/Regional/lang")) + ".json");
-		ResManager.loadResourceDefinition("assets/engine/defaultClient.json");
+		ResManager.loadResourceDefinition("engine/resdefinitions/defaultClient.json");
 	}
 
 	@Override

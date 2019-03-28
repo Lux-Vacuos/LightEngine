@@ -58,6 +58,8 @@ import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.core.exception.DecodeTextureException;
 import net.luxvacuos.lightengine.client.core.exception.GLFWException;
 import net.luxvacuos.lightengine.client.rendering.opengl.GLResourceLoader;
+import net.luxvacuos.lightengine.universal.core.subsystems.ResManager;
+import net.luxvacuos.lightengine.universal.resources.ResourceType;
 
 public final class WindowManager {
 
@@ -92,10 +94,11 @@ public final class WindowManager {
 
 			if (handle.cursor != null) {
 
+				var cursorRes = ResManager.getResourceOfType(handle.cursor.getResKey(), ResourceType.CURSOR).get();
+
 				ByteBuffer imageBuffer;
 				try {
-					imageBuffer = GLResourceLoader.ioResourceToByteBuffer("assets/cursors/" + handle.cursor + ".png",
-							1 * 1024);
+					imageBuffer = GLResourceLoader.ioResourceToByteBuffer(cursorRes.getResourcePath(), 1 * 1024);
 				} catch (IOException e) {
 					throw new GLFWException(e);
 				}
@@ -107,8 +110,8 @@ public final class WindowManager {
 				if (image == null)
 					throw new DecodeTextureException("Failed to load image: " + stbi_failure_reason());
 
-				GLFWImage img = GLFWImage.mallocStack().set(w.get(0), h.get(0), image);
-				glfwSetCursor(windowID, glfwCreateCursor(img, 0, 0));
+				var img = GLFWImage.mallocStack().set(w.get(0), h.get(0), image);
+				glfwSetCursor(windowID, glfwCreateCursor(img, handle.cursor.getHotX(), handle.cursor.getHotY()));
 				memFree(imageBuffer);
 				stbi_image_free(image);
 			}
@@ -117,10 +120,12 @@ public final class WindowManager {
 				var iconsbuff = GLFWImage.mallocStack(handle.icons.size);
 				int i = 0;
 				for (Icon icon : handle.icons) {
+
+					var iconRes = ResManager.getResourceOfType(icon.getResKey(), ResourceType.ICON).get();
+
 					ByteBuffer imageBuffer;
 					try {
-						imageBuffer = GLResourceLoader.ioResourceToByteBuffer("assets/icons/" + icon.path + ".png",
-								16 * 1024);
+						imageBuffer = GLResourceLoader.ioResourceToByteBuffer(iconRes.getResourcePath(), 16 * 1024);
 					} catch (IOException e) {
 						throw new GLFWException(e);
 					}

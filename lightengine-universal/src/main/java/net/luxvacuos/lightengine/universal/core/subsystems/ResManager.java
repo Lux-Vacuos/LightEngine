@@ -43,9 +43,20 @@ public class ResManager extends Subsystem {
 		globalResources.clear();
 	}
 
+	public static <T> T loadConfig(String file, Class<T> clazz) {
+		Logger.log("Loading Config: " + file);
+		var fileInput = ResManager.class.getClassLoader().getResourceAsStream(file);
+		try (var reader = new InputStreamReader(fileInput)) {
+			return gson.fromJson(reader, clazz);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	public static void loadResourceDefinition(String file) {
 		Logger.log("Loading Resource Definition: " + file);
-		var fileInput = SimpleResource.class.getClassLoader().getResourceAsStream(file);
+		var fileInput = ResManager.class.getClassLoader().getResourceAsStream(file);
 		try (var reader = new InputStreamReader(fileInput)) {
 			var rd = gson.fromJson(reader, ResourceDefinition.class);
 			addResourceDefinition(rd);
@@ -72,11 +83,9 @@ public class ResManager extends Subsystem {
 		var sr = globalResources.get(key);
 		if (sr == null)
 			Logger.warn("Resource for key '" + key + "' not found.");
-		else if (sr.getResourceType() != type) {
+		else if (sr.getResourceType() != type)
 			Logger.warn("Resource for key '" + key + "' mismatch type, found '" + sr.getResourceType()
 					+ "' and requested '" + type + "'");
-			return Optional.ofNullable(sr);
-		}
 		return Optional.ofNullable(sr);
 	}
 

@@ -17,15 +17,18 @@ public class ResDefsGenerator {
 
 	private static void generateDefaultClient() {
 		ResourceDefinition rd = new ResourceDefinition();
-		rd.getDefinitions().add("assets/engine/defaultShaders.json");
-		rd.getDefinitions().add("assets/engine/defaultISL.json");
+		rd.getResources().put("ENGINE_Cursor", new SimpleResource(ResourceType.CURSOR, "assets/cursors/arrow.png"));
+		rd.getResources().put("ENGINE_Icon32", new SimpleResource(ResourceType.ICON, "assets/icons/icon32.png"));
+		rd.getResources().put("ENGINE_Icon64", new SimpleResource(ResourceType.ICON, "assets/icons/icon64.png"));
+		rd.getDefinitions().add("engine/resdefinitions/defaultShaders.json");
+		rd.getDefinitions().add("engine/resdefinitions/defaultISL.json");
 		System.out.println(gson.toJson(rd));
 	}
 
 	private static void generateDefaultShaders() {
 		ResourceDefinition rd = new ResourceDefinition();
-		rd.getDefinitions().add("assets/engine/wmShaders.json");
-		rd.getDefinitions().add("assets/engine/rendererShaders.json");
+		rd.getDefinitions().add("engine/resdefinitions/wmShaders.json");
+		rd.getDefinitions().add("engine/resdefinitions/rendererShaders.json");
 		System.out.println(gson.toJson(rd));
 	}
 
@@ -78,8 +81,8 @@ public class ResDefsGenerator {
 				new SimpleResource(ResourceType.SHADER, "assets/shaders/Water.gs"));
 		rd.getResources().put("ENGINE_RND_Water_FS",
 				new SimpleResource(ResourceType.SHADER, "assets/shaders/Water.fs"));
-		rd.getDefinitions().add("assets/engine/deferredShaders.json");
-		rd.getDefinitions().add("assets/engine/postProcessShaders.json");
+		rd.getDefinitions().add("engine/resdefinitions/deferredShaders.json");
+		rd.getDefinitions().add("engine/resdefinitions/postProcessShaders.json");
 		System.out.println(gson.toJson(rd));
 	}
 

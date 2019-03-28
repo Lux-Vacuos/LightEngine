@@ -18,8 +18,28 @@
  * 
  */
 
-package net.luxvacuos.lightengine.universal.resources;
+package net.luxvacuos.lightengine.client.rendering.glfw;
 
-public enum ResourceType {
-	SHADER, ISL, TEXTURE, CURSOR, ICON
+public class Cursor {
+
+	private String resKey;
+	private int hotX, hotY;
+
+	public Cursor(String resKey, int hotX, int hotY) {
+		this.resKey = resKey;
+		this.hotX = hotX;
+		this.hotY = hotY;
+	}
+
+	public String getResKey() {
+		return resKey;
+	}
+
+	public int getHotX() {
+		return hotX;
+	}
+
+	public int getHotY() {
+		return hotY;
+	}
 }

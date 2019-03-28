@@ -38,6 +38,8 @@ import static org.lwjgl.opengl.GL20C.GL_SHADING_LANGUAGE_VERSION;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Writer;
 
@@ -53,7 +55,6 @@ import net.luxvacuos.lightengine.client.core.ClientTaskManager;
 import net.luxvacuos.lightengine.client.core.exception.GLFWException;
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
 import net.luxvacuos.lightengine.client.rendering.IRenderer;
-import net.luxvacuos.lightengine.client.rendering.glfw.Icon;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.glfw.WindowHandle;
 import net.luxvacuos.lightengine.client.rendering.glfw.WindowManager;
@@ -69,12 +70,14 @@ import net.luxvacuos.lightengine.client.rendering.opengl.RenderingSettings;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CachedAssets;
 import net.luxvacuos.lightengine.client.resources.DefaultData;
 import net.luxvacuos.lightengine.client.resources.ResourcesManager;
+import net.luxvacuos.lightengine.client.resources.config.GraphicalSubConfig;
 import net.luxvacuos.lightengine.client.ui.Font;
 import net.luxvacuos.lightengine.universal.core.GlobalVariables;
 import net.luxvacuos.lightengine.universal.core.Task;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
+import net.luxvacuos.lightengine.universal.core.subsystems.ResManager;
 import net.luxvacuos.lightengine.universal.core.subsystems.Subsystem;
 import net.luxvacuos.lightengine.universal.loader.EngineData;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
@@ -95,8 +98,12 @@ public class GraphicalSubsystem extends Subsystem {
 	private static Font robotoRegular, robotoBold, poppinsRegular, poppinsLight, poppinsMedium, poppinsBold,
 			poppinsSemiBold, entypo;
 
+	private static GraphicalSubConfig config;
+
 	@Override
 	public void init(EngineData ed) {
+		config = ResManager.loadConfig("engine/config/graphicalSub.json", GraphicalSubConfig.class);
+
 		REGISTRY.register(new Key("/Light Engine/Display/width"), 1280);
 		REGISTRY.register(new Key("/Light Engine/Display/height"), 720);
 		renderingSettingsFile = new File(ed.userDir + "/config/rendering.json");
@@ -105,10 +112,10 @@ public class GraphicalSubsystem extends Subsystem {
 		if (!glfwInit())
 			throw new GLFWException("Unable to initialize GLFW");
 
-		var icons = new Icon[] { new Icon("icon32"), new Icon("icon64") };
 		handle = WindowManager.generateHandle((int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/width")),
 				(int) REGISTRY.getRegistryItem(new Key("/Light Engine/Display/height")), ed.project);
-		handle.isVisible(false).setIcon(icons).setCursor("arrow").useDebugContext(GlobalVariables.debug);
+		handle.isVisible(false).setIcon(config.getIcons()).setCursor(config.getCursor())
+				.useDebugContext(GlobalVariables.debug);
 
 		window = WindowManager.generateWindow(handle);
 
@@ -138,7 +145,7 @@ public class GraphicalSubsystem extends Subsystem {
 				REGISTRY.register(new Key("/Light Engine/System/renderer"), glGetString(GL_RENDERER));
 				return null;
 			}
-		});
+		}).get();
 
 		renderer = new GLRenderer(renderingSettings);
 

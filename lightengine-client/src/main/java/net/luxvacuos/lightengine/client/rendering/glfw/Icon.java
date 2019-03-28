@@ -24,11 +24,15 @@ import java.nio.ByteBuffer;
 
 public class Icon {
 
-	protected String path;
-	protected ByteBuffer image;
+	private String resKey;
+	protected transient ByteBuffer image;
 
-	public Icon(String path) {
-		this.path = path;
+	public Icon(String resKey) {
+		this.resKey = resKey;
+	}
+
+	public String getResKey() {
+		return resKey;
 	}
 
 }
