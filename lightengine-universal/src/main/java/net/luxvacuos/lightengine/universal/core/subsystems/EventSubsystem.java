@@ -27,9 +27,10 @@ import java.util.Map;
 
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.loader.EngineData;
+import net.luxvacuos.lightengine.universal.resources.config.SubsystemConfig;
 import net.luxvacuos.lightengine.universal.util.IEvent;
 
-public class EventSubsystem extends Subsystem {
+public class EventSubsystem extends Subsystem<SubsystemConfig> {
 
 	private static Map<String, List<IEvent>> events = new HashMap<>();
 

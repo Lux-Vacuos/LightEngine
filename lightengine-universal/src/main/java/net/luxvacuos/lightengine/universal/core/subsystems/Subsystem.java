@@ -21,8 +21,23 @@
 package net.luxvacuos.lightengine.universal.core.subsystems;
 
 import net.luxvacuos.lightengine.universal.loader.EngineData;
+import net.luxvacuos.lightengine.universal.resources.config.SubsystemConfig;
 
-public abstract class Subsystem implements ISubsystem {
+public abstract class Subsystem<T extends SubsystemConfig> implements ISubsystem {
+
+	protected T config;
+	private Class<T> clazz;
+	private String configFilePath;
+	private boolean usesConfig = false;
+
+	public Subsystem() {
+	}
+
+	public Subsystem(Class<T> clazz, String configFilePath) {
+		this.clazz = clazz;
+		this.configFilePath = configFilePath;
+		usesConfig = true;
+	}
 
 	@Override
 	public void restart() {
@@ -30,6 +45,11 @@ public abstract class Subsystem implements ISubsystem {
 
 	@Override
 	public void init(EngineData ed) {
+		if (usesConfig) {
+			var confOp = ResManager.loadConfig(configFilePath, clazz);
+			if (confOp.isPresent())
+				config = confOp.get();
+		}
 	}
 
 	@Override

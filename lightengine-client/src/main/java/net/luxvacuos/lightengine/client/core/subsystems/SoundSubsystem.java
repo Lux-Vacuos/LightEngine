@@ -20,29 +20,41 @@
 
 package net.luxvacuos.lightengine.client.core.subsystems;
 
-import net.luxvacuos.lightengine.client.util.LoggerSoundSystem;
+import net.luxvacuos.lightengine.client.resources.config.SoundSubConfig;
 import net.luxvacuos.lightengine.universal.core.subsystems.Subsystem;
 import net.luxvacuos.lightengine.universal.loader.EngineData;
+import paulscode.sound.Library;
 import paulscode.sound.SoundSystem;
 import paulscode.sound.SoundSystemConfig;
 import paulscode.sound.SoundSystemException;
-import paulscode.sound.codecs.CodecJOgg;
-import paulscode.sound.libraries.LibraryLWJGLOpenAL;
+import paulscode.sound.SoundSystemLogger;
 
-public class SoundSubsystem extends Subsystem {
+public class SoundSubsystem extends Subsystem<SoundSubConfig> {
 
 	private static SoundSystem soundSystem;
 
+	public SoundSubsystem() {
+		super(SoundSubConfig.class, "engine/config/soundSub.json");
+	}
+
 	@Override
 	public void init(EngineData ed) {
+		super.init(ed);
 		try {
-			SoundSystemConfig.addLibrary(LibraryLWJGLOpenAL.class);
-			SoundSystemConfig.setCodec("ogg", CodecJOgg.class);
+			for (var lib : config.getLibraries())
+				SoundSystemConfig.addLibrary(lib.asSubclass(Library.class));
+			for (var codec : config.getCodecs())
+				SoundSystemConfig.setCodec(codec.getName(), codec.getImplementation());
 		} catch (SoundSystemException e) {
 			e.printStackTrace();
 		}
-		SoundSystemConfig.setSoundFilesPackage("assets/");
-		SoundSystemConfig.setLogger(new LoggerSoundSystem());
+		SoundSystemConfig.setSoundFilesPackage(config.getSoundFilesPackage());
+		try {
+			SoundSystemConfig.setLogger(
+					config.getCustomLogger().asSubclass(SoundSystemLogger.class).getConstructor().newInstance());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		soundSystem = new SoundSystem();
 	}
 

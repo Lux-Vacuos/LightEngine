@@ -6,10 +6,12 @@ import com.google.gson.GsonBuilder;
 import net.luxvacuos.lightengine.universal.resources.ResourceDefinition;
 import net.luxvacuos.lightengine.universal.resources.ResourceType;
 import net.luxvacuos.lightengine.universal.resources.SimpleResource;
+import net.luxvacuos.lightengine.universal.resources.gson.ClassTypeAdapter;
 
 public class ResDefsGenerator {
 
-	private static Gson gson = new GsonBuilder().setPrettyPrinting().create();
+	private static Gson gson = new GsonBuilder().registerTypeAdapter(Class.class, new ClassTypeAdapter())
+			.setPrettyPrinting().create();
 
 	public static void main(String[] args) {
 		generateDefaultClient();

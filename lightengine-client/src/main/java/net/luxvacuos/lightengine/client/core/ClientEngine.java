@@ -162,9 +162,9 @@ public class ClientEngine extends Engine implements IClientEngine {
 		Logger.log("GLFW Version: " + REGISTRY.getRegistryItem(new Key("/Light Engine/System/glfw")));
 		Logger.log("OpenGL Version: " + REGISTRY.getRegistryItem(new Key("/Light Engine/System/opengl")));
 		Logger.log("GLSL Version: " + REGISTRY.getRegistryItem(new Key("/Light Engine/System/glsl")));
-		Logger.log("Assimp: " + REGISTRY.getRegistryItem(new Key("/Light Engine/System/assimp")));
 		Logger.log("Vendor: " + REGISTRY.getRegistryItem(new Key("/Light Engine/System/vendor")));
 		Logger.log("Renderer: " + REGISTRY.getRegistryItem(new Key("/Light Engine/System/renderer")));
+		Logger.log("Assimp: " + REGISTRY.getRegistryItem(new Key("/Light Engine/System/assimp")));
 
 		super.runSubsystems();
 

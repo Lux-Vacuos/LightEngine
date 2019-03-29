@@ -27,36 +27,44 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.universal.resources.ResourceDefinition;
 import net.luxvacuos.lightengine.universal.resources.ResourceType;
 import net.luxvacuos.lightengine.universal.resources.SimpleResource;
+import net.luxvacuos.lightengine.universal.resources.config.SubsystemConfig;
+import net.luxvacuos.lightengine.universal.resources.gson.ClassTypeAdapter;
 
-public class ResManager extends Subsystem {
+public class ResManager extends Subsystem<SubsystemConfig> {
 
 	private static Map<String, SimpleResource> globalResources = new HashMap<>();
-	private static Gson gson = new Gson();
+	private static Gson gson = new GsonBuilder().registerTypeAdapter(Class.class, new ClassTypeAdapter()).create();
 
 	@Override
 	public void dispose() {
 		globalResources.clear();
 	}
 
-	public static <T> T loadConfig(String file, Class<T> clazz) {
+	public static <T> Optional<T> loadConfig(String file, Class<T> clazz) {
 		Logger.log("Loading Config: " + file);
 		var fileInput = ResManager.class.getClassLoader().getResourceAsStream(file);
-		try (var reader = new InputStreamReader(fileInput)) {
-			return gson.fromJson(reader, clazz);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
+		if (fileInput != null)
+			try (var reader = new InputStreamReader(fileInput)) {
+				return Optional.ofNullable(gson.fromJson(reader, clazz));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		return Optional.ofNullable(null);
 	}
 
 	public static void loadResourceDefinition(String file) {
 		Logger.log("Loading Resource Definition: " + file);
 		var fileInput = ResManager.class.getClassLoader().getResourceAsStream(file);
+		if (fileInput == null) {
+			Logger.warn("Resource Definition '" + file + "' not found.");
+			return;
+		}
 		try (var reader = new InputStreamReader(fileInput)) {
 			var rd = gson.fromJson(reader, ResourceDefinition.class);
 			addResourceDefinition(rd);

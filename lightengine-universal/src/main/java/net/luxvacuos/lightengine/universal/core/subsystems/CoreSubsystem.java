@@ -27,10 +27,11 @@ import java.util.jar.Manifest;
 
 import net.luxvacuos.lightengine.universal.core.GlobalVariables;
 import net.luxvacuos.lightengine.universal.loader.EngineData;
+import net.luxvacuos.lightengine.universal.resources.config.SubsystemConfig;
 import net.luxvacuos.lightengine.universal.util.registry.LanguageRegistry;
 import net.luxvacuos.lightengine.universal.util.registry.SystemRegistry;
 
-public class CoreSubsystem extends Subsystem {
+public class CoreSubsystem extends Subsystem<SubsystemConfig> {
 
 	public static LanguageRegistry LANG;
 	public static SystemRegistry REGISTRY;

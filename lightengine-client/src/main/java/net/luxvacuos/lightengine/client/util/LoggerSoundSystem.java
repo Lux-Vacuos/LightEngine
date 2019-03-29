@@ -20,7 +20,8 @@
 
 package net.luxvacuos.lightengine.client.util;
 
-import static net.luxvacuos.igl.Logger.*;
+import static net.luxvacuos.igl.Logger.log;
+import static net.luxvacuos.igl.Logger.warn;
 
 import paulscode.sound.SoundSystemLogger;
 

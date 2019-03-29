@@ -33,8 +33,9 @@ import javax.script.ScriptException;
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.universal.core.exception.CompileGroovyException;
 import net.luxvacuos.lightengine.universal.loader.EngineData;
+import net.luxvacuos.lightengine.universal.resources.config.SubsystemConfig;
 
-public class ScriptSubsystem extends Subsystem {
+public class ScriptSubsystem extends Subsystem<SubsystemConfig> {
 
 	private static ScriptEngineManager scriptEngineManager;
 	private static ScriptEngine scriptEngine;

@@ -38,8 +38,6 @@ import static org.lwjgl.opengl.GL20C.GL_SHADING_LANGUAGE_VERSION;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Writer;
 
@@ -77,12 +75,11 @@ import net.luxvacuos.lightengine.universal.core.Task;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
-import net.luxvacuos.lightengine.universal.core.subsystems.ResManager;
 import net.luxvacuos.lightengine.universal.core.subsystems.Subsystem;
 import net.luxvacuos.lightengine.universal.loader.EngineData;
 import net.luxvacuos.lightengine.universal.util.registry.Key;
 
-public class GraphicalSubsystem extends Subsystem {
+public class GraphicalSubsystem extends Subsystem<GraphicalSubConfig> {
 
 	private static IWindowManager windowManager;
 	private static Window window;
@@ -98,12 +95,13 @@ public class GraphicalSubsystem extends Subsystem {
 	private static Font robotoRegular, robotoBold, poppinsRegular, poppinsLight, poppinsMedium, poppinsBold,
 			poppinsSemiBold, entypo;
 
-	private static GraphicalSubConfig config;
+	public GraphicalSubsystem() {
+		super(GraphicalSubConfig.class, "engine/config/graphicalSub.json");
+	}
 
 	@Override
 	public void init(EngineData ed) {
-		config = ResManager.loadConfig("engine/config/graphicalSub.json", GraphicalSubConfig.class);
-
+		super.init(ed);
 		REGISTRY.register(new Key("/Light Engine/Display/width"), 1280);
 		REGISTRY.register(new Key("/Light Engine/Display/height"), 720);
 		renderingSettingsFile = new File(ed.userDir + "/config/rendering.json");

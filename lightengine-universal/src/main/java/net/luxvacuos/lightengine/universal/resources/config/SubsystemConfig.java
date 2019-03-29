@@ -18,28 +18,8 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.resources.config;
+package net.luxvacuos.lightengine.universal.resources.config;
 
-import net.luxvacuos.lightengine.client.rendering.glfw.Cursor;
-import net.luxvacuos.lightengine.client.rendering.glfw.Icon;
-import net.luxvacuos.lightengine.universal.resources.config.SubsystemConfig;
-
-public class GraphicalSubConfig extends SubsystemConfig {
-
-	private Icon[] icons;
-	private Cursor cursor;
-
-	public GraphicalSubConfig(Icon[] icons, Cursor cursor) {
-		this.icons = icons;
-		this.cursor = cursor;
-	}
-
-	public Icon[] getIcons() {
-		return icons;
-	}
-
-	public Cursor getCursor() {
-		return cursor;
-	}
+public class SubsystemConfig {
 
 }

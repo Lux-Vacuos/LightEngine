@@ -43,7 +43,7 @@ public class AL {
 
 		Logger.log("OpenALC10: " + deviceCaps.OpenALC10);
 		Logger.log("OpenALC11: " + deviceCaps.OpenALC11);
-		Logger.log("caps.ALC_EXT_EFX = " + deviceCaps.ALC_EXT_EFX);
+		Logger.log("ALC_EXT_EFX = " + deviceCaps.ALC_EXT_EFX);
 
 		if (deviceCaps.OpenALC11) {
 			List<String> devices = ALUtil.getStringList(device, ALC_ALL_DEVICES_SPECIFIER);
@@ -78,6 +78,7 @@ public class AL {
 	public static void destroy() {
 		if (!created)
 			return;
+		alcMakeContextCurrent(NULL);
 		alcDestroyContext(context);
 		alcCloseDevice(device);
 		created = false;
