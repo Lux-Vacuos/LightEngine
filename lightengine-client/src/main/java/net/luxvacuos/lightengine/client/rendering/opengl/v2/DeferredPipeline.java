@@ -54,7 +54,7 @@ import static org.lwjgl.opengl.GL30C.GL_DRAW_FRAMEBUFFER;
 import static org.lwjgl.opengl.GL30C.GL_READ_FRAMEBUFFER;
 import static org.lwjgl.opengl.GL30C.GL_RG;
 import static org.lwjgl.opengl.GL30C.GL_RGB16F;
-import static org.lwjgl.opengl.GL30C.GL_RGB32F;
+import static org.lwjgl.opengl.GL30C.*;
 import static org.lwjgl.opengl.GL30C.GL_RGBA16F;
 import static org.lwjgl.opengl.GL30C.glBindFramebuffer;
 import static org.lwjgl.opengl.GL30C.glBlitFramebuffer;
@@ -83,6 +83,9 @@ public abstract class DeferredPipeline {
 	private Texture diffuseTex, positionTex, normalTex, pbrTex, maskTex, depthTex;
 
 	private VAO quad;
+
+	private Framebuffer previousFrame;
+	private Texture previousFrameTex;
 
 	private FinalShader finalShader;
 
@@ -127,6 +130,7 @@ public abstract class DeferredPipeline {
 	}
 
 	public void render(Framebuffer fb) {
+		previousFrame.bind();
 		finalShader.start();
 		quad.bind(0);
 		glActiveTexture(GL_TEXTURE0);
@@ -134,9 +138,14 @@ public abstract class DeferredPipeline {
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		quad.unbind(0);
 		finalShader.stop();
+		previousFrame.unbind();
+		// Blit depth
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, main.getFramebuffer());
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fb.getFramebuffer());
 		glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+		// Blit color
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, previousFrame.getFramebuffer());
+		glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	}
 
 	public void resize(int width, int height) {
@@ -226,6 +235,18 @@ public abstract class DeferredPipeline {
 				GL_COLOR_ATTACHMENT4 };
 		fb.drawBuffers(bufs);
 		main = fb.endFramebuffer();
+	
+		tb.genTexture(GL_TEXTURE_2D).bindTexture();
+		tb.sizeTexture(width, height).texImage2D(0, GL_RGBA16F, 0, GL_RGBA, GL_FLOAT, 0);
+		tb.texParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		tb.texParameteri(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		tb.texParameteri(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		tb.texParameteri(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		previousFrameTex = tb.endTexture();
+
+		fb.genFramebuffer().bindFramebuffer().sizeFramebuffer(width, height);
+		fb.framebufferTexture(GL_COLOR_ATTACHMENT0, previousFrameTex, 0);
+		previousFrame = fb.endFramebuffer();
 	}
 
 	private void disposePipeline() {
@@ -236,6 +257,8 @@ public abstract class DeferredPipeline {
 		pbrTex.dispose();
 		maskTex.dispose();
 		depthTex.dispose();
+		previousFrame.dispose();
+		previousFrameTex.dispose();
 	}
 
 	public Texture getDiffuseTex() {
@@ -260,6 +283,10 @@ public abstract class DeferredPipeline {
 
 	public Texture getDepthTex() {
 		return depthTex;
+	}
+
+	public Texture getPreviousFrameTex() {
+		return previousFrameTex;
 	}
 
 }

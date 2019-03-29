@@ -18,18 +18,15 @@
 //
 //
 
-in vec2 textureCoords;
+layout(location = 0) in vec2 position;
 
-out vec4 out_Color;
+out vec2 textureCoords;
+out vec2 pixelSize;
 
-uniform sampler2D image;
-uniform float exposure;
-
-#include variable GLOBAL
+uniform vec2 resolution;
 
 void main() {
-	vec3 color = texture(image, textureCoords).rgb;
-	vec3 final = vec3(1.0) - exp(-color * exposure);
-	out_Color.rgb = pow(final, vec3(1.0 / GAMMA));
-	out_Color.a = 1;
+	gl_Position = vec4(position, -0.8, 1.0);
+	textureCoords = vec2((position.x + 1.0) / 2.0, (position.y + 1.0) / 2.0);
+	pixelSize = vec2(1.0 / resolution.x, 1.0 / resolution.y);
 }

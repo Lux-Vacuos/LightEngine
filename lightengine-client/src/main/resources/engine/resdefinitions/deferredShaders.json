@@ -16,6 +16,10 @@
 			"type": "SHADER",
 			"path": "assets/shaders/deferred/ColorCorrection.vs"
 		},
+		"ENGINE_RND_DFR_TAA_FS": {
+			"type": "SHADER",
+			"path": "assets/shaders/deferred/TAA.fs"
+		},
 		"ENGINE_RND_DFR_GaussianBlur_VS": {
 			"type": "SHADER",
 			"path": "assets/shaders/deferred/GaussianBlur.vs"
@@ -59,6 +63,10 @@
 		"ENGINE_RND_DFR_ColorCorrection_FS": {
 			"type": "SHADER",
 			"path": "assets/shaders/deferred/ColorCorrection.fs"
+		},
+		"ENGINE_RND_DFR_TAA_VS": {
+			"type": "SHADER",
+			"path": "assets/shaders/deferred/TAA.vs"
 		},
 		"ENGINE_RND_DFR_GaussianBlur_FS": {
 			"type": "SHADER",

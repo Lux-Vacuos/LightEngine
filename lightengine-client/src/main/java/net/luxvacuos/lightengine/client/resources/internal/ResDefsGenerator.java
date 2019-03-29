@@ -14,7 +14,7 @@ public class ResDefsGenerator {
 			.setPrettyPrinting().create();
 
 	public static void main(String[] args) {
-		generateDefaultClient();
+		generateDeferredShaders();
 	}
 
 	private static void generateDefaultClient() {
@@ -134,6 +134,10 @@ public class ResDefsGenerator {
 				new SimpleResource(ResourceType.SHADER, "assets/shaders/deferred/VolumetricLight.vs"));
 		rd.getResources().put("ENGINE_RND_DFR_VolumetricLight_FS",
 				new SimpleResource(ResourceType.SHADER, "assets/shaders/deferred/VolumetricLight.fs"));
+		rd.getResources().put("ENGINE_RND_DFR_TAA_VS",
+				new SimpleResource(ResourceType.SHADER, "assets/shaders/deferred/TAA.vs"));
+		rd.getResources().put("ENGINE_RND_DFR_TAA_FS",
+				new SimpleResource(ResourceType.SHADER, "assets/shaders/deferred/TAA.fs"));
 		System.out.println(gson.toJson(rd));
 	}
 
@@ -155,6 +159,10 @@ public class ResDefsGenerator {
 				new SimpleResource(ResourceType.SHADER, "assets/shaders/postprocess/MotionBlur.vs"));
 		rd.getResources().put("ENGINE_RND_POST_MotionBlur_FS",
 				new SimpleResource(ResourceType.SHADER, "assets/shaders/postprocess/MotionBlur.fs"));
+		rd.getResources().put("ENGINE_RND_POST_FXAA_VS",
+				new SimpleResource(ResourceType.SHADER, "assets/shaders/postprocess/FXAA.vs"));
+		rd.getResources().put("ENGINE_RND_POST_FXAA_FS",
+				new SimpleResource(ResourceType.SHADER, "assets/shaders/postprocess/FXAA.fs"));
 		System.out.println(gson.toJson(rd));
 	}
 

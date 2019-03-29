@@ -28,10 +28,13 @@ import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformMat
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformSampler;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformVec3;
 
-public class MotionBlurShader extends BasePipelineShader {
+public class TAAShader extends BasePipelineShader {
 
 	private UniformSampler image = new UniformSampler("image");
+	private UniformSampler previous = new UniformSampler("previous");
+
 	private UniformSampler depth = new UniformSampler("depth");
+
 	private UniformVec3 cameraPosition = new UniformVec3("cameraPosition");
 	private UniformVec3 previousCameraPosition = new UniformVec3("previousCameraPosition");
 	private UniformMatrix projectionMatrix = new UniformMatrix("projectionMatrix");
@@ -41,11 +44,11 @@ public class MotionBlurShader extends BasePipelineShader {
 
 	private Matrix4f projInv = new Matrix4f(), viewInv = new Matrix4f();
 
-	public MotionBlurShader(String name) {
-		super("POST_" + name);
-		super.storeUniforms(image, depth, cameraPosition, previousCameraPosition, projectionMatrix,
+	public TAAShader(String name) {
+		super("DFR_" + name);
+		this.storeUniforms(image, previous, depth, cameraPosition, previousCameraPosition, projectionMatrix,
 				inverseProjectionMatrix, inverseViewMatrix, previousViewMatrix);
-		super.validate();
+		this.validate();
 		this.loadInitialData();
 	}
 
@@ -53,7 +56,8 @@ public class MotionBlurShader extends BasePipelineShader {
 	protected void loadInitialData() {
 		super.start();
 		image.loadTexUnit(0);
-		depth.loadTexUnit(1);
+		previous.loadTexUnit(1);
+		depth.loadTexUnit(2);
 		super.stop();
 	}
 
@@ -65,5 +69,4 @@ public class MotionBlurShader extends BasePipelineShader {
 		this.previousViewMatrix.loadMatrix(previousViewMatrix);
 		this.previousCameraPosition.loadVec3(previousCameraPosition);
 	}
-
 }
