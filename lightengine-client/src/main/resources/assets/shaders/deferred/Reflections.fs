@@ -25,19 +25,23 @@ out vec4 out_Color;
 uniform vec3 cameraPosition;
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
+uniform mat4 inverseProjectionMatrix;
+uniform mat4 inverseViewMatrix;
+uniform sampler2D gDiffuse;
 uniform sampler2D gPosition;
 uniform sampler2D gNormal;
-uniform sampler2D gMask;
 uniform sampler2D gPBR;
-uniform sampler2D gDiffuse;
-uniform sampler2D composite0;
-uniform samplerCube composite2;
-uniform sampler2D composite3;
+uniform sampler2D gMask;
 uniform sampler2D gDepth;
+uniform samplerCube environmentCube;
+uniform sampler2D brdfLUT;
+uniform sampler2D pass;
 
 uniform int useReflections;
 
 #include variable GLOBAL
+
+#include function positionFromDepth
 
 #include function fresnelSchlickRoughness
 
@@ -49,13 +53,15 @@ uniform int useReflections;
 
 void main(void) {
 	vec2 texcoord = textureCoords;
-	vec4 image = texture(composite0, texcoord);
+	vec4 image = texture(pass, texcoord);
 	vec4 mask = texture(gMask, texcoord);
 	if (mask.a != 1) {
 		if (useReflections == 1) {
 			vec4 diffuse = texture(gDiffuse, textureCoords);
 			vec2 pbr = texture(gPBR, textureCoords).rg;
-			vec3 position = texture(gPosition, textureCoords).rgb;
+			float frameDepth = texture(gDepth, textureCoords).r;
+			vec3 position = positionFromDepth(textureCoords, frameDepth, inverseProjectionMatrix,
+											  inverseViewMatrix);
 			vec3 normal = texture(gNormal, textureCoords).rgb;
 
 			vec3 N = normalize(normal);
@@ -69,8 +75,9 @@ void main(void) {
 			F0 = mix(F0, diffuse.rgb, metallic);
 			vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
 
-			vec3 prefilteredColor = textureLod(composite2, R, roughness * MAX_REFLECTION_LOD).rgb;
-			vec2 envBRDF = texture(composite3, vec2(max(dot(N, V), 0.0), roughness)).rg;
+			vec3 prefilteredColor =
+				textureLod(environmentCube, R, roughness * MAX_REFLECTION_LOD).rgb;
+			vec2 envBRDF = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
 			vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
 
 			image.rgb += specular;
@@ -82,6 +89,8 @@ void main(void) {
 			vec2 newCoords;
 
 			float depth, newDepth;
+
+			float tmpDepth;
 
 			float dO = 0.0;
 			float odS;
@@ -100,7 +109,9 @@ void main(void) {
 				newCoords = newScreen.xy / 2.0 + 0.5;
 
 				// Get new pos
-				newPos = texture(gPosition, newCoords).xyz;
+				tmpDepth = texture(gDepth, newCoords).r;
+				newPos = positionFromDepth(newCoords, tmpDepth, inverseProjectionMatrix,
+										   inverseViewMatrix);
 
 				// Calculate point and new pos depths
 				// depth = length(newPos - cameraPosition);
@@ -140,7 +151,7 @@ void main(void) {
 
 			if (dO < MAX_DIST && newCoords.x > 0 && newCoords.x < 1 && newCoords.y > 0 &&
 				newCoords.y < 1) {
-				vec3 newColor = texture(composite0, newCoords).xyz;
+				vec3 newColor = texture(pass, newCoords).xyz;
 				image.rgb -= specular;
 				image.rgb += newColor * (F * envBRDF.x + envBRDF.y);
 			}

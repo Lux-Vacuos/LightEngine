@@ -25,6 +25,8 @@ import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
 import static org.lwjgl.opengl.GL11.glBindTexture;
 import static org.lwjgl.opengl.GL11.glDrawElements;
+import static org.lwjgl.opengl.GL11C.GL_VIEWPORT;
+import static org.lwjgl.opengl.GL11C.glGetIntegerv;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE1;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE2;
@@ -37,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 
 import com.badlogic.ashley.core.Entity;
 
@@ -64,6 +67,10 @@ public class EntityRenderer implements IObjectRenderer {
 	private EntityShadowRenderer shadowRenderer;
 	private EntityForwardRenderer forwardRenderer;
 
+	// TODO: Temporary res storage
+	private int[] viewport = new int[4];
+	private Vector2f resolution = new Vector2f();
+
 	public EntityRenderer() {
 		shader = new EntityDeferredShader();
 		shadowRenderer = new EntityShadowRenderer();
@@ -79,8 +86,10 @@ public class EntityRenderer implements IObjectRenderer {
 
 	@Override
 	public void render(CameraEntity camera) {
+		glGetIntegerv(GL_VIEWPORT, viewport);
+		resolution.set(viewport[2], viewport[3]);
 		shader.start();
-		shader.loadCamera(camera);
+		shader.loadCamera(camera, resolution);
 		renderEntity(entities);
 		shader.stop();
 	}
@@ -146,13 +155,13 @@ public class EntityRenderer implements IObjectRenderer {
 	private void prepareTexturedModel(Mesh mesh, Material material) {
 		mesh.getMesh().bind(0, 1, 2, 3);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, material.getDiffuseTexture().getID());
+		glBindTexture(GL_TEXTURE_2D, material.getDiffuseTexture().getTexture());
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, material.getNormalTexture().getID());
+		glBindTexture(GL_TEXTURE_2D, material.getNormalTexture().getTexture());
 		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, material.getRoughnessTexture().getID());
+		glBindTexture(GL_TEXTURE_2D, material.getRoughnessTexture().getTexture());
 		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, material.getMetallicTexture().getID());
+		glBindTexture(GL_TEXTURE_2D, material.getMetallicTexture().getTexture());
 	}
 
 	private void unbindTexturedModel(Mesh mesh) {

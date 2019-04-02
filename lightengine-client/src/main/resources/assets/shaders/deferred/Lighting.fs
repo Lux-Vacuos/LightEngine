@@ -43,11 +43,15 @@ uniform mat4 viewLightMatrix;
 uniform mat4 biasMatrix;
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
+uniform mat4 inverseProjectionMatrix;
+uniform mat4 inverseViewMatrix;
 uniform sampler2DShadow shadowMap[4];
 
 #include variable GLOBAL
 
 #include variable pi
+
+#include function positionFromDepth
 
 #include function DistributionGGX
 
@@ -59,7 +63,7 @@ uniform sampler2DShadow shadowMap[4];
 
 #include function fresnelSchlickRoughness
 
-#include function computeAmbientOcclusion
+#include function computeAmbientOcclusionV2
 
 #include function computeShadow
 
@@ -113,7 +117,9 @@ void main() {
 	vec4 image = texture(gDiffuse, textureCoords);
 	if (mask.a != 1) {
 		vec2 pbr = texture(gPBR, textureCoords).rg;
-		vec3 position = texture(gPosition, textureCoords).rgb;
+		float depth = texture(gDepth, textureCoords).r;
+		vec3 position =
+			positionFromDepth(textureCoords, depth, inverseProjectionMatrix, inverseViewMatrix);
 		vec3 normal = texture(gNormal, textureCoords).rgb;
 		float roughness = pbr.r;
 		float metallic = pbr.g;
@@ -163,9 +169,11 @@ void main() {
 			vec2 envBRDF = texture(brdfLUT, vec2(max(dot(N, V), 0.0), roughness)).rg;
 			vec3 specular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
 			ambient += specular;
-
-			float ao = computeAmbientOcclusion(position, N);
-			ambient *= ao;
+			if (useAmbientOcclusion == 1) {
+				float ao = computeAmbientOcclusion(textureCoords, position, N, gDepth,
+												   inverseProjectionMatrix, inverseViewMatrix);
+				ambient *= ao;
+			}
 		}
 
 		vec3 emissive = texture(gMask, textureCoords).rgb;

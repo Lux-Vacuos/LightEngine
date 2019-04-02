@@ -76,11 +76,11 @@ public class EntityForwardRenderer implements IDisposable {
 		shader.loadBiasMatrix(sun.getCamera().getProjectionArray());
 		shader.loadLightMatrix(sun.getCamera().getViewMatrix());
 		glActiveTexture(GL_TEXTURE4);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, irradiance.getID());
+		glBindTexture(GL_TEXTURE_CUBE_MAP, irradiance.getTexture());
 		glActiveTexture(GL_TEXTURE5);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, environmentMap.getID());
+		glBindTexture(GL_TEXTURE_CUBE_MAP, environmentMap.getTexture());
 		glActiveTexture(GL_TEXTURE6);
-		glBindTexture(GL_TEXTURE_2D, brdfLUT.getID());
+		glBindTexture(GL_TEXTURE_2D, brdfLUT.getTexture());
 		glActiveTexture(GL_TEXTURE7);
 		glBindTexture(GL_TEXTURE_2D, shadow.getShadowMaps()[0]);
 		glActiveTexture(GL_TEXTURE8);
@@ -111,13 +111,13 @@ public class EntityForwardRenderer implements IDisposable {
 	private void prepareTexturedModel(Mesh mesh, Material material) {
 		mesh.getMesh().bind(0, 1, 2, 3);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, material.getDiffuseTexture().getID());
+		glBindTexture(GL_TEXTURE_2D, material.getDiffuseTexture().getTexture());
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, material.getNormalTexture().getID());
+		glBindTexture(GL_TEXTURE_2D, material.getNormalTexture().getTexture());
 		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, material.getRoughnessTexture().getID());
+		glBindTexture(GL_TEXTURE_2D, material.getRoughnessTexture().getTexture());
 		glActiveTexture(GL_TEXTURE3);
-		glBindTexture(GL_TEXTURE_2D, material.getMetallicTexture().getID());
+		glBindTexture(GL_TEXTURE_2D, material.getMetallicTexture().getTexture());
 	}
 
 	private void unbindTexturedModel(Mesh mesh) {

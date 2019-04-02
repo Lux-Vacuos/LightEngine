@@ -47,12 +47,14 @@ public class BasePipelineShader extends ShaderProgram {
 	private UniformBoolean useLensFlares = new UniformBoolean("useLensFlares");
 	private UniformBoolean useShadows = new UniformBoolean("useShadows");
 
+	private UniformInteger frame = new UniformInteger("frame");
+
 	public BasePipelineShader(String name) {
 		super(ResManager.getResourceOfType("ENGINE_RND_" + name + "_VS", ResourceType.SHADER).get(),
 				ResManager.getResourceOfType("ENGINE_RND_" + name + "_FS", ResourceType.SHADER).get(),
 				new Attribute(0, "position"));
 		super.storeUniforms(resolution, shadowDrawDistance, useFXAA, useDOF, useMotionBlur, useReflections,
-				useVolumetricLight, useAmbientOcclusion, useChromaticAberration, useLensFlares, useShadows);
+				useVolumetricLight, useAmbientOcclusion, useChromaticAberration, useLensFlares, useShadows, frame);
 		super.validate();
 	}
 
@@ -67,6 +69,10 @@ public class BasePipelineShader extends ShaderProgram {
 		this.useChromaticAberration.loadBoolean(rs.chromaticAberrationEnabled);
 		this.useLensFlares.loadBoolean(rs.lensFlaresEnabled);
 		this.useShadows.loadBoolean(rs.shadowsEnabled);
+	}
+
+	public void loadFrame(int frame) {
+		this.frame.loadInteger(frame);
 	}
 
 	public void loadResolution(Vector2f res) {

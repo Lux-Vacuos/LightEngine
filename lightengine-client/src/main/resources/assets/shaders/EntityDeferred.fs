@@ -21,7 +21,7 @@
 #include struct Material
 
 in vec2 pass_textureCoords;
-in vec4 pass_position;
+in vec3 pass_position;
 in mat3 TBN;
 
 out vec4[5] out_Color;
@@ -43,8 +43,8 @@ void main() {
 	normal = normalize(TBN * normal);
 
 	out_Color[0] = diffuseF;
-	out_Color[1] = vec4(pass_position.xyz, 0.0);
-	out_Color[2] = vec4(normal.xyz, 0.0);
+	out_Color[1] = vec4(pass_position, 0.0);
+	out_Color[2] = vec4(normal, 0.0);
 	out_Color[3] = vec4(roughnessF, metallicF, 0.0, 0.0);
 	out_Color[4] = vec4(material.emissive.rgb * diffuseF.rgb, 0.0);
 }

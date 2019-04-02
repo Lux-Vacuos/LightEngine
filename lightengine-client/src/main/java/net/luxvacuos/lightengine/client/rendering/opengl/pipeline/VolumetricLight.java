@@ -51,6 +51,7 @@ public class VolumetricLight extends DeferredPass<VolumetricLightShader> {
 		shader.loadLightPosition(rd.getSun().getSunPosition());
 		shader.loadCameraData(rd.getCamera());
 		shader.loadSunCameraData(rd.getSun().getCamera());
+		shader.loadTime(rd.getWorldSimulation().getGlobalTime());
 	}
 
 	@Override

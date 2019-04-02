@@ -25,6 +25,7 @@ import org.joml.Vector3f;
 
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.SunCamera;
+import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformFloat;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformMatrix;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformSampler;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformVec3;
@@ -36,6 +37,8 @@ public class VolumetricLightShader extends BasePipelineShader {
 
 	private UniformVec3 cameraPosition = new UniformVec3("cameraPosition");
 	private UniformVec3 lightPosition = new UniformVec3("lightPosition");
+
+	private UniformFloat time = new UniformFloat("time");
 
 	private UniformSampler gPosition = new UniformSampler("gPosition");
 	private UniformSampler gNormal = new UniformSampler("gNormal");
@@ -56,7 +59,7 @@ public class VolumetricLightShader extends BasePipelineShader {
 			shadowMap[x] = new UniformSampler("shadowMap[" + x + "]");
 		super.storeUniforms(shadowMap);
 		super.storeUniforms(projectionMatrix, viewMatrix, cameraPosition, lightPosition, gPosition, gNormal, biasMatrix,
-				viewLightMatrix);
+				viewLightMatrix, time);
 		super.validate();
 		this.loadInitialData();
 	}
@@ -95,6 +98,10 @@ public class VolumetricLightShader extends BasePipelineShader {
 		this.projectionMatrix.loadMatrix(camera.getProjectionMatrix());
 		this.viewMatrix.loadMatrix(camera.getViewMatrix());
 		this.cameraPosition.loadVec3(camera.getPosition());
+	}
+
+	public void loadTime(float time) {
+		this.time.loadFloat(time);
 	}
 
 }

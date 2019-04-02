@@ -27,21 +27,25 @@ out vec4 out_Color;
 uniform vec3 cameraPosition;
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
-uniform mat4 biasMatrix;
+uniform mat4 inverseProjectionMatrix;
+uniform mat4 inverseViewMatrix;
 
 uniform Light lights[18];
 uniform int totalLights;
+uniform mat4 biasMatrix;
 
 uniform int useShadows;
 
 uniform sampler2D gDiffuse;
-uniform sampler2D gPosition;
 uniform sampler2D gNormal;
 uniform sampler2D gMask;
 uniform sampler2D gPBR; // R = roughness, B = metallic
+uniform sampler2D gDepth;
 uniform sampler2D image;
 
 #include variable pi
+
+#include function positionFromDepth
 
 #include function DistributionGGX
 
@@ -80,7 +84,9 @@ void main() {
 	if (mask.a != 1) {
 		vec4 diffuse = texture(gDiffuse, textureCoords);
 		vec2 pbr = texture(gPBR, textureCoords).rg;
-		vec3 position = texture(gPosition, textureCoords).rgb;
+		float depth = texture(gDepth, textureCoords).r;
+		vec3 position =
+			positionFromDepth(textureCoords, depth, inverseProjectionMatrix, inverseViewMatrix);
 		vec3 normal = texture(gNormal, textureCoords).rgb;
 
 		vec3 N = normalize(normal);

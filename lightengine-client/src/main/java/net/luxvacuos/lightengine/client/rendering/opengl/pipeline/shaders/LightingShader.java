@@ -33,6 +33,8 @@ public class LightingShader extends BasePipelineShader {
 
 	private UniformMatrix projectionMatrix = new UniformMatrix("projectionMatrix");
 	private UniformMatrix viewMatrix = new UniformMatrix("viewMatrix");
+	private UniformMatrix inverseProjectionMatrix = new UniformMatrix("inverseProjectionMatrix");
+	private UniformMatrix inverseViewMatrix = new UniformMatrix("inverseViewMatrix");
 
 	private UniformVec3 cameraPosition = new UniformVec3("cameraPosition");
 	private UniformVec3 lightPosition = new UniformVec3("lightPosition");
@@ -54,6 +56,8 @@ public class LightingShader extends BasePipelineShader {
 	private UniformMatrix biasMatrix = new UniformMatrix("biasMatrix");
 	private UniformSampler shadowMap[];
 
+	private Matrix4f projInv = new Matrix4f(), viewInv = new Matrix4f();
+
 	public LightingShader(String name) {
 		super("DFR_" + name);
 		projectionLightMatrix = new UniformMatrix[4];
@@ -66,7 +70,7 @@ public class LightingShader extends BasePipelineShader {
 		super.storeUniforms(shadowMap);
 		super.storeUniforms(projectionMatrix, viewMatrix, cameraPosition, lightPosition, invertedLightPosition,
 				gDiffuse, gPosition, gNormal, gDepth, gPBR, gMask, volumetric, irradianceCube, environmentCube, brdfLUT,
-				biasMatrix, viewLightMatrix);
+				biasMatrix, viewLightMatrix, inverseProjectionMatrix, inverseViewMatrix);
 		super.validate();
 		this.loadInitialData();
 	}
@@ -113,6 +117,7 @@ public class LightingShader extends BasePipelineShader {
 		this.projectionMatrix.loadMatrix(camera.getProjectionMatrix());
 		this.viewMatrix.loadMatrix(camera.getViewMatrix());
 		this.cameraPosition.loadVec3(camera.getPosition());
+		this.inverseProjectionMatrix.loadMatrix(camera.getProjectionMatrix().invert(projInv));
+		this.inverseViewMatrix.loadMatrix(camera.getViewMatrix().invert(viewInv));
 	}
-
 }

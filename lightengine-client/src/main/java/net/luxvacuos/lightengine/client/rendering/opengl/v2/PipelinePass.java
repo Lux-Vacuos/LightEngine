@@ -50,6 +50,8 @@ public abstract class PipelinePass<T extends BasePipelineShader, P> {
 
 	private float scaling = 1.0f;
 
+	private int frameCont;
+
 	public PipelinePass(String name) {
 		this.name = name;
 	}
@@ -70,11 +72,14 @@ public abstract class PipelinePass<T extends BasePipelineShader, P> {
 	}
 
 	public void process(RenderingSettings rs, RendererData rnd, IRenderingData rd, P pl, Texture[] auxTex, VAO quad) {
+		frameCont += 1;
+		frameCont %= Integer.MAX_VALUE;
 		GPUProfiler.start(name);
 		mainBuf.bind();
 		glClear(GL_COLOR_BUFFER_BIT);
 		shader.start();
 		shader.loadSettings(rs);
+		shader.loadFrame(frameCont);
 		setupShaderData(rnd, rd, shader);
 		setupTextures(rnd, pl, auxTex);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);

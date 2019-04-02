@@ -21,6 +21,7 @@
 package net.luxvacuos.lightengine.client.rendering.opengl.shaders;
 
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Material;
@@ -35,14 +36,26 @@ public class EntityDeferredShader extends ShaderProgram {
 	private UniformMatrix transformationMatrix = new UniformMatrix("transformationMatrix");
 	private UniformMatrix projectionMatrix = new UniformMatrix("projectionMatrix");
 	private UniformMatrix viewMatrix = new UniformMatrix("viewMatrix");
+	private UniformMatrix jitterMatrix = new UniformMatrix("jitterMatrix");
 	private UniformMaterial material = new UniformMaterial("material");
+
+	private Matrix4f jitter = new Matrix4f();
+
+	private int frameCont;
+
+	// TODO: Move this
+	private Vector2f sampleLocs[] = { new Vector2f(-7.0f, 1.0f).mul(1.0f / 8.0f),
+			new Vector2f(-5.0f, -5.0f).mul(1.0f / 8.0f), new Vector2f(-1.0f, -3.0f).mul(1.0f / 8.0f),
+			new Vector2f(3.0f, -7.0f).mul(1.0f / 8.0f), new Vector2f(5.0f, -1.0f).mul(1.0f / 8.0f),
+			new Vector2f(7.0f, 7.0f).mul(1.0f / 8.0f), new Vector2f(1.0f, 3.0f).mul(1.0f / 8.0f),
+			new Vector2f(-3.0f, 5.0f).mul(1.0f / 8.0f) };
 
 	public EntityDeferredShader() {
 		super(ResManager.getResourceOfType("ENGINE_RND_EntityDeferred_VS", ResourceType.SHADER).get(),
 				ResManager.getResourceOfType("ENGINE_RND_EntityDeferred_FS", ResourceType.SHADER).get(),
 				new Attribute(0, "position"), new Attribute(1, "textureCoords"), new Attribute(2, "normals"),
 				new Attribute(3, "tangent"));
-		super.storeUniforms(transformationMatrix, projectionMatrix, viewMatrix, material);
+		super.storeUniforms(transformationMatrix, material, projectionMatrix, viewMatrix, jitterMatrix);
 		super.validate();
 	}
 
@@ -54,8 +67,21 @@ public class EntityDeferredShader extends ShaderProgram {
 		material.loadMaterial(mat);
 	}
 
-	public void loadCamera(CameraEntity camera) {
+	public void loadCamera(CameraEntity camera, Vector2f resolution) {
 		projectionMatrix.loadMatrix(camera.getProjectionMatrix());
 		viewMatrix.loadMatrix(camera.getViewMatrix());
+		frameCont++;
+		frameCont %= 8;
+
+		Vector2f texSize = new Vector2f(1.0f / resolution.x, 1.0f / resolution.y);
+
+		Vector2f subsampleSize = texSize.mul(2.0f, new Vector2f());
+
+		Vector2f S = sampleLocs[frameCont];
+
+		Vector2f subsample = S.mul(subsampleSize);
+		subsample.mul(0.5f);
+		jitter.translation(subsample.x, subsample.y, 0);
+		jitterMatrix.loadMatrix(jitter);
 	}
 }

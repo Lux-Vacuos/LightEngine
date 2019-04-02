@@ -75,7 +75,7 @@ public class EntityShadowRenderer implements IDisposable {
 	private void prepareTexturedModel(Mesh mesh, Material material) {
 		mesh.getMesh().bind(0, 1);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, material.getDiffuseTexture().getID());
+		glBindTexture(GL_TEXTURE_2D, material.getDiffuseTexture().getTexture());
 	}
 
 	private void unbindTexturedModel(Mesh mesh) {

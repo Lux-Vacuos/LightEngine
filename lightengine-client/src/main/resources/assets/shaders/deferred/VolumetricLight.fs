@@ -36,6 +36,8 @@ uniform sampler2DShadow shadowMap[4];
 uniform int useShadows;
 uniform int useVolumetricLight;
 
+uniform float time;
+
 #include function computeShadow
 
 #include function random
@@ -69,7 +71,7 @@ void main() {
 			incr *= 1.1;
 
 			randSample =
-				vec3(random(rayTrace.x), random(rayTrace.y), random(rayTrace.z)) * 0.25 - 0.125;
+				vec3(random(rayTrace.x + time), random(rayTrace.y * time), random(rayTrace.z - time)) * incr - (incr * 0.5);
 			finalTrace = rayTrace + randSample;
 			rayDist = length(finalTrace - cameraPosition);
 			if (rayDist > cameraToWorldDist - bias)
