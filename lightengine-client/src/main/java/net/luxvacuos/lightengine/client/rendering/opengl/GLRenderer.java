@@ -40,17 +40,15 @@ import static org.lwjgl.opengl.GL11C.glDisable;
 import static org.lwjgl.opengl.GL11C.glEnable;
 import static org.lwjgl.opengl.GL32C.GL_TEXTURE_CUBE_MAP_SEAMLESS;
 
-import java.util.List;
-
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.ARBClipControl;
 
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.utils.ImmutableArray;
-import com.badlogic.gdx.utils.Array;
+import com.badlogic.ashley.core.Family;
 
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
+import net.luxvacuos.lightengine.client.ecs.components.ModelLoader;
+import net.luxvacuos.lightengine.client.ecs.components.WaterTileComp;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.ecs.entities.Sun;
 import net.luxvacuos.lightengine.client.ecs.entities.SunCamera;
@@ -62,7 +60,6 @@ import net.luxvacuos.lightengine.client.rendering.opengl.IRenderPass.IForwardPas
 import net.luxvacuos.lightengine.client.rendering.opengl.IRenderPass.IGBufferPass;
 import net.luxvacuos.lightengine.client.rendering.opengl.IRenderPass.IShadowPass;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Light;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.WaterTile;
 import net.luxvacuos.lightengine.client.rendering.opengl.pipeline.MultiPass;
 import net.luxvacuos.lightengine.client.rendering.opengl.pipeline.PostProcess;
 import net.luxvacuos.lightengine.client.rendering.opengl.v2.DeferredPipeline;
@@ -113,6 +110,9 @@ public class GLRenderer implements IRenderer {
 	private RenderingSettings rs;
 
 	private RendererData rnd;
+
+	private Family waterFam = Family.one(WaterTileComp.class).get();
+	private Family renderable = Family.one(ModelLoader.class).get();
 
 	public GLRenderer(RenderingSettings rs) {
 		this.rs = rs;
@@ -277,7 +277,6 @@ public class GLRenderer implements IRenderer {
 	}
 
 	private void gBufferPass(IRenderingData rd) {
-		List<WaterTile> waterTiles = null;
 		CameraEntity camera = rd.getCamera();
 		IWorldSimulation worldSimulation = rd.getWorldSimulation();
 		Sun sun = rd.getSun();
@@ -288,9 +287,6 @@ public class GLRenderer implements IRenderer {
 		glDepthFunc(GL_GREATER);
 		glClearDepth(0.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		GPUProfiler.start("Skybox");
-		skydomeRenderer.render(camera, worldSimulation, sun.getSunPosition(), true);
-		GPUProfiler.end();
 		GPUProfiler.start("External");
 		gbufferPass.gBufferPass(camera);
 		GPUProfiler.end();
@@ -298,7 +294,10 @@ public class GLRenderer implements IRenderer {
 		renderingManager.render(camera);
 		GPUProfiler.end();
 		GPUProfiler.start("Water");
-		waterRenderer.render(waterTiles, camera, worldSimulation.getGlobalTime(), frustum);
+		waterRenderer.render(rd.getEngine().getEntitiesFor(waterFam), camera, worldSimulation.getGlobalTime(), frustum);
+		GPUProfiler.end();
+		GPUProfiler.start("Skybox");
+		skydomeRenderer.render(camera, worldSimulation, sun.getSunPosition(), true, true);
 		GPUProfiler.end();
 		glClearDepth(1.0);
 		glDepthFunc(GL_LESS);
@@ -352,12 +351,8 @@ public class GLRenderer implements IRenderer {
 	public void render(IRenderingData rd, float delta) {
 		if (!enabled)
 			return;
-		ImmutableArray<Entity> entitiesT = rd.getEngine().getEntities();
-
-		Array<Entity> entitiesR = new Array<>(entitiesT.toArray(Entity.class));
-		ImmutableArray<Entity> entities = new ImmutableArray<>(entitiesR);
 		resetState();
-		renderingManager.preProcess(entities);
+		renderingManager.preProcess(rd.getEngine().getEntitiesFor(renderable));
 
 		GPUProfiler.start("3D Renderer");
 

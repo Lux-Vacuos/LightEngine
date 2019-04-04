@@ -32,14 +32,16 @@ import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 
-import java.util.List;
+import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.utils.ImmutableArray;
 
+import net.luxvacuos.lightengine.client.ecs.components.WaterTileComp;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
+import net.luxvacuos.lightengine.client.ecs.entities.WaterTileEnt;
 import net.luxvacuos.lightengine.client.rendering.IResourceLoader;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.CachedAssets;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.RawModel;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.WaterTile;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.WaterShader;
 import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
@@ -57,19 +59,17 @@ public class WaterRenderer implements IDisposable {
 		foamMask = CachedAssets.loadTextureMisc("textures/foamMask.png");
 	}
 
-	public void render(List<WaterTile> water, CameraEntity camera, float time, Frustum frustum) {
-		if (water == null)
-			return;
-		if (water.isEmpty())
-			return;
+	public void render(ImmutableArray<Entity> water, CameraEntity camera, float time, Frustum frustum) {
 		prepareRender(camera, time);
-		for (WaterTile tile : water) {
-			float halfTileSize = WaterTile.TILE_SIZE * 2;
-			if (!frustum.cubeInFrustum(tile.getPosition().x() + halfTileSize, tile.getPosition().y(),
-					tile.getPosition().z() - halfTileSize, halfTileSize))
-				continue;
+		for (Entity ent : water) {
+			WaterTileComp tile = ent.getComponent(WaterTileComp.class);
+			// float halfTileSize = WaterTileEnt.TILE_SIZE * 2;
+			// if (!frustum.cubeInFrustum(tile.getPosition().x() + halfTileSize,
+			// tile.getPosition().y(),
+			// tile.getPosition().z() - halfTileSize, halfTileSize))
+			// continue;
 			shader.loadTransformationMatrix(
-					Maths.createTransformationMatrix(tile.getPosition(), 0, 0, 0, WaterTile.TILE_SIZE));
+					Maths.createTransformationMatrix(tile.getPosition(), 0, 0, 0, WaterTileEnt.TILE_SIZE));
 			glDrawElements(GL_TRIANGLES, quad.getVertexCount(), GL_UNSIGNED_INT, 0);
 		}
 		unbind();

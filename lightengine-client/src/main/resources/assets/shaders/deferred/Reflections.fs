@@ -118,7 +118,7 @@ void main(void) {
 				// newDepth = length(p - cameraPosition);
 
 				// Calculate distance from newPos to point
-				float dS = length(newPos - p);
+				float dS = min(length(newPos - p), 0.5);
 
 				// It is background?
 				if (texture(gMask, newCoords).a == 1)

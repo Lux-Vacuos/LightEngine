@@ -32,7 +32,7 @@ uniform mat4 transformationMatrix;
 
 void main() {
 	vec4 worldPosition = transformationMatrix * vec4(position, 1.0);
-	vec4 positionRelativeToCam = viewMatrix * vec4(position, 1.0);
+	vec4 positionRelativeToCam = viewMatrix * worldPosition;
 	gl_Position = projectionMatrix * positionRelativeToCam;
 	pass_textureCoords = textureCoords;
 	pass_normal = normal;

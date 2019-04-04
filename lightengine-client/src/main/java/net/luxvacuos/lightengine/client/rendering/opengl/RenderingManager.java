@@ -54,13 +54,9 @@ public class RenderingManager implements IDisposable {
 	}
 
 	public void preProcess(ImmutableArray<Entity> entities) {
-		for (Entity entity : entities) {
-			if (entity instanceof BasicEntity)
-				if (ClientComponents.RENDERABLE.has(entity)) {
-					if (ClientComponents.RENDERABLE.get(entity).isLoaded())
-						process((BasicEntity) entity);
-				}
-		}
+		for (Entity entity : entities)
+			if (ClientComponents.RENDERABLE.get(entity).isLoaded())
+				process((BasicEntity) entity);
 		for (Entry<IObjectRenderer> rendererEntry : objectRenderers) {
 			IObjectRenderer objectRenderer = rendererEntry.value;
 			List<BasicEntity> batch = entitiesToRenderers.findKey(objectRenderer.getID());

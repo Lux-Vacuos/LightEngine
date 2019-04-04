@@ -18,20 +18,22 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.opengl.objects;
+package net.luxvacuos.lightengine.client.ecs.components;
 
 import org.joml.Vector3f;
 
-public class WaterTile {
-	public static final float TILE_SIZE = 8;
+import com.badlogic.ashley.core.Component;
+
+public class WaterTileComp implements Component {
 
 	private Vector3f position;
 
-	public WaterTile(float x, float y, float z) {
+	public WaterTileComp(float x, float y, float z) {
 		position = new Vector3f(x, y, z);
 	}
 
 	public Vector3f getPosition() {
 		return position;
 	}
+
 }

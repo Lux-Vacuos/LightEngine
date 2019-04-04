@@ -98,7 +98,7 @@ public class EnvironmentRenderer {
 					cubeMapTexture.getID(), 0);
 			camera.switchToFace(i);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			skydomeRenderer.render(camera, clientWorldSimulation, lightPosition, false);
+			skydomeRenderer.render(camera, clientWorldSimulation, lightPosition, false, false);
 		}
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		window.resetViewport();
@@ -116,8 +116,8 @@ public class EnvironmentRenderer {
 					cubeMapTexture.getID(), 0);
 			camera.switchToFace(i);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			skydomeRenderer.render(camera, clientWorldSimulation, sun.getSunPosition(), false);
 			renderingManager.renderReflections(camera, sun, shadow, irradiance, environmentMap, brdfLUT);
+			skydomeRenderer.render(camera, clientWorldSimulation, sun.getSunPosition(), false, false);
 		}
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		window.resetViewport();

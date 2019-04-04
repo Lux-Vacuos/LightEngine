@@ -55,11 +55,8 @@ void main() {
 		nmax = max(nmax, neighbourhood[i]);
 	}
 
-	vec4 tex = vec4(textureCoords, 0.0, 0.0);
-	float depthSample = texture(depth, textureCoords).x;
-	if (depthSample == 0)
-		depthSample = 0.000001;
-	vec4 currentPosition = vec4(tex.x * 2.0 - 1.0, tex.y * 2.0 - 1.0, depthSample, 1.0);
+	float depthSample = texture(depth, textureCoords).r;
+	vec4 currentPosition = vec4(textureCoords * 2.0 - 1.0, depthSample, 1.0);
 	vec4 fragposition = inverseProjectionMatrix * currentPosition;
 	fragposition = inverseViewMatrix * fragposition;
 	fragposition /= fragposition.w;
@@ -70,7 +67,7 @@ void main() {
 	previousPosition = previousViewMatrix * previousPosition;
 	previousPosition = projectionMatrix * previousPosition;
 	previousPosition /= previousPosition.w;
-	vec2 vel = (previousPosition - currentPosition).xy * pixelSize;
+	vec2 vel = (previousPosition - currentPosition).xy * 0.25;
 
 	vec2 histUv = textureCoords + vel;
 

@@ -40,8 +40,6 @@ void main() {
 		vec3 sum = textureColor;
 		vec4 tex = vec4(textureCoords, 0.0, 0.0);
 		float depthSample = texture(depth, textureCoords).x;
-		if (depthSample == 0)
-			depthSample = 0.00001;
 		vec4 currentPosition = vec4(tex.x * 2.0 - 1.0, tex.y * 2.0 - 1.0, depthSample, 1.0);
 		vec4 fragposition = inverseProjectionMatrix * currentPosition;
 		fragposition = inverseViewMatrix * fragposition;

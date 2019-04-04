@@ -25,15 +25,14 @@ import static org.lwjgl.opengl.GL11C.GL_FRONT;
 import static org.lwjgl.opengl.GL11C.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11C.GL_UNSIGNED_INT;
 import static org.lwjgl.opengl.GL11C.glCullFace;
-import static org.lwjgl.opengl.GL11C.glDepthMask;
 import static org.lwjgl.opengl.GL11C.glDrawElements;
 import static org.lwjgl.opengl.GL20C.glDisableVertexAttribArray;
 import static org.lwjgl.opengl.GL20C.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL30C.glBindVertexArray;
 
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-import net.luxvacuos.lightengine.client.core.ClientVariables;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.IResourceLoader;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.RawModel;
@@ -45,31 +44,30 @@ public class SkydomeRenderer {
 
 	private RawModel dome;
 	private SkydomeShader shader;
-	private float scale;
 	private Vector3f pos;
 
+	private Matrix4f infMat, regMat;
+
 	public SkydomeRenderer(IResourceLoader loader) {
-		if (ClientVariables.FAR_PLANE > 0 && Float.isInfinite(ClientVariables.FAR_PLANE))
-			scale = 100000; // Arbitrary number
-		else
-			scale = ClientVariables.FAR_PLANE;
 		dome = loader.loadObjModel("SkyDome");
 		pos = new Vector3f();
+		infMat = Maths.createTransformationMatrix(pos, 0, 0, 0, Integer.MAX_VALUE);
+		regMat = Maths.createTransformationMatrix(pos, 0, 0, 0, 1500);
 		shader = new SkydomeShader();
-		shader.start();
-		shader.loadTransformationMatrix(Maths.createTransformationMatrix(pos, 0, 0, 0, scale));
-		shader.stop();
 	}
 
 	public void render(CameraEntity camera, IWorldSimulation clientWorldSimulation, Vector3f lightPosition,
-			boolean renderSun) {
-		glDepthMask(false);
+			boolean renderSun, boolean infScale) {
 		glCullFace(GL_FRONT);
 		shader.start();
 		shader.loadCamera(camera);
 		shader.loadTime(clientWorldSimulation.getGlobalTime());
 		shader.loadLightPosition(lightPosition);
 		shader.renderSun(renderSun);
+		if (infScale)
+			shader.loadTransformationMatrix(infMat);
+		else
+			shader.loadTransformationMatrix(regMat);
 		glBindVertexArray(dome.getVaoID());
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
@@ -81,7 +79,6 @@ public class SkydomeRenderer {
 		glBindVertexArray(0);
 		shader.stop();
 		glCullFace(GL_BACK);
-		glDepthMask(true);
 	}
 
 }
