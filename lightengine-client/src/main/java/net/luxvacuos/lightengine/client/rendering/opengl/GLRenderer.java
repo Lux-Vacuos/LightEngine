@@ -55,7 +55,6 @@ import net.luxvacuos.lightengine.client.ecs.entities.SunCamera;
 import net.luxvacuos.lightengine.client.network.IRenderingData;
 import net.luxvacuos.lightengine.client.rendering.IRenderer;
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
-import net.luxvacuos.lightengine.client.rendering.nanovg.IWindow;
 import net.luxvacuos.lightengine.client.rendering.opengl.IRenderPass.IForwardPass;
 import net.luxvacuos.lightengine.client.rendering.opengl.IRenderPass.IGBufferPass;
 import net.luxvacuos.lightengine.client.rendering.opengl.IRenderPass.IShadowPass;
@@ -64,9 +63,10 @@ import net.luxvacuos.lightengine.client.rendering.opengl.pipeline.MultiPass;
 import net.luxvacuos.lightengine.client.rendering.opengl.pipeline.PostProcess;
 import net.luxvacuos.lightengine.client.rendering.opengl.v2.DeferredPipeline;
 import net.luxvacuos.lightengine.client.rendering.opengl.v2.PostProcessPipeline;
-import net.luxvacuos.lightengine.client.ui.windows.GLGameWindow;
+import net.luxvacuos.lightengine.client.ui.v2.surfaces.RendererSurface;
 import net.luxvacuos.lightengine.client.world.ParticleDomain;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
+import net.luxvacuos.lightengine.universal.core.Task;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.subsystems.EventSubsystem;
 import net.luxvacuos.lightengine.universal.util.IEvent;
@@ -105,7 +105,7 @@ public class GLRenderer implements IRenderer {
 
 	private IEvent shadowMap;
 
-	private GLGameWindow gameWindow;
+	private RendererSurface surface;
 
 	private RenderingSettings rs;
 
@@ -136,33 +136,29 @@ public class GLRenderer implements IRenderer {
 		lightRenderer = new LightRenderer();
 		frustum = new Frustum();
 
-		TaskManager.tm.addTaskRenderThread(
-				() -> envRenderer = new EnvironmentRenderer(loader.createEmptyCubeMap(32, true, false)));
-		TaskManager.tm.addTaskRenderThread(
-				() -> envRendererEntities = new EnvironmentRenderer(loader.createEmptyCubeMap(128, true, false)));
-		TaskManager.tm.addTaskRenderThread(() -> {
-			irradianceCapture = new IrradianceCapture(loader);
-			rnd.irradianceCapture = irradianceCapture.getCubeMapTexture();
+		TaskManager.tm.submitRenderThread(new Task<Void>() {
+			@Override
+			protected Void call() {
+				envRenderer = new EnvironmentRenderer(loader.createEmptyCubeMap(32, true, false));
+				envRendererEntities = new EnvironmentRenderer(loader.createEmptyCubeMap(128, true, false));
+				irradianceCapture = new IrradianceCapture(loader);
+				rnd.irradianceCapture = irradianceCapture.getCubeMapTexture();
+				preFilteredEnvironment = new PreFilteredEnvironment(loader.createEmptyCubeMap(128, true, true), window);
+				rnd.brdfLUT = preFilteredEnvironment.getBRDFLUT();
+				rnd.environmentMap = preFilteredEnvironment.getCubeMapTexture();
+				particleRenderer = new ParticleRenderer(loader);
+				skydomeRenderer = new SkydomeRenderer(loader);
+				waterRenderer = new WaterRenderer(loader);
+				renderingManager.addRenderer(new EntityRenderer());
+				shadowFBO = new ShadowFBO(rs.shadowsResolution, rs.shadowsResolution);
+				rnd.shadow = shadowFBO;
+				dp = new MultiPass(window.getWidth(), window.getHeight());
+				pp = new PostProcess(window.getWidth(), window.getHeight(), window.getNVGID());
+				if (surface != null)
+					surface.setImage(pp.getNVGTexture());
+				return null;
+			}
 		});
-		TaskManager.tm.addTaskRenderThread(() -> {
-			preFilteredEnvironment = new PreFilteredEnvironment(loader.createEmptyCubeMap(128, true, true), window);
-			rnd.brdfLUT = preFilteredEnvironment.getBRDFLUT();
-			rnd.environmentMap = preFilteredEnvironment.getCubeMapTexture();
-		});
-
-		TaskManager.tm.addTaskRenderThread(() -> particleRenderer = new ParticleRenderer(loader));
-		TaskManager.tm.addTaskRenderThread(() -> skydomeRenderer = new SkydomeRenderer(loader));
-		TaskManager.tm.addTaskRenderThread(() -> waterRenderer = new WaterRenderer(loader));
-		TaskManager.tm.addTaskRenderThread(() -> renderingManager.addRenderer(new EntityRenderer()));
-
-		TaskManager.tm.addTaskRenderThread(() -> {
-			shadowFBO = new ShadowFBO(rs.shadowsResolution, rs.shadowsResolution);
-			rnd.shadow = shadowFBO;
-		});
-
-		TaskManager.tm.addTaskRenderThread(() -> dp = new MultiPass(window.getWidth(), window.getHeight()));
-		TaskManager.tm.addTaskRenderThread(
-				() -> pp = new PostProcess(window.getWidth(), window.getHeight(), window.getNVGID()));
 
 		shadowMap = EventSubsystem.addEvent("lightengine.renderer.resetshadowmap",
 				() -> TaskManager.tm.addTaskRenderThread(() -> {
@@ -174,13 +170,8 @@ public class GLRenderer implements IRenderer {
 		rnd.lights = lightRenderer.getLights();
 		rnd.exposure = exposure;
 
-		TaskManager.tm.addTaskRenderThread(() -> {
-			enabled = true;
-			gameWindow = new GLGameWindow();
-			gameWindow.setImageID(pp.getNVGTexture());
-			GraphicalSubsystem.getWindowManager().addWindow(0, gameWindow);
-			EventSubsystem.triggerEvent("lightengine.renderer.initialized");
-		});
+		enabled = true;
+		EventSubsystem.triggerEvent("lightengine.renderer.initialized");
 	}
 
 	private void shadowPass(IRenderingData rd) {
@@ -393,7 +384,8 @@ public class GLRenderer implements IRenderer {
 		dp.resize(width, height);
 		pp.resize(width, height);
 		EventSubsystem.triggerEvent("lightengine.renderer.postresize");
-		gameWindow.setImageID(pp.getNVGTexture());
+		if (surface != null)
+			surface.setImage(pp.getNVGTexture());
 	}
 
 	@Override
@@ -401,19 +393,22 @@ public class GLRenderer implements IRenderer {
 		if (!enabled)
 			return;
 		enabled = false;
-		gameWindow.closeWindow();
-		TaskManager.tm.addTaskRenderThread(() -> {
-			envRenderer.cleanUp();
-			envRendererEntities.cleanUp();
-			shadowFBO.dispose();
-			dp.dispose();
-			pp.dispose();
-			particleRenderer.cleanUp();
-			irradianceCapture.dispose();
-			preFilteredEnvironment.dispose();
-			waterRenderer.dispose();
-			renderingManager.dispose();
-		});
+		TaskManager.tm.submitRenderThread(new Task<Void>() {
+			@Override
+			protected Void call() {
+				envRenderer.cleanUp();
+				envRendererEntities.cleanUp();
+				shadowFBO.dispose();
+				dp.dispose();
+				pp.dispose();
+				particleRenderer.cleanUp();
+				irradianceCapture.dispose();
+				preFilteredEnvironment.dispose();
+				waterRenderer.dispose();
+				renderingManager.dispose();
+				return null;
+			}
+		}).get();
 		lightRenderer.dispose();
 		EventSubsystem.removeEvent("lightengine.renderer.resetshadowmap", shadowMap);
 	}
@@ -443,6 +438,15 @@ public class GLRenderer implements IRenderer {
 	}
 
 	@Override
+	public void setSurface(RendererSurface surface) {
+		if (this.surface != null)
+			this.surface.setImage(-1);
+		this.surface = surface;
+		if (enabled)
+			this.surface.setImage(pp.getNVGTexture());
+	}
+
+	@Override
 	public Frustum getFrustum() {
 		return frustum;
 	}
@@ -450,11 +454,6 @@ public class GLRenderer implements IRenderer {
 	@Override
 	public LightRenderer getLightRenderer() {
 		return lightRenderer;
-	}
-
-	@Override
-	public IWindow getWindow() {
-		return gameWindow;
 	}
 
 }

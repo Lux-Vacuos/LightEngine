@@ -97,8 +97,8 @@ void main(void) {
 
 			vec3 rd = normalize(reflect(camToWorldNorm, N));
 			vec3 ro = position + rd * SURF_DIST * 1.5;
-
-			for (int i = 0; i < MAX_STEPS; i++) {
+			int i = 0;
+			for (i = 0; i < MAX_STEPS; i++) {
 				// Move point
 				vec3 p = ro + rd * dO;
 
@@ -150,7 +150,7 @@ void main(void) {
 			}
 
 			if (dO < MAX_DIST && newCoords.x > 0 && newCoords.x < 1 && newCoords.y > 0 &&
-				newCoords.y < 1) {
+				newCoords.y < 1 && i != MAX_STEPS) {
 				vec3 newColor = texture(pass, newCoords).xyz;
 				image.rgb -= specular;
 				image.rgb += newColor * (F * envBRDF.x + envBRDF.y);

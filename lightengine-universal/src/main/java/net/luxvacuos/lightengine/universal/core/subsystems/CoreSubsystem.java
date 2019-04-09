@@ -52,7 +52,7 @@ public class CoreSubsystem extends Subsystem<SubsystemConfig> {
 			if (branchUniversal != null)
 				GlobalVariables.branchUniversal = branchUniversal;
 			if (buildUniversal != null)
-				GlobalVariables.buildUniversal = Integer.parseInt(buildUniversal);
+				GlobalVariables.buildUniversal = buildUniversal;
 		} catch (Exception e) {
 		}
 		REGISTRY = new SystemRegistry();

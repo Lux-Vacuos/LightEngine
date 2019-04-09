@@ -20,15 +20,17 @@
 
 package net.luxvacuos.lightengine.client.rendering.nanovg.v2;
 
-import org.joml.Vector4f;
+import static org.lwjgl.nanovg.NanoVG.nvgBeginFrame;
+import static org.lwjgl.nanovg.NanoVG.nvgCancelFrame;
+import static org.lwjgl.nanovg.NanoVG.nvgEndFrame;
 
-import static org.lwjgl.nanovg.NanoVG.*;
+import org.joml.Vector4f;
 
 import net.luxvacuos.lightengine.client.rendering.glfw.Window;
 
 public class SurfaceManager {
 
-	private Surface rootSurface;
+	private RootSurface rootSurface;
 	private Vector4f rootSize;
 	private Window window;
 	private long ctx;
@@ -36,22 +38,21 @@ public class SurfaceManager {
 	public SurfaceManager(Window window) {
 		this.window = window;
 		this.ctx = window.getNVGID();
-		rootSurface = new Surface();
-		rootSurface.init(ctx);
-		rootSurface.setWidth(window.getWidth());
-		rootSurface.setHeight(window.getHeight());
+		rootSurface = new RootSurface();
+		rootSurface.init(ctx, window.getMouseHandler(), window.getKeyboardHandler());
+		rootSurface.setHorizontalAlignment(Alignment.STRETCH).setVerticalAlignment(Alignment.STRETCH);
 		rootSize = new Vector4f(0, 0, window.getWidth(), window.getHeight());
 	}
 
 	public void render(float delta) {
 		window.resetViewport();
-		
+
 		nvgBeginFrame(ctx, window.getWidth(), window.getHeight(), 1.0f);
 		rootSurface.preLayout(delta);
 		nvgCancelFrame(ctx);
-		
+
 		rootSurface.updateLayout(rootSize);
-		
+
 		nvgBeginFrame(ctx, window.getWidth(), window.getHeight(), 1.0f);
 		rootSurface.render(delta);
 		nvgEndFrame(ctx);
@@ -59,6 +60,7 @@ public class SurfaceManager {
 
 	public void update(float delta) {
 		rootSize.set(0, 0, window.getWidth(), window.getHeight());
+		rootSurface.handleInputI();
 		rootSurface.update(delta);
 	}
 
@@ -66,9 +68,11 @@ public class SurfaceManager {
 		rootSurface.dispose();
 	}
 
-	public void setRootSurface(Surface rootSurface) {
-		this.rootSurface.dispose();
-		this.rootSurface = rootSurface;
-		this.rootSurface.init(ctx);
+	public void addSurface(Surface srf) {
+		rootSurface.addSurface(srf);
+	}
+
+	public void removeSurface(Surface srf) {
+		rootSurface.removeSurface(srf);
 	}
 }

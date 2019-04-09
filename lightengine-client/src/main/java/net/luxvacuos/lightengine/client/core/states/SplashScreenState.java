@@ -20,32 +20,19 @@
 
 package net.luxvacuos.lightengine.client.core.states;
 
-import static net.luxvacuos.lightengine.universal.core.subsystems.CoreSubsystem.REGISTRY;
-
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
-import net.luxvacuos.lightengine.client.rendering.nanovg.WindowMessage;
-import net.luxvacuos.lightengine.client.rendering.nanovg.v2.Surface;
-import net.luxvacuos.lightengine.client.ui.OnAction;
 import net.luxvacuos.lightengine.client.ui.v2.surfaces.SplashSurface;
-import net.luxvacuos.lightengine.client.ui.windows.LoadWindow;
-import net.luxvacuos.lightengine.client.ui.windows.Shell;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.core.states.AbstractState;
 import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 import net.luxvacuos.lightengine.universal.core.states.StateNames;
-import net.luxvacuos.lightengine.universal.util.registry.KeyCache;
 
-/**
- * Splash screen State, show only in the load.
- * 
- * @author Guerra24 <pablo230699@hotmail.com>
- *
- */
 public class SplashScreenState extends AbstractState {
 
-	private LoadWindow window;
-	private boolean ready, showSpinner;
+	private boolean ready;
 	private float timer;
+
+	private SplashSurface surface;
 
 	public SplashScreenState() {
 		super(StateNames.SPLASH_SCREEN);
@@ -53,23 +40,14 @@ public class SplashScreenState extends AbstractState {
 
 	@Override
 	public void start() {
-		window = new LoadWindow();
-		GraphicalSubsystem.getWindowManager().addWindow(window);
-
-		GraphicalSubsystem.getSurfaceManager().setRootSurface(new SplashSurface());
+		GraphicalSubsystem.getSurfaceManager().addSurface(surface = new SplashSurface());
 		super.start();
 	}
 
 	@Override
 	public void end() {
+		surface.removeSurfaceFromRoot();
 		super.end();
-		window.closeWindow();
-		Shell shell = new Shell(0, 0, (int) REGISTRY.getRegistryItem(KeyCache.getKey("/Light Engine/Display/width")),
-				30);
-		GraphicalSubsystem.getWindowManager().addWindow(shell);
-		GraphicalSubsystem.getWindowManager().setShell(shell);
-		shell.toggleShell();
-
 	}
 
 	@Override
@@ -81,20 +59,11 @@ public class SplashScreenState extends AbstractState {
 			if (StateMachine.hasState(StateNames.MAIN)) {
 				if (TaskManager.tm.isEmpty()) {
 					ready = true;
-					window.notifyWindow(WindowMessage.WM_FADE_OUT,
-							(OnAction) () -> StateMachine.setCurrentState(StateNames.MAIN));
-				} else {
-					if (!showSpinner) {
-						window.addSpinner();
-						showSpinner = true;
-					}
+					StateMachine.setCurrentState(StateNames.MAIN);
 				}
 			} else {
-				if (!window.onLoadFailed()) {
-					ready = true;
-					window.notifyWindow(WindowMessage.WM_FADE_OUT,
-							(OnAction) () -> TaskManager.tm.addTaskBackgroundThread(() -> StateMachine.stop()));
-				}
+				ready = true;
+				surface.mainNotFound();
 			}
 		}
 	}

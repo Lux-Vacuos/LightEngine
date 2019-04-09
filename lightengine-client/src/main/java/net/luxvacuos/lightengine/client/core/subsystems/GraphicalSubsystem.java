@@ -25,6 +25,7 @@ import static org.lwjgl.assimp.Assimp.aiGetVersionMajor;
 import static org.lwjgl.assimp.Assimp.aiGetVersionMinor;
 import static org.lwjgl.assimp.Assimp.aiGetVersionRevision;
 import static org.lwjgl.glfw.GLFW.glfwInit;
+import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
 import static org.lwjgl.opengl.GL11C.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11C.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11C.GL_RENDERER;
@@ -106,7 +107,7 @@ public class GraphicalSubsystem extends Subsystem<GraphicalSubConfig> {
 		REGISTRY.register(new Key("/Light Engine/Display/height"), 720);
 		renderingSettingsFile = new File(ed.userDir + "/config/rendering.json");
 
-		GLFW.glfwSetErrorCallback(GLFWErrorCallback.createPrint(System.err));
+		glfwSetErrorCallback(GLFWErrorCallback.createPrint(System.err));
 		if (!glfwInit())
 			throw new GLFWException("Unable to initialize GLFW");
 
@@ -207,7 +208,7 @@ public class GraphicalSubsystem extends Subsystem<GraphicalSubConfig> {
 				});
 			}
 			windowManager.update(delta);
-			// surfaceManager.update(delta);
+			surfaceManager.update(delta);
 		}
 	}
 
@@ -217,7 +218,7 @@ public class GraphicalSubsystem extends Subsystem<GraphicalSubConfig> {
 			glClearColor(0, 0, 0, 1);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			windowManager.render(delta);
-			// surfaceManager.render(delta);
+			surfaceManager.render(delta);
 		}
 		CachedAssets.update(delta);
 	}

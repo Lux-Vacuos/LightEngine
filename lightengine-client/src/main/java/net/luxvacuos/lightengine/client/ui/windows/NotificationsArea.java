@@ -108,7 +108,7 @@ public class NotificationsArea extends ComponentWindow {
 					@Override
 					public void updateApp(float delta) {
 						if (super.insideWindow() && window.getMouseHandler().isButtonPressed(0)) {
-							window.getMouseHandler().ignoreKeyUntilRelease(0);
+							window.getMouseHandler().ignoreButtonUntilRelease(0);
 							time = 6;
 							fadeIn = false;
 							timer = timer * -1 + 1;

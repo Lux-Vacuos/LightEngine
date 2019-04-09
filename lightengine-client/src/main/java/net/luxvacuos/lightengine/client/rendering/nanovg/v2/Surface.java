@@ -32,7 +32,8 @@ import static org.lwjgl.nanovg.NanoVG.nvgBeginPath;
 import static org.lwjgl.nanovg.NanoVG.nvgFill;
 import static org.lwjgl.nanovg.NanoVG.nvgFillColor;
 import static org.lwjgl.nanovg.NanoVG.nvgFontFace;
-import static org.lwjgl.nanovg.NanoVG.*;
+import static org.lwjgl.nanovg.NanoVG.nvgFontSize;
+import static org.lwjgl.nanovg.NanoVG.nvgIntersectScissor;
 import static org.lwjgl.nanovg.NanoVG.nvgPathWinding;
 import static org.lwjgl.nanovg.NanoVG.nvgRect;
 import static org.lwjgl.nanovg.NanoVG.nvgRestore;
@@ -41,24 +42,34 @@ import static org.lwjgl.nanovg.NanoVG.nvgText;
 import static org.lwjgl.nanovg.NanoVG.nvgTextAlign;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 import org.lwjgl.nanovg.NVGColor;
 
+import net.luxvacuos.lightengine.client.input.KeyboardHandler;
+import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.rendering.nanovg.themes.Theme;
 import net.luxvacuos.lightengine.client.rendering.nanovg.v2.layouts.EmptyLayout;
+import net.luxvacuos.lightengine.client.rendering.nanovg.v2.layouts.FlowLayout;
 import net.luxvacuos.lightengine.client.rendering.nanovg.v2.layouts.ILayout;
+import net.luxvacuos.lightengine.universal.core.Task;
+import net.luxvacuos.lightengine.universal.core.TaskManager;
 
 public class Surface {
 
-	private List<Surface> surfaces = new ArrayList<>();
+	private List<Surface> surfaces = Collections.synchronizedList(new ArrayList<>());
+
+	private Queue<ScheduledSurface> toAdd = new ConcurrentLinkedQueue<>(), toRemove = new ConcurrentLinkedQueue<>();
 
 	protected Vector4f initialPos = new Vector4f(0);
 	private Vector4f calcPos = new Vector4f(0);
-	private Vector4f marginPos = new Vector4f(0);
-	private Vector4f borderPos = new Vector4f(0);
+	protected Vector4f marginPos = new Vector4f(0);
+	protected Vector4f borderPos = new Vector4f(0);
 	protected Vector4f elementPos = new Vector4f(0);
 	private Vector4f paddingPos = new Vector4f(0);
 	private Vector4f margin = new Vector4f(0);
@@ -67,41 +78,84 @@ public class Surface {
 
 	private Alignment horizontal = Alignment.LEFT, vertical = Alignment.TOP;
 
-	protected long ctx;
+	protected SurfaceState state = SurfaceState.NONE;
+
+	private boolean hidden, noInput;
 
 	private ILayout layout = new EmptyLayout();
 
-	protected NVGColor backgroundColor = Theme.setColor("#00000000"), borderColor = Theme.setColor("#00000000");
+	private Surface root;
+
+	protected NVGColor backgroundCurrentColor, borderCurrentColor;
+	protected NVGColor foregroundCurrentColor;
+
+	protected NVGColor backgroundColor = Theme.setColor("#00000000"), borderColor = Theme.setColor("#000000FF");
 	protected NVGColor foregroundColor = Theme.setColor("#FFFFFFFF");
+
+	protected NVGColor backgroundHoverColor = Theme.setColor("#00000000"),
+			borderHoverColor = Theme.setColor("#000000FF");
+	protected NVGColor foregroundHoverColor = Theme.setColor("#FFFFFFFF");
+
+	protected NVGColor backgroundPressedColor = Theme.setColor("#00000000"),
+			borderPressedColor = Theme.setColor("#000000FF");
+	protected NVGColor foregroundPressedColor = Theme.setColor("#FFFFFFFF");
+
+	protected long ctx;
+	protected MouseHandler mh;
+	protected KeyboardHandler kh;
 
 	protected static final boolean DEBUG = false;
 
-	public Surface() {
-	}
-
-	public void init(long ctx) {
+	public void init(long ctx, MouseHandler mh, KeyboardHandler kh) {
 		this.ctx = ctx;
+		this.mh = mh;
+		this.kh = kh;
+		backgroundCurrentColor = backgroundColor;
+		borderCurrentColor = borderColor;
+		foregroundCurrentColor = foregroundColor;
 	}
 
 	protected void renderSurface(float delta) {
 		nvgSave(ctx);
+
+		switch (state) {
+		case NONE:
+			backgroundCurrentColor = backgroundColor;
+			borderCurrentColor = borderColor;
+			foregroundCurrentColor = foregroundColor;
+			break;
+		case HOVER:
+			backgroundCurrentColor = backgroundHoverColor;
+			borderCurrentColor = borderHoverColor;
+			foregroundCurrentColor = foregroundHoverColor;
+			break;
+		case PRESSED:
+			backgroundCurrentColor = backgroundPressedColor;
+			borderCurrentColor = borderPressedColor;
+			foregroundCurrentColor = foregroundPressedColor;
+			break;
+		default:
+			break;
+		}
 
 		if (border.length() != 0) {
 			nvgBeginPath(ctx);
 			nvgRect(ctx, elementPos.x, elementPos.y, elementPos.z, elementPos.w);
 			nvgPathWinding(ctx, NVG_HOLE);
 			nvgRect(ctx, borderPos.x, borderPos.y, borderPos.z, borderPos.w);
-			nvgFillColor(ctx, borderColor);
+			nvgFillColor(ctx, borderCurrentColor);
 			nvgFill(ctx);
 		}
 
 		nvgBeginPath(ctx);
 		nvgRect(ctx, elementPos.x, elementPos.y, elementPos.z, elementPos.w);
-		nvgFillColor(ctx, backgroundColor);
+		nvgFillColor(ctx, backgroundCurrentColor);
 		nvgFill(ctx);
 
 		nvgRestore(ctx);
+	}
 
+	protected void renderDebug() {
 		if (DEBUG) {
 			nvgSave(ctx);
 			nvgBeginPath(ctx);
@@ -150,34 +204,94 @@ public class Surface {
 	}
 
 	public void render(float delta) {
+		if (hidden)
+			return;
 		nvgSave(ctx);
-		this.renderSurface(delta);
+		renderSurface(delta);
+		nvgRestore(ctx);
+
+		nvgSave(ctx);
+		renderDebug();
 		nvgRestore(ctx);
 
 		nvgIntersectScissor(ctx, paddingPos.x, paddingPos.y, paddingPos.z, paddingPos.w);
-		for (Surface surface : surfaces) {
-			nvgSave(ctx);
-			surface.render(delta);
-			nvgRestore(ctx);
+		synchronized (surfaces) {
+			for (var surface : surfaces) {
+				nvgSave(ctx);
+				surface.render(delta);
+				nvgRestore(ctx);
+			}
 		}
 	}
 
 	public void update(float delta) {
+		removeSurfaceI();
+		addSurfaceI();
+		for (var surface : surfaces)
+			surface.update(delta);
+	}
+
+	public boolean handleInputI() {
+		// TODO: Improve
+		state = SurfaceState.NONE;
+		if (surfaces.size() > 0) {
+			var list = surfaces.listIterator(surfaces.size());
+			var ret = false;
+			while (list.hasPrevious()) {
+				var srf = list.previous();
+				if (!ret) {
+					if (srf.handleInputI())
+						ret = true;
+				} else {
+					srf.state = SurfaceState.NONE;
+				}
+			}
+			if (ret)
+				return true;
+		}
+		boolean handle = isCursorInsideSurface() && !noInput;
+		if (handle)
+			handleInput();
+		return handle;
+	}
+
+	protected void handleInput() {
 
 	}
 
 	public void preLayout(float delta) {
-		for (Surface srf : surfaces) {
-			nvgSave(ctx);
-			srf.preLayout(delta);
-			nvgRestore(ctx);
+		synchronized (surfaces) {
+			for (var srf : surfaces) {
+				nvgSave(ctx);
+				srf.preLayout(delta);
+				nvgRestore(ctx);
+			}
 		}
 	}
 
 	public Vector2f updateSize() {
-		Vector2f size = new Vector2f();
-		for (Surface srf : surfaces) {
-			size.add(srf.updateSize());
+
+		// TODO: Hack! needs a better way to calculate children's size
+		var size = new Vector2f();
+		var tmpSize = new Vector2f();
+		if (layout instanceof FlowLayout) {
+			var tmpMarginPos = new Vector4f(0);
+			var tmpLayout = new Vector4f(0);
+			for (int i = 0; i < surfaces.size(); i++) {
+				var srf = surfaces.get(i);
+				tmpSize = srf.updateSize();
+				size.max(tmpSize);
+				tmpMarginPos.set(0, 0, tmpSize.x, tmpSize.y);
+				tmpLayout = layout.calculateLayout(i, tmpMarginPos);
+			}
+			size.max(new Vector2f(tmpLayout.x + tmpSize.x, tmpLayout.y + tmpSize.y));
+		} else {
+			for (int i = 0; i < surfaces.size(); i++) {
+				var srf = surfaces.get(i);
+				tmpSize.max(srf.updateSize());
+			}
+			size.x = tmpSize.x;
+			size.y = tmpSize.y;
 		}
 		calcPos.z = size.x;
 		calcPos.w = size.y;
@@ -186,13 +300,12 @@ public class Surface {
 
 		marginPos.z = calcPos.z + margin.x + margin.z + border.x + border.z + padding.x + padding.z;
 		marginPos.w = calcPos.w + margin.y + margin.w + border.y + border.w + padding.y + padding.w;
-
 		return new Vector2f(marginPos.z, marginPos.w);
 	}
 
 	public void updateLayout(Vector4f root) {
 
-		this.updateSize();
+		updateSize();
 
 		switch (horizontal) {
 		case LEFT:
@@ -255,13 +368,66 @@ public class Surface {
 		for (Surface srf : surfaces) {
 			srf.dispose();
 		}
+		surfaces.clear();
+	}
+
+	private void addSurfaceI() {
+		while (!toAdd.isEmpty()) {
+			var ss = toAdd.poll();
+			var srf = ss.srf;
+			TaskManager.tm.submitRenderThread(new Task<Void>() {
+				@Override
+				protected Void call() {
+					srf.init(ctx, mh, kh);
+					return null;
+				}
+			}).get();
+			srf.root = this;
+			synchronized (this.surfaces) {
+				this.surfaces.add(srf);
+			}
+			this.layout.addSurface(srf, ss.params);
+		}
+	}
+
+	private void removeSurfaceI() {
+		while (!toRemove.isEmpty()) {
+			var ss = toRemove.poll();
+			var srf = ss.srf;
+			this.layout.removeSurface(srf);
+			synchronized (this.surfaces) {
+				this.surfaces.remove(srf);
+			}
+			TaskManager.tm.submitRenderThread(new Task<Void>() {
+				@Override
+				protected Void call() {
+					srf.dispose();
+					return null;
+				}
+			}).get();
+		}
 	}
 
 	public void addSurface(Surface srf, Object... params) {
-		srf.init(ctx);
-		srf.setForegroundColor(foregroundColor);
-		this.surfaces.add(srf);
-		this.layout.addSurface(srf, params);
+		var ss = new ScheduledSurface();
+		ss.srf = srf;
+		ss.params = params;
+		toAdd.add(ss);
+	}
+
+	public void removeSurface(Surface srf) {
+		var ss = new ScheduledSurface();
+		ss.srf = srf;
+		toRemove.add(ss);
+	}
+
+	public boolean isCursorInsideSurface() {
+		return mh.getX() >= elementPos.x() && mh.getY() >= elementPos.y() && mh.getX() < elementPos.x() + elementPos.z()
+				&& mh.getY() < elementPos.y() + elementPos.w();
+	}
+
+	public void removeSurfaceFromRoot() {
+		root.removeSurface(this);
 	}
 
 	public List<Surface> getSurfaces() {
@@ -363,8 +529,52 @@ public class Surface {
 		return this;
 	}
 
-	public Surface setForegroundColor(NVGColor color) {
-		this.foregroundColor = color;
+	public Surface setBackgroundHoverColor(String color) {
+		this.backgroundHoverColor = Theme.setColor(color, backgroundHoverColor);
 		return this;
+	}
+
+	public Surface setBorderHoverColor(String color) {
+		this.borderHoverColor = Theme.setColor(color, borderHoverColor);
+		return this;
+	}
+
+	public Surface setForegroundHoverColor(String color) {
+		this.foregroundHoverColor = Theme.setColor(color, foregroundHoverColor);
+		return this;
+	}
+
+	public Surface setBackgroundPressedColor(String color) {
+		this.backgroundPressedColor = Theme.setColor(color, backgroundPressedColor);
+		return this;
+	}
+
+	public Surface setBorderPressedColor(String color) {
+		this.borderPressedColor = Theme.setColor(color, borderPressedColor);
+		return this;
+	}
+
+	public Surface setForegroundPressedColor(String color) {
+		this.foregroundPressedColor = Theme.setColor(color, foregroundPressedColor);
+		return this;
+	}
+
+	public Surface setHidden(boolean hidden) {
+		this.hidden = hidden;
+		return this;
+	}
+
+	public Surface setNoInput(boolean noInput) {
+		this.noInput = noInput;
+		return this;
+	}
+
+	public enum SurfaceState {
+		NONE, HOVER, PRESSED
+	}
+
+	class ScheduledSurface {
+		Surface srf;
+		Object params;
 	}
 }

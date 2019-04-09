@@ -20,10 +20,13 @@
 
 package net.luxvacuos.lightengine.client.rendering.glfw;
 
+import static org.lwjgl.glfw.GLFW.GLFW_DONT_CARE;
 import static org.lwjgl.glfw.GLFW.GLFW_RESIZABLE;
 import static org.lwjgl.glfw.GLFW.GLFW_TRUE;
 import static org.lwjgl.glfw.GLFW.GLFW_VISIBLE;
 import static org.lwjgl.glfw.GLFW.glfwDestroyWindow;
+import static org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor;
+import static org.lwjgl.glfw.GLFW.glfwGetVideoMode;
 import static org.lwjgl.glfw.GLFW.glfwGetWindowAttrib;
 import static org.lwjgl.glfw.GLFW.glfwHideWindow;
 import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
@@ -34,6 +37,7 @@ import static org.lwjgl.glfw.GLFW.glfwSetWindowCloseCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowFocusCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowIconifyCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowMaximizeCallback;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowMonitor;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowPosCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowRefreshCallback;
@@ -42,7 +46,7 @@ import static org.lwjgl.glfw.GLFW.glfwSetWindowSizeCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowTitle;
 import static org.lwjgl.glfw.GLFW.glfwShowWindow;
 import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
-import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 import static org.lwjgl.nanovg.NanoVG.nvgBeginFrame;
 import static org.lwjgl.nanovg.NanoVG.nvgEndFrame;
 import static org.lwjgl.opengl.GL11C.glViewport;
@@ -61,7 +65,6 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
 
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
-import net.luxvacuos.lightengine.client.input.LegacyMouseHandler;
 import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.rendering.IResourceLoader;
 import net.luxvacuos.lightengine.client.rendering.glfw.callbacks.WindowCloseCallback;
@@ -85,6 +88,8 @@ public abstract class AbstractWindow implements IWindow {
 
 	protected int posX = 0;
 	protected int posY = 0;
+
+	protected int oldPosX = 0, oldPosY = 0, oldWidth = 0, oldHeight = 0;
 
 	protected boolean resized = false;
 	protected boolean iconified = false;
@@ -129,7 +134,7 @@ public abstract class AbstractWindow implements IWindow {
 
 	protected void setCallbacks() {
 		this.kbHandle = new KeyboardHandler(this.windowID);
-		this.mHandle = new LegacyMouseHandler(this.windowID, this); // TODO: Mouse Handler
+		this.mHandle = new MouseHandler(this.windowID);
 
 		windowSizeCallback = new WindowSizeCallback(); // TODO: Do this for the other callbacks
 		windowCloseCallback = new WindowCloseCallback();
@@ -238,14 +243,23 @@ public abstract class AbstractWindow implements IWindow {
 	}
 
 	public void enterFullScreen() {
-		/*
-		 * var vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
-		 * glfwSetWindowMonitor(windowID, glfwGetPrimaryMonitor(), 0, 0,
-		 * vidmode.width(), vidmode.height(), vidmode.refreshRate()); fullscreen = true;
-		 */
+		if (fullscreen)
+			return;
+		oldPosX = posX;
+		oldPosY = posY;
+		oldWidth = width;
+		oldHeight = height;
+		var vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+		glfwSetWindowMonitor(windowID, glfwGetPrimaryMonitor(), 0, 0, vidmode.width(), vidmode.height(),
+				vidmode.refreshRate());
+		fullscreen = true;
 	}
 
 	public void exitFullScreen() {
+		if (!fullscreen)
+			return;
+		glfwSetWindowMonitor(windowID, NULL, oldPosX, oldPosY, oldWidth, oldHeight, GLFW_DONT_CARE);
+		fullscreen = false;
 	}
 
 	public WindowSizeCallback getSizeCallback() {

@@ -20,21 +20,46 @@
 
 package net.luxvacuos.lightengine.client.ui.v2.surfaces;
 
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_ENTER;
+
+import net.luxvacuos.lightengine.client.input.KeyboardHandler;
+import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.rendering.nanovg.v2.Alignment;
 import net.luxvacuos.lightengine.client.rendering.nanovg.v2.Surface;
-import net.luxvacuos.lightengine.client.rendering.nanovg.v2.layouts.FlowLayout;
-import net.luxvacuos.lightengine.client.ui.v2.Button;
+import net.luxvacuos.lightengine.client.ui.v2.Image;
 import net.luxvacuos.lightengine.client.ui.v2.Text;
+import net.luxvacuos.lightengine.universal.core.TaskManager;
+import net.luxvacuos.lightengine.universal.core.states.StateMachine;
 
 public class SplashSurface extends Surface {
 
+	private boolean exitOnKey;
+
 	@Override
-	public void init(long ctx) {
-		super.init(ctx);
-		this.setHorizontalAlignment(Alignment.STRETCH).setVerticalAlignment(Alignment.STRETCH);
-		this.setBackgroundColor("#000000FF");
-		this.setLayout(new FlowLayout());
-		this.addSurface(new Text("Hello World!"));
-		this.addSurface(new Button("Well, it works"));
+	public void init(long ctx, MouseHandler mh, KeyboardHandler kh) {
+		super.init(ctx, mh, kh);
+		super.setHorizontalAlignment(Alignment.STRETCH).setVerticalAlignment(Alignment.STRETCH);
+		super.setBackgroundColor("#FFFFFFFF");
+		super.addSurface(new Image("assets/textures/menu/LuxVacuos-Logo.png").setWidth(512).setHeight(512)
+				.setHorizontalAlignment(Alignment.CENTER).setVerticalAlignment(Alignment.CENTER));
+	}
+
+	@Override
+	public void update(float delta) {
+		super.update(delta);
+		if (kh.isKeyPressed(GLFW_KEY_ENTER) && exitOnKey) {
+			kh.ignoreKeyUntilRelease(GLFW_KEY_ENTER);
+			TaskManager.tm.addTaskMainThread(() -> StateMachine.dispose());
+		}
+	}
+
+	public void mainNotFound() {
+		Text error = new Text("Main state not found, press 'Enter' to exit.");
+		error.setFontSize(28);
+		error.setY(200);
+		error.setHorizontalAlignment(Alignment.CENTER).setVerticalAlignment(Alignment.CENTER);
+		error.setForegroundColor("#000000FF");
+		exitOnKey = true;
+		super.addSurface(error);
 	}
 }

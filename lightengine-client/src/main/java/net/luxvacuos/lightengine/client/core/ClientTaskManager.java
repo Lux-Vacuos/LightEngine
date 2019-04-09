@@ -28,6 +28,7 @@ import net.luxvacuos.lightengine.client.rendering.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.glfw.WindowManager;
 import net.luxvacuos.lightengine.universal.core.Task;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
+import net.luxvacuos.lightengine.universal.util.ThreadUtils;
 
 public class ClientTaskManager extends TaskManager {
 
@@ -110,11 +111,8 @@ public class ClientTaskManager extends TaskManager {
 					while (!tasksRenderBackgroundThread.isEmpty())
 						tasksRenderBackgroundThread.poll().callI();
 				} else {
-					try {
-						syncInterrupt = false;
-						Thread.sleep(Long.MAX_VALUE);
-					} catch (InterruptedException e) {
-					}
+					syncInterrupt = false;
+					ThreadUtils.sleep(Long.MAX_VALUE);
 				}
 				asyncWindow.updateDisplay(0);
 			}
@@ -128,6 +126,8 @@ public class ClientTaskManager extends TaskManager {
 	public void stopRenderBackgroundThread() {
 		runBackgroundThread = false;
 		renderBackgroundThread.interrupt();
+		while (renderBackgroundThread.isAlive())
+			ThreadUtils.sleep(100);
 	}
 
 	public long getRenderBackgroundThreadID() {

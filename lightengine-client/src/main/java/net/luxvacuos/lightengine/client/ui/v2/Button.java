@@ -20,23 +20,59 @@
 
 package net.luxvacuos.lightengine.client.ui.v2;
 
+import net.luxvacuos.lightengine.client.input.KeyboardHandler;
+import net.luxvacuos.lightengine.client.input.MouseHandler;
+import net.luxvacuos.lightengine.client.rendering.nanovg.v2.Alignment;
 import net.luxvacuos.lightengine.client.rendering.nanovg.v2.Surface;
+import net.luxvacuos.lightengine.client.ui.v2.events.IButtonEvent;
 
 public class Button extends Surface {
 
-	private Text text;
+	private boolean pressed, inside, insideGlobal;
+
+	protected Text text;
+
+	private IButtonEvent event = () -> {
+	};
 
 	public Button(String text) {
 		this.text = new Text(text);
 	}
 
 	@Override
-	public void init(long ctx) {
-		super.init(ctx);
-		this.addSurface(text);
-		this.setBorder(1).setPadding(10, 4);
-		this.setBorderColor("#3E3E3EFF").setBackgroundColor("#FFFFFFFF");
-		this.setForegroundColor("#000000FF");
+	public void init(long ctx, MouseHandler mh, KeyboardHandler kh) {
+		super.init(ctx, mh, kh);
+		super.addSurface(text.setForegroundColor("#000000FF").setVerticalAlignment(Alignment.CENTER)
+				.setHorizontalAlignment(Alignment.CENTER));
+		super.setBorder(1).setPadding(8, 2);
+		super.setBorderColor("#3E3E3EFF").setBackgroundColor("#FFFFFFFF");
+		super.setBackgroundHoverColor("#D2D2D2FF");
+		super.setBackgroundPressedColor("#AAAAAAFF");
+	}
+
+	@Override
+	public void update(float delta) {
+		super.update(delta);
+		insideGlobal = isCursorInsideSurface();
+	}
+
+	@Override
+	protected void handleInput() {
+		super.handleInput();
+		if (inside = isCursorInsideSurface()) {
+			state = SurfaceState.HOVER;
+			if (pressed)
+				state = SurfaceState.PRESSED;
+		}
+		if ((inside && mh.isButtonPressed(0)) || pressed) {
+			if (!mh.isButtonPressed(0) && inside && insideGlobal && pressed)
+				event.handleEvent();
+			pressed = mh.isButtonPressed(0);
+		}
+	}
+
+	public void setButtonEvent(IButtonEvent event) {
+		this.event = event;
 	}
 
 }

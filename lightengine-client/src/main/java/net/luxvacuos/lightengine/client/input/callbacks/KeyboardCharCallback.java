@@ -37,7 +37,7 @@ public class KeyboardCharCallback extends GLFWCharCallback {
 		this.windowID = windowID;
 	}
 	
-	public void setEndabled(boolean flag) {
+	public void setEnabled(boolean flag) {
 		this.enabled = flag;
 	}
 	

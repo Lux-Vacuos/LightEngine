@@ -25,6 +25,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.badlogic.gdx.utils.async.AsyncExecutor;
 
+import net.luxvacuos.lightengine.universal.util.ThreadUtils;
+
 public class TaskManager {
 
 	public static TaskManager tm;
@@ -48,11 +50,8 @@ public class TaskManager {
 					while (!tasksBackgroundThread.isEmpty())
 						tasksBackgroundThread.poll().callI();
 				} else {
-					try {
-						syncInterrupt = false;
-						Thread.sleep(1000000l);
-					} catch (InterruptedException e) {
-					}
+					syncInterrupt = false;
+					ThreadUtils.sleep(Long.MAX_VALUE);
 				}
 			}
 		});

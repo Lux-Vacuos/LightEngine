@@ -103,7 +103,7 @@ public class MouseHandler {
 		return this.buttonCallback.isButtonPressed(button) && !this.buttonCallback.isButtonIgnored(button);
 	}
 
-	public void ignoreKeyUntilRelease(int button) {
+	public void ignoreButtonUntilRelease(int button) {
 		this.buttonCallback.setButtonIgnored(button);
 	}
 

@@ -18,51 +18,27 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.nanovg.v2.layouts;
+package net.luxvacuos.lightengine.client.ui.v2;
 
-import org.joml.Vector4f;
-
+import net.luxvacuos.lightengine.client.input.KeyboardHandler;
+import net.luxvacuos.lightengine.client.input.MouseHandler;
 import net.luxvacuos.lightengine.client.rendering.nanovg.v2.Surface;
 
-public class FlowLayout implements ILayout {
-
-	private float relative = 0;
-
-	private Direction direction = Direction.HORIZONTAL;
+public class Context extends Surface {
 
 	@Override
-	public Vector4f calculateLayout(int srf, Vector4f marginPos) {
-		Vector4f layout = new Vector4f(0);
-		if (srf == 0)
-			relative = 0;
-		switch (direction) {
-		case HORIZONTAL:
-			layout.x += relative;
-			relative += marginPos.z;
-			break;
-		case VERTICAL:
-			layout.y += relative;
-			relative += marginPos.w;
-			break;
+	public void init(long ctx, MouseHandler mh, KeyboardHandler kh) {
+		super.init(ctx, mh, kh);
+		super.setBackgroundColor("#FFFFFFFF");
+		super.setBorder(1);
+	}
+
+	@Override
+	public void update(float delta) {
+		super.update(delta);
+		if ((mh.isButtonPressed(0) || mh.isButtonPressed(1)) && !isCursorInsideSurface()) {
+			super.removeSurfaceFromRoot();
 		}
-		return layout;
-	}
-
-	@Override
-	public void addSurface(Surface srf, Object... params) {
-	}
-
-	@Override
-	public void removeSurface(Surface srf) {
-	}
-
-	public FlowLayout setDirection(Direction direction) {
-		this.direction = direction;
-		return this;
-	}
-
-	public enum Direction {
-		HORIZONTAL, VERTICAL
 	}
 
 }

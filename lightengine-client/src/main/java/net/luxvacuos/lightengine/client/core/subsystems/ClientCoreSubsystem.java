@@ -49,7 +49,7 @@ public class ClientCoreSubsystem extends CoreSubsystem {
 			if (branch != null)
 				GlobalVariables.branch = branch;
 			if (build != null)
-				GlobalVariables.build = Integer.parseInt(build);
+				GlobalVariables.build = build;
 		} catch (Exception e) {
 		}
 		REGISTRY.register(new Key("/Light Engine/version"),

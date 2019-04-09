@@ -61,15 +61,15 @@ public final class KeyboardHandler {
 	}
 
 	public void enableTextInput() {
-		this.charCallback.setEndabled(true);
+		this.charCallback.setEnabled(true);
 	}
 
 	public void setTextInputEnabled(boolean flag) {
-		this.charCallback.setEndabled(flag);
+		this.charCallback.setEnabled(flag);
 	}
 
 	public void disableTextInput() {
-		this.charCallback.setEndabled(false);
+		this.charCallback.setEnabled(false);
 	}
 
 	public void clearInputData() {
@@ -102,10 +102,10 @@ public final class KeyboardHandler {
 	private String handleBackspace(String input) {
 		long currentPress = 0l;
 		if (this.isKeyPressed(GLFW.GLFW_KEY_BACKSPACE)
-				&& ((currentPress = System.currentTimeMillis()) - this.lastPress) > 150) {
+				&& ((currentPress = System.currentTimeMillis()) - this.lastPress) > 100) {
 			String result = input;
 			this.lastPress = currentPress;
-			if (input.length() > 0)
+			if (!input.isEmpty())
 				result = input.substring(0, input.length() - 1);
 
 			return result;

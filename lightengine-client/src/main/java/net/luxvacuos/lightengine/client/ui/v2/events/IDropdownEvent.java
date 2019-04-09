@@ -18,35 +18,10 @@
  * 
  */
 
-package net.luxvacuos.lightengine.universal.core;
+package net.luxvacuos.lightengine.client.ui.v2.events;
 
-public class GlobalVariables {
+public interface IDropdownEvent<T> {
 
-	/** Client/Server Version */
-	public static String version = "devver";
-
-	/** Client/Server Branch */
-	public static String branch = "devbranch";
-
-	/** Client/Server Build */
-	public static String build = "devbuild";
-
-	/** Universal Version */
-	public static String versionUniversal = "devver";
-
-	/** * Universal Branch */
-	public static String branchUniversal = "devbranch";
-
-	/** * Universal Build */
-	public static String buildUniversal = "devbuild";
-
-	/** Flag to enable debug mode */
-	public static boolean debug = false;
-
-	/** Enable Test Mode */
-	public static boolean TEST_MODE = false;
-
-	protected GlobalVariables() {
-	}
+	public void handleEvent(T value);
 
 }

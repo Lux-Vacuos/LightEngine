@@ -21,12 +21,12 @@
 package net.luxvacuos.lightengine.client.rendering;
 
 import net.luxvacuos.lightengine.client.network.IRenderingData;
-import net.luxvacuos.lightengine.client.rendering.nanovg.IWindow;
 import net.luxvacuos.lightengine.client.rendering.opengl.Frustum;
 import net.luxvacuos.lightengine.client.rendering.opengl.IRenderPass.IForwardPass;
 import net.luxvacuos.lightengine.client.rendering.opengl.IRenderPass.IGBufferPass;
 import net.luxvacuos.lightengine.client.rendering.opengl.IRenderPass.IShadowPass;
 import net.luxvacuos.lightengine.client.rendering.opengl.LightRenderer;
+import net.luxvacuos.lightengine.client.ui.v2.surfaces.RendererSurface;
 
 public interface IRenderer {
 
@@ -46,9 +46,10 @@ public interface IRenderer {
 
 	public void setForwardPass(IForwardPass forwardPass);
 
+	public void setSurface(RendererSurface surface);
+
 	public Frustum getFrustum();
 
 	public LightRenderer getLightRenderer();
 
-	public IWindow getWindow();
 }

@@ -18,35 +18,32 @@
  * 
  */
 
-package net.luxvacuos.lightengine.universal.core;
+package net.luxvacuos.lightengine.client.ui.v2;
 
-public class GlobalVariables {
+import static net.luxvacuos.lightengine.client.rendering.nanovg.v2.Alignment.*;
 
-	/** Client/Server Version */
-	public static String version = "devver";
+import net.luxvacuos.lightengine.client.input.KeyboardHandler;
+import net.luxvacuos.lightengine.client.input.MouseHandler;
 
-	/** Client/Server Branch */
-	public static String branch = "devbranch";
+public class ButtonContext<T> extends Button {
 
-	/** Client/Server Build */
-	public static String build = "devbuild";
+	private T value;
 
-	/** Universal Version */
-	public static String versionUniversal = "devver";
+	public ButtonContext(String text, T value) {
+		super(text);
+		this.value = value;
+	}
 
-	/** * Universal Branch */
-	public static String branchUniversal = "devbranch";
+	@Override
+	public void init(long ctx, MouseHandler mh, KeyboardHandler kh) {
+		super.init(ctx, mh, kh);
+		super.text.setHorizontalAlignment(LEFT);
+		super.setHorizontalAlignment(STRETCH);
+		super.setBorder(0);
+	}
 
-	/** * Universal Build */
-	public static String buildUniversal = "devbuild";
-
-	/** Flag to enable debug mode */
-	public static boolean debug = false;
-
-	/** Enable Test Mode */
-	public static boolean TEST_MODE = false;
-
-	protected GlobalVariables() {
+	public T getValue() {
+		return value;
 	}
 
 }

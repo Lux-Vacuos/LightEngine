@@ -1,5 +1,5 @@
 plugins {
-	id "net.nemerosa.versioning" version "2.7.1"
+	id "net.nemerosa.versioning" version "2.8.2"
 	id "eclipse"
 	id "idea"
 	id "java"
@@ -68,13 +68,13 @@ dependencies {
 }
 
 jar {
-	version = project.ext.globalVersion + "-" + versioning.info.branchId + "-" + "git rev-list --count HEAD".execute().text.trim()
+	version = project.ext.globalVersion + "-" + versioning.info.branchId + "-" + versioning.info.build
 	manifest {
 		attributes (
 			"Implementation-Title": "net.luxvacuos.lightengine.client",
 			"Implementation-Version": version,
 			"Implementation-Vendor": "Lux Vacuos",
-			"LV-Build": "git rev-list --count HEAD".execute().text.trim(),
+			"LV-Build": versioning.info.build,
 			"LV-Branch": versioning.info.branchId,
 			"LV-Version": project.ext.globalVersion
 		)
