@@ -82,7 +82,7 @@ public abstract class PipelinePass<T extends BasePipelineShader, P> {
 		shader.loadFrame(frameCont);
 		setupShaderData(rnd, rd, shader);
 		setupTextures(rnd, pl, auxTex);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, quad.getVertexCount());
 		shader.stop();
 		mainBuf.unbind();
 		GPUProfiler.end();
@@ -97,6 +97,11 @@ public abstract class PipelinePass<T extends BasePipelineShader, P> {
 	protected void activateTexture(int textureNum, int target, int texture) {
 		glActiveTexture(textureNum);
 		glBindTexture(target, texture);
+	}
+
+	protected void activateTexture(int textureNum, Texture texture) {
+		glActiveTexture(textureNum);
+		texture.bind();
 	}
 
 	protected abstract void setupTextures(RendererData rnd, P dp, Texture[] auxTex);

@@ -23,7 +23,7 @@ package net.luxvacuos.lightengine.client.rendering.opengl.objects;
 import static org.lwjgl.opengl.GL11C.glBindTexture;
 import static org.lwjgl.opengl.GL11C.glGenTextures;
 import static org.lwjgl.opengl.GL11C.glTexImage2D;
-import static org.lwjgl.opengl.GL11C.glTexParameteri;
+import static org.lwjgl.opengl.GL33C.*;
 
 public class TextureBuilder {
 
@@ -62,9 +62,28 @@ public class TextureBuilder {
 		return this;
 	}
 
+	public TextureBuilder texImage2D(int target, int level, int internalformat, int border, int format, int type,
+			int pixels) {
+		check();
+		glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels);
+		return this;
+	}
+
 	public TextureBuilder texParameteri(int pname, int param) {
 		check();
 		glTexParameteri(target, pname, param);
+		return this;
+	}
+
+	public TextureBuilder texParameterfv(int pname, float[] params) {
+		check();
+		glTexParameterfv(target, pname, params);
+		return this;
+	}
+
+	public TextureBuilder generateMipmap() {
+		check();
+		glGenerateMipmap(target);
 		return this;
 	}
 

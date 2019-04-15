@@ -52,11 +52,9 @@ public class ParticleSystem {
 	}
 
 	/**
-	 * @param direction
-	 *            - The average direction in which particles are emitted.
-	 * @param deviation
-	 *            - A value between 0 and 1 indicating how far from the chosen
-	 *            direction particles can deviate.
+	 * @param direction - The average direction in which particles are emitted.
+	 * @param deviation - A value between 0 and 1 indicating how far from the chosen
+	 *                  direction particles can deviate.
 	 */
 	public void setDirection(Vector3f direction, float deviation) {
 		this.direction = new Vector3f(direction);
@@ -68,24 +66,21 @@ public class ParticleSystem {
 	}
 
 	/**
-	 * @param error
-	 *            - A number between 0 and 1, where 0 means no error margin.
+	 * @param error - A number between 0 and 1, where 0 means no error margin.
 	 */
 	public void setSpeedError(float error) {
 		this.speedError = error * averageSpeed;
 	}
 
 	/**
-	 * @param error
-	 *            - A number between 0 and 1, where 0 means no error margin.
+	 * @param error - A number between 0 and 1, where 0 means no error margin.
 	 */
 	public void setLifeError(float error) {
 		this.lifeError = error * averageLifeLength;
 	}
 
 	/**
-	 * @param error
-	 *            - A number between 0 and 1, where 0 means no error margin.
+	 * @param error - A number between 0 and 1, where 0 means no error margin.
 	 */
 	public void setScaleError(float error) {
 		this.scaleError = error * averageScale;
@@ -95,21 +90,18 @@ public class ParticleSystem {
 		float particlesToCreate = pps * delta;
 		int count = (int) Math.floor(particlesToCreate);
 		float partialParticle = particlesToCreate % 1;
-		for (int i = 0; i < count; i++) {
+		for (int i = 0; i < count; i++)
 			emitParticle(systemCenter);
-		}
-		if (Math.random() < partialParticle) {
+		if (Math.random() < partialParticle)
 			emitParticle(systemCenter);
-		}
 	}
 
 	private void emitParticle(Vector3f center) {
 		Vector3f velocity = null;
-		if (direction != null) {
+		if (direction != null)
 			velocity = generateRandomUnitVectorWithinCone(direction, directionDeviation);
-		} else {
+		else
 			velocity = generateRandomUnitVector();
-		}
 		velocity.normalize();
 		velocity.mul(generateValue(averageSpeed, speedError));
 		float scale = generateValue(averageScale, scaleError);
@@ -123,11 +115,10 @@ public class ParticleSystem {
 	}
 
 	private float generateRotation() {
-		if (randomRotation) {
+		if (randomRotation)
 			return random.nextFloat() * 360f;
-		} else {
+		else
 			return 0;
-		}
 	}
 
 	private static Vector3f generateRandomUnitVectorWithinCone(Vector3f coneDirection, float angle) {
@@ -142,7 +133,6 @@ public class ParticleSystem {
 		Vector4f direction = new Vector4f(x, y, z, 1);
 		if (coneDirection.x != 0 || coneDirection.y != 0 || (coneDirection.z != 1 && coneDirection.z != -1)) {
 			Vector3f rotateAxis = coneDirection.cross(new Vector3f(0, 0, 1));
-			;
 			rotateAxis.normalize();
 			float rotateAngle = (float) Math.acos(coneDirection.dot(new Vector3f(0, 0, 1)));
 			Matrix4f rotationMatrix = new Matrix4f();

@@ -20,9 +20,6 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl.objects;
 
-import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER;
-import static org.lwjgl.opengl.GL30.GL_FRAMEBUFFER_COMPLETE;
-import static org.lwjgl.opengl.GL30.glCheckFramebufferStatus;
 import static org.lwjgl.opengl.GL32C.*;
 
 import net.luxvacuos.lightengine.client.core.exception.FrameBufferException;
@@ -60,6 +57,18 @@ public class FramebufferBuilder {
 	public FramebufferBuilder framebufferTexture(int attachment, Texture texture, int level) {
 		check();
 		glFramebufferTexture(GL_FRAMEBUFFER, attachment, texture.getTexture(), level);
+		return this;
+	}
+
+	public FramebufferBuilder framebufferTexture2D(int attachment, int target, Texture texture, int level) {
+		check();
+		glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, target, texture.getTexture(), level);
+		return this;
+	}
+
+	public FramebufferBuilder framebufferRenderbuffer(int attachment, Renderbuffer renderbuffer) {
+		check();
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, renderbuffer.getRenderbuffer());
 		return this;
 	}
 

@@ -18,29 +18,25 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.opengl;
+package net.luxvacuos.lightengine.client.rendering.opengl.shaders.data;
 
-import java.util.List;
+public class UniformObject implements IUniform {
 
-import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
-import net.luxvacuos.lightengine.client.network.IRenderingData;
-import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
-import net.luxvacuos.lightengine.universal.resources.IDisposable;
+	private Uniform[] uniforms;
 
-public interface IObjectRenderer extends IDisposable {
+	public void init(Uniform... uniforms) {
+		this.uniforms = uniforms;
+	}
 
-	public void preProcess(List<BasicEntity> entities);
+	@Override
+	public void storeUniformLocation(int programID) {
+		for (Uniform uniform : uniforms) 
+			uniform.storeUniformLocation(programID);
+	}
 
-	public void render(CameraEntity camera);
+	@Override
+	public void dispose() {
 
-	public void renderReflections(IRenderingData rd, RendererData rnd, CameraEntity cubeCamera);
-
-	public void renderForward(IRenderingData rd, RendererData rnd);
-
-	public void renderShadow(CameraEntity sun);
-
-	public void end();
-
-	public int getID();
+	}
 
 }

@@ -77,7 +77,9 @@ float computeContactShadows(vec3 pos, vec3 N, vec3 L) {
 	float rayDist, posDist, incr = 0.005, rayDistToObject, shadow = 1;
 	vec3 newPos, rayTrace, finalRayTrace, newPosRel, dirTraceToNew;
 	vec4 newScreen;
+	vec2 newCoords;
 	bool wasNegative = false;
+	float tmpDepth;
 	int itr;
 	if (dot(N, L) >= 0)
 		do {
@@ -88,8 +90,12 @@ float computeContactShadows(vec3 pos, vec3 N, vec3 L) {
 			newScreen = viewMatrix * vec4(finalRayTrace, 1);
 			newScreen = projectionMatrix * newScreen;
 			newScreen /= newScreen.w;
+			newCoords = newScreen.xy / 2.0 + 0.5;
 
-			newPos = texture(gPosition, newScreen.xy / 2.0 + 0.5).xyz;
+			tmpDepth = texture(gDepth, newCoords).r;
+			newPos =
+				positionFromDepth(newCoords, tmpDepth, inverseProjectionMatrix, inverseViewMatrix);
+
 			rayDist = length(rayTrace);
 			newPosRel = newPos - pos;
 			posDist = length(newPosRel);

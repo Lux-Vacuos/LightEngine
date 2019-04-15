@@ -20,49 +20,47 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl.shaders.data;
 
-import static org.lwjgl.opengl.GL20C.glUniform1f;
-import static org.lwjgl.opengl.GL20C.glUniform1i;
-import static org.lwjgl.opengl.GL20C.glUniform3f;
-import static org.lwjgl.opengl.GL20C.glUniformMatrix4fv;
+import net.luxvacuos.lightengine.client.rendering.opengl.v2.lights.Light;
 
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
+public class UniformLight extends UniformObject {
 
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.Light;
-
-public class UniformLight extends UniformArray {
+	private UniformInteger type;
+	private UniformVec3 position, color, direction;
+	private UniformFloat radius, inRadius;
+	private UniformBoolean useShadows;
+	private UniformSampler shadowMap;
+	private UniformMatrix viewMatrix, projectionMatrix;
 
 	public UniformLight(String name) {
-		super(name + ".position", name + ".color", name + ".direction", name + ".radius", name + ".inRadius",
-				name + ".type", name + ".shadowEnabled", name + ".shadowMap", name + ".shadowViewMatrix",
-				name + ".shadowProjectionMatrix");
-
+		type = new UniformInteger(name + ".type");
+		position = new UniformVec3(name + ".position");
+		color = new UniformVec3(name + ".color");
+		direction = new UniformVec3(name + ".direction");
+		radius = new UniformFloat(name + ".radius");
+		inRadius = new UniformFloat(name + ".inRadius");
+		useShadows = new UniformBoolean(name + ".useShadows");
+		shadowMap = new UniformSampler(name + ".shadowMap");
+		viewMatrix = new UniformMatrix(name + ".viewMatrix");
+		projectionMatrix = new UniformMatrix(name + ".projectionMatrix");
+		super.init(type, position, color, direction, radius, inRadius, useShadows, shadowMap, viewMatrix,
+				projectionMatrix);
 	}
 
 	public void loadLight(Light light, int offset, int number) {
-		Vector3f pos = light.getPosition();
-		Vector3f color = light.getColor();
-		glUniform3f(super.getLocation()[0], (float) pos.x(), (float) pos.y(), (float) pos.z());
-		glUniform3f(super.getLocation()[1], color.x(), color.y(), color.z());
+		type.loadInteger(light.getType());
+		position.loadVec3(light.getPosition());
+		color.loadVec3(light.getColor());
 		if (light.getType() == 1) {
-			Vector3f dir = light.getDirection();
-			glUniform3f(super.getLocation()[2], (float) dir.x(), (float) dir.y(), (float) dir.z());
-			glUniform1f(super.getLocation()[3], (float) Math.cos(Math.toRadians(light.getRadius())));
-			glUniform1f(super.getLocation()[4], (float) Math.cos(Math.toRadians(light.getInRadius())));
+			radius.loadFloat((float) Math.cos(Math.toRadians(light.getRadius())));
+			inRadius.loadFloat((float) Math.cos(Math.toRadians(light.getInRadius())));
+			direction.loadVec3(light.getDirection());
 		}
-		glUniform1i(super.getLocation()[5], light.getType());
-		glUniform1i(super.getLocation()[6], light.isShadow() ? 1 : 0);
-		if (light.isShadow()) {
-			glUniform1i(super.getLocation()[7], offset + number);
-			loadMatrix(light.getCamera().getViewMatrix(), super.getLocation()[8]);
-			loadMatrix(light.getCamera().getProjectionMatrix(), super.getLocation()[9]);
+		useShadows.loadBoolean(light.useShadows());
+		if (light.useShadows()) {
+			shadowMap.loadTexUnit(offset + number);
+			viewMatrix.loadMatrix(light.getCamera().getViewMatrix());
+			projectionMatrix.loadMatrix(light.getCamera().getProjectionMatrix());
 		}
-	}
-
-	public void loadMatrix(Matrix4f matrix, int loc) {
-		float[] fm = new float[16];
-		matrix.get(fm);
-		glUniformMatrix4fv(loc, false, fm);
 	}
 
 }

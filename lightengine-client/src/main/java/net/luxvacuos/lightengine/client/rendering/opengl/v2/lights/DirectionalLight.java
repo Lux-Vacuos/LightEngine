@@ -18,12 +18,10 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.opengl.shaders.data;
+package net.luxvacuos.lightengine.client.rendering.opengl.v2.lights;
 
-public interface IUniform {
+import net.luxvacuos.lightengine.universal.ecs.entities.LEEntity;
 
-	public void storeUniformLocation(int programID);
-
-	public void dispose();
+public class DirectionalLight extends LEEntity {
 
 }

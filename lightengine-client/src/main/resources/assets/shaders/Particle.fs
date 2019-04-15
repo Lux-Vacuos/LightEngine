@@ -27,6 +27,9 @@ out vec4 out_Color;
 uniform sampler2D particleTexture;
 
 void main() {
-	out_Color = mix(texture(particleTexture, textureCoords0),
+	vec4 color = mix(texture(particleTexture, textureCoords0),
 					texture(particleTexture, textureCoords1), blend);
+	if (color.a == 0)
+		discard;
+	out_Color = color;
 }

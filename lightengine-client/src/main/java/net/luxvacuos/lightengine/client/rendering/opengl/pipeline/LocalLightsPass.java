@@ -32,11 +32,11 @@ import static org.lwjgl.opengl.GL13C.GL_TEXTURE7;
 
 import net.luxvacuos.lightengine.client.network.IRenderingData;
 import net.luxvacuos.lightengine.client.rendering.opengl.RendererData;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.Light;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
 import net.luxvacuos.lightengine.client.rendering.opengl.pipeline.shaders.LocalLightsShader;
 import net.luxvacuos.lightengine.client.rendering.opengl.v2.DeferredPass;
 import net.luxvacuos.lightengine.client.rendering.opengl.v2.DeferredPipeline;
+import net.luxvacuos.lightengine.client.rendering.opengl.v2.lights.Light;
 
 public class LocalLightsPass extends DeferredPass<LocalLightsShader> {
 
@@ -66,10 +66,8 @@ public class LocalLightsPass extends DeferredPass<LocalLightsShader> {
 		super.activateTexture(GL_TEXTURE6, GL_TEXTURE_2D, auxTex[0].getTexture());
 		for (int x = 0; x < rnd.lights.size(); x++) {
 			Light l = rnd.lights.get(x);
-			if (l.isShadow()) {
-				if (!l.isShadowMapCreated())
-					continue;
-				super.activateTexture(GL_TEXTURE7 + x, GL_TEXTURE_2D, l.getShadowMap().getShadowMap());
+			if (l.useShadows()) {
+				super.activateTexture(GL_TEXTURE7 + x, GL_TEXTURE_2D, l.getShadowMap().getShadowMap().getTexture());
 			}
 		}
 	}

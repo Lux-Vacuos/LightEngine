@@ -111,10 +111,10 @@ void main() {
 				float intensity = clamp((theta - lights[i].radius) / epsilon, 0.0, 1.0);
 				if (intensity > 0.0) {
 					float shadow = 1.0;
-					if (lights[i].shadowEnabled == 1 && useShadows == 1) {
-						vec4 posLight = lights[i].shadowViewMatrix * vec4(position, 1.0);
+					if (lights[i].useShadows == 1 && useShadows == 1) {
+						vec4 posLight = lights[i].viewMatrix * vec4(position, 1.0);
 						vec4 shadowCoord =
-							biasMatrix * (lights[i].shadowProjectionMatrix * posLight);
+							biasMatrix * (lights[i].projectionMatrix * posLight);
 						shadow = texture(lights[i].shadowMap, (shadowCoord.xyz / shadowCoord.w), 0);
 					}
 					Lo += calcLight(lights[i], position, diffuse.rgb, L, N, V, F0, roughness,

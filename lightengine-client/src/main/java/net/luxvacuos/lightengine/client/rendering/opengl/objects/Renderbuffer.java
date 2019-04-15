@@ -18,16 +18,22 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.opengl;
+package net.luxvacuos.lightengine.client.rendering.opengl.objects;
 
-import net.luxvacuos.lightengine.universal.resources.IDisposable;
+import static org.lwjgl.opengl.GL30C.glDeleteRenderbuffers;
 
-public interface IFBO extends IDisposable {
-	
-	public void init(int width, int height, int internalFormat, int format, int type);
-	
-	public void begin();
-	
-	public void end();
+public class Renderbuffer {
+	private int renderbuffer;
 
+	public Renderbuffer(int renderbuffer) {
+		this.renderbuffer = renderbuffer;
+	}
+
+	public void dispose() {
+		glDeleteRenderbuffers(renderbuffer);
+	}
+
+	public int getRenderbuffer() {
+		return renderbuffer;
+	}
 }

@@ -103,6 +103,7 @@ public abstract class DeferredPipeline {
 		quad.bind();
 		quad.createAttribute(0, positions, 2, GL_STATIC_DRAW);
 		quad.unbind();
+		quad.setVertexCount(4);
 		generatePipeline();
 		setupPasses();
 		for (DeferredPass<?> pass : passes)
@@ -235,7 +236,7 @@ public abstract class DeferredPipeline {
 				GL_COLOR_ATTACHMENT4 };
 		fb.drawBuffers(bufs);
 		main = fb.endFramebuffer();
-	
+
 		tb.genTexture(GL_TEXTURE_2D).bindTexture();
 		tb.sizeTexture(width, height).texImage2D(0, GL_RGBA16F, 0, GL_RGBA, GL_FLOAT, 0);
 		tb.texParameteri(GL_TEXTURE_MIN_FILTER, GL_LINEAR);

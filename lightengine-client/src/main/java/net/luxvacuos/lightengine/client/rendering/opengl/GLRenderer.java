@@ -58,11 +58,14 @@ import net.luxvacuos.lightengine.client.rendering.glfw.Window;
 import net.luxvacuos.lightengine.client.rendering.opengl.IRenderPass.IForwardPass;
 import net.luxvacuos.lightengine.client.rendering.opengl.IRenderPass.IGBufferPass;
 import net.luxvacuos.lightengine.client.rendering.opengl.IRenderPass.IShadowPass;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.Light;
 import net.luxvacuos.lightengine.client.rendering.opengl.pipeline.MultiPass;
 import net.luxvacuos.lightengine.client.rendering.opengl.pipeline.PostProcess;
 import net.luxvacuos.lightengine.client.rendering.opengl.v2.DeferredPipeline;
+import net.luxvacuos.lightengine.client.rendering.opengl.v2.EnvironmentRenderer;
+import net.luxvacuos.lightengine.client.rendering.opengl.v2.IrradianceCapture;
 import net.luxvacuos.lightengine.client.rendering.opengl.v2.PostProcessPipeline;
+import net.luxvacuos.lightengine.client.rendering.opengl.v2.lights.DirectionalLightShadowMap;
+import net.luxvacuos.lightengine.client.rendering.opengl.v2.lights.Light;
 import net.luxvacuos.lightengine.client.ui.v2.surfaces.RendererSurface;
 import net.luxvacuos.lightengine.client.world.ParticleDomain;
 import net.luxvacuos.lightengine.universal.core.IWorldSimulation;
@@ -86,7 +89,7 @@ public class GLRenderer implements IRenderer {
 	private LightRenderer lightRenderer;
 	private RenderingManager renderingManager;
 
-	private ShadowFBO shadowFBO;
+	private DirectionalLightShadowMap dlsm;
 
 	private DeferredPipeline dp;
 	private PostProcessPipeline pp;
@@ -98,7 +101,7 @@ public class GLRenderer implements IRenderer {
 	};
 	private IGBufferPass gbufferPass = (a) -> {
 	};
-	private IForwardPass forwardPass = (a, b, c, d, e, f) -> {
+	private IForwardPass forwardPass = (a, b) -> {
 	};
 
 	private float exposure = 1;
@@ -139,10 +142,10 @@ public class GLRenderer implements IRenderer {
 		TaskManager.tm.submitRenderThread(new Task<Void>() {
 			@Override
 			protected Void call() {
-				envRenderer = new EnvironmentRenderer(loader.createEmptyCubeMap(32, true, false));
-				envRendererEntities = new EnvironmentRenderer(loader.createEmptyCubeMap(128, true, false));
-				irradianceCapture = new IrradianceCapture(loader);
-				rnd.irradianceCapture = irradianceCapture.getCubeMapTexture();
+				envRenderer = new EnvironmentRenderer(32);
+				envRendererEntities = new EnvironmentRenderer(128);
+				irradianceCapture = new IrradianceCapture();
+				rnd.irradianceCapture = irradianceCapture.getCubeTexture();
 				preFilteredEnvironment = new PreFilteredEnvironment(loader.createEmptyCubeMap(128, true, true), window);
 				rnd.brdfLUT = preFilteredEnvironment.getBRDFLUT();
 				rnd.environmentMap = preFilteredEnvironment.getCubeMapTexture();
@@ -150,8 +153,7 @@ public class GLRenderer implements IRenderer {
 				skydomeRenderer = new SkydomeRenderer(loader);
 				waterRenderer = new WaterRenderer(loader);
 				renderingManager.addRenderer(new EntityRenderer());
-				shadowFBO = new ShadowFBO(rs.shadowsResolution, rs.shadowsResolution);
-				rnd.shadow = shadowFBO;
+				rnd.dlsm = dlsm = new DirectionalLightShadowMap(rs.shadowsResolution);
 				dp = new MultiPass(window.getWidth(), window.getHeight());
 				pp = new PostProcess(window.getWidth(), window.getHeight(), window.getNVGID());
 				if (surface != null)
@@ -161,11 +163,7 @@ public class GLRenderer implements IRenderer {
 		});
 
 		shadowMap = EventSubsystem.addEvent("lightengine.renderer.resetshadowmap",
-				() -> TaskManager.tm.addTaskRenderThread(() -> {
-					shadowFBO.dispose();
-					shadowFBO = new ShadowFBO(rs.shadowsResolution, rs.shadowsResolution);
-					rnd.shadow = shadowFBO;
-				}));
+				() -> TaskManager.tm.addTaskRenderThread(() -> dlsm.resize(rs.shadowsResolution)));
 
 		rnd.lights = lightRenderer.getLights();
 		rnd.exposure = exposure;
@@ -175,6 +173,7 @@ public class GLRenderer implements IRenderer {
 	}
 
 	private void shadowPass(IRenderingData rd) {
+		// TODO: Render transparent shadows using an extra texture
 		GPUProfiler.start("Shadow Pass");
 		SunCamera sunCamera = rd.getSun().getCamera();
 		if (rs.shadowsEnabled) {
@@ -182,8 +181,8 @@ public class GLRenderer implements IRenderer {
 			sunCamera.switchProjectionMatrix(0);
 			// frustum.calculateFrustum(sunCamera);
 
-			shadowFBO.begin();
-			shadowFBO.changeTexture(0);
+			dlsm.bind();
+			dlsm.swapTexture(0);
 			glClear(GL_DEPTH_BUFFER_BIT);
 			renderingManager.renderShadow(sunCamera);
 			shadowPass.shadowPass(sunCamera);
@@ -191,7 +190,7 @@ public class GLRenderer implements IRenderer {
 			sunCamera.switchProjectionMatrix(1);
 			// frustum.calculateFrustum(sunCamera);
 
-			shadowFBO.changeTexture(1);
+			dlsm.swapTexture(1);
 			glClear(GL_DEPTH_BUFFER_BIT);
 			renderingManager.renderShadow(sunCamera);
 			shadowPass.shadowPass(sunCamera);
@@ -199,7 +198,7 @@ public class GLRenderer implements IRenderer {
 			sunCamera.switchProjectionMatrix(2);
 			// frustum.calculateFrustum(sunCamera);
 
-			shadowFBO.changeTexture(2);
+			dlsm.swapTexture(2);
 			glClear(GL_DEPTH_BUFFER_BIT);
 			renderingManager.renderShadow(sunCamera);
 			shadowPass.shadowPass(sunCamera);
@@ -207,23 +206,21 @@ public class GLRenderer implements IRenderer {
 			sunCamera.switchProjectionMatrix(3);
 			// frustum.calculateFrustum(sunCamera);
 
-			shadowFBO.changeTexture(3);
+			dlsm.swapTexture(3);
 			glClear(GL_DEPTH_BUFFER_BIT);
 			renderingManager.renderShadow(sunCamera);
 			shadowPass.shadowPass(sunCamera);
-			shadowFBO.end();
+			dlsm.unbind();
 			GPUProfiler.end();
 			GPUProfiler.start("Point lights");
 			glCullFace(GL_FRONT);
 			for (Light light : lightRenderer.getLights()) {
-				if (light.isShadow()) {
-					if (!light.isShadowMapCreated())
-						continue;
+				if (light.useShadows()) {
 					// frustum.calculateFrustum(light.getCamera());
-					light.getShadowMap().begin();
+					light.getShadowMap().bind();
 					glClear(GL_DEPTH_BUFFER_BIT);
 					renderingManager.renderShadow(light.getCamera());
-					light.getShadowMap().end();
+					light.getShadowMap().unbind();
 				}
 			}
 			glCullFace(GL_BACK);
@@ -240,21 +237,18 @@ public class GLRenderer implements IRenderer {
 		GPUProfiler.start("Environment Pass");
 		GPUProfiler.start("Irradiance");
 		GPUProfiler.start("CubeMap Render");
-		envRenderer.renderEnvironmentMap(camera.getPosition(), skydomeRenderer, worldSimulation, sun.getSunPosition(),
-				window);
+		envRenderer.renderEnvironmentMap(camera.getPosition(), skydomeRenderer, worldSimulation, sun.getSunPosition());
 		GPUProfiler.end();
 		GPUProfiler.start("Irradiance Capture");
-		irradianceCapture.render(window, envRenderer.getCubeMapTexture().getTexture());
+		irradianceCapture.render(envRenderer.getCubeTexture());
 		GPUProfiler.end();
 		GPUProfiler.end();
 		GPUProfiler.start("Reflections");
 		GPUProfiler.start("CubeMap Render");
-		envRendererEntities.renderEnvironmentMap(camera.getPosition(), skydomeRenderer, renderingManager,
-				worldSimulation, sun, shadowFBO, irradianceCapture.getCubeMapTexture(),
-				preFilteredEnvironment.getCubeMapTexture(), preFilteredEnvironment.getBRDFLUT(), window);
+		envRendererEntities.renderEnvironmentMap(camera.getPosition(), skydomeRenderer, renderingManager, rd, rnd);
 		GPUProfiler.end();
 		GPUProfiler.start("PreFilteredEnvironment");
-		preFilteredEnvironment.render(window, envRendererEntities.getCubeMapTexture().getTexture());
+		preFilteredEnvironment.render(window, envRendererEntities.getCubeTexture().getTexture());
 		GPUProfiler.end();
 		GPUProfiler.end();
 		GPUProfiler.end();
@@ -315,15 +309,13 @@ public class GLRenderer implements IRenderer {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		dp.render(pp.getMain());
 		GPUProfiler.start("External");
-		forwardPass.forwardPass(camera, sun, shadowFBO, irradianceCapture.getCubeMapTexture(),
-				preFilteredEnvironment.getCubeMapTexture(), preFilteredEnvironment.getBRDFLUT());
+		forwardPass.forwardPass(rd, rnd);
 		GPUProfiler.end();
 		GPUProfiler.start("Particles");
 		particleRenderer.render(ParticleDomain.getParticles(), camera);
 		GPUProfiler.end();
 		GPUProfiler.start("RenderingManager");
-		renderingManager.renderForward(camera, sun, shadowFBO, irradianceCapture.getCubeMapTexture(),
-				preFilteredEnvironment.getCubeMapTexture(), preFilteredEnvironment.getBRDFLUT());
+		renderingManager.renderForward(rd, rnd);
 		GPUProfiler.end();
 		glClearDepth(1.0);
 		glDepthFunc(GL_LESS);
@@ -396,9 +388,9 @@ public class GLRenderer implements IRenderer {
 		TaskManager.tm.submitRenderThread(new Task<Void>() {
 			@Override
 			protected Void call() {
-				envRenderer.cleanUp();
-				envRendererEntities.cleanUp();
-				shadowFBO.dispose();
+				envRenderer.dispose();
+				envRendererEntities.dispose();
+				dlsm.dispose();
 				dp.dispose();
 				pp.dispose();
 				particleRenderer.cleanUp();

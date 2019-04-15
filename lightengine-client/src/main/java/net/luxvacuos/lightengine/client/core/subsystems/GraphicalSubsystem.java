@@ -203,11 +203,11 @@ public class GraphicalSubsystem extends Subsystem<GraphicalSubConfig> {
 			if (window.wasResized()) {
 				TaskManager.tm.addTaskRenderThread(() -> {
 					renderer.resize(window.getWidth(), window.getHeight());
-					windowManager.resize(window.getWidth(), window.getHeight());
+					//windowManager.resize(window.getWidth(), window.getHeight());
 					EventSubsystem.triggerEvent("lightengine.renderer.resize");
 				});
 			}
-			windowManager.update(delta);
+			//windowManager.update(delta);
 			surfaceManager.update(delta);
 		}
 	}
@@ -217,7 +217,7 @@ public class GraphicalSubsystem extends Subsystem<GraphicalSubConfig> {
 		if (!window.isIconified()) {
 			glClearColor(0, 0, 0, 1);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			windowManager.render(delta);
+			//windowManager.render(delta);
 			surfaceManager.render(delta);
 		}
 		CachedAssets.update(delta);

@@ -32,7 +32,9 @@ import static org.lwjgl.opengl.GL30C.glBindVertexArray;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.lwjgl.glfw.GLFW;
 
+import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.IResourceLoader;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.RawModel;
@@ -79,6 +81,11 @@ public class SkydomeRenderer {
 		glBindVertexArray(0);
 		shader.stop();
 		glCullFace(GL_BACK);
+		var kh = GraphicalSubsystem.getMainWindow().getKeyboardHandler();
+		if (kh.isKeyPressed(GLFW.GLFW_KEY_F4)) {
+			shader.reload();
+			kh.ignoreKeyUntilRelease(GLFW.GLFW_KEY_F4);
+		}
 	}
 
 }

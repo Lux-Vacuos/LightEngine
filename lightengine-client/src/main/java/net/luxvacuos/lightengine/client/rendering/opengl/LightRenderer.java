@@ -23,7 +23,7 @@ package net.luxvacuos.lightengine.client.rendering.opengl;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.Light;
+import net.luxvacuos.lightengine.client.rendering.opengl.v2.lights.Light;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
 /**

@@ -58,10 +58,10 @@ public class VolumetricLight extends DeferredPass<VolumetricLightShader> {
 	protected void setupTextures(RendererData rnd, DeferredPipeline dp, Texture[] auxTex) {
 		super.activateTexture(GL_TEXTURE0, GL_TEXTURE_2D, dp.getPositionTex().getTexture());
 		super.activateTexture(GL_TEXTURE1, GL_TEXTURE_2D, dp.getNormalTex().getTexture());
-		super.activateTexture(GL_TEXTURE2, GL_TEXTURE_2D, rnd.shadow.getShadowMaps()[0]);
-		super.activateTexture(GL_TEXTURE3, GL_TEXTURE_2D, rnd.shadow.getShadowMaps()[1]);
-		super.activateTexture(GL_TEXTURE4, GL_TEXTURE_2D, rnd.shadow.getShadowMaps()[2]);
-		super.activateTexture(GL_TEXTURE5, GL_TEXTURE_2D, rnd.shadow.getShadowMaps()[3]);
+		super.activateTexture(GL_TEXTURE2, GL_TEXTURE_2D, rnd.dlsm.getShadowMaps()[0].getTexture());
+		super.activateTexture(GL_TEXTURE3, GL_TEXTURE_2D, rnd.dlsm.getShadowMaps()[1].getTexture());
+		super.activateTexture(GL_TEXTURE4, GL_TEXTURE_2D, rnd.dlsm.getShadowMaps()[2].getTexture());
+		super.activateTexture(GL_TEXTURE5, GL_TEXTURE_2D, rnd.dlsm.getShadowMaps()[3].getTexture());
 	}
 
 }

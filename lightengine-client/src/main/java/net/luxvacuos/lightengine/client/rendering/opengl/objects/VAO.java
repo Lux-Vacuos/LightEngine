@@ -48,6 +48,8 @@ public class VAO implements IDisposable {
 	private VBO indexVbo;
 	private int indexCount;
 
+	private int vertexCount;
+
 	public static VAO create() {
 		int id = glGenVertexArrays();
 		return new VAO(id);
@@ -131,6 +133,14 @@ public class VAO implements IDisposable {
 
 	public void unbind() {
 		glBindVertexArray(0);
+	}
+
+	public void setVertexCount(int vertexCount) {
+		this.vertexCount = vertexCount;
+	}
+
+	public int getVertexCount() {
+		return vertexCount;
 	}
 
 }

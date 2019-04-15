@@ -25,16 +25,16 @@ import java.util.List;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.CubeMapTexture;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.Light;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
+import net.luxvacuos.lightengine.client.rendering.opengl.v2.lights.DirectionalLightShadowMap;
+import net.luxvacuos.lightengine.client.rendering.opengl.v2.lights.Light;
 
 public class RendererData {
 
 	public List<Light> lights;
-	public CubeMapTexture irradianceCapture, environmentMap;
+	public Texture irradianceCapture, environmentMap;
 	public Texture brdfLUT;
-	public ShadowFBO shadow;
+	public DirectionalLightShadowMap dlsm;
 	public float exposure;
 	public Matrix4f previousViewMatrix = new Matrix4f();
 	public Vector3f previousCameraPosition = new Vector3f();

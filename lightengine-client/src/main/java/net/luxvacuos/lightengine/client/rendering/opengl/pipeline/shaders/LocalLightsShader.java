@@ -25,12 +25,12 @@ import java.util.List;
 import org.joml.Matrix4f;
 
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.Light;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformInteger;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformLight;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformMatrix;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformSampler;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.data.UniformVec3;
+import net.luxvacuos.lightengine.client.rendering.opengl.v2.lights.Light;
 
 public class LocalLightsShader extends BasePipelineShader {
 

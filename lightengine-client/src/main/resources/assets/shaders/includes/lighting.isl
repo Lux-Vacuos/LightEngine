@@ -160,16 +160,16 @@ float getDepth(mat4 proj, sampler2D depth, vec2 texcoord) {
 
 #struct Light
 struct Light {
+	int type;
 	vec3 position;
 	vec3 color;
 	vec3 direction;
 	float radius;
 	float inRadius;
-	int type;
-	int shadowEnabled;
+	int useShadows;
 	sampler2DShadow shadowMap;
-	mat4 shadowViewMatrix;
-	mat4 shadowProjectionMatrix;
+	mat4 viewMatrix;
+	mat4 projectionMatrix;
 };
 #end
 

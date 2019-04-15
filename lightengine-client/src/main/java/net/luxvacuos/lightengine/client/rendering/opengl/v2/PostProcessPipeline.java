@@ -93,6 +93,7 @@ public abstract class PostProcessPipeline {
 		quad.bind();
 		quad.createAttribute(0, positions, 2, GL_STATIC_DRAW);
 		quad.unbind();
+		quad.setVertexCount(4);
 		generatePipeline();
 		setupPasses();
 		for (PostProcesPass<?> pass : passes)

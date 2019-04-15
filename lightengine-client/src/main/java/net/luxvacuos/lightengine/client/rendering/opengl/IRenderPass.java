@@ -21,15 +21,12 @@
 package net.luxvacuos.lightengine.client.rendering.opengl;
 
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
-import net.luxvacuos.lightengine.client.ecs.entities.Sun;
-import net.luxvacuos.lightengine.client.ecs.entities.SunCamera;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.CubeMapTexture;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
+import net.luxvacuos.lightengine.client.network.IRenderingData;
 
 public interface IRenderPass {
 
 	public interface IShadowPass {
-		public void shadowPass(SunCamera camera);
+		public void shadowPass(CameraEntity camera);
 	}
 
 	public interface IGBufferPass {
@@ -37,8 +34,7 @@ public interface IRenderPass {
 	}
 
 	public interface IForwardPass {
-		public void forwardPass(CameraEntity camera, Sun sun, ShadowFBO shadow, CubeMapTexture irradiance,
-				CubeMapTexture environmentMap, Texture brdfLUT);
+		public void forwardPass(IRenderingData rd, RendererData rnd);
 	}
 
 }

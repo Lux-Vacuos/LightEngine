@@ -20,19 +20,19 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl;
 
-import static org.lwjgl.opengl.GL11.GL_BLEND;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLE_STRIP;
-import static org.lwjgl.opengl.GL11.glBindTexture;
-import static org.lwjgl.opengl.GL11.glDepthMask;
-import static org.lwjgl.opengl.GL11.glDisable;
-import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
-import static org.lwjgl.opengl.GL13.glActiveTexture;
-import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
-import static org.lwjgl.opengl.GL31.glDrawArraysInstanced;
+import static org.lwjgl.opengl.GL11C.GL_BLEND;
+import static org.lwjgl.opengl.GL11C.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11C.GL_TRIANGLE_STRIP;
+import static org.lwjgl.opengl.GL11C.glBindTexture;
+import static org.lwjgl.opengl.GL11C.glDepthMask;
+import static org.lwjgl.opengl.GL11C.glDisable;
+import static org.lwjgl.opengl.GL11C.glEnable;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE0;
+import static org.lwjgl.opengl.GL13C.glActiveTexture;
+import static org.lwjgl.opengl.GL20C.glDisableVertexAttribArray;
+import static org.lwjgl.opengl.GL20C.glEnableVertexAttribArray;
+import static org.lwjgl.opengl.GL30C.glBindVertexArray;
+import static org.lwjgl.opengl.GL31C.glDrawArraysInstanced;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -104,10 +104,10 @@ public class ParticleRenderer {
 	}
 
 	private void updateTexCoordInfo(Particle particle, float[] vboData) {
-		vboData[pointer++] = (float) particle.getTexOffset0().x;
-		vboData[pointer++] = (float) particle.getTexOffset0().y;
-		vboData[pointer++] = (float) particle.getTexOffset1().x;
-		vboData[pointer++] = (float) particle.getTexOffset1().y;
+		vboData[pointer++] = particle.getTexOffset0().x;
+		vboData[pointer++] = particle.getTexOffset0().y;
+		vboData[pointer++] = particle.getTexOffset1().x;
+		vboData[pointer++] = particle.getTexOffset1().y;
 		vboData[pointer++] = particle.getBlend();
 	}
 
@@ -132,22 +132,22 @@ public class ParticleRenderer {
 	}
 
 	private void storeMatrixData(Matrix4f matrix, float[] vboData) {
-		vboData[pointer++] = (float) matrix.m00();
-		vboData[pointer++] = (float) matrix.m01();
-		vboData[pointer++] = (float) matrix.m02();
-		vboData[pointer++] = (float) matrix.m03();
-		vboData[pointer++] = (float) matrix.m10();
-		vboData[pointer++] = (float) matrix.m11();
-		vboData[pointer++] = (float) matrix.m12();
-		vboData[pointer++] = (float) matrix.m13();
-		vboData[pointer++] = (float) matrix.m20();
-		vboData[pointer++] = (float) matrix.m21();
-		vboData[pointer++] = (float) matrix.m22();
-		vboData[pointer++] = (float) matrix.m23();
-		vboData[pointer++] = (float) matrix.m30();
-		vboData[pointer++] = (float) matrix.m31();
-		vboData[pointer++] = (float) matrix.m32();
-		vboData[pointer++] = (float) matrix.m33();
+		vboData[pointer++] = matrix.m00();
+		vboData[pointer++] = matrix.m01();
+		vboData[pointer++] = matrix.m02();
+		vboData[pointer++] = matrix.m03();
+		vboData[pointer++] = matrix.m10();
+		vboData[pointer++] = matrix.m11();
+		vboData[pointer++] = matrix.m12();
+		vboData[pointer++] = matrix.m13();
+		vboData[pointer++] = matrix.m20();
+		vboData[pointer++] = matrix.m21();
+		vboData[pointer++] = matrix.m22();
+		vboData[pointer++] = matrix.m23();
+		vboData[pointer++] = matrix.m30();
+		vboData[pointer++] = matrix.m31();
+		vboData[pointer++] = matrix.m32();
+		vboData[pointer++] = matrix.m33();
 	}
 
 	private void prepare() {

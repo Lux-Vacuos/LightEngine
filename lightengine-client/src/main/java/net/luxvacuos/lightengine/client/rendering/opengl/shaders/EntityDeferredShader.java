@@ -72,8 +72,6 @@ public class EntityDeferredShader extends ShaderProgram {
 	public void loadCamera(CameraEntity camera, Vector2f resolution) {
 		projectionMatrix.loadMatrix(camera.getProjectionMatrix());
 		viewMatrix.loadMatrix(camera.getViewMatrix());
-		frameCont++;
-		frameCont %= 8;
 
 		Vector2f texSize = new Vector2f(1.0f / resolution.x, 1.0f / resolution.y);
 
@@ -85,5 +83,7 @@ public class EntityDeferredShader extends ShaderProgram {
 		subsample.mul(0.5f);
 		jitter.translation(subsample.x, subsample.y, 0);
 		jitterMatrix.loadMatrix(jitter);
+		frameCont++;
+		frameCont %= 8;
 	}
 }

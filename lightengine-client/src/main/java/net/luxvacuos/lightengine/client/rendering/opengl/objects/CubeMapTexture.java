@@ -20,16 +20,17 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl.objects;
 
+import static org.lwjgl.opengl.GL32C.*;
+
 public class CubeMapTexture extends Texture {
 
-	private int size;
-
-	public CubeMapTexture(int id, int size) {
-		super(id);
-		this.size = size;
+	public CubeMapTexture(int texture, int size) {
+		super(texture, GL_TEXTURE_CUBE_MAP, size, size);
 	}
 
+	@Deprecated
 	public int getSize() {
-		return size;
+		return super.getWidth();
 	}
+
 }

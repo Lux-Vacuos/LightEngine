@@ -18,28 +18,23 @@
  * 
  */
 
-package net.luxvacuos.lightengine.client.rendering.opengl.objects;
-
-import static org.lwjgl.assimp.Assimp.aiLightSource_POINT;
-import static org.lwjgl.assimp.Assimp.aiLightSource_SPOT;
+package net.luxvacuos.lightengine.client.rendering.opengl.v2.lights;
 
 import org.joml.Vector3f;
-import org.lwjgl.assimp.AILight;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.ecs.entities.SpotlightCamera;
-import net.luxvacuos.lightengine.client.rendering.opengl.LightShadowMap;
+import net.luxvacuos.lightengine.universal.core.Task;
 import net.luxvacuos.lightengine.universal.core.TaskManager;
 import net.luxvacuos.lightengine.universal.ecs.entities.LEEntity;
 
 public class Light extends LEEntity {
 
+	private int type;
 	private Vector3f color;
 	private float radius, inRadius;
-	private int type;
-	private boolean shadow;
+	private boolean useShadows;
 	private LightShadowMap shadowMap;
-	private boolean shadowMapCreated;
 	private SpotlightCamera camera;
 
 	public Light(Vector3f position, Vector3f color, Vector3f rotation, float radius, float inRadius) {
@@ -57,36 +52,19 @@ public class Light extends LEEntity {
 		type = 0;
 	}
 
-	public Light(AILight light) {
-		this.localPosition = new Vector3f(light.mPosition().x(), light.mPosition().y(), light.mPosition().z());
-		this.color = new Vector3f(light.mColorDiffuse().r(), light.mColorDiffuse().g(), light.mColorDiffuse().b());
-		System.out.println(localPosition);
-		switch (light.mType()) {
-		case aiLightSource_POINT:
-			type = 0;
-			System.out.println("Point");
-			break;
-		case aiLightSource_SPOT:
-			System.out.println("Spot");
-			this.localRotation = new Vector3f(light.mDirection().x(), light.mDirection().y(), light.mDirection().z());
-			System.out.println(localRotation);
-			this.radius = light.mAngleOuterCone();
-			this.inRadius = light.mAngleInnerCone();
-			type = 1;
-			break;
-		}
-	}
-
 	@Override
 	public void init() {
 		if (type == 1) {
-			camera = new SpotlightCamera(radius * 2f, 1024, 1024);
+			camera = new SpotlightCamera(radius * 2f, 512);
 			super.addEntity(camera);
-			if (shadow)
-				TaskManager.tm.addTaskRenderThread(() -> {
-					shadowMap = new LightShadowMap(1024, 1024);
-					shadowMapCreated = true;
-				});
+			if (useShadows)
+				TaskManager.tm.submitRenderThread(new Task<Void>() {
+					@Override
+					protected Void call() {
+						shadowMap = new LightShadowMap(512);
+						return null;
+					}
+				}).get();
 		}
 		GraphicalSubsystem.getRenderer().getLightRenderer().addLight(this);
 		super.init();
@@ -94,10 +72,20 @@ public class Light extends LEEntity {
 
 	@Override
 	public void dispose() {
-		if (shadow)
-			TaskManager.tm.addTaskRenderThread(() -> shadowMap.dispose());
-		GraphicalSubsystem.getRenderer().getLightRenderer().removeLight(this);
 		super.dispose();
+		if (useShadows)
+			TaskManager.tm.submitRenderThread(new Task<Void>() {
+				@Override
+				protected Void call() {
+					shadowMap.dispose();
+					return null;
+				}
+			});
+		GraphicalSubsystem.getRenderer().getLightRenderer().removeLight(this);
+	}
+
+	public int getType() {
+		return type;
 	}
 
 	public Vector3f getColor() {
@@ -116,12 +104,12 @@ public class Light extends LEEntity {
 		return inRadius;
 	}
 
-	public int getType() {
-		return type;
+	public void setUseShadows(boolean useShadows) {
+		this.useShadows = useShadows;
 	}
 
-	public boolean isShadow() {
-		return shadow;
+	public boolean useShadows() {
+		return useShadows;
 	}
 
 	public LightShadowMap getShadowMap() {
@@ -130,14 +118,6 @@ public class Light extends LEEntity {
 
 	public SpotlightCamera getCamera() {
 		return camera;
-	}
-
-	public void setShadow(boolean shadow) {
-		this.shadow = shadow;
-	}
-
-	public boolean isShadowMapCreated() {
-		return shadowMapCreated;
 	}
 
 }

@@ -20,24 +20,24 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl;
 
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
-import static org.lwjgl.opengl.GL11.glBindTexture;
-import static org.lwjgl.opengl.GL11.glDrawElements;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE1;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE10;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE2;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE3;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE4;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE5;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE6;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE7;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE8;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE9;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE_CUBE_MAP;
-import static org.lwjgl.opengl.GL13.glActiveTexture;
+import static org.lwjgl.opengl.GL11C.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11C.GL_TRIANGLES;
+import static org.lwjgl.opengl.GL11C.GL_UNSIGNED_INT;
+import static org.lwjgl.opengl.GL11C.glBindTexture;
+import static org.lwjgl.opengl.GL11C.glDrawElements;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE0;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE1;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE10;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE2;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE3;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE4;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE5;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE6;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE7;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE8;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE9;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE_CUBE_MAP;
+import static org.lwjgl.opengl.GL13C.glActiveTexture;
 
 import java.util.List;
 import java.util.Map;
@@ -46,12 +46,10 @@ import org.joml.Matrix4f;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
-import net.luxvacuos.lightengine.client.ecs.entities.Sun;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.CubeMapTexture;
+import net.luxvacuos.lightengine.client.network.IRenderingData;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Material;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Material.MaterialType;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Mesh;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.EntityFowardShader;
 import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
@@ -65,30 +63,32 @@ public class EntityForwardRenderer implements IDisposable {
 		shader = new EntityFowardShader();
 	}
 
-	public void render(Map<Material, List<EntityRendererObject>> entities, CameraEntity camera, Sun sun,
-			ShadowFBO shadow, CubeMapTexture irradiance, CubeMapTexture environmentMap, Texture brdfLUT,
-			boolean colorCorrect, MaterialType materialType) {
+	public void render(Map<Material, List<EntityRendererObject>> entities, IRenderingData rd, RendererData rnd,
+			CameraEntity cubeCamera, boolean colorCorrect, MaterialType materialType) {
 		shader.start();
-		shader.loadCamera(camera);
-		shader.loadLightPosition(sun.getSunPosition());
+		if (cubeCamera == null) // TODO: Improve
+			shader.loadCamera(rd.getCamera());
+		else
+			shader.loadCamera(cubeCamera);
+		shader.loadLightPosition(rd.getSun().getSunPosition());
 		shader.colorCorrect(colorCorrect);
 		shader.loadSettings(GraphicalSubsystem.getRenderingSettings().shadowsEnabled);
-		shader.loadBiasMatrix(sun.getCamera().getProjectionArray());
-		shader.loadLightMatrix(sun.getCamera().getViewMatrix());
+		shader.loadBiasMatrix(rd.getSun().getCamera().getProjectionArray());
+		shader.loadLightMatrix(rd.getSun().getCamera().getViewMatrix());
 		glActiveTexture(GL_TEXTURE4);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, irradiance.getTexture());
+		glBindTexture(GL_TEXTURE_CUBE_MAP, rnd.irradianceCapture.getTexture());
 		glActiveTexture(GL_TEXTURE5);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, environmentMap.getTexture());
+		glBindTexture(GL_TEXTURE_CUBE_MAP, rnd.environmentMap.getTexture());
 		glActiveTexture(GL_TEXTURE6);
-		glBindTexture(GL_TEXTURE_2D, brdfLUT.getTexture());
+		glBindTexture(GL_TEXTURE_2D, rnd.brdfLUT.getTexture());
 		glActiveTexture(GL_TEXTURE7);
-		glBindTexture(GL_TEXTURE_2D, shadow.getShadowMaps()[0]);
+		glBindTexture(GL_TEXTURE_2D, rnd.dlsm.getShadowMaps()[0].getTexture());
 		glActiveTexture(GL_TEXTURE8);
-		glBindTexture(GL_TEXTURE_2D, shadow.getShadowMaps()[1]);
+		glBindTexture(GL_TEXTURE_2D, rnd.dlsm.getShadowMaps()[1].getTexture());
 		glActiveTexture(GL_TEXTURE9);
-		glBindTexture(GL_TEXTURE_2D, shadow.getShadowMaps()[2]);
+		glBindTexture(GL_TEXTURE_2D, rnd.dlsm.getShadowMaps()[2].getTexture());
 		glActiveTexture(GL_TEXTURE10);
-		glBindTexture(GL_TEXTURE_2D, shadow.getShadowMaps()[3]);
+		glBindTexture(GL_TEXTURE_2D, rnd.dlsm.getShadowMaps()[3].getTexture());
 		renderEntity(entities, materialType);
 		shader.stop();
 	}

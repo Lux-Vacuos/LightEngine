@@ -29,6 +29,8 @@ uniform float time;
 uniform vec3 lightPosition;
 uniform vec3 cameraPosition;
 
+#include function noise
+
 #define SUN_LOWER_LIMIT 0.51
 #define SUN_UPPER_LIMIT 0.5
 
@@ -139,6 +141,29 @@ vec3 atmosphere(vec3 r, vec3 r0, vec3 pSun, float iSun, float rPlanet, float rAt
 	return iSun * (pRlh * kRlh * totalRlh + pMie * kMie * totalMie);
 }
 
+#define MAX_STEPS 100
+#define MAX_DIST 50000.
+#define SURF_DIST .01
+
+float GetDist(vec3 p) {
+	float planeDist = (1600 - p.y);
+	return planeDist;
+}
+
+float RayMarch(vec3 ro, vec3 rd) {
+	float dO = 0.;
+	for (int i = 0; i < MAX_STEPS; i++) {
+		vec3 p = ro + rd * dO;
+		float dS = GetDist(p);
+		dO += dS;
+		if (dO > MAX_DIST)
+			return -1;
+		if (dS < SURF_DIST)
+			break;
+	}
+	return dO;
+}
+
 void main() {
 	vec3 V = normalize(pass_normal);
 	vec3 L = normalize(lightPosition);
@@ -166,6 +191,42 @@ void main() {
 				  0.0, 1.0);
 		if (vl > 0.999)
 			color = mix(color, mix(color, vec3(100.0), smoothstep(0.9992, 0.9993, vl)), factorSun);
+	}
+
+	vec3 rd = V;
+	vec3 ro = cameraPosition + rd;
+
+	float d = RayMarch(ro, rd);
+	if(d > 0) {
+		vec3 p = ro + rd * d;
+		// color = vec3(fbm(p.xz * 0.005));
+
+		vec2 st = p.xz * 0.00075 + vec2(time * 0.0005, time * 0.00005);
+
+		vec3 cloudColor = vec3(0.0);
+		float cloudTime = time * 0.025;
+
+		vec2 q = vec2(0.);
+		q.x = fbm(st + 0.00 * cloudTime);
+		q.y = fbm(st + vec2(1.0));
+
+		vec2 r = vec2(0.);
+		r.x = fbm(st + 1.0 * q + vec2(1.7, 9.2) + 0.15 * cloudTime);
+		r.y = fbm(st + 1.0 * q + vec2(8.3, 2.8) + 0.126 * cloudTime);
+
+		float f = fbm(st + r);
+
+		cloudColor = mix(vec3(0.101961, 0.619608, 0.666667), vec3(0.666667, 0.666667, 0.498039),
+					clamp((f * f) * 4.0, 0.0, 1.0));
+
+		cloudColor = mix(cloudColor, vec3(0, 0, 0.164706), clamp(length(q), 0.0, 1.0));
+
+		cloudColor = mix(cloudColor, vec3(1), clamp(length(r.x), 0.0, 1.0));
+
+		// color = mix(color, vec3(1), fbm(p.xz * 0.005));
+		float finalF = f * f * f + .6 * f * f + .5 * f;
+		color = mix(color, finalF * cloudColor * clamp(dot(vec3(0, 1, 0), L) * 5.0, 0.0, 1.0),
+					clamp(length(r.x), 0.0, 1.0));
 	}
 
 	out_Color[0].rgb = color;

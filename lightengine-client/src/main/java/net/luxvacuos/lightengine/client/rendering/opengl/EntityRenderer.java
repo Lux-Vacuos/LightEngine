@@ -20,18 +20,18 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl;
 
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
-import static org.lwjgl.opengl.GL11.glBindTexture;
-import static org.lwjgl.opengl.GL11.glDrawElements;
+import static org.lwjgl.opengl.GL11C.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11C.GL_TRIANGLES;
+import static org.lwjgl.opengl.GL11C.GL_UNSIGNED_INT;
 import static org.lwjgl.opengl.GL11C.GL_VIEWPORT;
+import static org.lwjgl.opengl.GL11C.glBindTexture;
+import static org.lwjgl.opengl.GL11C.glDrawElements;
 import static org.lwjgl.opengl.GL11C.glGetIntegerv;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE1;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE2;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE3;
-import static org.lwjgl.opengl.GL13.glActiveTexture;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE0;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE1;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE2;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE3;
+import static org.lwjgl.opengl.GL13C.glActiveTexture;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,13 +45,11 @@ import com.badlogic.ashley.core.Entity;
 
 import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
-import net.luxvacuos.lightengine.client.ecs.entities.Sun;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.CubeMapTexture;
+import net.luxvacuos.lightengine.client.network.IRenderingData;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Material;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Material.MaterialType;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Mesh;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Model;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.EntityDeferredShader;
 import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
@@ -95,17 +93,13 @@ public class EntityRenderer implements IObjectRenderer {
 	}
 
 	@Override
-	public void renderReflections(CameraEntity camera, Sun sun, ShadowFBO shadow, CubeMapTexture irradiance,
-			CubeMapTexture environmentMap, Texture brdfLUT) {
-		forwardRenderer.render(entities, camera, sun, shadow, irradiance, environmentMap, brdfLUT, false,
-				MaterialType.OPAQUE);
+	public void renderReflections(IRenderingData rd, RendererData rnd, CameraEntity cubeCamera) {
+		forwardRenderer.render(entities, rd, rnd, cubeCamera, false, MaterialType.OPAQUE);
 	}
 
 	@Override
-	public void renderForward(CameraEntity camera, Sun sun, ShadowFBO shadow, CubeMapTexture irradiance,
-			CubeMapTexture environmentMap, Texture brdfLUT) {
-		forwardRenderer.render(entities, camera, sun, shadow, irradiance, environmentMap, brdfLUT, true,
-				MaterialType.TRANSPARENT);
+	public void renderForward(IRenderingData rd, RendererData rnd) {
+		forwardRenderer.render(entities, rd, rnd, null, true, MaterialType.TRANSPARENT);
 	}
 
 	@Override

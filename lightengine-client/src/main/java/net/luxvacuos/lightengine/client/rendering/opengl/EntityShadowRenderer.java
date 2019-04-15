@@ -20,13 +20,13 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl;
 
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
-import static org.lwjgl.opengl.GL11.glBindTexture;
-import static org.lwjgl.opengl.GL11.glDrawElements;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
-import static org.lwjgl.opengl.GL13.glActiveTexture;
+import static org.lwjgl.opengl.GL11C.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11C.GL_TRIANGLES;
+import static org.lwjgl.opengl.GL11C.GL_UNSIGNED_INT;
+import static org.lwjgl.opengl.GL11C.glBindTexture;
+import static org.lwjgl.opengl.GL11C.glDrawElements;
+import static org.lwjgl.opengl.GL13C.GL_TEXTURE0;
+import static org.lwjgl.opengl.GL13C.glActiveTexture;
 
 import java.util.List;
 import java.util.Map;
@@ -35,8 +35,8 @@ import org.joml.Matrix4f;
 
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Material;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.Mesh;
 import net.luxvacuos.lightengine.client.rendering.opengl.objects.Material.MaterialType;
+import net.luxvacuos.lightengine.client.rendering.opengl.objects.Mesh;
 import net.luxvacuos.lightengine.client.rendering.opengl.shaders.EntityBasicShader;
 import net.luxvacuos.lightengine.client.util.Maths;
 import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;

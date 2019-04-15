@@ -35,9 +35,7 @@ import com.esotericsoftware.kryonet.util.ObjectIntMap;
 
 import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.ecs.entities.CameraEntity;
-import net.luxvacuos.lightengine.client.ecs.entities.Sun;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.CubeMapTexture;
-import net.luxvacuos.lightengine.client.rendering.opengl.objects.Texture;
+import net.luxvacuos.lightengine.client.network.IRenderingData;
 import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
 
@@ -70,23 +68,21 @@ public class RenderingManager implements IDisposable {
 			rendererEntry.value.render(camera);
 	}
 
-	public void renderReflections(CameraEntity camera, Sun sun, ShadowFBO shadow, CubeMapTexture irradiance,
-			CubeMapTexture environmentMap, Texture brdfLUT) {
+	public void renderReflections(IRenderingData rd, RendererData rnd, CameraEntity cubeCamera) {
 		for (Entry<IObjectRenderer> rendererEntry : objectRenderers)
-			rendererEntry.value.renderReflections(camera, sun, shadow, irradiance, environmentMap, brdfLUT);
+			rendererEntry.value.renderReflections(rd, rnd, cubeCamera);
 	}
 
-	public void renderForward(CameraEntity camera, Sun sun, ShadowFBO shadow, CubeMapTexture irradiance,
-			CubeMapTexture environmentMap, Texture brdfLUT) {
+	public void renderForward(IRenderingData rd, RendererData rnd) {
 		glEnable(GL_BLEND);
 		for (Entry<IObjectRenderer> rendererEntry : objectRenderers)
-			rendererEntry.value.renderForward(camera, sun, shadow, irradiance, environmentMap, brdfLUT);
+			rendererEntry.value.renderForward(rd, rnd);
 		glDisable(GL_BLEND);
 	}
 
-	public void renderShadow(CameraEntity sun) {
+	public void renderShadow(CameraEntity camera) {
 		for (Entry<IObjectRenderer> rendererEntry : objectRenderers)
-			rendererEntry.value.renderShadow(sun);
+			rendererEntry.value.renderShadow(camera);
 	}
 
 	public void end() {

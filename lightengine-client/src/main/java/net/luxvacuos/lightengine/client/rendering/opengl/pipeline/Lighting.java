@@ -74,10 +74,10 @@ public class Lighting extends DeferredPass<LightingShader> {
 		super.activateTexture(GL_TEXTURE7, GL_TEXTURE_CUBE_MAP, rnd.irradianceCapture.getTexture());
 		super.activateTexture(GL_TEXTURE8, GL_TEXTURE_CUBE_MAP, rnd.environmentMap.getTexture());
 		super.activateTexture(GL_TEXTURE9, GL_TEXTURE_2D, rnd.brdfLUT.getTexture());
-		super.activateTexture(GL_TEXTURE10, GL_TEXTURE_2D, rnd.shadow.getShadowMaps()[0]);
-		super.activateTexture(GL_TEXTURE11, GL_TEXTURE_2D, rnd.shadow.getShadowMaps()[1]);
-		super.activateTexture(GL_TEXTURE12, GL_TEXTURE_2D, rnd.shadow.getShadowMaps()[2]);
-		super.activateTexture(GL_TEXTURE13, GL_TEXTURE_2D, rnd.shadow.getShadowMaps()[3]);
+		super.activateTexture(GL_TEXTURE10, GL_TEXTURE_2D, rnd.dlsm.getShadowMaps()[0].getTexture());
+		super.activateTexture(GL_TEXTURE11, GL_TEXTURE_2D, rnd.dlsm.getShadowMaps()[1].getTexture());
+		super.activateTexture(GL_TEXTURE12, GL_TEXTURE_2D, rnd.dlsm.getShadowMaps()[2].getTexture());
+		super.activateTexture(GL_TEXTURE13, GL_TEXTURE_2D, rnd.dlsm.getShadowMaps()[3].getTexture());
 	}
 
 }
