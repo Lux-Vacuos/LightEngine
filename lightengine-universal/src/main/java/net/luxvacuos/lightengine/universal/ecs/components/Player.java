@@ -20,34 +20,35 @@
 
 package net.luxvacuos.lightengine.universal.ecs.components;
 
-import com.bulletphysics.collision.dispatch.CollisionFlags;
-import com.bulletphysics.collision.dispatch.PairCachingGhostObject;
-import com.bulletphysics.collision.shapes.CapsuleShape;
-import com.bulletphysics.collision.shapes.ConvexShape;
-import com.bulletphysics.dynamics.character.KinematicCharacterController;
-import com.bulletphysics.linearmath.Transform;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.physics.bullet.collision.btCapsuleShape;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags;
+import com.badlogic.gdx.physics.bullet.collision.btConvexShape;
+import com.badlogic.gdx.physics.bullet.collision.btPairCachingGhostObject;
+import com.badlogic.gdx.physics.bullet.dynamics.btKinematicCharacterController;
+import com.badlogic.gdx.physics.bullet.linearmath.btTransform;
 import com.hackhalo2.nbt.exceptions.NBTException;
 import com.hackhalo2.nbt.tags.TagCompound;
 
 public class Player implements LEComponent {
 	
-	public KinematicCharacterController character;
-	public PairCachingGhostObject ghostObject;
-
+	public btKinematicCharacterController character;
+	public btPairCachingGhostObject ghostObject;
+	
 	public float characterScale = 1f;
 	
-	public Player(Transform initialTransform) {
-		ghostObject = new PairCachingGhostObject();
-		ghostObject.setWorldTransform(initialTransform);
+	public Player(btTransform initialTransform) {
+		ghostObject = new btPairCachingGhostObject();
+		ghostObject.setWorldTransform(new Matrix4().trn(initialTransform.getOrigin()));
 		float characterHeight = 1.75f * characterScale;
 		float characterWidth = 0.4f * characterScale;
-		ConvexShape capsule = new CapsuleShape(characterWidth, characterHeight);
+		btConvexShape capsule = new btCapsuleShape(characterWidth, characterHeight);
 		ghostObject.setCollisionShape(capsule);
-		ghostObject.setCollisionFlags(CollisionFlags.CHARACTER_OBJECT);
+		ghostObject.setCollisionFlags(CollisionFlags.CF_CHARACTER_OBJECT);
 
 		float stepHeight = 0.15f * characterScale;
-		character = new KinematicCharacterController(ghostObject, capsule, stepHeight);
-		character.setJumpSpeed(3.5f);
+		character = new btKinematicCharacterController(ghostObject, capsule, stepHeight);
+		character.setJumpSpeed(8.5f);
 	}
 
 	@Override

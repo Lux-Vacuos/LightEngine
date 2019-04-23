@@ -23,6 +23,8 @@ package net.luxvacuos.lightengine.universal.core;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.badlogic.gdx.physics.bullet.Bullet;
+
 import net.luxvacuos.igl.Logger;
 import net.luxvacuos.lightengine.universal.core.subsystems.ISubsystem;
 import net.luxvacuos.lightengine.universal.loader.EngineData;
@@ -43,6 +45,7 @@ public abstract class Engine implements IEngine, IDisposable {
 		this.ed = ed;
 		subsystems = new ArrayList<>();
 		main = Thread.currentThread();
+		Bullet.init();
 		init();
 	}
 

@@ -23,7 +23,9 @@ package net.luxvacuos.lightengine.client.rendering.opengl.objects;
 import static org.lwjgl.opengl.GL11C.glBindTexture;
 import static org.lwjgl.opengl.GL11C.glGenTextures;
 import static org.lwjgl.opengl.GL11C.glTexImage2D;
-import static org.lwjgl.opengl.GL33C.*;
+import static org.lwjgl.opengl.GL11C.glTexParameterfv;
+import static org.lwjgl.opengl.GL11C.glTexParameteri;
+import static org.lwjgl.opengl.GL30C.glGenerateMipmap;
 
 public class TextureBuilder {
 

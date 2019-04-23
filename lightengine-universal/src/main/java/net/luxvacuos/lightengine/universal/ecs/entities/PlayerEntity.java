@@ -22,7 +22,7 @@ package net.luxvacuos.lightengine.universal.ecs.entities;
 
 import org.joml.Vector3f;
 
-import com.bulletphysics.linearmath.Transform;
+import com.badlogic.gdx.physics.bullet.linearmath.btTransform;
 
 import net.luxvacuos.lightengine.universal.ecs.components.Player;
 import net.luxvacuos.lightengine.universal.util.VectoVec;
@@ -31,33 +31,33 @@ public class PlayerEntity extends BasicEntity {
 
 	public PlayerEntity(String name, Vector3f pos) {
 		super(name);
-		Transform transform = new Transform();
+		btTransform transform = new btTransform();
 		transform.setIdentity();
-		transform.origin.set(VectoVec.toVec3(pos));
+		transform.setOrigin(VectoVec.toVec3(pos));
 		this.add(new Player(transform));
 	}
 
 	public PlayerEntity(String name, String uuid, Vector3f pos) {
 		super(name, uuid);
-		Transform transform = new Transform();
+		btTransform transform = new btTransform();
 		transform.setIdentity();
-		transform.origin.set(VectoVec.toVec3(pos));
+		transform.setOrigin(VectoVec.toVec3(pos));
 		this.add(new Player(transform));
 	}
 
 	public PlayerEntity(String name) {
 		super(name);
-		Transform transform = new Transform();
+		btTransform transform = new btTransform();
 		transform.setIdentity();
-		transform.origin.set(VectoVec.toVec3(new Vector3f(0, 0, 0)));
+		transform.setOrigin(VectoVec.toVec3(new Vector3f(0, 0, 0)));
 		this.add(new Player(transform));
 	}
 
 	public PlayerEntity(String name, String uuid) {
 		super(name, uuid);
-		Transform transform = new Transform();
+		btTransform transform = new btTransform();
 		transform.setIdentity();
-		transform.origin.set(VectoVec.toVec3(new Vector3f(0, 0, 0)));
+		transform.setOrigin(VectoVec.toVec3(new Vector3f(0, 0, 0)));
 		this.add(new Player(transform));
 	}
 

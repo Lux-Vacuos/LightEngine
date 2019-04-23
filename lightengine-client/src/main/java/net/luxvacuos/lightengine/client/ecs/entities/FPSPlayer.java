@@ -23,7 +23,8 @@ package net.luxvacuos.lightengine.client.ecs.entities;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
-import com.bulletphysics.linearmath.Transform;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
 
 import net.luxvacuos.lightengine.client.core.subsystems.GraphicalSubsystem;
 import net.luxvacuos.lightengine.client.input.KeyboardHandler;
@@ -52,11 +53,11 @@ public class FPSPlayer extends PlayerEntity {
 
 		Player p = Components.PLAYER.get(this);
 
-		javax.vecmath.Vector3f walkDirection = new javax.vecmath.Vector3f(0.0f, 0.0f, 0.0f);
+		Vector3 walkDirection = new Vector3(0.0f, 0.0f, 0.0f);
 		float walkVelocity = 1.1f * 2.0f;
 		if (kbh.isCtrlPressed())
 			walkVelocity *= 3f;
-		float walkSpeed = walkVelocity * delta * p.characterScale;
+		float walkSpeed = walkVelocity * delta;
 
 		if (kbh.isKeyPressed(GLFW.GLFW_KEY_W)) {
 			walkDirection.z += (float) -Math.cos(Math.toRadians(localRotation.y()));
@@ -77,7 +78,7 @@ public class FPSPlayer extends PlayerEntity {
 		if (kbh.isKeyPressed(GLFW.GLFW_KEY_SPACE)) {
 			p.character.jump();
 		}
-		walkDirection.scale(walkSpeed);
+		walkDirection.scl(walkSpeed);
 		p.character.setWalkDirection(walkDirection);
 
 		super.update(delta);
@@ -86,8 +87,8 @@ public class FPSPlayer extends PlayerEntity {
 	@Override
 	public void afterUpdate(float delta) {
 		super.afterUpdate(delta);
-		Transform characterWorldTrans = Components.PLAYER.get(this).ghostObject.getWorldTransform(new Transform());
-		localPosition = VectoVec.toVec3(characterWorldTrans.origin);
+		Matrix4 characterWorldTrans = Components.PLAYER.get(this).ghostObject.getWorldTransform();
+		localPosition = VectoVec.toVec3(characterWorldTrans.getTranslation(new Vector3()));
 	}
 
 }

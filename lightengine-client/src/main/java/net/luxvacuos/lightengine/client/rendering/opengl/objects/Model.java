@@ -21,10 +21,11 @@
 package net.luxvacuos.lightengine.client.rendering.opengl.objects;
 
 import static org.lwjgl.assimp.Assimp.aiReleaseImport;
-import static org.lwjgl.system.MemoryUtil.memAlloc;
-import static org.lwjgl.system.MemoryUtil.memFree;
+import static org.lwjgl.system.MemoryUtil.memAllocFloat;
+import static org.lwjgl.system.MemoryUtil.memAllocShort;
 
-import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,10 +37,10 @@ import org.lwjgl.assimp.AINode;
 import org.lwjgl.assimp.AIScene;
 import org.lwjgl.assimp.AIVector3D;
 
-import com.bulletphysics.collision.shapes.BvhTriangleMeshShape;
-import com.bulletphysics.collision.shapes.CollisionShape;
-import com.bulletphysics.collision.shapes.IndexedMesh;
-import com.bulletphysics.collision.shapes.TriangleIndexVertexArray;
+import com.badlogic.gdx.physics.bullet.collision.btBvhTriangleMeshShape;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
+import com.badlogic.gdx.physics.bullet.collision.btIndexedMesh;
+import com.badlogic.gdx.physics.bullet.collision.btTriangleMesh;
 
 import net.luxvacuos.lightengine.universal.ecs.entities.BasicEntity;
 import net.luxvacuos.lightengine.universal.resources.IDisposable;
@@ -49,12 +50,12 @@ public class Model implements IDisposable {
 	private List<Mesh> meshes;
 	private List<Material> materials;
 	// private List<Light> lights;
-	private CollisionShape shape;
-	private TriangleIndexVertexArray triangleIndexVertexArray;
+	private btCollisionShape shape;
+	private btTriangleMesh triangleMesh = new btTriangleMesh();
 
 	public Model(AIScene scene, String rootPath) {
 		this.scene = scene;
-		
+
 		int meshCount = scene.mNumMeshes();
 		PointerBuffer meshesBuffer = scene.mMeshes();
 		meshes = new ArrayList<>();
@@ -68,50 +69,42 @@ public class Model implements IDisposable {
 		// lights.add(new Light(AILight.create(lightBuffer.get(i))));
 		// }
 		// Renderer.getLightRenderer().addAllLights(lights);
-		triangleIndexVertexArray = new TriangleIndexVertexArray();
 		for (Mesh m : meshes) {
-			IndexedMesh mesh = new IndexedMesh();
-
+			btIndexedMesh mesh = new btIndexedMesh();
 			int faceCount = m.getAiMesh().mNumFaces();
 			int elementCount = faceCount * 3;
 
-			ByteBuffer elementArrayBufferData = memAlloc(elementCount * 4);
-			AIFace.Buffer facesBuffer = m.getAiMesh().mFaces();
+			ShortBuffer elementArrayBufferData = memAllocShort(elementCount * 4);
 			for (int i = 0; i < faceCount; ++i) {
-				AIFace face = facesBuffer.get(i);
+				AIFace face = m.getAiMesh().mFaces().get(i);
 				if (face.mNumIndices() != 3)
 					throw new IllegalStateException("AIFace.mNumIndices() != 3");
 				for (int j = 0; j < face.mNumIndices(); ++j) {
-					elementArrayBufferData.putInt(face.mIndices().get(j));
+					elementArrayBufferData.put((short) face.mIndices().get(j));
 				}
 			}
 			elementArrayBufferData.flip();
-			ByteBuffer vertices = memAlloc(m.getAiMesh().mNumVertices() * 3 * 4);
+			FloatBuffer vertices = memAllocFloat(m.getAiMesh().mNumVertices() * 3);
 			for (int i = 0; i < m.getAiMesh().mNumVertices(); i++) {
 				AIVector3D position = m.getAiMesh().mVertices().get(i);
-				vertices.putFloat(position.x());
-				vertices.putFloat(position.y());
-				vertices.putFloat(position.z());
+				vertices.put(position.x());
+				vertices.put(position.y());
+				vertices.put(position.z());
 			}
 			vertices.flip();
-			mesh.numTriangles = faceCount;
-			mesh.triangleIndexBase = elementArrayBufferData;
-			mesh.triangleIndexStride = 3 * 4;
-			mesh.numVertices = m.getAiMesh().mNumVertices();
-			mesh.vertexBase = vertices;
-			mesh.vertexStride = 3 * 4;
+			mesh.set(vertices, 3 * 4, m.getAiMesh().mNumVertices(), 0, elementArrayBufferData, 0, elementCount);
 
-			triangleIndexVertexArray.addIndexedMesh(mesh);
+			triangleMesh.addIndexedMesh(mesh);
 		}
 		List<BasicEntity> childrens = new ArrayList<>();
-		
+
 		AINode root = scene.mRootNode();
 		int childrenCount = root.mNumChildren();
 		for (int id = 0; id < childrenCount; id++) {
 			AINode child = AINode.create(root.mChildren().get(id));
-			//System.out.println(child.mMeshes().get(0));
+			// System.out.println(child.mMeshes().get(0));
 		}
-		
+
 		int materialCount = scene.mNumMaterials();
 		PointerBuffer materialsBuffer = scene.mMaterials();
 		materials = new ArrayList<>();
@@ -119,7 +112,7 @@ public class Model implements IDisposable {
 			materials.add(new Material(AIMaterial.create(materialsBuffer.get(i)), rootPath));
 		}
 
-		shape = new BvhTriangleMeshShape(triangleIndexVertexArray, true);
+		shape = new btBvhTriangleMeshShape(triangleMesh, true);
 	}
 
 	@Override
@@ -131,14 +124,11 @@ public class Model implements IDisposable {
 		for (Mesh mesh : meshes) {
 			mesh.dispose();
 		}
-		for (IndexedMesh mesh : triangleIndexVertexArray.getIndexedMeshArray()) {
-			memFree(mesh.triangleIndexBase);
-			memFree(mesh.vertexBase);
-		}
+		triangleMesh.dispose();
 		// Renderer.getLightRenderer().removeAllLights(lights);
 	}
 
-	public CollisionShape getShape() {
+	public btCollisionShape getShape() {
 		return shape;
 	}
 

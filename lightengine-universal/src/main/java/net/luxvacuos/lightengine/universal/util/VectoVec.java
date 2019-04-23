@@ -20,26 +20,26 @@
 
 package net.luxvacuos.lightengine.universal.util;
 
-import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3f;
-
 import org.joml.Quaternionf;
+
+import com.badlogic.gdx.math.Quaternion;
+import com.badlogic.gdx.math.Vector3;
 
 public final class VectoVec {
 
 	private VectoVec() {
 	}
 
-	public static Vector3f toVec3(org.joml.Vector3f vec) {
-		return new Vector3f(vec.x(), vec.y(), vec.z());
+	public static Vector3 toVec3(org.joml.Vector3f vec) {
+		return new Vector3(vec.x(), vec.y(), vec.z());
 	}
 
-	public static org.joml.Vector3f toVec3(Vector3f vec) {
-		return new org.joml.Vector3f(vec.getX(), vec.getY(), vec.getZ());
+	public static org.joml.Vector3f toVec3(Vector3 vec) {
+		return new org.joml.Vector3f(vec.x, vec.y, vec.z);
 	}
 
-	public static Quat4f toQuat4(Quaternionf q) {
-		return new Quat4f(q.x, q.y, q.z, q.w);
+	public static Quaternion toQuat4(Quaternionf q) {
+		return new Quaternion(q.x, q.y, q.z, q.w);
 	}
 
 }

@@ -20,23 +20,22 @@
 
 package net.luxvacuos.lightengine.universal.world;
 
-import javax.vecmath.Vector3f;
-
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntityListener;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.utils.ImmutableArray;
-import com.bulletphysics.collision.broadphase.AxisSweep3;
-import com.bulletphysics.collision.broadphase.BroadphaseInterface;
-import com.bulletphysics.collision.broadphase.CollisionFilterGroups;
-import com.bulletphysics.collision.dispatch.CollisionConfiguration;
-import com.bulletphysics.collision.dispatch.CollisionDispatcher;
-import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
-import com.bulletphysics.collision.dispatch.GhostPairCallback;
-import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
-import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
-import com.bulletphysics.linearmath.Transform;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.collision.btAxisSweep3;
+import com.badlogic.gdx.physics.bullet.collision.btBroadphaseInterface;
+import com.badlogic.gdx.physics.bullet.collision.btBroadphaseProxy.CollisionFilterGroups;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionConfiguration;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionDispatcher;
+import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration;
+import com.badlogic.gdx.physics.bullet.collision.btGhostPairCallback;
+import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
+import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
 
 import net.luxvacuos.lightengine.universal.ecs.Components;
 import net.luxvacuos.lightengine.universal.ecs.components.Collision;
@@ -48,22 +47,22 @@ import net.luxvacuos.lightengine.universal.util.VectoVec;
 public class PhysicsSystem extends EntitySystem {
 	protected ImmutableArray<Entity> entities;
 
-	protected DiscreteDynamicsWorld dynamicsWorld;
+	protected btDiscreteDynamicsWorld dynamicsWorld;
 
 	private RootEntity rootEntity;
 
 	public PhysicsSystem() {
-		CollisionConfiguration collisionConfiguration = new DefaultCollisionConfiguration();
-		CollisionDispatcher dispatcher = new CollisionDispatcher(collisionConfiguration);
-		Vector3f worldMin = new Vector3f(-10000, -10000, -10000);
-		Vector3f worldMax = new Vector3f(10000, 10000, 10000);
-		AxisSweep3 sweepBP = new AxisSweep3(worldMin, worldMax);
-		BroadphaseInterface overlappingPairCache = sweepBP;
-		SequentialImpulseConstraintSolver constraintSolver = new SequentialImpulseConstraintSolver();
-		dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, overlappingPairCache, constraintSolver,
+		btCollisionConfiguration collisionConfiguration = new btDefaultCollisionConfiguration();
+		btCollisionDispatcher dispatcher = new btCollisionDispatcher(collisionConfiguration);
+		Vector3 worldMin = new Vector3(-10000, -10000, -10000);
+		Vector3 worldMax = new Vector3(10000, 10000, 10000);
+		btAxisSweep3 sweepBP = new btAxisSweep3(worldMin, worldMax);
+		btBroadphaseInterface overlappingPairCache = sweepBP;
+		btSequentialImpulseConstraintSolver constraintSolver = new btSequentialImpulseConstraintSolver();
+		dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, constraintSolver,
 				collisionConfiguration);
-		dynamicsWorld.setGravity(new Vector3f(0, -9.8f, 0));
-		overlappingPairCache.getOverlappingPairCache().setInternalGhostPairCallback(new GhostPairCallback());
+		dynamicsWorld.setGravity(new Vector3(0, -9.8f, 0));
+		overlappingPairCache.getOverlappingPairCache().setInternalGhostPairCallback(new btGhostPairCallback());
 		rootEntity = new RootEntity();
 	}
 
@@ -84,8 +83,8 @@ public class PhysicsSystem extends EntitySystem {
 
 				if (Components.PLAYER.has(entity)) {
 					Player p = Components.PLAYER.get(entity);
-					dynamicsWorld.addCollisionObject(p.ghostObject, CollisionFilterGroups.CHARACTER_FILTER,
-							(short) (CollisionFilterGroups.STATIC_FILTER | CollisionFilterGroups.DEFAULT_FILTER));
+					dynamicsWorld.addCollisionObject(p.ghostObject, (short) CollisionFilterGroups.CharacterFilter,
+							(short) (CollisionFilterGroups.StaticFilter | CollisionFilterGroups.DefaultFilter));
 					dynamicsWorld.addAction(p.character);
 					return;
 				}
@@ -123,15 +122,15 @@ public class PhysicsSystem extends EntitySystem {
 				if (Components.COLLISION.has(entity)) {
 					Collision coll = Components.COLLISION.get(entity);
 					if (!Components.PLAYER.has(entity)) {
-						Transform trans = new Transform();
+						Matrix4 trans = new Matrix4();
 						coll.getDynamicObject().getBody().getMotionState().getWorldTransform(trans);
-						leEntity.setPosition(VectoVec.toVec3(trans.origin));
+						leEntity.setPosition(VectoVec.toVec3(trans.getTranslation(new Vector3())));
 					}
 				}
 			}
 			update(delta, entity);
 		}
-		dynamicsWorld.stepSimulation(delta, 0);
+		dynamicsWorld.stepSimulation(delta, 0, delta);
 		for (Entity entity : entities)
 			if (entity instanceof LEEntity)
 				((LEEntity) entity).afterUpdate(delta);

@@ -20,7 +20,7 @@
 
 package net.luxvacuos.lightengine.client.ecs.entities;
 
-import com.bulletphysics.linearmath.Transform;
+import com.badlogic.gdx.math.Matrix4;
 
 import net.luxvacuos.lightengine.client.ecs.ClientComponents;
 import net.luxvacuos.lightengine.client.ecs.components.ModelLoader;
@@ -37,18 +37,16 @@ public class RenderEntity extends BasicEntity {
 	public RenderEntity(String name, Model model) {
 		super(name);
 		add(new ModelLoader(model));
-		Transform transform = new Transform();
-		transform.setIdentity();
-		transform.origin.set(VectoVec.toVec3(localPosition));
+		Matrix4 transform = new Matrix4();
+		transform.trn(VectoVec.toVec3(localPosition));
 		add(new Collision(new DynamicObject(model.getShape(), transform, 0)));
 	}
 
 	public RenderEntity(String name, String uuid, Model model) {
 		super(name, uuid);
 		add(new ModelLoader(model));
-		Transform transform = new Transform();
-		transform.setIdentity();
-		transform.origin.set(VectoVec.toVec3(localPosition));
+		Matrix4 transform = new Matrix4();
+		transform.trn(VectoVec.toVec3(localPosition));
 		add(new Collision(new DynamicObject(model.getShape(), transform, 0)));
 	}
 
@@ -69,9 +67,8 @@ public class RenderEntity extends BasicEntity {
 			ModelLoader re = ClientComponents.RENDERABLE.get(this);
 			if (re.isLoaded()) {
 				loadedColl = true;
-				Transform transform = new Transform();
-				transform.setIdentity();
-				transform.origin.set(VectoVec.toVec3(localPosition));
+				Matrix4 transform = new Matrix4();
+				transform.trn(VectoVec.toVec3(localPosition));
 				add(new Collision(new DynamicObject(re.getModel().getShape(), transform, 0)));
 			}
 		}

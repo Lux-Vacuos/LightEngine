@@ -146,7 +146,7 @@ vec3 atmosphere(vec3 r, vec3 r0, vec3 pSun, float iSun, float rPlanet, float rAt
 #define SURF_DIST .01
 
 float GetDist(vec3 p) {
-	float planeDist = (1600 - p.y);
+	float planeDist = abs(2400 - p.y);
 	return planeDist;
 }
 

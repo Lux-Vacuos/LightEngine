@@ -20,7 +20,16 @@
 
 package net.luxvacuos.lightengine.client.rendering.opengl.objects;
 
-import static org.lwjgl.opengl.GL32C.*;
+import static org.lwjgl.opengl.GL20C.glDrawBuffers;
+import static org.lwjgl.opengl.GL30C.GL_FRAMEBUFFER;
+import static org.lwjgl.opengl.GL30C.GL_FRAMEBUFFER_COMPLETE;
+import static org.lwjgl.opengl.GL30C.GL_RENDERBUFFER;
+import static org.lwjgl.opengl.GL30C.glBindFramebuffer;
+import static org.lwjgl.opengl.GL30C.glCheckFramebufferStatus;
+import static org.lwjgl.opengl.GL30C.glFramebufferRenderbuffer;
+import static org.lwjgl.opengl.GL30C.glFramebufferTexture2D;
+import static org.lwjgl.opengl.GL30C.glGenFramebuffers;
+import static org.lwjgl.opengl.GL32C.glFramebufferTexture;
 
 import net.luxvacuos.lightengine.client.core.exception.FrameBufferException;
 

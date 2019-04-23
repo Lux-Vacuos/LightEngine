@@ -20,30 +20,29 @@
 
 package net.luxvacuos.lightengine.universal.world;
 
-import javax.vecmath.Vector3f;
-
-import com.bulletphysics.collision.shapes.CollisionShape;
-import com.bulletphysics.dynamics.RigidBody;
-import com.bulletphysics.dynamics.RigidBodyConstructionInfo;
-import com.bulletphysics.linearmath.DefaultMotionState;
-import com.bulletphysics.linearmath.Transform;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
+import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
+import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody.btRigidBodyConstructionInfo;
+import com.badlogic.gdx.physics.bullet.linearmath.btDefaultMotionState;
 
 public class DynamicObject {
 
-	private RigidBody body;
+	private btRigidBody body;
 
-	public DynamicObject(CollisionShape collisionShape, Transform transform, float mass) {
+	public DynamicObject(btCollisionShape collisionShape, Matrix4 transform, float mass) {
 		boolean isDynamic = (mass != 0f);
-		Vector3f localInertia = new Vector3f(0, 0, 0);
+		Vector3 localInertia = new Vector3(0, 0, 0);
 		if (isDynamic)
 			collisionShape.calculateLocalInertia(mass, localInertia);
-		DefaultMotionState myMotionState = new DefaultMotionState(transform);
-		RigidBodyConstructionInfo rbInfo = new RigidBodyConstructionInfo(mass, myMotionState, collisionShape,
+		btDefaultMotionState myMotionState = new btDefaultMotionState(transform);
+		btRigidBodyConstructionInfo rbInfo = new btRigidBodyConstructionInfo(mass, myMotionState, collisionShape,
 				localInertia);
-		body = new RigidBody(rbInfo);
+		body = new btRigidBody(rbInfo);
 	}
 
-	public RigidBody getBody() {
+	public btRigidBody getBody() {
 		return body;
 	}
 
