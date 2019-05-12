@@ -32,6 +32,7 @@ import com.badlogic.gdx.physics.bullet.collision.btBroadphaseInterface;
 import com.badlogic.gdx.physics.bullet.collision.btBroadphaseProxy.CollisionFilterGroups;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionConfiguration;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionDispatcher;
+import com.badlogic.gdx.physics.bullet.collision.btDbvtBroadphase;
 import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration;
 import com.badlogic.gdx.physics.bullet.collision.btGhostPairCallback;
 import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
@@ -54,10 +55,10 @@ public class PhysicsSystem extends EntitySystem {
 	public PhysicsSystem() {
 		btCollisionConfiguration collisionConfiguration = new btDefaultCollisionConfiguration();
 		btCollisionDispatcher dispatcher = new btCollisionDispatcher(collisionConfiguration);
-		Vector3 worldMin = new Vector3(-10000, -10000, -10000);
-		Vector3 worldMax = new Vector3(10000, 10000, 10000);
-		btAxisSweep3 sweepBP = new btAxisSweep3(worldMin, worldMax);
-		btBroadphaseInterface overlappingPairCache = sweepBP;
+		// Vector3 worldMin = new Vector3(-10000, -10000, -10000);
+		// Vector3 worldMax = new Vector3(10000, 10000, 10000);
+		// btAxisSweep3 sweepBP = new btAxisSweep3(worldMin, worldMax);
+		btBroadphaseInterface overlappingPairCache = new btDbvtBroadphase();
 		btSequentialImpulseConstraintSolver constraintSolver = new btSequentialImpulseConstraintSolver();
 		dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, constraintSolver,
 				collisionConfiguration);
@@ -123,14 +124,14 @@ public class PhysicsSystem extends EntitySystem {
 					Collision coll = Components.COLLISION.get(entity);
 					if (!Components.PLAYER.has(entity)) {
 						Matrix4 trans = new Matrix4();
-						coll.getDynamicObject().getBody().getMotionState().getWorldTransform(trans);
+						coll.getDynamicObject().getBody().getWorldTransform(trans);
 						leEntity.setPosition(VectoVec.toVec3(trans.getTranslation(new Vector3())));
 					}
 				}
 			}
 			update(delta, entity);
 		}
-		dynamicsWorld.stepSimulation(delta, 0, delta);
+		dynamicsWorld.stepSimulation(delta);
 		for (Entity entity : entities)
 			if (entity instanceof LEEntity)
 				((LEEntity) entity).afterUpdate(delta);

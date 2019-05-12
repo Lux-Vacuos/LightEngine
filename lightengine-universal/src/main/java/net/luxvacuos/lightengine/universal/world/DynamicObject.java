@@ -22,6 +22,7 @@ package net.luxvacuos.lightengine.universal.world;
 
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody.btRigidBodyConstructionInfo;
@@ -36,10 +37,11 @@ public class DynamicObject {
 		Vector3 localInertia = new Vector3(0, 0, 0);
 		if (isDynamic)
 			collisionShape.calculateLocalInertia(mass, localInertia);
-		btDefaultMotionState myMotionState = new btDefaultMotionState(transform);
-		btRigidBodyConstructionInfo rbInfo = new btRigidBodyConstructionInfo(mass, myMotionState, collisionShape,
+//		btDefaultMotionState myMotionState = new btDefaultMotionState(transform);
+		btRigidBodyConstructionInfo rbInfo = new btRigidBodyConstructionInfo(mass, null, collisionShape,
 				localInertia);
 		body = new btRigidBody(rbInfo);
+		body.setWorldTransform(transform);
 	}
 
 	public btRigidBody getBody() {

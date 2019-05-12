@@ -34,20 +34,16 @@ public class RenderEntity extends BasicEntity {
 	private boolean loadedColl;
 	public boolean addedToSim;
 
+	private float mass = 0;
+
 	public RenderEntity(String name, Model model) {
 		super(name);
 		add(new ModelLoader(model));
-		Matrix4 transform = new Matrix4();
-		transform.trn(VectoVec.toVec3(localPosition));
-		add(new Collision(new DynamicObject(model.getShape(), transform, 0)));
 	}
 
 	public RenderEntity(String name, String uuid, Model model) {
 		super(name, uuid);
 		add(new ModelLoader(model));
-		Matrix4 transform = new Matrix4();
-		transform.trn(VectoVec.toVec3(localPosition));
-		add(new Collision(new DynamicObject(model.getShape(), transform, 0)));
 	}
 
 	public RenderEntity(String name, String path) {
@@ -69,7 +65,7 @@ public class RenderEntity extends BasicEntity {
 				loadedColl = true;
 				Matrix4 transform = new Matrix4();
 				transform.trn(VectoVec.toVec3(localPosition));
-				add(new Collision(new DynamicObject(re.getModel().getShape(), transform, 0)));
+				add(new Collision(new DynamicObject(re.getModel().getShape(), transform, mass)));
 			}
 		}
 
@@ -77,6 +73,14 @@ public class RenderEntity extends BasicEntity {
 
 	public boolean isLoadedColl() {
 		return loadedColl;
+	}
+
+	public void setMass(float mass) {
+		this.mass = mass;
+	}
+
+	public float getMass() {
+		return mass;
 	}
 
 }

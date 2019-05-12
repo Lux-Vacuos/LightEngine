@@ -50,7 +50,7 @@ public class ModelLoader implements LEComponent {
 	}
 
 	public boolean isLoaded() {
-		if(this.loaded)
+		if (this.loaded)
 			return true;
 		if (this.asyncModel.isDone()) {
 			this.model = this.asyncModel.get();
