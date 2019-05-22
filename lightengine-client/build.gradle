@@ -1,0 +1,84 @@
+plugins {
+	id "net.nemerosa.versioning" version "2.8.2"
+	id "eclipse"
+	id "idea"
+	id "java"
+	id "java-library"
+	id "java-library-distribution"
+}
+
+sourceCompatibility = "11"
+project.ext.lwjglVersion = "3.2.1"
+
+sourceSets {
+	main {
+		java.srcDir("${projectDir}/src/main/java/")
+		resources.srcDir("${projectDir}/src/main/resources/")
+	}
+
+	test {
+		java.srcDirs = ["${projectDir}/src/test/java/"]
+		resources.srcDir("${projectDir}/src/test/resources/")
+	}	
+}
+
+dependencies {
+	compile project(":lightengine-universal")
+	compile "de.jarnbjo:j-ogg-all:1.0.0"
+
+	// LWJGL dependencies
+	compile "org.lwjgl:lwjgl:$lwjglVersion"
+	compile "org.lwjgl:lwjgl-glfw:$lwjglVersion"
+	compile "org.lwjgl:lwjgl-jemalloc:$lwjglVersion"
+	compile "org.lwjgl:lwjgl-opengl:$lwjglVersion"
+	compile "org.lwjgl:lwjgl-openal:$lwjglVersion"
+	compile "org.lwjgl:lwjgl-nanovg:$lwjglVersion"
+	compile "org.lwjgl:lwjgl-stb:$lwjglVersion"
+	compile "org.lwjgl:lwjgl-assimp:$lwjglVersion"
+	compile "org.lwjgl:lwjgl-vulkan:$lwjglVersion"
+	
+	// LWJGL natives Windows
+	runtime "org.lwjgl:lwjgl:$lwjglVersion:natives-windows"
+	runtime "org.lwjgl:lwjgl-glfw:$lwjglVersion:natives-windows"
+	runtime "org.lwjgl:lwjgl-jemalloc:$lwjglVersion:natives-windows"
+	runtime "org.lwjgl:lwjgl-opengl:$lwjglVersion:natives-windows"
+	runtime "org.lwjgl:lwjgl-openal:$lwjglVersion:natives-windows"
+	runtime "org.lwjgl:lwjgl-nanovg:$lwjglVersion:natives-windows"
+	runtime "org.lwjgl:lwjgl-stb:$lwjglVersion:natives-windows"
+	runtime "org.lwjgl:lwjgl-assimp:$lwjglVersion:natives-windows"
+	// LWJGL Natives Linux
+	runtime "org.lwjgl:lwjgl:$lwjglVersion:natives-linux"
+	runtime "org.lwjgl:lwjgl-glfw:$lwjglVersion:natives-linux"
+	runtime "org.lwjgl:lwjgl-jemalloc:$lwjglVersion:natives-linux"
+	runtime "org.lwjgl:lwjgl-opengl:$lwjglVersion:natives-linux"
+	runtime "org.lwjgl:lwjgl-openal:$lwjglVersion:natives-linux"
+	runtime "org.lwjgl:lwjgl-nanovg:$lwjglVersion:natives-linux"
+	runtime "org.lwjgl:lwjgl-stb:$lwjglVersion:natives-linux"
+	runtime "org.lwjgl:lwjgl-assimp:$lwjglVersion:natives-linux"
+	// LWJGL Natives OSX
+	runtime "org.lwjgl:lwjgl:$lwjglVersion:natives-macos"
+	runtime "org.lwjgl:lwjgl-glfw:$lwjglVersion:natives-macos"
+	runtime "org.lwjgl:lwjgl-jemalloc:$lwjglVersion:natives-macos"
+	runtime "org.lwjgl:lwjgl-opengl:$lwjglVersion:natives-macos"
+	runtime "org.lwjgl:lwjgl-openal:$lwjglVersion:natives-macos"
+	runtime "org.lwjgl:lwjgl-nanovg:$lwjglVersion:natives-macos"
+	runtime "org.lwjgl:lwjgl-stb:$lwjglVersion:natives-macos"
+	runtime "org.lwjgl:lwjgl-assimp:$lwjglVersion:natives-macos"
+
+}
+
+jar {
+	version = project.ext.globalVersion + "-" + versioning.info.branchId + "-" + versioning.info.build
+	manifest {
+		attributes (
+			"Implementation-Title": "net.luxvacuos.lightengine.client",
+			"Implementation-Version": version,
+			"Implementation-Vendor": "Lux Vacuos",
+			"LV-Build": versioning.info.build,
+			"LV-Branch": versioning.info.branchId,
+			"LV-Version": project.ext.globalVersion
+		)
+	}
+	manifest.writeTo("${buildDir}/" + project.name + "-version.mf")
+	from "${buildDir}/" + project.name + "-version.mf"
+}

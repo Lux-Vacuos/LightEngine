@@ -1,0 +1,43 @@
+plugins {
+	id "net.nemerosa.versioning" version "2.8.2"
+	id "eclipse"
+	id "idea"
+	id "java"
+	id "application"
+}
+
+mainClassName = "EngineLoader"
+sourceCompatibility = "11"
+
+sourceSets {
+	main {
+		java.srcDir("${projectDir}/src/main/java/")
+		resources.srcDir("${projectDir}/src/main/resources/")
+	}
+
+	test {
+		java.srcDirs = ["${projectDir}/src/test/java/"]
+		resources.srcDir("${projectDir}/src/test/resources/")
+	}	
+}
+
+dependencies {
+	compile project(":lightengine-client")
+	compile project(":lightengine-server")
+}
+
+jar {
+	version = project.ext.globalVersion + "-" + versioning.info.branchId + "-" + versioning.info.build
+	manifest {
+        attributes (
+			"Implementation-Title": "net.luxvacuos.lightengine.tools",
+			"Implementation-Version": version,
+			"Implementation-Vendor": "Lux Vacuos",
+			"LV-Build": versioning.info.build,
+			"LV-Branch": versioning.info.branchId,
+			"LV-Version": project.ext.globalVersion
+		)
+    }
+	manifest.writeTo("${buildDir}/" + project.name + "-version.mf")
+	from "${buildDir}/" + project.name + "-version.mf"
+}
